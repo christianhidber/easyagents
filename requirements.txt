@@ -1,0 +1,10 @@
+gym==0.10.11
+imageio==2.4.0
+imageio-ffmpeg
+IPython
+ipykernel
+matplotlib
+PILLOW
+pyglet
+tf-agents-nightly
+tf-nightly
