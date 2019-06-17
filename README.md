@@ -15,7 +15,7 @@ advantages of an algorithm: this is NOT for you.
 
 ## Example (implementation in progress)
 
-Here's an exampke of the full code needed to run the tfagents implementation of Ppo on the cartpole example:
+Here's an example of the full code needed using easyagents to run the tfagents implementation of Ppo on the cartpole example:
 
 ### Simplest case (no configuration)
 
