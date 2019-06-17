@@ -4,15 +4,6 @@ An easy and simple way to get started with reinforcement learning and experiment
 own game engine / environment. EasyAgents is based on OpenAI gym and
 uses algorithms implemented by tfAgents or OpenAI baselines.
 
-## For whom this is for (and for whom not)
-
-* If you have a general understanding of reinforcement learning and you would like to try different
-algorithms and/or implemenations in an easy way: this is for you.
-* If you would like to play around with your own reinforcement learning problem and getting a feeling
-if some of the well-known algorithms may be helpful: this is for you.
-* If you are a reinforcement learning EXPERT or if you would like to leverage implementation specific
-advantages of an algorithm: this is NOT for you.
-
 ## Example (implementation in progress)
 
 Here's an example of the full code needed using easyagents to run the tfagents implementation of Ppo on the cartpole example:
@@ -45,6 +36,15 @@ ppoAgent.train( num_training_episodes=100,
 The signature of train() stays the same across all implementations. Thus even with the additional
 arguments you can still switch to the OpenAI baselines implementation simply by substituting the
 import statement.
+
+## For whom this is for (and for whom not)
+
+* If you have a general understanding of reinforcement learning and you would like to try different
+algorithms and/or implemenations in an easy way: this is for you.
+* If you would like to play around with your own reinforcement learning problem and getting a feeling
+if some of the well-known algorithms may be helpful: this is for you.
+* If you are a reinforcement learning EXPERT or if you would like to leverage implementation specific
+advantages of an algorithm: this is NOT for you.
 
 ## Vocabulary
 
