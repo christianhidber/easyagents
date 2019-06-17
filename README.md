@@ -1,15 +1,10 @@
 # EasyAgents (prototype / proof of concept)
 
-An easy and simple way to get started with reinforcement learning based on openai gym and
-algorithms implemented by tfAgents or baselines.
+An easy and simple way to get started with reinforcement learning and experimenting with your
+own game engine / environment. EasyAgents is based on OpenAI gym and
+uses algorithms implemented by tfAgents or OpenAI baselines.
 
-Note:
-
-* This is a prototype / proof of concept. Thus any- and everything may (and probably should) change.
-* If you have any difficulties in installing or using eazy_agents please let me know. I'll try to do my best to help you.
-* I am a fairly / very inexperienced in python and open source development. Any ideas, help, suggestions, comments etc are more than welcome. Thanks a lot in advance.
-
-## Goal
+## For whom this is for (and for whom not)
 
 * If you have a general understanding of reinforcement learning and you would like to try different
 algorithms and/or implemenations in an easy way: this is for you.
@@ -69,14 +64,20 @@ moreover the list only contains terms that are actually used for this project)
 |policy (aka gaming strategy)   | The 'stuff' we want to learn. A policy maps the current game state to an action. Policies can be very dump like one that randomly chooses an arbitrary action, independent of the current game state. Or they can be clever, like an that maximizes the reward over the whole game.|
 |optimal policy                 | A policy that 'always' reaches the maximum number of points. Finding good policies for a game about which we know (almost) nothing else is the goal of reinforcement learning. Real-life algorithms typically don't find an optimal policy, striving for a local optimum. |
 
-## Example for an alternative approach based on a fluent interface (not implemented)
+## Note
+
+* This is a prototype / proof of concept. Thus any- and everything may (and probably should) change.
+* If you have any difficulties in installing or using eazy_agents please let me know. I'll try to do my best to help you.
+* I am a fairly / very inexperienced in python and open source development. Any ideas, help, suggestions, comments etc are more than welcome. Thanks a lot in advance.
+
+## Example for an alternative design approach based on a fluent interface (not implemented)
 
 At the core of this approach lies the observation that we have a very large number of configuration / hyperparameters,
 typically yielding huge argument lists (which always confuse me)
 
 This approach is inspired by <https://en.wikipedia.org/wiki/Fluent_interface#Python>.
 
-### Alternative: Simplest case (no configuration)
+### Fluent api: Simplest case (no configuration)
 
 ```python
 from easy_agents import EazyAgent
@@ -85,7 +86,7 @@ ezAgent = EazyAgent( 'CartPole-v0' )
 ezAgent.train()
 ```
 
-### Alternative: With Configuration
+### Fluent api: With Configuration
 
 ```python
 from easy_agents import EazyAgent
