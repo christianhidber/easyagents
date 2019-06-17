@@ -1,5 +1,7 @@
 # vscode
 .vscode/
+.vs/
+_ReSharper.Caches/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

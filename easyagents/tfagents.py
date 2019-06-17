@@ -8,7 +8,7 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.drivers import dynamic_episode_driver
 from tf_agents.utils import common
 
-from easy_agents.easy_agent import EasyAgent
+from easyagents.agents import EasyAgent
 
 
 class TfAgent(EasyAgent):

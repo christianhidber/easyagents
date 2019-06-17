@@ -1,4 +1,4 @@
-from easy_agents.easy_agent import EasyAgent
+from easyagents.agents import EasyAgent
 
 class BaselineAgent(EasyAgent):
     """Reinforcement learning agent based on openAIs baseline implementation

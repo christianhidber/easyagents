@@ -1,6 +1,6 @@
 import unittest
 import tensorflow as tf
-from easy_agents.tfagents import Ppo
+from easyagents.tfagents import Ppo
 
 class TestTfAgents(unittest.TestCase):
 
