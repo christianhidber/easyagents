@@ -14,7 +14,9 @@ class TestTfAgents(unittest.TestCase):
 
     def test_ppo_train(self):
         ppoAgent = Ppo( self.gym_env_name )
-        ppoAgent.train()
+        ppoAgent.train( num_training_episodes=5,
+                        num_training_episodes_per_iteration=2,
+                        num_eval_episodes=2)
         return
 
     def test_ppo_str(self):

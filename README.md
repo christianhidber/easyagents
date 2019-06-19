@@ -11,19 +11,19 @@ Here's an example of the full code needed using easyagents to run the tfagents i
 ### Simplest case (no configuration)
 
 ```python
-from easy_agents.tfagents import Ppo
+from easyagents.tfagents import Ppo
 
 ppoAgent = Ppo( 'CartPole-v0' )
 ppoAgent.train()
 ```
 
-If you prefer the baselines implementation change the import to 'from easy_agents.baselines import Ppo'.
+If you prefer the baselines implementation change the import to 'from easyagents.baselines import Ppo'.
 That's all no other changes are necessary.
 
 ### With Configuration
 
 ```python
-from easy_agents.tfagents import Ppo
+from easyagents.tfagents import Ppo
 
 ppoAgent = Ppo( 'CartPole-v0', fc_layers=(100,200) )
 ppoAgent.train( num_training_episodes=100,
@@ -80,7 +80,7 @@ This approach is inspired by <https://en.wikipedia.org/wiki/Fluent_interface#Pyt
 ### Fluent api: Simplest case (no configuration)
 
 ```python
-from easy_agents import EazyAgent
+from easyagents import EazyAgent
 
 ezAgent = EazyAgent( 'CartPole-v0' )
 ezAgent.train()
@@ -89,7 +89,7 @@ ezAgent.train()
 ### Fluent api: With Configuration
 
 ```python
-from easy_agents import EazyAgent
+from easyagents import EazyAgent
 
 ezAgent = EazyAgent( 'CartPole-v0' )
             .SetTfAgent('Ppo')
