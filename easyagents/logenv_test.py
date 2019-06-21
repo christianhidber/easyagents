@@ -1,7 +1,7 @@
 import unittest
 import gym
-from easyagents.logenv import register
-from easyagents.tfagents import Ppo
+import easyagents.logenv
+import easyagents.tfagents
 
 class TestLogEnv(unittest.TestCase):
 
@@ -9,7 +9,7 @@ class TestLogEnv(unittest.TestCase):
         self.gym_env_name='CartPole-v0'
 
     def test_register(self):
-        name = register('CartPole-v0')
+        name = easyagents.logenv.register('CartPole-v0')
 
         assert name == "LogCartPole-v0"
 
@@ -18,13 +18,13 @@ class TestLogEnv(unittest.TestCase):
         return
 
     def test_register_twice_success(self):
-        register('CartPole-v0')
-        register('CartPole-v0')
+        easyagents.logenv.register('CartPole-v0')
+        easyagents.logenv.register('CartPole-v0')
         return
 
     def test_ppo_train(self):
-        logenvname = register('CartPole-v0')
-        ppoAgent = Ppo( logenvname )
+        logenvname = easyagents.logenv.register('CartPole-v0')
+        ppoAgent = easyagents.tfagents.Ppo( logenvname )
         ppoAgent.train( num_training_episodes=2,
                         num_training_episodes_per_iteration=1,
                         num_eval_episodes=1)

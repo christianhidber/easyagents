@@ -11,7 +11,7 @@ def register(gym_env_name):
     assert type(gym_env_name) is str , "gym_env_name is not a str"
     assert len(gym_env_name) > 0, "empty string is not an admissible environment name"
 
-    result = "Log" + LogEnv._gym_env_name
+    result = "Log" + gym_env_name
     if LogEnv._gym_env_name != gym_env_name:
         assert LogEnv._gym_env_name is None, "Another environment was already registered"
 
@@ -71,11 +71,11 @@ class LogEnv(gym.Env):
         self._seedCount += 1
         return self.env.seed(seed)
 
-    @property
-    def unwrapped(self):
-        return self.env.unwrapped
+    # @property
+    # def unwrapped(self):
+    #     return self.env.unwrapped
 
-    @property
-    def spec(self):
-        return self.env.spec
+    # @property
+    # def spec(self):
+    #     return self.env.spec
 
