@@ -1,3 +1,4 @@
+import logging
 
 class EasyAgent(object):
     """ Abstract base class for all easy reinforcment learning agents.
@@ -11,8 +12,12 @@ class EasyAgent(object):
         assert isinstance(gym_env_name,str), "passed gym_env_name not a string."
         assert gym_env_name != "", "gym environment name is empty."
         assert fc_layers != None, "fc_layers not set"
+
         self.gym_env_name = gym_env_name
         self.fc_layers = fc_layers
+        self._log = logging.getLogger(name="EazyAgent")
+        self._log.setLevel(logging.DEBUG)
+        self._log.info( str(self) )
         return
 
     def __str__(self):
@@ -20,6 +25,5 @@ class EasyAgent(object):
         """
         result = "gym_env_name=" + self.gym_env_name + " fc_layers=" + str(self.fc_layers)
         return result
-
 
 

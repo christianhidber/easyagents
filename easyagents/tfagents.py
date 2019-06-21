@@ -29,7 +29,9 @@ class TfAgent(EasyAgent):
     def __initialize(self):
         """ initializes TensorFlow behaviour and random seeds.
         """
+        self._log.debug("executing: tf.compat.v1.enable_v2_behavior()")
         tf.compat.v1.enable_v2_behavior()
+        self._log.debug("executing: tf.compat.v1.set_random_seed(0)")
         tf.compat.v1.set_random_seed(0)
         return
 
@@ -55,6 +57,7 @@ class TfAgent(EasyAgent):
     def load_tfagent_env(self):
         """ loads the gym environment and wraps it in a tfagent TFPyEnvironment
         """
+        self._log.debug("executing: tf_py_environment.TFPyEnvironment( suite_gym.load )")
         py_env = suite_gym.load( self.gym_env_name, discount=self.reward_discount_gamma, max_episode_steps=None )
         result = tf_py_environment.TFPyEnvironment( py_env)
         return result
