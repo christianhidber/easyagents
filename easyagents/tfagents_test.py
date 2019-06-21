@@ -23,9 +23,7 @@ class TestTfAgents(unittest.TestCase):
         ppoAgent = Ppo( self.gym_env_name )
         result = str(ppoAgent)
         print(result)
-        return        
-
-    
+        return            
 
 if __name__ == '__main__':
     unittest.main()
