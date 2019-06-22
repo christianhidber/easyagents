@@ -1,7 +1,7 @@
 import gym
 import logging
 
-def register(gym_env_name):
+def register(gym_env_name, log_steps=False, log_reset=False):
     """ Registers the LogEnv wrapper for the 'gym_env_name' environment.
 
         The wrapper is registered as 'Log-<env_name>'.
@@ -13,6 +13,8 @@ def register(gym_env_name):
 
     result = "Log" + gym_env_name
     log_info("executing register({})".format(result),logging.getLogger(__name__))
+    LogEnv._log_steps = log_steps
+    LogEnv._log_reset = log_reset
     if LogEnv._gym_env_name != gym_env_name:
         assert LogEnv._gym_env_name is None, "Another environment was already registered"
 
@@ -31,6 +33,9 @@ class LogEnv(gym.Env):
     """Decorator for gym environments to log each method call on the logger
     """
     _gym_env_name = None
+    _log_steps = False
+    _log_reset = False
+    _instanceCount = 0
     
     def __init__(self):
         target_env = gym.make( LogEnv._gym_env_name )
@@ -46,6 +51,8 @@ class LogEnv(gym.Env):
         self._renderCount=0
         self._seedCount=0
         self._closeCount=0
+        self._instanceId=LogEnv._instanceCount
+        LogEnv._instanceCount += 1
 
         self._log = logging.getLogger(__name__)
         self._log.setLevel(logging.DEBUG)
@@ -53,7 +60,7 @@ class LogEnv(gym.Env):
 
 
     def _logCall(self, counter, msg):
-        logMsg = f'{self._resetCount:3}.{self._stepCount:3} [{self._totalStepCount:3}] {msg}'
+        logMsg = f'{self._instanceId:3}.{self._resetCount:3}.{self._stepCount:3} [{self._totalStepCount:3}] {msg}'
         log_info( logMsg, self._log )
         return
 
@@ -62,13 +69,15 @@ class LogEnv(gym.Env):
         self._totalStepCount += 1
         result = self.env.step(action)
         (reward, state, done, info ) = result
-        self._logCall(self._stepCount,f'step({action})=({reward},{state},{done},{info})' )
+        if self._log_steps:
+            self._logCall(self._stepCount,f'step({action})=({reward},{state},{done},{info})' )
         if done:
             self._logCall(self._stepCount, "game over" )
         return result
 
     def reset(self, **kwargs):
-        self._logCall(self._resetCount, "executing reset(...)" )
+        if self._log_reset:
+            self._logCall(self._resetCount, "executing reset(...)" )
         self._resetCount += 1
         self._stepCount=0
         return self.env.reset(**kwargs)
