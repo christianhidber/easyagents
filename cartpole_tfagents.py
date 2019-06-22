@@ -1,10 +1,15 @@
-import unittest
-import tensorflow as tf
-from easyagents.tfagents import Ppo
+#
+# simple easyagents demo using cartpole
 
+from easyagents.tfagents import Ppo
+import easyagents.logenv
 import logging
 
-ppoAgent = Ppo( 'CartPole-v0' )
-ppoAgent.train( num_training_episodes=5,
-                num_training_episodes_per_iteration=2,
-                num_eval_episodes=2)
+logging.basicConfig(level=logging.DEBUG)
+logging.info("starting")
+logname = easyagents.logenv.register('CartPole-v0')
+agent = Ppo( logname )
+agent.train()
+logging.info("completed")
+
+input("press enter to terminate...")

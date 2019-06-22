@@ -57,7 +57,7 @@ class TfAgent(EasyAgent):
     def load_tfagent_env(self):
         """ loads the gym environment and wraps it in a tfagent TFPyEnvironment
         """
-        self._log.debug("executing: tf_py_environment.TFPyEnvironment( suite_gym.load )")
+        self._log.debug("   executing tf_py_environment.TFPyEnvironment( suite_gym.load )")
         py_env = suite_gym.load( self.gym_env_name, discount=self.reward_discount_gamma,max_episode_steps=100000  )
         result = tf_py_environment.TFPyEnvironment( py_env)
         return result
@@ -116,18 +116,24 @@ class Ppo(TfAgent):
         assert reward_discount_gamma <= 1, "reward_discount_gamma must be in (0,1]"
 
         self.reward_discount_gamma = reward_discount_gamma
+        self._log.debug("   executing tf.compat.v1.train.get_or_create_global_step()")
         global_step = tf.compat.v1.train.get_or_create_global_step()
 
         # Create Training Environment, Optimizer and PpoAgent
+        self._log.debug("Creating environment:")
         train_env = self.load_tfagent_env()
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
+
+        self._log.debug("Creating agent:")
+        self._log.debug("  creating  tf.compat.v1.train.AdamOptimizer( ... )")
         optimizer = tf.compat.v1.train.AdamOptimizer( learning_rate=learning_rate )
 
         actor_net = actor_distribution_network.ActorDistributionNetwork( observation_spec, action_spec, fc_layer_params=self.fc_layers )
         value_net = value_network.ValueNetwork( observation_spec, fc_layer_params=self.fc_layers )
 
+        self._log.debug("  creating  PPOAgent( ... )")
         tf_agent = ppo_agent.PPOAgent(  timestep_spec, action_spec, optimizer, 
                                         actor_net=actor_net, 
                                         value_net=value_net,
@@ -136,9 +142,11 @@ class Ppo(TfAgent):
                                         debug_summaries=False,
                                         summarize_grads_and_vars=False,
                                         train_step_counter=global_step )
+        self._log.debug("  executing tf_agent.initialize()")
         tf_agent.initialize()
 
         # Data collection
+        self._log.debug("Creating data collection:")
         collect_data_spec = tf_agent.collect_data_spec
         replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(     collect_data_spec,
                                                                             batch_size=1,
@@ -155,26 +163,30 @@ class Ppo(TfAgent):
         tf_agent.train = common.function( tf_agent.train, autograph=False )
 
         # Eval Environment
+        self._log.debug("Creating eval environment:")
         eval_env = self.load_tfagent_env()
         avg_return = self.compute_avg_return(eval_env, tf_agent.policy, num_eval_episodes)
 
         returns=[avg_return]
 
         num_training_iterations = int(num_training_episodes / num_training_episodes_per_iteration)
-        log_interval = num_eval_episodes
         eval_interval = 10 * num_eval_episodes
+        self._log.debug("Starting training:")
         for step in range( num_training_iterations ):
+            msg = f'training iteration {step}:'
+            self._log.debug(msg + " executing collect_driver.run()")
             collect_driver.run()
             trajectories = replay_buffer.gather_all()
+            self._log.debug(msg + " executing tf_agent.train")
             total_loss, _ = tf_agent.train(experience=trajectories)
+            self._log.debug( f'{msg} loss={total_loss.numpy()}')
             replay_buffer.clear()
 
-            if step % log_interval == 0:
-                print('iteration/train_step = {}, loss = {}'.format( step, total_loss.numpy() ))
 
             if step % eval_interval == 0:
+                self._log.debug(f'{msg} Evaluating average reward after training iteration {step}')
                 avg_return = self.compute_avg_return( eval_env, tf_agent.policy, num_eval_episodes )
-                print('iteration/train_step = {}, Average Return = {}'.format( step, avg_return ))
+                self._log.debug(f'{msg} Average return={avg_return}')
                 returns.append( avg_return )
         return
 

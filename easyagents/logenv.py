@@ -20,10 +20,12 @@ def register(gym_env_name):
         gym.envs.registration.register(id=result, entry_point=LogEnv)
     return result
 
-def log_info(msg, logger):
+def log_info(msg, logger=None):
     if logger:
         logger.info(msg)
-    print(msg)
+    else:
+        print(msg)
+    return
 
 class LogEnv(gym.Env):
     """Decorator for gym environments to log each method call on the logger
@@ -39,26 +41,36 @@ class LogEnv(gym.Env):
         self.metadata = self.env.metadata
 
         self._stepCount=0
+        self._totalStepCount=0
         self._resetCount=0
         self._renderCount=0
         self._seedCount=0
         self._closeCount=0
 
-        self._log = logging.getLogger(LogEnv._gym_env_name)
+        self._log = logging.getLogger(__name__)
+        self._log.setLevel(logging.DEBUG)
+        return
+
 
     def _logCall(self, counter, msg):
-        logMsg = str( self._resetCount ) + "." + str(counter) + " " + msg
+        logMsg = f'{self._resetCount:3}.{self._stepCount:3} [{self._totalStepCount:3}] {msg}'
         log_info( logMsg, self._log )
         return
 
-    def step(self, action):
-        self._logCall(self._stepCount, "executing step(" + str(action) + ")" )
+    def step(self, action):        
         self._stepCount += 1
-        return self.env.step(action)
+        self._totalStepCount += 1
+        result = self.env.step(action)
+        (reward, state, done, info ) = result
+        self._logCall(self._stepCount,f'step({action})=({reward},{state},{done},{info})' )
+        if done:
+            self._logCall(self._stepCount, "game over" )
+        return result
 
     def reset(self, **kwargs):
         self._logCall(self._resetCount, "executing reset(...)" )
         self._resetCount += 1
+        self._stepCount=0
         return self.env.reset(**kwargs)
 
     def render(self, mode='human', **kwargs):
