@@ -58,7 +58,7 @@ class TfAgent(EasyAgent):
         """ loads the gym environment and wraps it in a tfagent TFPyEnvironment
         """
         self._log.debug("executing: tf_py_environment.TFPyEnvironment( suite_gym.load )")
-        py_env = suite_gym.load( self.gym_env_name, discount=self.reward_discount_gamma, max_episode_steps=None )
+        py_env = suite_gym.load( self.gym_env_name, discount=self.reward_discount_gamma,max_episode_steps=100000  )
         result = tf_py_environment.TFPyEnvironment( py_env)
         return result
 

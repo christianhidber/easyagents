@@ -12,6 +12,7 @@ def register(gym_env_name):
     assert len(gym_env_name) > 0, "empty string is not an admissible environment name"
 
     result = "Log" + gym_env_name
+    log_info("executing register({})".format(result),logging.getLogger(__name__))
     if LogEnv._gym_env_name != gym_env_name:
         assert LogEnv._gym_env_name is None, "Another environment was already registered"
 
@@ -19,13 +20,19 @@ def register(gym_env_name):
         gym.envs.registration.register(id=result, entry_point=LogEnv)
     return result
 
+def log_info(msg, logger):
+    if logger:
+        logger.info(msg)
+    print(msg)
+
 class LogEnv(gym.Env):
     """Decorator for gym environments to log each method call on the logger
     """
     _gym_env_name = None
     
     def __init__(self):
-        self.env = gym.make( LogEnv._gym_env_name )
+        target_env = gym.make( LogEnv._gym_env_name )
+        self.env = target_env.unwrapped
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
@@ -37,12 +44,11 @@ class LogEnv(gym.Env):
         self._seedCount=0
         self._closeCount=0
 
-        self._log = logging.getLogger()
-        self._log.setLevel(logging.DEBUG)
+        self._log = logging.getLogger(LogEnv._gym_env_name)
 
     def _logCall(self, counter, msg):
         logMsg = str( self._resetCount ) + "." + str(counter) + " " + msg
-        self._log.info( logMsg )
+        log_info( logMsg, self._log )
         return
 
     def step(self, action):
@@ -71,11 +77,11 @@ class LogEnv(gym.Env):
         self._seedCount += 1
         return self.env.seed(seed)
 
-    # @property
-    # def unwrapped(self):
-    #     return self.env.unwrapped
+    @property
+    def unwrapped(self):
+        return self.env.unwrapped
 
-    # @property
-    # def spec(self):
-    #     return self.env.spec
+    @property
+    def spec(self):
+        return self.env.spec
 

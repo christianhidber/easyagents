@@ -108,3 +108,14 @@ given by the chosen gym environment.
 * Calling the 'Guess*' is optional, if the corresponding 'Set*' method is not called then they are called implicitely.
 * Note that even calling 'SetTfAgent' is optional. If not used, then 'GuessAgent' is called which would try to choose
   an agent again based on the currently chosen environment.
+
+## Stuff to work on
+
+This is just a heap of ideas, issues and stuff that needs work / should be thought about (besides all the stuff that isn't mentioned):
+
+* using gin for configuration
+* logenv.register should allow multiple environments to be registered
+* support for baselines
+* support for multiple agents (not just ppo)
+* how can we group correlated configuration parameters together like 'training duration', 'logging' ?
+* using decorators for LogEnv logging ?

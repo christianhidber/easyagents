@@ -1,14 +1,15 @@
 import unittest
 import gym
+import logging
 import easyagents.logenv
 import easyagents.tfagents
 
+logging.basicConfig(level=logging.DEBUG)
+
 class TestLogEnv(unittest.TestCase):
 
-    def setUp(self):
-        self.gym_env_name='CartPole-v0'
-
     def test_register(self):
+        logging.basicConfig(level=logging.DEBUG)
         name = easyagents.logenv.register('CartPole-v0')
 
         assert name == "LogCartPole-v0"
