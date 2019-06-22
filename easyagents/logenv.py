@@ -52,6 +52,7 @@ class LogEnv(gym.Env):
         self._seedCount=0
         self._closeCount=0
         self._instanceId=LogEnv._instanceCount
+        self._totalReward=0
         LogEnv._instanceCount += 1
 
         self._log = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ class LogEnv(gym.Env):
         return
 
 
-    def _logCall(self, counter, msg):
+    def _logCall(self, msg):
         logMsg = f'{self._instanceId:3}.{self._resetCount:3}.{self._stepCount:3} [{self._totalStepCount:3}] {msg}'
         log_info( logMsg, self._log )
         return
@@ -68,33 +69,35 @@ class LogEnv(gym.Env):
         self._stepCount += 1
         self._totalStepCount += 1
         result = self.env.step(action)
-        (reward, state, done, info ) = result
+        (state, reward, done, info ) = result
+        self._totalReward += reward
         if self._log_steps:
-            self._logCall(self._stepCount,f'step({action})=({reward},{state},{done},{info})' )
+            self._logCall(f'step({action})=({reward},{state},{done},{info})' )
         if done:
-            self._logCall(self._stepCount, "game over" )
+            self._logCall( f'game over [totalReward={self._totalReward:.3f}]' )
         return result
 
     def reset(self, **kwargs):
         if self._log_reset:
-            self._logCall(self._resetCount, "executing reset(...)" )
+            self._logCall("executing reset(...)" )
         self._resetCount += 1
         self._stepCount=0
+        self._totalReward=0
         return self.env.reset(**kwargs)
 
     def render(self, mode='human', **kwargs):
-        self._logCall(self._renderCount, "executing render(...)" )
+        self._logCall("executing render(...)" )
         self._renderCount += 1
         return self.env.render(mode, **kwargs)
 
     def close(self):
         if self.env:
-            self._logCall(self._closeCount, "executing close()" )
+            self._logCall("executing close()" )
             self._closeCount += 1
             return self.env.close()
 
     def seed(self, seed=None):
-        self._logCall(self._closeCount, "executing seed(...)" )
+        self._logCall( "executing seed(...)" )
         self._seedCount += 1
         return self.env.seed(seed)
 

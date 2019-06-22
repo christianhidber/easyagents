@@ -31,6 +31,8 @@ class TfAgent(EasyAgent):
         """
         self._log.debug("executing: tf.compat.v1.enable_v2_behavior()")
         tf.compat.v1.enable_v2_behavior()
+        self._log.debug("executing: tf.enable_eager_execution()")
+        tf.compat.v1.enable_eager_execution()
         self._log.debug("executing: tf.compat.v1.set_random_seed(0)")
         tf.compat.v1.set_random_seed(0)
         return
@@ -47,13 +49,18 @@ class TfAgent(EasyAgent):
         for _ in range(num_eval_episodes):
             time_step = gym_env.reset()
             episode_return = 0.0
+
+            time_step = gym_env.current_time_step()
+            action_step = policy.action(time_step)
+            time_step = gym_env.step(action_step.action)
+
             while not time_step.is_last():
                 action_step = policy.action(time_step)
                 time_step = gym_env.step(action_step.action)
                 episode_return += time_step.reward
             total_return += episode_return
         result = total_return / num_eval_episodes
-        self._log.debug(f'completed compute_avg_return(...) = {float(result)}')
+        self._log.debug(f'completed compute_avg_return(...) = {float(result):.3f}')
         return result.numpy()[0]
 
     def load_tfagent_env(self):
@@ -191,7 +198,7 @@ class Ppo(TfAgent):
             trajectories = replay_buffer.gather_all()
             self._log.debug(msg + " executing tf_agent.train(...)")
             total_loss, _ = tf_agent.train(experience=trajectories)
-            self._log.debug( f'{msg} completed tf_agent.train(...) = {total_loss.numpy()} [loss]')
+            self._log.debug( f'{msg} completed tf_agent.train(...) = {total_loss.numpy():.3f} [loss]')
             self._log.debug(msg + " executing replay_buffer.clear()")
             replay_buffer.clear()
         return returns
