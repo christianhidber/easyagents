@@ -74,7 +74,7 @@ class LogEnv(gym.Env):
         if self._log_steps:
             self._logCall(f'step({action})=({reward},{state},{done},{info})' )
         if done:
-            self._logCall( f'game over [totalReward={self._totalReward:.3f}]' )
+            self._logCall( f'game over [totalReward={self._totalReward:8.3f}]' )
         return result
 
     def reset(self, **kwargs):
