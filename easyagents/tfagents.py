@@ -173,20 +173,20 @@ class Ppo(TfAgent):
         eval_interval = 10 * num_eval_episodes
         self._log.debug("Starting training:")
         for step in range( num_training_iterations ):
-            msg = f'training iteration {step}:'
+            msg = f'[training {step}]'
             self._log.debug(msg + " executing collect_driver.run()")
             collect_driver.run()
+            self._log.debug(msg + " completed collect_driver.run()")
             trajectories = replay_buffer.gather_all()
             self._log.debug(msg + " executing tf_agent.train")
             total_loss, _ = tf_agent.train(experience=trajectories)
-            self._log.debug( f'{msg} loss={total_loss.numpy()}')
+            self._log.debug( f'{msg} completed tf_agent.train loss={total_loss.numpy()}')
             replay_buffer.clear()
 
-
             if step % eval_interval == 0:
-                self._log.debug(f'{msg} Evaluating average reward after training iteration {step}')
+                self._log.debug(f'{msg} executing compute_avg_return')
                 avg_return = self.compute_avg_return( eval_env, tf_agent.policy, num_eval_episodes )
-                self._log.debug(f'{msg} Average return={avg_return}')
+                self._log.debug(f'{msg} completed compute_avg_returnAverage = {avg_return}')
                 returns.append( avg_return )
         return
 
