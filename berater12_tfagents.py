@@ -285,18 +285,19 @@ if not 'isEnvRegistered' in locals():
 else:
   print("Already registered")
 
+#%%
 
 from easyagents.tfagents import Ppo
 import easyagents.logenv
 
 easyagents.logenv.register('Berater-v1')
 ppoAgent = Ppo('LogBerater-v1',fc_layers=(500,500,500))
-returns = ppoAgent.train( num_training_episodes=100,
-                          num_training_episodes_per_iteration=5, 
-                          num_training_epochs_per_iteration=5,
+returns = ppoAgent.train( num_training_episodes=10,
+                          num_training_episodes_per_iteration=2, 
+                          num_training_epochs_per_iteration=2,
                           num_training_steps_in_replay_buffer=10001,
-                          num_training_iterations_between_eval=10,
-                          num_eval_episodes=5,
+                          num_training_iterations_between_eval=2,
+                          num_eval_episodes=2,
                           learning_rate=1e-4 )
 # returns = ppoAgent.train( num_training_episodes=200000,
 #                           num_training_episodes_per_iteration=100, 
@@ -306,12 +307,15 @@ returns = ppoAgent.train( num_training_episodes=100,
 #                           num_eval_episodes=10,
 #                           learning_rate=1e-4 )
 
-
+#%%
 import matplotlib
 import matplotlib.pyplot as plt
 
 steps = range(0, len(returns)*10, 10)
 plt.plot(steps, returns)
 plt.ylabel('Average Return')
-plt.xlabel('Step')
+plt.xlabel('Episode')
 plt.ylim(top=1,bottom=-5)
+
+
+#%%
