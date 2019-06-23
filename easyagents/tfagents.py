@@ -97,21 +97,21 @@ class Ppo(TfAgent):
         return
 
     def train(  self,
-                num_training_episodes=100,
+                num_training_iterations=10,
                 num_training_episodes_per_iteration=10,
-                num_training_epochs_per_iteration=25,
+                num_training_epochs_per_iteration=10,
                 num_training_steps_in_replay_buffer=10001,
-                num_training_iterations_between_eval=100,
+                num_training_iterations_between_eval=10,
                 num_eval_episodes=10,
                 learning_rate=0.001,
                 reward_discount_gamma=1 ):
         """ trains a policy using the gym_env
 
             Args:
-                num_training_episodes_total             : total number of episodes played during training
+                num_training_iterations                 : number of times the training is started (with fresh data)
                 num_training_episodes_per_iteration     : number of episodes played per training iteration 
-                num_training_epochs_per_iteration       : number of epochs the data collected in the replay buffer 
-                                                          is used to train the networks (per training iteration)
+                num_training_epochs_per_iteration       : number of times the data collected for the current iteration  
+                                                          (and stored in the replay buffer) is used to retrain the current policy
                 num_training_steps_in_replay_buffer     : size of the replay buffer in number of game steps
                 num_training_iterations_between_eval    : number of training iterations before the current policy is evaluated
                 num_eval_episodes                       : number of episodes played to estimate the average return
@@ -123,8 +123,7 @@ class Ppo(TfAgent):
                 a list with the evaluated returns during training. 
                 The list starts with the average return before training started and contains a value for each completed eval interval.
         """
-        assert num_training_episodes >= 1, "num_training_episodes must be >= 1"
-        assert num_training_episodes >= num_training_episodes_per_iteration, "num_training_episodes must be >= num_training_episodes_per_iteration"
+        assert num_training_iterations >= 1, "num_training_iterations must be >= 1"
         assert num_training_episodes_per_iteration >= 1, "num_training_episodes_per_iteration must be >= 1"
         assert num_training_epochs_per_iteration >= 1, "num_training_epochs_per_iteration must be >= 1"
         assert num_training_iterations_between_eval >= 1, "num_training_iterations_between_eval must be >= 1"        
@@ -184,7 +183,6 @@ class Ppo(TfAgent):
         returns=[]
 
         self._log.debug("Starting training:")
-        num_training_iterations = int(num_training_episodes / num_training_episodes_per_iteration)
         for step in range( num_training_iterations ):
             msg = f'training {step} of {num_training_iterations}:'
 

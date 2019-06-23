@@ -292,7 +292,7 @@ import easyagents.logenv
 
 easyagents.logenv.register('Berater-v1')
 ppoAgent = Ppo('LogBerater-v1',fc_layers=(500,500,500))
-returns = ppoAgent.train( num_training_episodes=10,
+returns = ppoAgent.train( num_training_iterations=2,
                           num_training_episodes_per_iteration=2, 
                           num_training_epochs_per_iteration=2,
                           num_training_steps_in_replay_buffer=10001,
