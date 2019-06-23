@@ -1,6 +1,10 @@
 import gym
 import logging
 
+"""
+    this module is a hack a needs a fundamental rework and redesign (chh/19Q2)
+"""
+
 def register(gym_env_name, log_steps=False, log_reset=False):
     """ Registers the LogEnv wrapper for the 'gym_env_name' environment.
 
@@ -12,7 +16,6 @@ def register(gym_env_name, log_steps=False, log_reset=False):
     assert len(gym_env_name) > 0, "empty string is not an admissible environment name"
 
     result = "Log" + gym_env_name
-    log_info("executing register({})".format(result),logging.getLogger(__name__))
     LogEnv._log_steps = log_steps
     LogEnv._log_reset = log_reset
     if LogEnv._gym_env_name != gym_env_name:
@@ -21,13 +24,6 @@ def register(gym_env_name, log_steps=False, log_reset=False):
         LogEnv._gym_env_name = gym_env_name
         gym.envs.registration.register(id=result, entry_point=LogEnv)
     return result
-
-def log_info(msg, logger=None):
-    if logger:
-        logger.info(msg)
-    else:
-        print(msg)
-    return
 
 class LogEnv(gym.Env):
     """Decorator for gym environments to log each method call on the logger
@@ -45,6 +41,7 @@ class LogEnv(gym.Env):
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
 
+        self._logStarted=False
         self._stepCount=0
         self._totalStepCount=0
         self._resetCount=0
@@ -52,7 +49,8 @@ class LogEnv(gym.Env):
         self._seedCount=0
         self._closeCount=0
         self._instanceId=LogEnv._instanceCount
-        self._totalReward=0
+        self._totalReward=0.0
+        self._done=False
         LogEnv._instanceCount += 1
 
         self._log = logging.getLogger(__name__)
@@ -61,8 +59,11 @@ class LogEnv(gym.Env):
 
 
     def _logCall(self, msg):
-        logMsg = f'{self._instanceId:3}.{self._resetCount:3}.{self._stepCount:3} [{self._totalStepCount:3}] {msg}'
-        log_info( logMsg, self._log )
+        if not self._logStarted:
+            self._log.debug(f'#EnvId ResetCount.Steps [R=sumRewards]')
+            self._logStarted=True
+        logMsg = f'#{self._instanceId} {self._resetCount:3}.{self._stepCount:<3} [R={self._totalReward:6.1f}] {msg}'
+        self._log.debug(logMsg)
         return
 
     def step(self, action):        
@@ -72,17 +73,22 @@ class LogEnv(gym.Env):
         (state, reward, done, info ) = result
         self._totalReward += reward
         if self._log_steps:
-            self._logCall(f'step({action})=({reward},{state},{done},{info})' )
+            self._logCall(f'executing step({action})=({reward},{state},{done},{info})' )
         if done:
-            self._logCall( f'game over [totalReward={self._totalReward:8.3f}]' )
+            self._logCall( f'game over' )
+            self._done=True
         return result
 
     def reset(self, **kwargs):
-        if self._log_reset:
-            self._logCall("executing reset(...)" )
+        if self._log_reset or not self._done:
+            msg = "executing reset(...)" 
+            if not self._done and self._stepCount > 0:
+                msg += " [episode not done]"
+            self._logCall(msg)
         self._resetCount += 1
         self._stepCount=0
-        self._totalReward=0
+        self._totalReward=0.0
+        self._done=False
         return self.env.reset(**kwargs)
 
     def render(self, mode='human', **kwargs):

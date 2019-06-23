@@ -3,6 +3,60 @@
 # (like training duration, plotting, etc)
 #
 
+import logging
+
+class Logging(object):
+    """Immutable class to define the logging behaviour of the easyagents environment.
+
+        Args:
+        log_agent           : true if the agents api calls are logged
+        log_gym_env         : true if the gym_env api calls are logged
+        log_gym_env_steps   : true if the gym_env.step(...) calls are logged (given log_gym_env is set)
+        log_gym_env_reset   : true if the gym_env.reset(...) calls are logged (given log_gym_env is set)
+    """
+    def __init__(   self,
+                    log_agent : bool = True,
+                    log_gym_env : bool = True,
+                    log_gym_env_steps : bool = False,
+                    log_gym_env_reset : bool = False):
+        self.log_agent=log_agent
+        self.log_gym_env=log_gym_env
+        self.log_gym_env_steps=log_gym_env_steps
+        self.log_gym_env_reset=log_gym_env_reset
+        return
+
+class LoggingVerbose(Logging):
+    """Logging configuration for full logging (all agent api calls and all gym env calls are logged)
+    """
+    def __init__(   self,
+                    log_agent : bool = True,
+                    log_gym_env : bool = True,
+                    log_gym_env_steps : bool = True,
+                    log_gym_env_reset : bool = True):
+        super().__init__(    
+                    log_agent=log_agent,
+                    log_gym_env=log_gym_env,
+                    log_gym_env_steps=log_gym_env_steps,
+                    log_gym_env_reset=log_gym_env_reset
+        )
+
+
+class LoggingSilent(Logging):
+    """Logging configuration which suppresses all logging
+    """
+    def __init__(   self,
+                    log_agent : bool = False,
+                    log_gym_env : bool = False,
+                    log_gym_env_steps : bool = False,
+                    log_gym_env_reset : bool = False):
+        super().__init__(    
+                    log_agent=log_agent,
+                    log_gym_env=log_gym_env,
+                    log_gym_env_steps=log_gym_env_steps,
+                    log_gym_env_reset=log_gym_env_reset
+        )
+
+
 class TrainingDuration(object):
     """Immutable class to configure the agents runtime behaviour in terms of
        iterations and episodes.
@@ -70,7 +124,7 @@ class TrainingDurationFast(TrainingDuration):
     def __init__(   self,    
                     num_iterations : int = 3,
                     num_episodes_per_iteration : int = 3,
-                    max_steps_per_episode : int = 10,
+                    max_steps_per_episode : int = 1000,
                     num_epochs_per_iteration : int = 1,
                     num_iterations_between_eval : int = 1,
                     num_eval_episodes : int = 1 ):

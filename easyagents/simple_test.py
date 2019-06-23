@@ -3,9 +3,6 @@ import logging
 
 class LoggingTest(unittest.TestCase):
 
-    def setUp(self):
-        pass
-
     def test_log(self):
         logging.basicConfig(level=logging.DEBUG)
         self._log = logging.getLogger(__name__)
