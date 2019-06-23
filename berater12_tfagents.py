@@ -288,24 +288,24 @@ else:
 #%%
 
 from easyagents.tfagents import Ppo
+from easyagents.config import TrainingDurationFast
+from easyagents.config import TrainingDuration
 import easyagents.logenv
 
 easyagents.logenv.register('Berater-v1')
-ppoAgent = Ppo('LogBerater-v1',fc_layers=(500,500,500))
-returns = ppoAgent.train( num_training_iterations=2,
-                          num_training_episodes_per_iteration=2, 
-                          num_training_epochs_per_iteration=2,
-                          num_training_steps_in_replay_buffer=10001,
-                          num_training_iterations_between_eval=2,
-                          num_eval_episodes=2,
-                          learning_rate=1e-4 )
-# returns = ppoAgent.train( num_training_episodes=200000,
-#                           num_training_episodes_per_iteration=100, 
-#                           num_training_epochs_per_iteration=5,
-#                           num_training_steps_in_replay_buffer=10001,
-#                           num_training_iterations_between_eval=10,
-#                           num_eval_episodes=10,
-#                           learning_rate=1e-4 )
+training_duration = TrainingDurationFast()
+# training_duration = TrainingDuration( 
+#                     num_iterations = 2000,
+#                     num_episodes_per_iteration = 100,
+#                     max_steps_per_episode = 1000,
+#                     num_epochs_per_iteration = 5,
+#                     num_iterations_between_eval = 10,
+#                     num_eval_episodes = 10)
+ppoAgent = Ppo( gym_env_name = 'LogBerater-v1',
+                fc_layers=(500,500,500), 
+                training_duration=training_duration,
+                learning_rate=1e-4 )
+returns = ppoAgent.train()
 
 #%%
 import matplotlib

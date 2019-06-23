@@ -1,6 +1,7 @@
 import unittest
 import tensorflow as tf
 from easyagents.tfagents import Ppo
+from easyagents.config import TrainingDurationFast
 
 class TestTfAgents(unittest.TestCase):
 
@@ -13,14 +14,12 @@ class TestTfAgents(unittest.TestCase):
         return
 
     def test_ppo_train(self):
-        ppoAgent = Ppo( self.gym_env_name )
-        ppoAgent.train( num_training_episodes=5,
-                        num_training_episodes_per_iteration=2,
-                        num_eval_episodes=2)
+        ppoAgent = Ppo( self.gym_env_name, training_duration=TrainingDurationFast() )
+        ppoAgent.train()
         return
 
     def test_ppo_str(self):
-        ppoAgent = Ppo( self.gym_env_name )
+        ppoAgent = Ppo( self.gym_env_name, training_duration=TrainingDurationFast() )
         result = str(ppoAgent)
         print(result)
         return            

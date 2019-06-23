@@ -3,6 +3,7 @@ import gym
 import logging
 import easyagents.logenv
 import easyagents.tfagents
+from easyagents.config import TrainingDurationFast
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -25,10 +26,8 @@ class TestLogEnv(unittest.TestCase):
 
     def test_ppo_train(self):
         logenvname = easyagents.logenv.register('CartPole-v0')
-        ppoAgent = easyagents.tfagents.Ppo( logenvname )
-        ppoAgent.train( num_training_episodes=2,
-                        num_training_episodes_per_iteration=1,
-                        num_eval_episodes=1)
+        ppoAgent = easyagents.tfagents.Ppo( logenvname, training_duration=TrainingDurationFast() )
+        ppoAgent.train()
         return    
 
 if __name__ == '__main__':
