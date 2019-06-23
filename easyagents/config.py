@@ -95,6 +95,12 @@ class TrainingDuration(object):
         self._num_eval_episodes = num_eval_episodes
 
     @property
+    def num_episodes(self):
+        """ yields the total number of episodes played during training.
+        """
+        return self._num_iterations * self._num_episodes_per_iteration
+
+    @property
     def num_iterations(self):
         return self._num_iterations
 

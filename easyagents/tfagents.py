@@ -84,7 +84,7 @@ class TfAgent(EasyAgent):
 
 
 
-class Ppo(TfAgent):
+class PpoAgent(TfAgent):
     """ creates a new agent based on the PPO algorithm using the tfagents implementation.
         PPO is an actor-critic algorithm using 2 neural networks. The actor network
         to predict the next action to be taken and the critic network to estimate
@@ -125,15 +125,10 @@ class Ppo(TfAgent):
         self._num_training_steps_in_replay_buffer = num_training_steps_in_replay_buffer
         return
 
-    def train(  self):
-        """ trains a policy using the gym_env
-
-            Args:
-                num_training_steps_in_replay_buffer     : size of the replay buffer in number of game steps
-
-            Returns:
-                a list with the evaluated returns during training. 
-                The list starts with the average return before training started and contains a value for each completed eval interval.
+    def train( self):
+        """ trains a policy using the gym_env.
+            Sets training_losses and training_average_returns, depending on the training scheme
+            defined in TrainingDuration configuration.
         """
         # Create Training Environment, Optimizer and PpoAgent
         self._logCall("Creating environment:")
@@ -176,7 +171,8 @@ class Ppo(TfAgent):
         collect_driver.run = common.function( collect_driver.run, autograph=False )
         tf_agent.train = common.function( tf_agent.train, autograph=False )
 
-        returns=[]
+        self.training_average_returns=[]
+        self.training_losses=[]
 
         self._logCall("Starting training:")
         for step in range( self._training_duration.num_iterations ):
@@ -184,22 +180,26 @@ class Ppo(TfAgent):
 
             if step % self._training_duration.num_iterations_between_eval == 0:
                 avg_return = self.compute_avg_return( tf_agent.policy )
-                returns.append( avg_return )
+                self.training_average_returns.append( avg_return )
 
             self._logCall(msg + " executing collect_driver.run()")
             collect_driver.run()
+
             self._logCall(msg + " executing replay_buffer.gather_all()")
             trajectories = replay_buffer.gather_all()
+
             self._logCall(msg + " executing tf_agent.train(...)")
-            total_loss, _ = tf_agent.train(experience=trajectories)
+            total_loss, _ = tf_agent.train( experience=trajectories )
+            self.training_losses.append( total_loss )
             self._logCall( f'{msg} completed tf_agent.train(...) = {total_loss.numpy():.3f} [loss]')
+            
             self._logCall(msg + " executing replay_buffer.clear()")
             replay_buffer.clear()
 
         if self._training_duration.num_iterations % self._training_duration.num_iterations_between_eval == 0:
             avg_return = self.compute_avg_return( tf_agent.policy )
-            returns.append( avg_return )
-        return returns
+            self.training_average_returns.append( avg_return )
+        return 
 
     def step(self):
         """ performs a single step in the gym_env using the trained policy."""

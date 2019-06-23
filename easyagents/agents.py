@@ -2,6 +2,8 @@ from logging import INFO, WARNING, getLogger
 from easyagents.config import TrainingDuration
 from easyagents.config import Logging
 from easyagents.logenv import register
+import matplotlib
+import matplotlib.pyplot as plt
 import gym
 
 class EasyAgent(object):
@@ -48,6 +50,8 @@ class EasyAgent(object):
         self._learning_rate = learning_rate
         self._reward_discount_gamma = reward_discount_gamma
         self._logging=logging
+        self.training_average_returns = []
+        self.training_losses= []
 
         self._log = getLogger(name=__name__)
         self._log.setLevel(WARNING)
@@ -70,5 +74,31 @@ class EasyAgent(object):
         """
         result = "gym_env_name=" + self._gym_env_name + " fc_layers=" + str(self.fc_layers)
         return result
+
+    def plot_average_returns(self):
+        """ produces a matlib.pyplot plot showing the average returns during training.
+
+            Note:
+            To see the plot you should call this method from IPython / jupyter notebook.
+        """
+        episodes_per_value = self._training_duration.num_iterations_between_eval * self._training_duration.num_episodes_per_iteration
+        value_count = len(self.training_average_returns)
+        steps = range(0, value_count*episodes_per_value, episodes_per_value)
+        plt.plot(steps, self.training_average_returns )
+        plt.ylabel('average returns')
+        plt.xlabel('episodes')
+
+    def plot_losses(self):
+        """ produces a matlib.pyplot plot showing the losses during training.
+
+            Note:
+            To see the plot you should call this method from IPython / jupyter notebook.
+        """
+        episodes_per_value = self._training_duration.num_episodes_per_iteration
+        value_count = len(self.training_losses)
+        steps = range(0, value_count*episodes_per_value, episodes_per_value)
+        plt.plot(steps, self.training_losses )
+        plt.ylabel('losses')
+        plt.xlabel('episodes')
 
 

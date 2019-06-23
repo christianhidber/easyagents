@@ -287,7 +287,7 @@ else:
 
 #%%
 
-from easyagents.tfagents import Ppo
+from easyagents.tfagents import PpoAgent
 from easyagents.config import TrainingDurationFast
 from easyagents.config import TrainingDuration
 
@@ -300,21 +300,14 @@ from easyagents.config import TrainingDuration
 #                     num_epochs_per_iteration = 5,
 #                     num_iterations_between_eval = 10,
 #                     num_eval_episodes = 10)
-ppoAgent = Ppo( gym_env_name = 'Berater-v1',
-                fc_layers=(500,500,500), 
-                training_duration=TrainingDurationFast(),
-                learning_rate=1e-4 )
-returns = ppoAgent.train()
+ppo_agent = PpoAgent(  gym_env_name = 'Berater-v1',
+                      fc_layers=(500,500,500), 
+                      training_duration=TrainingDurationFast(),
+                      learning_rate=1e-4 )
+ppo_agent.train()
 
 #%%
-import matplotlib
-import matplotlib.pyplot as plt
-
-steps = range(0, len(returns)*10, 10)
-plt.plot(steps, returns)
-plt.ylabel('Average Return')
-plt.xlabel('Episode')
-plt.ylim(top=1,bottom=-5)
-
+ppo_agent.plot_average_returns()
+ppo_agent.plot_losses()
 
 #%%

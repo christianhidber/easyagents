@@ -31,8 +31,8 @@ class TestLogEnv(unittest.TestCase):
         return
 
     def test_LoggingVerbose(self):
-        ppoAgent = easyagents.tfagents.Ppo( 'CartPole-v0', training_duration=TrainingDurationFast(), logging=LoggingVerbose() )
-        ppoAgent.train()
+        ppo_agent = easyagents.tfagents.PpoAgent( 'CartPole-v0', training_duration=TrainingDurationFast(), logging=LoggingVerbose() )
+        ppo_agent.train()
         return    
 
 if __name__ == '__main__':
