@@ -4,6 +4,7 @@ import logging
 import easyagents.logenv
 import easyagents.tfagents
 from easyagents.config import TrainingDurationFast
+from easyagents.config import LoggingVerbose
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -19,14 +20,18 @@ class TestLogEnv(unittest.TestCase):
         assert env is not None
         return
 
-    def test_register_twice_success(self):
+    def test_register_twiceSameName_success(self):
         easyagents.logenv.register('CartPole-v0')
         easyagents.logenv.register('CartPole-v0')
         return
 
-    def test_ppo_train(self):
-        logenvname = easyagents.logenv.register('CartPole-v0')
-        ppoAgent = easyagents.tfagents.Ppo( logenvname, training_duration=TrainingDurationFast() )
+    def test_register_twiceDifferentNames_fail(self):
+        easyagents.logenv.register('CartPole-v0')
+        self.assertRaises(Exception, easyagents.logenv.register, 'Dummy-v0')
+        return
+
+    def test_LoggingVerbose(self):
+        ppoAgent = easyagents.tfagents.Ppo( 'CartPole-v0', training_duration=TrainingDurationFast(), logging=LoggingVerbose() )
         ppoAgent.train()
         return    
 

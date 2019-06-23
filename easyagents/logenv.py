@@ -5,11 +5,19 @@ import logging
     this module is a hack a needs a fundamental rework and redesign (chh/19Q2)
 """
 
-def register(gym_env_name, log_steps=False, log_reset=False):
+def register(gym_env_name : str = None, gym_factory = None, log_steps : bool = False, log_reset : bool = False):
     """ Registers the LogEnv wrapper for the 'gym_env_name' environment.
-
         The wrapper is registered as 'Log-<env_name>'.
-        The registered name is returned.
+
+        Args:
+        gym_env_name    the name of the gym environment to be wrapped by LogEnv (instead of gym_factor)
+        gym_factory     a factory method to create a gym environment (instead of gym_env_name)
+        log_steps       if set to False calls to the step method are not logged
+        log_reset       if set to false calls to the reset method are not logged, except if
+                        the current episode is not complete yet.
+
+        Retuns:
+        The new name of the wrapped environment.
     """
     assert gym_env_name is not None, "None is not an admissible environment name"
     assert type(gym_env_name) is str , "gym_env_name is not a str"
@@ -24,6 +32,7 @@ def register(gym_env_name, log_steps=False, log_reset=False):
         LogEnv._gym_env_name = gym_env_name
         gym.envs.registration.register(id=result, entry_point=LogEnv)
     return result
+
 
 class LogEnv(gym.Env):
     """Decorator for gym environments to log each method call on the logger
@@ -48,9 +57,9 @@ class LogEnv(gym.Env):
         self._renderCount=0
         self._seedCount=0
         self._closeCount=0
-        self._instanceId=LogEnv._instanceCount
         self._totalReward=0.0
         self._done=False
+        self._instanceId=LogEnv._instanceCount
         LogEnv._instanceCount += 1
 
         self._log = logging.getLogger(__name__)
