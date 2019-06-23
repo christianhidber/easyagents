@@ -9,12 +9,12 @@ logging.basicConfig(level=logging.DEBUG)
 logging.info("starting")
 logname = easyagents.logenv.register('CartPole-v0')
 ppoAgent = Ppo( logname )
-returns = ppoAgent.train( num_training_episodes=100,
-                          num_training_episodes_per_iteration=1, 
-                          num_training_epochs_per_iteration=1,
+returns = ppoAgent.train( num_training_iterations=3,
+                          num_training_episodes_per_iteration=3, 
+                          num_training_epochs_per_iteration=3,
                           num_training_steps_in_replay_buffer=1000,
-                          num_training_iterations_between_eval=10,
-                          num_eval_episodes=3,
+                          num_training_iterations_between_eval=1,
+                          num_eval_episodes=1,
                           learning_rate=1e-4 )
 logging.info("completed")
 
