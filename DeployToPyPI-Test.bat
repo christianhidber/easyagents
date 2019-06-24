@@ -6,5 +6,5 @@ pip install twine
 python setup.py sdist --formats=zip
 REM python setup.py sdist bdist_wheel
 twine check dist/*
-REM twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-twine upload dist/*
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+REM twine upload dist/*
