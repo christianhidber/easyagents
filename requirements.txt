@@ -6,5 +6,6 @@ ipykernel
 matplotlib
 PILLOW
 pyglet
+jupyter
 tf-agents-nightly
 tf-nightly

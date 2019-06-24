@@ -9,59 +9,82 @@ from tf_agents.drivers import dynamic_episode_driver
 from tf_agents.utils import common
 
 from easyagents.agents import EasyAgent
+from easyagents.config import TrainingDuration
+from easyagents.config import Logging
 
 
 class TfAgent(EasyAgent):
     """ Reinforcement learning agents based on googles tf_agent implementations
         https://github.com/tensorflow/agents
-
-        Abstract base class.
     """
-
     def __init__(   self,
-                    gym_env_name,
-                    fc_layers ):
-        super().__init__(gym_env_name, fc_layers)
-        self.reward_discount_gamma = 1
+                    gym_env_name : str,
+                    training_duration : TrainingDuration = None,
+                    fc_layers = None,
+                    reward_discount_gamma : float = 1,
+                    learning_rate : float = 0.001,
+                    logging : Logging = None
+                ):
+        super().__init__(   gym_env_name=gym_env_name, 
+                            training_duration=training_duration, 
+                            fc_layers=fc_layers,
+                            reward_discount_gamma=reward_discount_gamma,
+                            learning_rate=learning_rate,
+                            logging = logging 
+                        )
         self.__initialize()
         return
 
     def __initialize(self):
         """ initializes TensorFlow behaviour and random seeds.
         """
+        self._gym_eval_env = None
+        self._logCall("executing: tf.compat.v1.enable_v2_behavior()")
         tf.compat.v1.enable_v2_behavior()
+        self._logCall("executing: tf.enable_eager_execution()")
+        tf.compat.v1.enable_eager_execution()
+        self._logCall("executing: tf.compat.v1.set_random_seed(0)")
         tf.compat.v1.set_random_seed(0)
         return
 
-    def compute_avg_return(self, gym_env_name, policy, num_eval_episodes):
-        """ computes the expected sum of rewards for 'policy' in 'gym_env'.
+    def compute_avg_return(self, policy ):
+        """ computes the expected sum of rewards for 'policy'.
 
             Note:
-            o gym_env.reset is called before computing the reward for each episode
+            The evaluation is performed on a instance of gym_env_name.
         """
+        self._logCall(f'executing compute_avg_return(...)')
+        if self._gym_eval_env is None:
+            self._gym_eval_env = self.load_tfagent_env()
         total_return = 0.0
-        gym_env = self.load_tfagent_env()
-        for _ in range(num_eval_episodes):
-            time_step = gym_env.reset()
+        for _ in range(self._training_duration.num_eval_episodes):
+            time_step = self._gym_eval_env.reset()
             episode_return = 0.0
+
+            time_step = self._gym_eval_env.current_time_step()
+            action_step = policy.action(time_step)
+            time_step = self._gym_eval_env.step(action_step.action)
+
             while not time_step.is_last():
                 action_step = policy.action(time_step)
-                time_step = gym_env.step(action_step.action)
+                time_step = self._gym_eval_env.step(action_step.action)
                 episode_return += time_step.reward
             total_return += episode_return
-        result = total_return / num_eval_episodes
+        result = total_return / self._training_duration.num_eval_episodes
+        self._logCall(f'completed compute_avg_return(...) = {float(result):.3f}')
         return result.numpy()[0]
 
     def load_tfagent_env(self):
         """ loads the gym environment and wraps it in a tfagent TFPyEnvironment
         """
-        py_env = suite_gym.load( self.gym_env_name, discount=self.reward_discount_gamma, max_episode_steps=None )
+        self._logCall("   executing tf_py_environment.TFPyEnvironment( suite_gym.load )")
+        py_env = suite_gym.load( self._gym_env_name, discount=self._reward_discount_gamma,max_episode_steps=self._training_duration.max_steps_per_episode  )
         result = tf_py_environment.TFPyEnvironment( py_env)
         return result
 
 
 
-class Ppo(TfAgent):
+class PpoAgent(TfAgent):
     """ creates a new agent based on the PPO algorithm using the tfagents implementation.
         PPO is an actor-critic algorithm using 2 neural networks. The actor network
         to predict the next action to be taken and the critic network to estimate
@@ -69,111 +92,114 @@ class Ppo(TfAgent):
         sum of future rewards when following the current actor network).
 
         Args:
-            gym_env_name    :   name of an OpenAI gym environment to be used for training and evaluation
-            fc_layers       :   defines the neural network to be used, a sequence of fully connected
-                                layers of the given size. Eg (75,40) yields a neural network consisting
-                                out of 2 hidden layers, the first one containing 75 and the second layer
-                                containing 40 neurons.
+        gym_env_name    :   name of an OpenAI gym environment to be used for training and evaluation
+        fc_layers       :   defines the neural network to be used, a sequence of fully connected
+                            layers of the given size. Eg (75,40) yields a neural network consisting
+                            out of 2 hidden layers, the first one containing 75 and the second layer
+                            containing 40 neurons.
+        training_duration                   : instance of config.TrainingDuration to configure the #episodes used for training.
+        num_training_steps_in_replay_buffer : defines the size of the replay buffer in terms of game steps.
+        learning_rate           : value in (0,1]. Factor by which the impact on the policy update is reduced
+                                  for each training step. The same learning rate is used for the value and the policy network.
+        reward_discount_gamma   : value in (0,1]. Factor by which a future reward is discounted for each step.
+        logging                 : instance of config.Logging to define the logging behaviour
 
         see also: https://spinningup.openai.com/en/latest/algorithms/ppo.html
     """
 
     def __init__(   self,
-                    gym_env_name,
-                    fc_layers=None ):
-        super().__init__(gym_env_name, fc_layers)
+                    gym_env_name : str,
+                    fc_layers = None,
+                    training_duration : TrainingDuration = None,
+                    num_training_steps_in_replay_buffer : int = 10001,
+                    learning_rate : float = 0.001,
+                    reward_discount_gamma : float = 1,
+                    logging : Logging = None ):
+        super().__init__(   gym_env_name= gym_env_name, 
+                            fc_layers= fc_layers,
+                            training_duration=training_duration,
+                            learning_rate=learning_rate,
+                            reward_discount_gamma=reward_discount_gamma,
+                            logging=logging)
+        assert num_training_steps_in_replay_buffer >= 1, "num_training_steps_in_replay_buffer must be >= 1"
+        self._num_training_steps_in_replay_buffer = num_training_steps_in_replay_buffer
         return
 
-    def train(  self,
-                num_training_episodes=100,
-                num_training_episodes_per_iteration=10,
-                num_eval_episodes=10,
-                learning_rate=0.99,
-                reward_discount_gamma=1 ):
-        """ trains a policy using the gym_env
-
-            Args:
-                num_training_episodes_total         : total number of episodes played during training
-                num_training_episodes_per_iteration : number of episodes included per training iteration 
-                                                      (forward pass and backpropagation)
-                num_eval_episodes     : number of episodes played to estimate the average return
-                learning_rate         : value in (0,1]. Factor by which the impact on the policy update is reduced
-                                        for each training step. The same learning rate is used for the value and
-                                        the policy network.
-                reward_discount_gamma : value in (0,1]. Factor by which a future reward is discounted for each step.
-                random_seed           : random seed for all sampling purposes.
+    def train( self):
+        """ trains a policy using the gym_env.
+            Sets training_losses and training_average_returns, depending on the training scheme
+            defined in TrainingDuration configuration.
         """
-        assert num_training_episodes >= 1, "num_training_episodes must be >= 1"
-        assert num_training_episodes >= num_training_episodes_per_iteration, "num_training_episodes must be >= num_training_episodes_per_iteration"
-        assert num_training_episodes_per_iteration >= 1, "num_training_episodes_per_iteration must be >= 1"
-        assert num_eval_episodes >= 1, "num_eval_episodes must be >= 1"
-        assert learning_rate > 0, "learning_rate must be in (0,1]"
-        assert learning_rate <= 1, "learning_rate must be in (0,1]"
-        assert reward_discount_gamma > 0, "reward_discount_gamma must be in (0,1]"
-        assert reward_discount_gamma <= 1, "reward_discount_gamma must be in (0,1]"
-
-        self.reward_discount_gamma = reward_discount_gamma
-        global_step = tf.compat.v1.train.get_or_create_global_step()
-
         # Create Training Environment, Optimizer and PpoAgent
+        self._logCall("Creating environment:")
         train_env = self.load_tfagent_env()
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
-        optimizer = tf.compat.v1.train.AdamOptimizer( learning_rate=learning_rate )
+
+        self._logCall("Creating agent:")
+        self._logCall("  creating  tf.compat.v1.train.AdamOptimizer( ... )")
+        optimizer = tf.compat.v1.train.AdamOptimizer( learning_rate=self._learning_rate )
 
         actor_net = actor_distribution_network.ActorDistributionNetwork( observation_spec, action_spec, fc_layer_params=self.fc_layers )
         value_net = value_network.ValueNetwork( observation_spec, fc_layer_params=self.fc_layers )
 
+        self._logCall("  creating  PPOAgent( ... )")
         tf_agent = ppo_agent.PPOAgent(  timestep_spec, action_spec, optimizer, 
                                         actor_net=actor_net, 
                                         value_net=value_net,
-                                        num_epochs=25,
-                                        # entropy_regularization=0.0,
-                                        debug_summaries=False,
-                                        summarize_grads_and_vars=False,
-                                        train_step_counter=global_step )
+                                        num_epochs=self._training_duration.num_epochs_per_iteration)
+        self._logCall("  executing tf_agent.initialize()")
         tf_agent.initialize()
 
         # Data collection
+        self._logCall("Creating data collection:")
         collect_data_spec = tf_agent.collect_data_spec
+        self._logCall("  creating TFUniformReplayBuffer()")
         replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(     collect_data_spec,
                                                                             batch_size=1,
-                                                                            max_length=10001 )
+                                                                            max_length=self._num_training_steps_in_replay_buffer )
 
         collect_policy = tf_agent.collect_policy
+        self._logCall("  creating DynamicEpisodeDriver()")
         collect_driver = dynamic_episode_driver.DynamicEpisodeDriver(   train_env,
                                                                         collect_policy,
                                                                         observers=[replay_buffer.add_batch],
-                                                                        num_episodes=num_training_episodes_per_iteration )
+                                                                        num_episodes=self._training_duration.num_episodes_per_iteration )
 
         # Train
         collect_driver.run = common.function( collect_driver.run, autograph=False )
         tf_agent.train = common.function( tf_agent.train, autograph=False )
 
-        # Eval Environment
-        eval_env = self.load_tfagent_env()
-        avg_return = self.compute_avg_return(eval_env, tf_agent.policy, num_eval_episodes)
+        self.training_average_returns=[]
+        self.training_losses=[]
 
-        returns=[avg_return]
+        self._logCall("Starting training:")
+        for step in range( self._training_duration.num_iterations ):
+            msg = f'training {step+1} of {self._training_duration.num_iterations}:'
 
-        num_training_iterations = int(num_training_episodes / num_training_episodes_per_iteration)
-        log_interval = num_eval_episodes
-        eval_interval = 10 * num_eval_episodes
-        for step in range( num_training_iterations ):
+            if step % self._training_duration.num_iterations_between_eval == 0:
+                avg_return = self.compute_avg_return( tf_agent.policy )
+                self.training_average_returns.append( avg_return )
+
+            self._logCall(msg + " executing collect_driver.run()")
             collect_driver.run()
+
+            self._logCall(msg + " executing replay_buffer.gather_all()")
             trajectories = replay_buffer.gather_all()
-            total_loss, _ = tf_agent.train(experience=trajectories)
+
+            self._logCall(msg + " executing tf_agent.train(...)")
+            total_loss, _ = tf_agent.train( experience=trajectories )
+            self.training_losses.append( total_loss )
+            self._logCall( f'{msg} completed tf_agent.train(...) = {total_loss.numpy():.3f} [loss]')
+            
+            self._logCall(msg + " executing replay_buffer.clear()")
             replay_buffer.clear()
 
-            if step % log_interval == 0:
-                print('iteration/train_step = {}, loss = {}'.format( step, total_loss.numpy() ))
-
-            if step % eval_interval == 0:
-                avg_return = self.compute_avg_return( eval_env, tf_agent.policy, num_eval_episodes )
-                print('iteration/train_step = {}, Average Return = {}'.format( step, avg_return ))
-                returns.append( avg_return )
-        return
+        if self._training_duration.num_iterations % self._training_duration.num_iterations_between_eval == 0:
+            avg_return = self.compute_avg_return( tf_agent.policy )
+            self.training_average_returns.append( avg_return )
+        return 
 
     def step(self):
         """ performs a single step in the gym_env using the trained policy."""
