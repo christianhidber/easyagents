@@ -71,7 +71,7 @@ class LogEnv(gym.Env):
         if not self._logStarted:
             self._log.debug(f'#EnvId ResetCount.Steps [R=sumRewards]')
             self._logStarted=True
-        logMsg = f'#{self._instanceId} {self._resetCount:3}.{self._stepCount:<3} [R={self._totalReward:6.1f}] {msg}'
+        logMsg = f'#{self._instanceId} {self._resetCount:3}.{self._stepCount:<3} [totalReward={self._totalReward:6.1f}] {msg}'
         self._log.debug(logMsg)
         return
 
@@ -82,7 +82,7 @@ class LogEnv(gym.Env):
         (state, reward, done, info ) = result
         self._totalReward += reward
         if self._log_steps:
-            self._logCall(f'executing step({action})=({reward},{state},{done},{info})' )
+            self._logCall(f'executing step( {action} ) = ( reward={reward}, state={state}, done={done}, info={info} )' )
         if done:
             self._logCall( f'game over' )
             self._done=True
