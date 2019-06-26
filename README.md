@@ -48,9 +48,18 @@ ppo_agent = PpoAgent(   gym_env_name='CartPole-v0',
 ppo_agent.train()
 ```
 
-The signature of PpoAgent() stays the same across all implementations.
-Thus you can still switch to the OpenAI baselines implementation simply by substituting the
-import statement.
+Points of interest:
+
+* The signature of PpoAgent() stays the same across all implementations.
+  Thus you can still switch to the OpenAI baselines implementation simply by substituting the import statement.
+* You can also use the preconfigured TrainingDurationFast()
+* All 'agent api' and all 'gym api' calls are logged. You can easly turn them individually on or off using
+
+```python
+  PpoAgents( ..., logging=Logging( log_agent=true, log_gym_env=false ), ...)
+```
+
+* You may also use the preconfigure LoggingVerbose() or LoggingSilent()
 
 ## Run it on colab
 
