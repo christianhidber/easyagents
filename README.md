@@ -1,12 +1,18 @@
-# EasyAgents (work in progress)
+# EasyAgents (pre-alpha / proof of concept)
 
 An easy and simple way to get started with reinforcement learning and experimenting with your
 own game engine / environment. EasyAgents is based on OpenAI gym and
 uses algorithms implemented by tfAgents or OpenAI baselines.
 
-## Example (work in progress)
+## Example
 
 Here's an example of the full code needed to run the tfagents implementation of Ppo on the cartpole example.
+
+Install from pypi using pip:
+
+```
+pip install easyagents
+```
 
 ### Simplest case (no configuration)
 

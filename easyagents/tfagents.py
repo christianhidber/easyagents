@@ -61,10 +61,6 @@ class TfAgent(EasyAgent):
             time_step = self._gym_eval_env.reset()
             episode_return = 0.0
 
-            time_step = self._gym_eval_env.current_time_step()
-            action_step = policy.action(time_step)
-            time_step = self._gym_eval_env.step(action_step.action)
-
             while not time_step.is_last():
                 action_step = policy.action(time_step)
                 time_step = self._gym_eval_env.step(action_step.action)

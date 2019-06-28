@@ -290,6 +290,7 @@ else:
 from easyagents.tfagents import PpoAgent
 from easyagents.config import TrainingDurationFast
 from easyagents.config import TrainingDuration
+from easyagents.config import LoggingVerbose
 
 
 # training_duration = None
@@ -303,6 +304,7 @@ from easyagents.config import TrainingDuration
 ppo_agent = PpoAgent(  gym_env_name = 'Berater-v1',
                       fc_layers=(500,500,500), 
                       training_duration=TrainingDurationFast(),
+                      logging=LoggingVerbose(),
                       learning_rate=1e-4 )
 ppo_agent.train()
 
