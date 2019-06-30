@@ -4,11 +4,14 @@ import logging
 import easyagents.easyenv
 import easyagents.tfagents
 from easyagents.config import TrainingDurationFast
+from easyagents.config import TrainingDurationSingleStep
 from easyagents.config import LoggingVerbose
 
 logging.basicConfig(level=logging.DEBUG)
 
 class TestEasyEnv(unittest.TestCase):
+
+
 
     def test_register(self):
         logging.basicConfig(level=logging.DEBUG)
@@ -35,10 +38,19 @@ class TestEasyEnv(unittest.TestCase):
         ppo_agent.train()
         return    
     
-    def test_step_callback(self):
-        ppo_agent = easyagents.tfagents.PpoAgent( 'CartPole-v0' )
-        env = ppo_agent._create_tfagent_env()
+    def test_play_episode(self):
+        ppo_agent = easyagents.tfagents.PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleStep(), logging=LoggingVerbose() )
+        ppo_agent.train()
+
+        TestEasyEnv._step_callback_call_count=0
+        episode_reward = ppo_agent.play_episode(step_callback)
+        assert episode_reward > 0
+        assert TestEasyEnv._step_callback_call_count>0
         return   
+
+def step_callback(gym_env,action,state,reward,done,info):
+    TestEasyEnv._step_callback_call_count +=1
+    return
 
 if __name__ == '__main__':
     unittest.main()

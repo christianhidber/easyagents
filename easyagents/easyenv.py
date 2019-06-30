@@ -87,7 +87,7 @@ class EasyEnv(gym.Env):
     def _set_step_callback(self, callback):
         ''' callback is called after each execution of the step method.
 
-            signature: callback(action,state,reward,done,info)
+            signature: callback(gym_env,action,state,reward,done,info)
         '''
         self._step_callback = callback
 
@@ -103,7 +103,7 @@ class EasyEnv(gym.Env):
             self._log_api_call( f'game over' )
             self._done=True
         if self._step_callback:
-            self._step_callback(action=action, state=state, reward=reward, done=done, info=info)
+            self._step_callback(gym_env=self.env,action=action, state=state, reward=reward, done=done, info=info)
         return result
 
     def reset(self, **kwargs):

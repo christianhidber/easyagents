@@ -71,6 +71,7 @@ class TfAgent(EasyAgent):
         assert isinstance(result, EasyEnv), "passed TFPyEnvironment does not contain a EasyEnv"
         return result
 
+
     def play_episode (self, callback = None) -> float:
         """ Plays a full episode using the previously trained policy, returning the sum of rewards over the full episode. 
 
@@ -89,13 +90,14 @@ class TfAgent(EasyAgent):
         if callback is not None:
             easy_env._set_step_callback( callback )
             
-        result = 0.0
+        sum_rewards = 0.0
         time_step = self._gym_eval_env.reset()
         while not time_step.is_last():
             action_step = self._trained_policy.action(time_step)
             time_step = self._gym_eval_env.step(action_step.action)
-            result += time_step.reward
+            sum_rewards += time_step.reward
         easy_env._set_step_callback( None )
+        result = float(sum_rewards)
         self._log_api_call(f'completed play_episode(...) = {float(result):.3f}')
         return result
 

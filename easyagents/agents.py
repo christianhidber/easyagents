@@ -83,12 +83,12 @@ class EasyAgent(object):
         """
         self._log_api_call(f'executing compute_avg_return(...)')
                     
-        total_return = 0.0
+        sum_rewards = 0.0
         for _ in range(self._training_duration.num_eval_episodes):
-            total_return += self.play_episode()
-        result = total_return / self._training_duration.num_eval_episodes
+            sum_rewards += self.play_episode()
+        result = sum_rewards / self._training_duration.num_eval_episodes
         self._log_api_call(f'completed compute_avg_return(...) = {float(result):.3f}')
-        return result.numpy()[0]
+        return result
 
 
     def play_episode (self, callback = None) -> float:
