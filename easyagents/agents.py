@@ -1,7 +1,7 @@
 from logging import INFO, WARNING, getLogger
 from easyagents.config import TrainingDuration
 from easyagents.config import Logging
-from easyagents.logenv import register
+from easyagents.easyenv import register
 import matplotlib
 import matplotlib.pyplot as plt
 import gym
@@ -59,14 +59,10 @@ class EasyAgent(object):
             self._log.setLevel(INFO)
         self._log.info( str(self) )
 
-        if self._logging.log_gym_env:
-            self._gym_env_name = register(  gym_env_name    = self._gym_env_name, 
-                                            log_steps       = self._logging.log_gym_env_steps,
-                                            log_reset       = self._logging.log_gym_env_reset   )
-        return
-
-    def _logCall(self, msg):
-        self._log.info(msg)
+        self._gym_env_name = register(  gym_env_name    = self._gym_env_name, 
+                                        log_api         = self._logging.log_gym_api,
+                                        log_steps       = self._logging.log_gym_api_steps,
+                                        log_reset       = self._logging.log_gym_api_reset   )
         return
 
     def __str__(self):
@@ -74,6 +70,38 @@ class EasyAgent(object):
         """
         result = "gym_env_name=" + self._gym_env_name + " fc_layers=" + str(self.fc_layers)
         return result
+
+    def _log_api_call(self, msg):
+        self._log.info(msg)
+        return
+
+    def compute_avg_return(self ) -> float:
+        """ computes the expected sum of rewards for the previously trained policy.
+
+            Note:
+            The evaluation is performed on a instance of gym_env_name.
+        """
+        self._log_api_call(f'executing compute_avg_return(...)')
+                    
+        total_return = 0.0
+        for _ in range(self._training_duration.num_eval_episodes):
+            total_return += self.play_episode()
+        result = total_return / self._training_duration.num_eval_episodes
+        self._log_api_call(f'completed compute_avg_return(...) = {float(result):.3f}')
+        return result.numpy()[0]
+
+
+    def play_episode (self, callback = None) -> float:
+        """ Plays a full episode using the previously trained policy, returning the sum of rewards over the full episode. 
+
+            Args:
+            callback    : callback(action,state,reward,done,info) is called after each step.
+                          if the callback yields True, the episode is aborted.      
+        """
+        self._log_api_call(f'executing play_episode(...)')
+        self._log_api_call(f'completed play_episode(...)')
+        return 0
+
 
     def plot_average_returns(self):
         """ produces a matlib.pyplot plot showing the average returns during training.
@@ -87,6 +115,7 @@ class EasyAgent(object):
         plt.plot(steps, self.training_average_returns )
         plt.ylabel('average returns')
         plt.xlabel('episodes')
+        
 
     def plot_losses(self):
         """ produces a matlib.pyplot plot showing the losses during training.

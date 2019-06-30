@@ -10,7 +10,7 @@ Here's an example of the full code needed to run the tfagents implementation of 
 
 Install from pypi using pip:
 
-```
+```python
 pip install easyagents
 ```
 
@@ -62,7 +62,7 @@ Points of interest:
 * All 'agent api' and all 'gym api' calls are logged. You can easly turn them individually on or off using
 
 ```python
-  PpoAgents( ..., logging=Logging( log_agent=true, log_gym_env=false ), ...)
+  PpoAgents( ..., logging=Logging( log_agent=true, log_gym_api=false ), ...)
 ```
 
 * You may also use the preconfigure LoggingVerbose() or LoggingSilent()
