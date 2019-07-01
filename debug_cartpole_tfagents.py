@@ -11,8 +11,8 @@ ppo_agent.train()
 
 ppo_agent.plot_average_returns()
 ppo_agent.plot_losses()
-y = ppo_agent.render_episodes_to_mp4()
-x = ppo_agent.render_episodes_to_html(fps=20)
+ppo_agent.render_episodes_to_mp4()
+ppo_agent.render_episodes_to_html(fps=20)
 
 
 
