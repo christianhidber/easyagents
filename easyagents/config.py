@@ -141,13 +141,13 @@ class TrainingDurationFast(TrainingDuration):
                         num_iterations_between_eval=num_iterations_between_eval,
                         num_eval_episodes=num_eval_episodes)
 
-class TrainingDurationSingleStep(TrainingDuration):
+class TrainingDurationSingleEpisode(TrainingDuration):
     """TrainingDuration with constructor defaults set to a single training set.
     """
     def __init__(   self,    
                     num_iterations : int = 1,
                     num_episodes_per_iteration : int = 1,
-                    max_steps_per_episode : int = 1,
+                    max_steps_per_episode : int = 1000,
                     num_epochs_per_iteration : int = 1,
                     num_iterations_between_eval : int = 1,
                     num_eval_episodes : int = 1 ):

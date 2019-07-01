@@ -25,7 +25,7 @@ def register(gym_env_name : str = None, log_api: bool = True, log_steps : bool =
     assert type(gym_env_name) is str , "gym_env_name is not a str"
     assert len(gym_env_name) > 0, "empty string is not an admissible environment name"
 
-    result = "Easy_" + gym_env_name
+    result = EasyEnv.NAME_PREFIX + gym_env_name
     EasyEnv._log_steps = log_steps
     EasyEnv._log_reset = log_reset
     EasyEnv._log_api = log_api
@@ -47,6 +47,8 @@ class EasyEnv(gym.Env):
     _log_reset = False
     _log_api = False
     _instanceCount = 0
+
+    NAME_PREFIX = "Easy_"
     
     def __init__(self):
         target_env = gym.make( EasyEnv._gym_env_name )
@@ -105,6 +107,7 @@ class EasyEnv(gym.Env):
         if self._step_callback:
             self._step_callback(gym_env=self.env,action=action, state=state, reward=reward, done=done, info=info)
         return result
+        
 
     def reset(self, **kwargs):
         if self._log_reset or not self._done:
@@ -116,7 +119,12 @@ class EasyEnv(gym.Env):
         self._stepCount=0
         self._totalReward=0.0
         self._done=False
-        return self.env.reset(**kwargs)
+        result = self.env.reset(**kwargs)
+        if self._step_callback:
+            (state, reward, done, info ) = result
+            self._step_callback(gym_env=self.env,action=None, state=state, reward=reward, done=done, info=info)
+        return result
+
 
     def render(self, mode='human', **kwargs):
         self._log_api_call("executing render(...)" )

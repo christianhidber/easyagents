@@ -4,7 +4,7 @@ import logging
 import easyagents.easyenv
 import easyagents.tfagents
 from easyagents.config import TrainingDurationFast
-from easyagents.config import TrainingDurationSingleStep
+from easyagents.config import TrainingDurationSingleEpisode
 from easyagents.config import LoggingVerbose
 
 logging.basicConfig(level=logging.DEBUG)
@@ -39,7 +39,7 @@ class TestEasyEnv(unittest.TestCase):
         return    
     
     def test_play_episode(self):
-        ppo_agent = easyagents.tfagents.PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleStep(), logging=LoggingVerbose() )
+        ppo_agent = easyagents.tfagents.PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
         ppo_agent.train()
 
         TestEasyEnv._step_callback_call_count=0
