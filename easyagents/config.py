@@ -63,11 +63,11 @@ class TrainingDuration(object):
     """
 
     def __init__(   self,    
-                    num_iterations : int = 10,
+                    num_iterations : int = 25,
                     num_episodes_per_iteration : int = 10,
-                    max_steps_per_episode : int = 100000,
-                    num_epochs_per_iteration : int = 10,
-                    num_iterations_between_eval : int = 10,
+                    max_steps_per_episode : int = 500,
+                    num_epochs_per_iteration : int = 5,
+                    num_iterations_between_eval : int = 5,
                     num_eval_episodes : int = 10 ):
         """ Groups all properties related to the definition of the algorithms runtime
 
