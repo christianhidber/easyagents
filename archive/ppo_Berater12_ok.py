@@ -318,8 +318,8 @@ def compute_avg_return(environment, policy, num_episodes=10):
   old_show_step = BeraterEnv.showStep
   old_show_done = BeraterEnv.showDone
   old_debug_step = BeraterEnv.debugStep
-  BeraterEnv.showStep=False
-  BeraterEnv.showDone=False
+  BeraterEnv.showStep=True
+  BeraterEnv.showDone=True
   BeraterEnv.debugStep=False
   
   total_return = 0.0

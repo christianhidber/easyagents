@@ -10,19 +10,19 @@ class Logging(object):
 
         Args:
         log_agent           : true if the agents api calls are logged
-        log_gym_env         : true if the gym_env api calls are logged
-        log_gym_env_steps   : true if the gym_env.step(...) calls are logged (given log_gym_env is set)
-        log_gym_env_reset   : true if the gym_env.reset(...) calls are logged (given log_gym_env is set)
+        log_gym_api         : true if the gym_env api calls are logged
+        log_gym_api_steps   : true if the gym_env.step(...) calls are logged (given log_gym_api is set)
+        log_gym_api_reset   : true if the gym_env.reset(...) calls are logged (given log_gym_api is set)
     """
     def __init__(   self,
                     log_agent : bool = True,
-                    log_gym_env : bool = True,
-                    log_gym_env_steps : bool = False,
-                    log_gym_env_reset : bool = False):
+                    log_gym_api : bool = True,
+                    log_gym_api_steps : bool = False,
+                    log_gym_api_reset : bool = False):
         self.log_agent=log_agent
-        self.log_gym_env=log_gym_env
-        self.log_gym_env_steps=log_gym_env_steps
-        self.log_gym_env_reset=log_gym_env_reset
+        self.log_gym_api=log_gym_api
+        self.log_gym_api_steps=log_gym_api_steps
+        self.log_gym_api_reset=log_gym_api_reset
         return
 
 class LoggingVerbose(Logging):
@@ -30,14 +30,14 @@ class LoggingVerbose(Logging):
     """
     def __init__(   self,
                     log_agent : bool = True,
-                    log_gym_env : bool = True,
-                    log_gym_env_steps : bool = True,
-                    log_gym_env_reset : bool = True):
+                    log_gym_api : bool = True,
+                    log_gym_api_steps : bool = True,
+                    log_gym_api_reset : bool = True):
         super().__init__(    
                     log_agent=log_agent,
-                    log_gym_env=log_gym_env,
-                    log_gym_env_steps=log_gym_env_steps,
-                    log_gym_env_reset=log_gym_env_reset
+                    log_gym_api=log_gym_api,
+                    log_gym_api_steps=log_gym_api_steps,
+                    log_gym_api_reset=log_gym_api_reset
         )
 
 
@@ -46,14 +46,14 @@ class LoggingSilent(Logging):
     """
     def __init__(   self,
                     log_agent : bool = False,
-                    log_gym_env : bool = False,
-                    log_gym_env_steps : bool = False,
-                    log_gym_env_reset : bool = False):
+                    log_gym_api : bool = False,
+                    log_gym_api_steps : bool = False,
+                    log_gym_api_reset : bool = False):
         super().__init__(    
                     log_agent=log_agent,
-                    log_gym_env=log_gym_env,
-                    log_gym_env_steps=log_gym_env_steps,
-                    log_gym_env_reset=log_gym_env_reset
+                    log_gym_api=log_gym_api,
+                    log_gym_api_steps=log_gym_api_steps,
+                    log_gym_api_reset=log_gym_api_reset
         )
 
 
@@ -63,11 +63,11 @@ class TrainingDuration(object):
     """
 
     def __init__(   self,    
-                    num_iterations : int = 10,
+                    num_iterations : int = 25,
                     num_episodes_per_iteration : int = 10,
-                    max_steps_per_episode : int = 100000,
-                    num_epochs_per_iteration : int = 10,
-                    num_iterations_between_eval : int = 10,
+                    max_steps_per_episode : int = 500,
+                    num_epochs_per_iteration : int = 5,
+                    num_iterations_between_eval : int = 5,
                     num_eval_episodes : int = 10 ):
         """ Groups all properties related to the definition of the algorithms runtime
 
@@ -140,5 +140,23 @@ class TrainingDurationFast(TrainingDuration):
                         num_epochs_per_iteration=num_epochs_per_iteration,
                         num_iterations_between_eval=num_iterations_between_eval,
                         num_eval_episodes=num_eval_episodes)
+
+class TrainingDurationSingleEpisode(TrainingDuration):
+    """TrainingDuration with constructor defaults set to a single training set.
+    """
+    def __init__(   self,    
+                    num_iterations : int = 1,
+                    num_episodes_per_iteration : int = 1,
+                    max_steps_per_episode : int = 1000,
+                    num_epochs_per_iteration : int = 1,
+                    num_iterations_between_eval : int = 1,
+                    num_eval_episodes : int = 1 ):
+        super().__init__( num_iterations=num_iterations,
+                        num_episodes_per_iteration=num_episodes_per_iteration,
+                        max_steps_per_episode=max_steps_per_episode,
+                        num_epochs_per_iteration=num_epochs_per_iteration,
+                        num_iterations_between_eval=num_iterations_between_eval,
+                        num_eval_episodes=num_eval_episodes)
+
 
     

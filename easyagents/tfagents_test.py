@@ -2,6 +2,8 @@ import unittest
 import tensorflow as tf
 from easyagents.tfagents import PpoAgent
 from easyagents.config import TrainingDurationFast
+from easyagents.config import TrainingDurationSingleEpisode
+from easyagents.config import LoggingVerbose
 
 class TestTfAgents(unittest.TestCase):
 
@@ -22,7 +24,14 @@ class TestTfAgents(unittest.TestCase):
         ppo_agent = PpoAgent( self.gym_env_name, training_duration=TrainingDurationFast() )
         result = str(ppo_agent)
         print(result)
-        return            
+        return       
+
+    def test_render_episodes(self):
+        ppo_agent = PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
+        ppo_agent.train()
+
+        ppo_agent.render_episodes_to_mp4()
+        return     
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,12 +1,18 @@
-# EasyAgents (work in progress)
+# EasyAgents (pre-alpha / proof of concept)
 
 An easy and simple way to get started with reinforcement learning and experimenting with your
 own game engine / environment. EasyAgents is based on OpenAI gym and
 uses algorithms implemented by tfAgents or OpenAI baselines.
 
-## Example (work in progress)
+## Example
 
 Here's an example of the full code needed to run the tfagents implementation of Ppo on the cartpole example.
+
+Install from pypi using pip:
+
+```python
+pip install easyagents
+```
 
 ### Simplest case (no configuration)
 
@@ -48,9 +54,18 @@ ppo_agent = PpoAgent(   gym_env_name='CartPole-v0',
 ppo_agent.train()
 ```
 
-The signature of PpoAgent() stays the same across all implementations.
-Thus you can still switch to the OpenAI baselines implementation simply by substituting the
-import statement.
+Points of interest:
+
+* The signature of PpoAgent() stays the same across all implementations.
+  Thus you can still switch to the OpenAI baselines implementation simply by substituting the import statement.
+* You can also use the preconfigured TrainingDurationFast()
+* All 'agent api' and all 'gym api' calls are logged. You can easly turn them individually on or off using
+
+```python
+  PpoAgents( ..., logging=Logging( log_agent=true, log_gym_api=false ), ...)
+```
+
+* You may also use the preconfigure LoggingVerbose() or LoggingSilent()
 
 ## Run it on colab
 
