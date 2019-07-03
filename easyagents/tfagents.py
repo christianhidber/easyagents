@@ -79,8 +79,6 @@ class TfAgent(EasyAgent):
             callback    : callback(action,state,reward,done,info) is called after each step.
                           if the callback yields True, the episode is aborted.      
         """
-        self._log_api_call(f'executing play_episode(...)')
-
         assert self._trained_policy is not None, "policy not yet trained. call train() first."
 
         if self._gym_eval_env is None:
@@ -98,7 +96,6 @@ class TfAgent(EasyAgent):
             sum_rewards += time_step.reward
         easy_env._set_step_callback( None )
         result = float(sum_rewards)
-        self._log_api_call(f'completed play_episode(...) = {float(result):.3f}')
         return result
 
 

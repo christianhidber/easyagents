@@ -106,8 +106,6 @@ class EasyAgent(object):
             Args:
             callback    : callback(gym_env,action,state,reward,done,info) is called after each step.
         """
-        self._log_api_call(f'executing play_episode(...)')
-        self._log_api_call(f'completed play_episode(...)')
         return 0
 
 
