@@ -300,7 +300,7 @@ ppo_agent = PpoAgent(  gym_env_name = 'Berater-v1',
 ppo_agent.train()
 
 #%%
-ppo_agent.plot_average_returns()
+ppo_agent.plot_average_rewards()
 ppo_agent.plot_average_steps()
 ppo_agent.plot_losses()
 

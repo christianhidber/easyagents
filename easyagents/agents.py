@@ -1,5 +1,6 @@
 import base64
 import os
+import statistics
 import tempfile
 from logging import INFO, getLogger
 
@@ -57,7 +58,7 @@ class EasyAgent(object):
         self._learning_rate = learning_rate
         self._reward_discount_gamma = reward_discount_gamma
         self._logging = logging
-        self.training_average_returns = []
+        self.training_average_rewards = []
         self.training_average_steps = []
         self.training_losses = []
 
@@ -94,7 +95,7 @@ class EasyAgent(object):
     def _clear_average_rewards_and_steps_log(self):
         """ resets the training logs for the vâvg return, avg steps.
         """
-        self.training_average_returns=[]
+        self.training_average_rewards=[]
         self.training_average_steps=[]
 
     def _record_average_rewards_and_steps(self):
@@ -113,7 +114,7 @@ class EasyAgent(object):
         avg_rewards: float = sum_rewards / self._training_duration.num_eval_episodes
         avg_steps: float = sum_steps / self._training_duration.num_eval_episodes
         self._log_minimal(f'estimated  avg_reward={float(avg_rewards):.3f}, avg_steps={float(avg_steps):.3f}')
-        self.training_average_returns.append(avg_rewards)
+        self.training_average_rewards.append(avg_rewards)
         self.training_average_steps.append(avg_steps)
 
     def play_episode(self, callback = None) -> (float, int):
@@ -125,43 +126,57 @@ class EasyAgent(object):
         """
         return (0.0, 0)
 
-    def plot_average_returns(self):
-        """ produces a matlib.pyplot plot showing the average sum of returns per episode during training.
+    def plot_average_rewards(self, ylim=None):
+        """ produces a matlib.pyplot plot showing the average sum of rewards per episode during training.
+
+            Args:
+            ylim    : [ymin,ymax] values for the plot
 
             Note:
             To see the plot you may call this method from IPython / jupyter notebook.
         """
-        episodes_per_value = self._training_duration.num_iterations_between_eval * self._training_duration.num_episodes_per_iteration
-        value_count = len(self.training_average_returns)
-        steps = range(0, value_count*episodes_per_value, episodes_per_value)
-        plt.plot(steps, self.training_average_returns )
-        plt.ylabel('average returns')
-        plt.xlabel('episodes')
+        episodes_per_value = self._training_duration.num_episodes_per_iteration*self._training_duration.num_iterations_between_eval
+        self._plot_episodes(yvalues=self.training_average_rewards, episodes_per_value=episodes_per_value, ylabel='rewards', ylim=ylim )
 
-    def plot_average_steps(self):
+    def plot_average_steps(self, ylim=None):
         """ produces a matlib.pyplot plot showing the average number of steps per episode during training.
 
+            Args:
+            ylim    : [ymin,ymax] values for the plot
+
             Note:
             To see the plot you may call this method from IPython / jupyter notebook.
         """
-        episodes_per_value = self._training_duration.num_iterations_between_eval * self._training_duration.num_episodes_per_iteration
-        value_count = len(self.training_average_steps)
-        steps = range(0, value_count*episodes_per_value, episodes_per_value)
-        plt.plot(steps, self.training_average_steps )
-        plt.ylabel('average steps')
-        plt.xlabel('episodes')
+        episodes_per_value = self._training_duration.num_episodes_per_iteration * self._training_duration.num_iterations_between_eval
+        self._plot_episodes(yvalues=self.training_average_steps, episodes_per_value=episodes_per_value, ylabel='steps', ylim=ylim)
         
-    def plot_losses(self):
+    def plot_losses(self, ylim=None ):
         """ produces a matlib.pyplot plot showing the losses during training.
+
+            Args:
+            ylim    : [ymin,ymax] values for the plot
 
             Note:
             To see the plot you may call this method from IPython / jupyter notebook.
         """
         episodes_per_value = self._training_duration.num_episodes_per_iteration
-        value_count = len(self.training_losses)+1
-        steps = range(episodes_per_value, value_count*episodes_per_value, episodes_per_value)
-        plt.plot(steps, self.training_losses )
-        plt.ylabel('losses')
+        self._plot_episodes(yvalues=self.training_losses, episodes_per_value=episodes_per_value, ylabel='losses', start_at_0=False, ylim=ylim)
+
+    def _plot_episodes(self, yvalues, episodes_per_value: int, ylabel : str, start_at_0 : bool = True, ylim=None):
+        """ yields a plot.
+
+            Args:
+            clip_stddev : if != 0 the y-axes is clipped at average +/- clip_stddev*stddev
+        """
+        value_count = len(yvalues)
+        steps = range(0, value_count * episodes_per_value, episodes_per_value)
+        if not start_at_0:
+            steps = range(episodes_per_value, (value_count+1)*episodes_per_value, episodes_per_value)
+        plt.xlim( 0, self._training_duration.num_episodes + 1 )
+        if not ylim is None:
+            plt.ylim(ylim)
+        plt.plot(steps, yvalues)
+        plt.ylabel(ylabel)
         plt.xlabel('episodes')
 
     def render_episodes_to_html(self, num_episodes : int = 10,

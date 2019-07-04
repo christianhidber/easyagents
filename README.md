@@ -30,7 +30,7 @@ Points of interest:
 * If you would like to see plots of the average returns and losses during training (in a jupyter notebook):
 
     ```python
-    ppo_agent.plot_average_returns()
+    ppo_agent.plot_average_rewards()
     ppo_agent.plot_losses()
     ```
 
