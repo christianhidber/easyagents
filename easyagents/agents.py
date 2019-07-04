@@ -1,6 +1,5 @@
 import base64
 import os
-import statistics
 import tempfile
 from logging import INFO, getLogger
 
