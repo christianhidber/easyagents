@@ -75,7 +75,10 @@ class EasyAgent(object):
     def __str__(self):
         """ yields a human readable representation of the agents/algorithms current configuration
         """
-        result = f'{type(self).__name__} on {self._gym_env_name} [fc_layers={self.fc_layers}, learning_rate={self._learning_rate}, reward_discount_gamma={self._reward_discount_gamma}]'
+        result = f'{type(self).__name__} on {self._gym_env_name} [fc_layers={self.fc_layers}, learning_rate={self._learning_rate}'
+        if self._reward_discount_gamma < 1:
+            result += f', reward_discount_gamma={self._reward_discount_gamma}'
+        result += ']'
         return result
 
     def _log_agent(self, msg):

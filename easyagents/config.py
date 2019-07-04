@@ -45,6 +45,24 @@ class LoggingVerbose(Logging):
         )
 
 
+class LoggingMinimal(Logging):
+    """Logging configuration for full logging (all agent api calls and all gym env calls are logged)
+    """
+    def __init__(   self,
+                    log_minimal: bool = True,
+                    log_agent : bool = False,
+                    log_gym_api : bool = False,
+                    log_gym_api_steps : bool = False,
+                    log_gym_api_reset : bool = False):
+        super().__init__(
+                    log_minimal=log_minimal,
+                    log_agent=log_agent,
+                    log_gym_api=log_gym_api,
+                    log_gym_api_steps=log_gym_api_steps,
+                    log_gym_api_reset=log_gym_api_reset
+        )
+
+
 class LoggingNormal(Logging):
     """Logging configuration for full logging (all agent api calls and all gym env calls are logged)
     """
@@ -61,6 +79,7 @@ class LoggingNormal(Logging):
                     log_gym_api_steps=log_gym_api_steps,
                     log_gym_api_reset=log_gym_api_reset
         )
+
 
 
 class LoggingSilent(Logging):
@@ -122,7 +141,7 @@ class TrainingDuration(object):
         """ yields a human readable representation of the agents/algorithms current configuration
         """
         episodes = self._num_iterations * self._num_episodes_per_iteration
-        result = f'{episodes}={self._num_iterations}*{self._num_episodes_per_iteration} episodes [max_steps_per_episode={self._max_steps_per_episode}, num_epochs_per_iteration={self._num_epochs_per_iteration}, num_iterations_between_eval={self._num_iterations_between_eval}]'
+        result = f'{episodes}={self._num_iterations}*{self._num_episodes_per_iteration} episodes [max {self._max_steps_per_episode} steps/episode, {self._num_epochs_per_iteration} epochs/iteration]'
         return result
 
     @property
