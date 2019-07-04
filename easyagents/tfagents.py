@@ -14,8 +14,6 @@ from easyagents.easyenv import EasyEnv
 from easyagents.config import TrainingDuration
 from easyagents.config import Logging
 
-from gym import Env
-
 
 class TfAgent(EasyAgent):
     """ Reinforcement learning agents based on googles tf_agent implementations
@@ -29,58 +27,58 @@ class TfAgent(EasyAgent):
                     learning_rate : float = 0.001,
                     logging : Logging = None
                 ):
-        super().__init__(   gym_env_name=gym_env_name, 
-                            training_duration=training_duration, 
+        super().__init__(   gym_env_name=gym_env_name,
+                            training_duration=training_duration,
                             fc_layers=fc_layers,
                             reward_discount_gamma=reward_discount_gamma,
                             learning_rate=learning_rate,
-                            logging = logging 
-                        )
+                            logging = logging )
         self.__initialize()
         self._trained_policy = None
+        self._gym_eval_env = None
         return
 
     def __initialize(self):
         """ initializes TensorFlow behaviour and random seeds.
         """
         self._gym_eval_env = None
-        self._log_api_call("executing: tf.compat.v1.enable_v2_behavior()")
+        self._log_agent("executing: tf.compat.v1.enable_v2_behavior()")
         tf.compat.v1.enable_v2_behavior()
-        self._log_api_call("executing: tf.enable_eager_execution()")
+        self._log_agent("executing: tf.enable_eager_execution()")
         tf.compat.v1.enable_eager_execution()
-        self._log_api_call("executing: tf.compat.v1.set_random_seed(0)")
+        self._log_agent("executing: tf.compat.v1.set_random_seed(0)")
         tf.compat.v1.set_random_seed(0)
         return
 
     def _create_tfagent_env(self) -> tf_py_environment.TFPyEnvironment:
         """ creates a new instance of the gym environment and wraps it in a tfagent TFPyEnvironment
         """
-        self._log_api_call("   executing tf_py_environment.TFPyEnvironment( suite_gym.load )")
-        py_env = suite_gym.load( self._gym_env_name, discount=self._reward_discount_gamma,max_episode_steps=self._training_duration.max_steps_per_episode  )
+        self._log_agent("   executing tf_py_environment.TFPyEnvironment( suite_gym.load )")
+        py_env = suite_gym.load( self._gym_env_name,
+                                 discount=self._reward_discount_gamma,
+                                 max_episode_steps=self._training_duration.max_steps_per_episode  )
         result = tf_py_environment.TFPyEnvironment( py_env)
         return result
 
     def _get_EasyEnv(self, tf_py_env: tf_py_environment.TFPyEnvironment ) -> EasyEnv:
         """ extracts the underlying EasyEnv from tf_py_env created by _create_tfagent_env
         """
-        assert isinstance(tf_py_env,tf_py_environment.TFPyEnvironment), "passed tf_py_env is not an instance of TFPyEnvironment"
-        assert isinstance(tf_py_env.pyenv,py_environment.PyEnvironment), "passed TFPyEnvironment.pyenv does not contain a PyEnvironment"
+        assert isinstance(tf_py_env, tf_py_environment.TFPyEnvironment), "passed tf_py_env is not an instance of TFPyEnvironment"
+        assert isinstance(tf_py_env.pyenv, py_environment.PyEnvironment), "passed TFPyEnvironment.pyenv does not contain a PyEnvironment"
         assert len(tf_py_env.pyenv.envs) == 1, "passed TFPyEnvironment.pyenv does not contain a unique environment"
 
         result = tf_py_env.pyenv.envs[0]._env.gym
         assert isinstance(result, EasyEnv), "passed TFPyEnvironment does not contain a EasyEnv"
         return result
 
-
-    def play_episode (self, callback = None) -> float:
-        """ Plays a full episode using the previously trained policy, returning the sum of rewards over the full episode. 
+    def play_episode (self, callback = None) -> (float, int):
+        """ Plays a full episode using the previously trained policy, returning tuple (rewards,steps)
+            representing the sum of rewards and the totale number of steps over the full episode.
 
             Args:
             callback    : callback(action,state,reward,done,info) is called after each step.
                           if the callback yields True, the episode is aborted.      
         """
-        self._log_api_call(f'executing play_episode(...)')
-
         assert self._trained_policy is not None, "policy not yet trained. call train() first."
 
         if self._gym_eval_env is None:
@@ -89,18 +87,17 @@ class TfAgent(EasyAgent):
         easy_env = self._get_EasyEnv( self._gym_eval_env )
         if callback is not None:
             easy_env._set_step_callback( callback )
-            
+
         sum_rewards = 0.0
+        step_count = 0
         time_step = self._gym_eval_env.reset()
         while not time_step.is_last():
             action_step = self._trained_policy.action(time_step)
             time_step = self._gym_eval_env.step(action_step.action)
             sum_rewards += time_step.reward
+            step_count += 1
         easy_env._set_step_callback( None )
-        result = float(sum_rewards)
-        self._log_api_call(f'completed play_episode(...) = {float(result):.3f}')
-        return result
-
+        return float(sum_rewards), step_count
 
 
 class PpoAgent(TfAgent):
@@ -134,7 +131,7 @@ class PpoAgent(TfAgent):
                     learning_rate : float = 0.001,
                     reward_discount_gamma : float = 1,
                     logging : Logging = None ):
-        super().__init__(   gym_env_name= gym_env_name, 
+        super().__init__(   gym_env_name= gym_env_name,
                             fc_layers= fc_layers,
                             training_duration=training_duration,
                             learning_rate=learning_rate,
@@ -150,38 +147,40 @@ class PpoAgent(TfAgent):
             defined in TrainingDuration configuration.
         """
         # Create Training Environment, Optimizer and PpoAgent
-        self._log_api_call("Creating environment:")
+        self._log_agent("Creating environment:")
         train_env = self._create_tfagent_env()
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
 
-        self._log_api_call("Creating agent:")
-        self._log_api_call("  creating  tf.compat.v1.train.AdamOptimizer( ... )")
+        self._log_agent("Creating agent:")
+        self._log_agent("  creating  tf.compat.v1.train.AdamOptimizer( ... )")
         optimizer = tf.compat.v1.train.AdamOptimizer( learning_rate=self._learning_rate )
 
-        actor_net = actor_distribution_network.ActorDistributionNetwork( observation_spec, action_spec, fc_layer_params=self.fc_layers )
+        actor_net = actor_distribution_network.ActorDistributionNetwork( observation_spec,
+                                                                         action_spec,
+                                                                         fc_layer_params=self.fc_layers )
         value_net = value_network.ValueNetwork( observation_spec, fc_layer_params=self.fc_layers )
 
-        self._log_api_call("  creating  PPOAgent( ... )")
-        tf_agent = ppo_agent.PPOAgent(  timestep_spec, action_spec, optimizer, 
-                                        actor_net=actor_net, 
+        self._log_agent("  creating  PpoAgent( ... )")
+        tf_agent = ppo_agent.PPOAgent(  timestep_spec, action_spec, optimizer,
+                                        actor_net=actor_net,
                                         value_net=value_net,
                                         num_epochs=self._training_duration.num_epochs_per_iteration)
-        self._log_api_call("  executing tf_agent.initialize()")
+        self._log_agent("  executing tf_agent.initialize()")
         tf_agent.initialize()
         self._trained_policy = tf_agent.policy
 
         # Data collection
-        self._log_api_call("Creating data collection:")
+        self._log_agent("Creating data collection:")
         collect_data_spec = tf_agent.collect_data_spec
-        self._log_api_call("  creating TFUniformReplayBuffer()")
-        replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(     collect_data_spec,
-                                                                            batch_size=1,
-                                                                            max_length=self._num_training_steps_in_replay_buffer )
+        self._log_agent("  creating TFUniformReplayBuffer()")
+        replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer( collect_data_spec,
+                                                                        batch_size=1,
+                                                                        max_length=self._num_training_steps_in_replay_buffer )
 
         collect_policy = tf_agent.collect_policy
-        self._log_api_call("  creating DynamicEpisodeDriver()")
+        self._log_agent("  creating DynamicEpisodeDriver()")
         collect_driver = dynamic_episode_driver.DynamicEpisodeDriver(   train_env,
                                                                         collect_policy,
                                                                         observers=[replay_buffer.add_batch],
@@ -191,33 +190,29 @@ class PpoAgent(TfAgent):
         collect_driver.run = common.function( collect_driver.run, autograph=False )
         tf_agent.train = common.function( tf_agent.train, autograph=False )
 
-        self.training_average_returns=[]
-        self.training_losses=[]
+        self._clear_average_rewards_and_steps_log()
+        self._record_average_rewards_and_steps()
+        self.training_losses = []
 
-        self._log_api_call("Starting training:")
-        for step in range( self._training_duration.num_iterations ):
-            msg = f'training {step+1} of {self._training_duration.num_iterations}:'
+        self._log_agent("Starting training:")
+        for step in range( 1, self._training_duration.num_iterations + 1):
+            msg = f'training {step} of {self._training_duration.num_iterations}:'
 
-            if step % self._training_duration.num_iterations_between_eval == 0:
-                avg_return = self.compute_avg_return()
-                self.training_average_returns.append( avg_return )
-
-            self._log_api_call(msg + " executing collect_driver.run()")
+            self._log_agent(msg + " executing collect_driver.run()")
             collect_driver.run()
 
-            self._log_api_call(msg + " executing replay_buffer.gather_all()")
+            self._log_agent(msg + " executing replay_buffer.gather_all()")
             trajectories = replay_buffer.gather_all()
 
-            self._log_api_call(msg + " executing tf_agent.train(...)")
+            self._log_agent(msg + " executing tf_agent.train(...)")
             total_loss, _ = tf_agent.train( experience=trajectories )
-            self.training_losses.append( total_loss )
-            self._log_api_call( f'{msg} completed tf_agent.train(...) = {total_loss.numpy():.3f} [loss]')
-            
-            self._log_api_call(msg + " executing replay_buffer.clear()")
+            self.training_losses.append( float(total_loss) )
+            self._log_minimal(f'{msg} completed tf_agent.train(...) = {total_loss.numpy():.3f} [loss]')
+
+            self._log_agent(msg + " executing replay_buffer.clear()")
             replay_buffer.clear()
 
-        if self._training_duration.num_iterations % self._training_duration.num_iterations_between_eval == 0:
-            avg_return = self.compute_avg_return()
-            self.training_average_returns.append( avg_return )
-        return 
+            if step % self._training_duration.num_iterations_between_eval == 0:
+                self._record_average_rewards_and_steps()
+        return
 

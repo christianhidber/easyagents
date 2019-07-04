@@ -11,8 +11,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 class TestEasyEnv(unittest.TestCase):
 
-
-
     def test_register(self):
         logging.basicConfig(level=logging.DEBUG)
         name = easyagents.easyenv.register('CartPole-v0')
@@ -43,8 +41,9 @@ class TestEasyEnv(unittest.TestCase):
         ppo_agent.train()
 
         TestEasyEnv._step_callback_call_count=0
-        episode_reward = ppo_agent.play_episode(step_callback)
-        assert episode_reward > 0
+        (reward, steps) = ppo_agent.play_episode(step_callback)
+        assert reward > 0
+        assert steps > 0
         assert TestEasyEnv._step_callback_call_count>0
         return   
 
