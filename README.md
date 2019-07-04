@@ -4,6 +4,12 @@ An easy and simple way to get started with reinforcement learning and experiment
 own game engine / environment. EasyAgents is based on OpenAI gym and
 uses algorithms implemented by tfAgents or OpenAI baselines.
 
+Try it on colab:
+* [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
+  (the classic reinforcement learning example balancing a stick on a cart)
+* [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_berater.ipynb)
+  (an example of a gym environment implementation based on a routing problem)
+
 ## Example
 
 Here's an example of the full code needed to run the tfagents implementation of Ppo on the cartpole example.
@@ -30,7 +36,7 @@ Points of interest:
 * If you would like to see plots of the average returns and losses during training (in a jupyter notebook):
 
     ```python
-    ppo_agent.plot_average_returns()
+    ppo_agent.plot_average_rewards()
     ppo_agent.plot_losses()
     ```
 
@@ -66,13 +72,6 @@ Points of interest:
 ```
 
 * You may also use the preconfigure LoggingVerbose() or LoggingSilent()
-
-## Run it on colab
-
-* [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
-  (the classic reinforcement learning example balancing a stick on a cart)
-* [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_berater.ipynb)
-  (an example of a gym environment implementation based on a routing problem)
 
 ## Vocabulary
 
