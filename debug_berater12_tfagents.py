@@ -289,27 +289,19 @@ else:
 
 from easyagents.tfagents import PpoAgent
 from easyagents.config import TrainingDurationFast
-from easyagents.config import TrainingDuration
 from easyagents.config import LoggingVerbose
 
 
-# training_duration = None
-# training_duration = TrainingDuration( 
-#                     num_iterations = 2000,
-#                     num_episodes_per_iteration = 100,
-#                     max_steps_per_episode = 1000,
-#                     num_epochs_per_iteration = 5,
-#                     num_iterations_between_eval = 10,
-#                     num_eval_episodes = 10)
 ppo_agent = PpoAgent(  gym_env_name = 'Berater-v1',
                       fc_layers=(500,500,500), 
                       training_duration=TrainingDurationFast(),
-                      logging=LoggingVerbose(),
+                      # logging=LoggingVerbose(),
                       learning_rate=1e-4 )
 ppo_agent.train()
 
 #%%
 ppo_agent.plot_average_returns()
+ppo_agent.plot_average_steps()
 ppo_agent.plot_losses()
 
 #%%

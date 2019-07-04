@@ -1,18 +1,18 @@
 import base64
-import numpy as np
 import os
 import tempfile
+from logging import INFO, getLogger
+
 import gym
 import imageio
-import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 
-from logging import INFO, WARNING, getLogger
-
-from easyagents.config import TrainingDuration
 from easyagents.config import Logging
-from easyagents.easyenv import register
+from easyagents.config import TrainingDuration
 from easyagents.easyenv import EasyEnv
+from easyagents.easyenv import register
+
 
 class EasyAgent(object):
     """ Abstract base class for all easy reinforcment learning agents.
@@ -33,84 +33,97 @@ class EasyAgent(object):
                     fc_layers = None,                    
                     learning_rate : float = 0.001,
                     reward_discount_gamma : float = 1,
-                    logging : Logging = None
-                     ): 
+                    logging : Logging = None    ):
         if fc_layers is None:
-            fc_layers = (75,75)
+            fc_layers = (75, 75)
         if training_duration is None:
             training_duration = TrainingDuration()
         if logging is None:
             logging = Logging()
 
-        assert isinstance(gym_env_name,str), "passed gym_env_name not a string."
+        assert isinstance(gym_env_name, str), "passed gym_env_name not a string."
         assert gym_env_name != "", "gym environment name is empty."
-        assert fc_layers != None, "fc_layers not set"
-        assert isinstance(training_duration,TrainingDuration), "training_duration not an instance of easyagents.config.TrainingDuration"
+        assert fc_layers is not None, "fc_layers not set"
+        assert isinstance(training_duration, TrainingDuration), "training_duration not an instance of easyagents.config.TrainingDuration"
         assert learning_rate > 0, "learning_rate must be in (0,1]"
         assert learning_rate <= 1, "learning_rate must be in (0,1]"
         assert reward_discount_gamma > 0, "reward_discount_gamma must be in (0,1]"
         assert reward_discount_gamma <= 1, "reward_discount_gamma must be in (0,1]"
-        assert isinstance(logging,Logging), "logging not an instance of easyagents.config.Logging"
+        assert isinstance(logging, Logging), "logging not an instance of easyagents.config.Logging"
 
         self._gym_env_name = gym_env_name
         self._training_duration = training_duration
         self.fc_layers = fc_layers
         self._learning_rate = learning_rate
         self._reward_discount_gamma = reward_discount_gamma
-        self._logging=logging
+        self._logging = logging
         self.training_average_returns = []
-        self.training_losses= []
+        self.training_average_steps = []
+        self.training_losses = []
 
         self._log = getLogger(name=__name__)
-        self._log.setLevel(WARNING)
-        if self._logging.log_agent:
-            self._log.setLevel(INFO)
-        self._log.info( str(self) )
+        self._log.setLevel(INFO)
+        self._log_minimal(f'{self}')
+        self._log_minimal(f'TrainingDuration {self._training_duration}')
 
-        self._gym_env_name = register(  gym_env_name    = self._gym_env_name, 
-                                        log_api         = self._logging.log_gym_api,
-                                        log_steps       = self._logging.log_gym_api_steps,
-                                        log_reset       = self._logging.log_gym_api_reset   )
+        self._gym_env_name = register(  gym_env_name = self._gym_env_name,
+                                        log_api = self._logging.log_gym_api,
+                                        log_steps = self._logging.log_gym_api_steps,
+                                        log_reset = self._logging.log_gym_api_reset   )
         return
 
     def __str__(self):
         """ yields a human readable representation of the agents/algorithms current configuration
         """
-        result = "gym_env_name=" + self._gym_env_name + " fc_layers=" + str(self.fc_layers)
+        result = f'{type(self).__name__} on {self._gym_env_name} [fc_layers={self.fc_layers}, learning_rate={self._learning_rate}, reward_discount_gamma={self._reward_discount_gamma}]'
         return result
 
-    def _log_api_call(self, msg):
-        self._log.info(msg)
+    def _log_agent(self, msg):
+        if self._logging.log_agent:
+            self._log.info(msg)
         return
 
-    def compute_avg_return(self ) -> float:
-        """ computes the expected sum of rewards for the previously trained policy.
+    def _log_minimal(self, msg):
+        if self._logging.log_minimal or self._logging.log_agent:
+            self._log.info(msg)
+        return
 
-            Note:
-            The evaluation is performed on a instance of gym_env_name.
+    def _clear_average_rewards_and_steps_log(self):
+        """ resets the training logs for the vâvg return, avg steps.
         """
-        self._log_api_call(f'executing compute_avg_return(...)')
-                    
+        self.training_average_returns=[]
+        self.training_average_steps=[]
+
+    def _record_average_rewards_and_steps(self):
+        """ computes the expected sum of rewards and the expected step count for the previously trained policy.
+            and adds them to the training logs
+           Note:
+           The evaluation is performed on a instance of gym_env_name.
+        """
+        self._log_agent(f'estimating average rewards and episode lengths for current policy...')
         sum_rewards = 0.0
+        sum_steps = 0
         for _ in range(self._training_duration.num_eval_episodes):
-            sum_rewards += self.play_episode()
-        result = sum_rewards / self._training_duration.num_eval_episodes
-        self._log_api_call(f'completed compute_avg_return(...) = {float(result):.3f}')
-        return result
+            (reward, steps) = self.play_episode()
+            sum_rewards += reward
+            sum_steps += steps
+        avg_rewards: float = sum_rewards / self._training_duration.num_eval_episodes
+        avg_steps: float = sum_steps / self._training_duration.num_eval_episodes
+        self._log_minimal(f'estimated  avg_reward={float(avg_rewards):.3f}, avg_steps={float(avg_steps):.3f}')
+        self.training_average_returns.append(avg_rewards)
+        self.training_average_steps.append(avg_steps)
 
-
-    def play_episode (self, callback = None) -> float:
+    def play_episode(self, callback = None) -> (float, int):
         """ Plays a full episode using the previously trained policy, returning the sum of rewards over the full episode. 
             Initially the eval_env.reset is called (callback action set to None)
 
             Args:
             callback    : callback(gym_env,action,state,reward,done,info) is called after each step.
         """
-        return 0
-
+        return (0.0, 0)
 
     def plot_average_returns(self):
-        """ produces a matlib.pyplot plot showing the average returns during training.
+        """ produces a matlib.pyplot plot showing the average sum of returns per episode during training.
 
             Note:
             To see the plot you may call this method from IPython / jupyter notebook.
@@ -121,8 +134,20 @@ class EasyAgent(object):
         plt.plot(steps, self.training_average_returns )
         plt.ylabel('average returns')
         plt.xlabel('episodes')
-        
 
+    def plot_average_steps(self):
+        """ produces a matlib.pyplot plot showing the average number of steps per episode during training.
+
+            Note:
+            To see the plot you may call this method from IPython / jupyter notebook.
+        """
+        episodes_per_value = self._training_duration.num_iterations_between_eval * self._training_duration.num_episodes_per_iteration
+        value_count = len(self.training_average_steps)
+        steps = range(0, value_count*episodes_per_value, episodes_per_value)
+        plt.plot(steps, self.training_average_steps )
+        plt.ylabel('average steps')
+        plt.xlabel('episodes')
+        
     def plot_losses(self):
         """ produces a matlib.pyplot plot showing the losses during training.
 
@@ -130,14 +155,17 @@ class EasyAgent(object):
             To see the plot you may call this method from IPython / jupyter notebook.
         """
         episodes_per_value = self._training_duration.num_episodes_per_iteration
-        value_count = len(self.training_losses)
-        steps = range(0, value_count*episodes_per_value, episodes_per_value)
+        value_count = len(self.training_losses)+1
+        steps = range(episodes_per_value, value_count*episodes_per_value, episodes_per_value)
         plt.plot(steps, self.training_losses )
         plt.ylabel('losses')
         plt.xlabel('episodes')
 
-
-    def render_episodes_to_html(self, num_episodes : int = 10, filepath : str = None, fps : int = 20, width : int = 640, height : int = 480 ) -> str:
+    def render_episodes_to_html(self, num_episodes : int = 10,
+                                filepath : str = None,
+                                fps : int = 20,
+                                width : int = 640,
+                                height : int = 480 ) -> str:
         """ renders all steps in num_episodes as a mp4 movie and embeds it in HTML for display
             in a jupyter notebook.
 
@@ -152,14 +180,15 @@ class EasyAgent(object):
             width           : width in pixels of the HTML rendered episodes
 
             Note:
-            o To see the plot you may call IPython.display.HTML( <agent>.render_episodes_to_html() ) from IPython / jupyter notebook.
+            o To see the plot you may call IPython.display.HTML( <agent>.render_episodes_to_html() ) from
+              IPython / jupyter notebook.
             o code adapted from: https://colab.research.google.com/github/tensorflow/agents/blob/master/tf_agents/colabs/1_dqn_tutorial.ipynb
         """
         assert num_episodes >= 0, "num_episodes must be >= 0"  
         assert height >= 1, "height must be >= 1"  
         assert width >= 1, "width must be >= 1"  
         
-        filepath = self.render_episodes_to_mp4( num_episodes=num_episodes, filepath=filepath )
+        filepath = self.render_episodes_to_mp4( num_episodes=num_episodes, filepath=filepath, fps=fps )
         with open( filepath, 'rb' ) as f:
             video = f.read()
             b64 = base64.b64encode( video )
@@ -171,7 +200,6 @@ class EasyAgent(object):
         Your browser does not support the video tag.
         </video>'''.format( width, height, b64.decode() )
         return result
-
     
     def render_episodes_to_mp4(self, num_episodes : int = 10, filepath : str = None, fps : int = 20 ) -> str:
         """ renders all steps in num_episodes as a mp4 movie and stores it in filename.
@@ -194,7 +222,8 @@ class EasyAgent(object):
             filepath = self._gym_env_name 
             if filepath.startswith( EasyEnv.NAME_PREFIX ):
                 filepath = filepath[ len(EasyEnv.NAME_PREFIX): ]
-            filepath = os.path.join( tempfile.gettempdir(), next( tempfile._get_candidate_names() ) + "_" + filepath + ".mp4")
+            filepath = os.path.join( tempfile.gettempdir(),
+                                     next( tempfile._get_candidate_names() ) + "_" + filepath + ".mp4")
         with imageio.get_writer(filepath, fps=fps) as video:
             for _ in range( num_episodes ):
                 self.play_episode( lambda gym_env, action, state, reward, done, info : video.append_data( self._render_image( gym_env ) ) )
@@ -208,6 +237,8 @@ class EasyAgent(object):
         assert result is not None, "gym_env.render() yielded None"
         assert isinstance( result, np.ndarray ), "gym_env.render() did not yield a numpy.ndarray."
         return result
+
+
 
 
 

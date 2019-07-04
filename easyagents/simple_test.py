@@ -1,6 +1,7 @@
 import unittest
 import logging
 
+
 class LoggingTest(unittest.TestCase):
 
     def test_log(self):
@@ -15,7 +16,6 @@ class LoggingTest(unittest.TestCase):
         self._log.fatal("fatal output")
         return
 
-    
     def test_rootlogger(self):
         # logging.basicConfig()
         logging.basicConfig(level=logging.DEBUG)
