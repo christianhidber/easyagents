@@ -1,4 +1,4 @@
-# EasyAgents (pre-alpha / proof of concept)
+# EasyAgents (work in progress)
 
 An easy and simple way to get started with reinforcement learning and experimenting with your
 own game engine / environment. EasyAgents is based on OpenAI gym and
