@@ -103,7 +103,7 @@ class EasyAgent(object):
            Note:
            The evaluation is performed on a instance of gym_env_name.
         """
-        self._log_agent(f'estimating average rewards and episode lengths for current policy...')
+        self._log_agent(f'current policy: evaluating... [{self._training_duration.num_eval_episodes} episodes]')
         sum_rewards = 0.0
         sum_steps = 0
         for _ in range(self._training_duration.num_eval_episodes):
@@ -112,7 +112,7 @@ class EasyAgent(object):
             sum_steps += steps
         avg_rewards: float = sum_rewards / self._training_duration.num_eval_episodes
         avg_steps: float = sum_steps / self._training_duration.num_eval_episodes
-        self._log_minimal(f'estimated  avg_reward={float(avg_rewards):.3f}, avg_steps={float(avg_steps):.3f}')
+        self._log_minimal(f'current policy: avg_reward={float(avg_rewards):.3f}, avg_steps={float(avg_steps):.3f}')
         self.training_average_rewards.append(avg_rewards)
         self.training_average_steps.append(avg_steps)
 
