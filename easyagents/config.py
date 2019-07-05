@@ -142,7 +142,9 @@ class TrainingDuration(object):
         """
         episodes = self._num_iterations * self._num_episodes_per_iteration
         result = f'{episodes}={self._num_iterations}*{self._num_episodes_per_iteration} episodes [max {self._max_steps_per_episode} steps/episode, '
-        result += f'{self._num_epochs_per_iteration} epochs/iteration, policy eval every {self.num_iterations_between_eval} episodes]'
+        episodes_between_eval = self.num_iterations_between_eval*self.num_episodes_per_iteration
+        result += f'{self._num_epochs_per_iteration} epochs/iteration, policy eval every {episodes_between_eval}='
+        result += f'{self.num_iterations_between_eval}*{self.num_episodes_per_iteration} episodes]'
         return result
 
     @property

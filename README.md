@@ -6,9 +6,9 @@ uses algorithms implemented by tfAgents or OpenAI baselines.
 
 Try it on colab:
 * [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
-  (the classic reinforcement learning example balancing a stick on a cart)
+  (introduction. the classic reinforcement learning example balancing a stick on a cart)
 * [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_berater.ipynb)
-  (an example of a gym environment implementation based on a routing problem)
+  (custom environment & training. gym environment based on a routing problem)
 
 ## Example
 
@@ -32,22 +32,34 @@ ppo_agent.train()
 Points of interest:
 
 * If you prefer the baselines implementation change the import to 'from easyagents.baselines import Ppo'.
-  That's all no other changes are necessary.
-* If you would like to see plots of the average returns and losses during training (in a jupyter notebook):
+  That's all no other changes are necessary (not implemented yet).
+* If you would like to see plots of the average returns, average episode length and losses during training (in a jupyter notebook):
 
     ```python
     ppo_agent.plot_average_rewards()
+    ppo_agent.plot_steps()
     ppo_agent.plot_losses()
+    ```
+
+* If your environment renders the current state as an image (rgb_array), then you can create a movie like this 
+  (in a jupyter notebook):
+    ```python
+    ppo_agent.render_episodes_to_html(fps=20)
+    ```
+   or save it as an mp4 file:
+    ```python
+    filename = ppo_agent.render_episodes_to_mp4()
     ```
 
 * By default every api call during training is logged, as well as a summary of every game played.
   You can restrict / extend logging to topic areas like 'agent api' or 'environment api' calls.
 
-### With Configuration (layers, training, learning rate, evaluation)
+### Customizing (layers, training, learning rate, evaluation)
 
 ```python
 from easyagents.tfagents import PpoAgent
 from easyagents.config import TrainingDuration
+from easyagents.config import LoggingVerbose
 
 training_duration = TrainingDuration(   num_iterations = 2000,
                                         num_episodes_per_iteration = 100,
@@ -56,7 +68,9 @@ training_duration = TrainingDuration(   num_iterations = 2000,
                                         num_eval_episodes = 10 )
 ppo_agent = PpoAgent(   gym_env_name='CartPole-v0',
                         fc_layers=(500,500,500),
-                        training_duration=training_duration )
+                        learning_rate=0.0001,
+                        training_duration=training_duration,
+                        logging=LoggingVerbose() )
 ppo_agent.train()
 ```
 
@@ -64,14 +78,15 @@ Points of interest:
 
 * The signature of PpoAgent() stays the same across all implementations.
   Thus you can still switch to the OpenAI baselines implementation simply by substituting the import statement.
-* You can also use the preconfigured TrainingDurationFast()
+* Define the number and size of fully connected layers using fc_layers.
+* You can also use the preconfigured TrainingDurationSingleEpisode() or TrainingDurationFast()
 * All 'agent api' and all 'gym api' calls are logged. You can easly turn them individually on or off using
 
 ```python
-  PpoAgents( ..., logging=Logging( log_agent=true, log_gym_api=false ), ...)
+  PpoAgent( ..., logging=Logging( log_agent=true, log_gym_api=false, ... ), ...)
 ```
 
-* You may also use the preconfigure LoggingVerbose() or LoggingSilent()
+* You may also use the preconfigure LoggingVerbose(), LoggingMinimal() or LoggingSilent()
 
 ## Vocabulary
 
@@ -110,7 +125,6 @@ advantages of an algorithm: this is NOT for you.
 
 This is just a heap of ideas, issues and stuff that needs work / should be thought about (besides all the stuff that isn't mentioned):
 
-* using gin for configuration ?
-* logenv.register should allow multiple environments to be registered
-* support for baselines
+* easyenv.register should allow multiple environments to be registered
+* support for OpenAI baselines
 * support for multiple agents (not just ppo)

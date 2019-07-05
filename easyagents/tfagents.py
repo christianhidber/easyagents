@@ -196,8 +196,7 @@ class PpoAgent(TfAgent):
 
         self._log_agent("Starting training:")
         for step in range( 1, self._training_duration.num_iterations + 1):
-            msg = f'training {step} of {self._training_duration.num_iterations}:'
-
+            msg = f'training {step:3} of {self._training_duration.num_iterations:3}:'
             self._log_agent(msg + " executing collect_driver.run()")
             collect_driver.run()
 
