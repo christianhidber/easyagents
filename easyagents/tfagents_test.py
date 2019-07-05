@@ -26,12 +26,34 @@ class TestTfAgents(unittest.TestCase):
         print(result)
         return       
 
-    def test_render_episodes(self):
+    def test_render_episodes_to_mp4(self):
         ppo_agent = PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
         ppo_agent.train()
 
         ppo_agent.render_episodes_to_mp4()
-        return     
+        return
+
+    def test_plot_no_ylim(self):
+        ppo_agent = PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
+        ppo_agent.train()
+
+        ppo_agent.plot_average_rewards()
+        return
+
+    def test_plot_with_ylim(self):
+        ppo_agent = PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
+        ppo_agent.train()
+
+        ppo_agent.plot_average_rewards(ylim=[10,20])
+        return
+
+    def test_plot_with_ylim(self):
+        ppo_agent = PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
+        ppo_agent.train()
+
+        ppo_agent.plot_losses(ylim=[10,20])
+        return
+
 
 if __name__ == '__main__':
     unittest.main()
