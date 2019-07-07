@@ -1,15 +1,20 @@
-# EasyAgents (work in progress)
+# EasyAgents
 
-An easy and simple way to get started with reinforcement learning and experimenting with your
-own game engine / environment. EasyAgents is based on [OpenAI gym](https://github.com/openai/gym) and
-uses algorithms implemented by [tfAgents](https://github.com/tensorflow/agents) or [OpenAI baselines](https://github.com/openai/baselines).
+EasyAgents is a high level reinforcement learning api, written in Python and running on top 
+[OpenAI gym](https://github.com/openai/gym) using algorithms implemented in 
+[tfAgents](https://github.com/tensorflow/agents) or [OpenAI baselines](https://github.com/openai/baselines).
+
+Use EasyAgents if
+* you are looking for an easy and simple way to get started with reinforcement learning
+* you have implemented your own environment and want to experiment with it
+* you want mix and match different implementations and algorithms
 
 Try it on colab:
 * [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
   (introduction. the classic reinforcement learning example balancing a stick on a cart)
 * [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_berater.ipynb)
-  (custom environment & training. gym environment based on a routing problem)
-
+  (example of a custom environment & training. gym environment based on a routing problem)
+  
 ## Example
 
 Here's an example of the full code needed to run the tfagents implementation of Ppo on the cartpole example.
@@ -106,20 +111,18 @@ moreover the list only contains terms that are actually used for this project)
 | policy (aka gaming strategy)  | The 'stuff' we want to learn. A policy maps the current game state to an action. Policies can be very dump like one that randomly chooses an arbitrary action, independent of the current game state. Or they can be clever, like an that maximizes the reward over the whole game.      |
 | training example              | a state together with the desired output of the neural network. For an actor network thats (state, action), for a value network (state, value). |
 
-## For whom this is for (and for whom not)
+## Don't use easyagents if
 
-* If you have a general understanding of reinforcement learning and you would like to try different
-algorithms and/or implemenations in an easy way: this is for you.
-* If you would like to play around with your own reinforcement learning problem and getting a feeling
-if some of the well-known algorithms may be helpful: this is for you.
-* If you are a reinforcement learning EXPERT or if you would like to leverage implementation specific
-advantages of an algorithm: this is NOT for you.
+* you would like to leverage implementation specific advantages of an algorithm
+* you want to do distributed or in parallel reinforcement learning
 
 ## Note
 
-* This is a prototype / proof of concept. Thus any- and everything may (and probably should) change.
+* This repository is under active development and in an early stage. 
+  Thus any- and everything may (and probably should) change.
 * If you have any difficulties in installing or using easyagents please let me know. I'll try to do my best to help you.
-* I am a fairly / very inexperienced in python and open source development. Any ideas, help, suggestions, comments etc are more than welcome. Thanks a lot in advance.
+* Any ideas, help, suggestions, comments etc in python / open source development / reinforcement learning / whatever
+  are more than welcome. Thanks a lot in advance.
 
 ## Stuff to work on
 
