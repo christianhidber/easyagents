@@ -54,6 +54,20 @@ class TestTfAgents(unittest.TestCase):
         ppo_agent.plot_losses(ylim=[10,20])
         return
 
+    def test_render_episodes(self):
+        ppo_agent = PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
+        ppo_agent.train()
+
+        ppo_agent.render_episodes()
+        return
+
+    def test_render_episodes_to_str(self):
+        ppo_agent = PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
+        ppo_agent.train()
+
+        result = ppo_agent.render_episodes_to_str()
+        assert isinstance(result,str), "render_episodes_to_str did not return a string"
+        return
 
 if __name__ == '__main__':
     unittest.main()

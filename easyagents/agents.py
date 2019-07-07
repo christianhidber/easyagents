@@ -1,6 +1,7 @@
 import base64
 import os
 import tempfile
+from io import StringIO
 from logging import INFO, getLogger
 
 import gym
@@ -103,7 +104,7 @@ class EasyAgent(object):
            Note:
            The evaluation is performed on a instance of gym_env_name.
         """
-        self._log_agent(f'current policy     : evaluating... [{self._training_duration.num_eval_episodes} episodes]')
+        self._log_agent(f'current policy       : evaluating... [{self._training_duration.num_eval_episodes} episodes]')
         sum_rewards = 0.0
         sum_steps = 0
         for _ in range(self._training_duration.num_eval_episodes):
@@ -112,16 +113,19 @@ class EasyAgent(object):
             sum_steps += steps
         avg_rewards: float = sum_rewards / self._training_duration.num_eval_episodes
         avg_steps: float = sum_steps / self._training_duration.num_eval_episodes
-        self._log_minimal(f'current policy     : avg_reward={float(avg_rewards):.3f}, avg_steps={float(avg_steps):.3f}')
+        self._log_minimal(f'current policy       : avg_reward={float(avg_rewards):.3f}, avg_steps={float(avg_steps):.3f}')
         self.training_average_rewards.append(avg_rewards)
         self.training_average_steps.append(avg_steps)
 
     def play_episode(self, callback = None) -> (float, int):
         """ Plays a full episode using the previously trained policy, returning the sum of rewards over the full episode. 
-            Initially the eval_env.reset is called (callback action set to None)
+            Initially the eval_env.reset is called.
 
             Args:
             callback    : callback(gym_env,action,state,reward,done,info) is called after each step.
+
+            Returns:
+            (reward, steps) : the sum of all rewards and the number of steps taken over the episode played.
         """
         return (0.0, 0)
 
@@ -135,7 +139,10 @@ class EasyAgent(object):
             To see the plot you may call this method from IPython / jupyter notebook.
         """
         episodes_per_value = self._training_duration.num_episodes_per_iteration*self._training_duration.num_iterations_between_eval
-        self._plot_episodes(yvalues=self.training_average_rewards, episodes_per_value=episodes_per_value, ylabel='rewards', ylim=ylim )
+        self._plot_episodes( yvalues=self.training_average_rewards,
+                             episodes_per_value=episodes_per_value,
+                             ylabel='rewards',
+                             ylim=ylim )
 
     def plot_average_steps(self, ylim=None):
         """ produces a matlib.pyplot plot showing the average number of steps per episode during training.
@@ -147,7 +154,10 @@ class EasyAgent(object):
             To see the plot you may call this method from IPython / jupyter notebook.
         """
         episodes_per_value = self._training_duration.num_episodes_per_iteration * self._training_duration.num_iterations_between_eval
-        self._plot_episodes(yvalues=self.training_average_steps, episodes_per_value=episodes_per_value, ylabel='steps', ylim=ylim)
+        self._plot_episodes( yvalues=self.training_average_steps,
+                             episodes_per_value=episodes_per_value,
+                             ylabel='steps',
+                             ylim=ylim)
         
     def plot_losses(self, ylim=None ):
         """ produces a matlib.pyplot plot showing the losses during training.
@@ -159,7 +169,11 @@ class EasyAgent(object):
             To see the plot you may call this method from IPython / jupyter notebook.
         """
         episodes_per_value = self._training_duration.num_episodes_per_iteration
-        self._plot_episodes(yvalues=self.training_losses, episodes_per_value=episodes_per_value, ylabel='losses', start_at_0=False, ylim=ylim)
+        self._plot_episodes( yvalues=self.training_losses,
+                             episodes_per_value=episodes_per_value,
+                             ylabel='losses',
+                             start_at_0=False,
+                             ylim=ylim)
 
     def _plot_episodes(self, yvalues, episodes_per_value: int, ylabel : str, start_at_0 : bool = True, ylim=None):
         """ yields a plot.
@@ -178,11 +192,46 @@ class EasyAgent(object):
         plt.ylabel(ylabel)
         plt.xlabel('episodes')
 
-    def render_episodes_to_html(self, num_episodes : int = 10,
+    def render_episodes(self, num_episodes : int = 1, mode='human' ):
+        """ plays num_episodes, calling and environment.render after each step.
+
+            gym_env.render(mode) is called (which should render on the current display or terminal without
+            returning a value)
+
+            Args:
+            num_episodes    : the number of episodes to render
+            mode            : the mode argument passed to render
+        """
+        assert num_episodes >= 0, "num_episodes must be >= 0"
+        for _ in range(num_episodes):
+            self.play_episode( lambda gym_env, action, state, reward, done, info: gym_env.render(mode=mode) )
+
+    def render_episodes_to_str(self, num_episodes : int = 1, mode='ansi') -> str:
+        """ plays num_episodes, calling and environment.render(mode) after each step.
+
+            gym_env.render(mode) is called (which should return a str).
+            The str concatenation of all returned values is returned.
+
+            Args:
+            num_episodes    : the number of episodes to render
+            mode            : the mode argument passed to render
+        """
+        assert num_episodes >= 0, "num_episodes must be >= 0"
+
+        buffer = StringIO()
+        for _ in range(num_episodes):
+            self.play_episode( lambda gym_env, action, state, reward, done, info: buffer.write( self._render_str(gym_env, mode=mode) ) )
+        result = buffer.getvalue()
+        buffer.close()
+        return result
+
+    def render_episodes_to_html(self,
+                                num_episodes : int = 10,
                                 filepath : str = None,
                                 fps : int = 20,
                                 width : int = 640,
-                                height : int = 480 ) -> str:
+                                height : int = 480,
+                                mode='rgb_array') -> str:
         """ renders all steps in num_episodes as a mp4 movie and embeds it in HTML for display
             in a jupyter notebook.
 
@@ -205,7 +254,7 @@ class EasyAgent(object):
         assert height >= 1, "height must be >= 1"  
         assert width >= 1, "width must be >= 1"  
         
-        filepath = self.render_episodes_to_mp4( num_episodes=num_episodes, filepath=filepath, fps=fps )
+        filepath = self.render_episodes_to_mp4( num_episodes=num_episodes, filepath=filepath, fps=fps, mode=mode )
         with open( filepath, 'rb' ) as f:
             video = f.read()
             b64 = base64.b64encode( video )
@@ -218,7 +267,7 @@ class EasyAgent(object):
         </video>'''.format( width, height, b64.decode() )
         return result
     
-    def render_episodes_to_mp4(self, num_episodes : int = 10, filepath : str = None, fps : int = 20 ) -> str:
+    def render_episodes_to_mp4(self, num_episodes : int = 10, filepath : str = None, fps : int = 20, mode='rgb_array' ) -> str:
         """ renders all steps in num_episodes as a mp4 movie and stores it in filename.
             Returns the path to the written file.
 
@@ -243,16 +292,28 @@ class EasyAgent(object):
                                      next( tempfile._get_candidate_names() ) + "_" + filepath + ".mp4")
         with imageio.get_writer(filepath, fps=fps) as video:
             for _ in range( num_episodes ):
-                self.play_episode( lambda gym_env, action, state, reward, done, info : video.append_data( self._render_image( gym_env ) ) )
+                self.play_episode( lambda gym_env, action, state, reward, done, info : video.append_data( self._render_image( gym_env, mode=mode ) ) )
         return filepath
 
-    def _render_image( self, gym_env : gym.Env ):
-        """ calls gym_env.render() and validates that it is an image (suitable for rendering a movie)
+    def _render_image( self, gym_env : gym.Env, mode : str ) -> np.ndarray:
+        """ calls gym_env.render(mode='rgb_array') and validates that it returns an image (suitable for rendering a movie)
         """
-        result = gym_env.render(mode='rgb_array')
+        result = gym_env.render(mode=mode)
 
         assert result is not None, "gym_env.render() yielded None"
         assert isinstance( result, np.ndarray ), "gym_env.render() did not yield a numpy.ndarray."
+        return result
+
+    def _render_str( self, gym_env : gym.Env, mode : str ):
+        """ calls gym_env.render() and validates that it returns string (suitable for print)
+        """
+        result = gym_env.render(mode=mode)
+
+        assert result is not None, "gym_env.render() yielded None"
+        if isinstance( result, StringIO ):
+            result = result.getvalue()
+        else:
+            result= str(result)
         return result
 
 

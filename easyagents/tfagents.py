@@ -196,7 +196,7 @@ class PpoAgent(TfAgent):
 
         self._log_agent("Starting training:")
         for step in range( 1, self._training_duration.num_iterations + 1):
-            msg = f'training {step:3} of {self._training_duration.num_iterations:3}:'
+            msg = f'training {step:4} of {self._training_duration.num_iterations:<4}:'
             self._log_agent(msg + " executing collect_driver.run()")
             collect_driver.run()
 
@@ -206,7 +206,7 @@ class PpoAgent(TfAgent):
             self._log_agent(msg + " executing tf_agent.train(...)")
             total_loss, _ = tf_agent.train( experience=trajectories )
             self.training_losses.append( float(total_loss) )
-            self._log_minimal(f'{msg} completed tf_agent.train(...) = {total_loss.numpy():.3f} [loss]')
+            self._log_minimal(f'{msg} completed tf_agent.train(...) = {total_loss.numpy():>8.3f} [loss]')
 
             self._log_agent(msg + " executing replay_buffer.clear()")
             replay_buffer.clear()
