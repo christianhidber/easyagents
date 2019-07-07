@@ -15,8 +15,6 @@ Try it on colab:
 * [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_berater.ipynb)
   (example of a custom environment & training. gym environment based on a routing problem)
   
-EasyAgents is under active development (19Q3).
-
 ## Example
 
 Here's an example of the full code needed to run the tfagents implementation of Ppo on the cartpole example.
@@ -120,9 +118,11 @@ moreover the list only contains terms that are actually used for this project)
 
 ## Note
 
-* This is a prototype / proof of concept. Thus any- and everything may (and probably should) change.
+* This repository is under active development and in an early stage. 
+  Thus any- and everything may (and probably should) change.
 * If you have any difficulties in installing or using easyagents please let me know. I'll try to do my best to help you.
-* I am a fairly / very inexperienced in python and open source development. Any ideas, help, suggestions, comments etc are more than welcome. Thanks a lot in advance.
+* Any ideas, help, suggestions, comments etc in python / open source development / reinforcement learning / whatever
+  are more than welcome. Thanks a lot in advance.
 
 ## Stuff to work on
 
