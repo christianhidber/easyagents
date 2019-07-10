@@ -1,8 +1,10 @@
-# EasyAgents
+# Reinforcement Learning for Practitioners
+
+![EasyAgents logo](EazyAgentsIcon.png)
 
 EasyAgents is a high level reinforcement learning api, written in Python and running on top 
 [OpenAI gym](https://github.com/openai/gym) using algorithms implemented in 
-[tfAgents](https://github.com/tensorflow/agents) or [OpenAI baselines](https://github.com/openai/baselines).
+[tf-Agents](https://github.com/tensorflow/agents) and [OpenAI baselines](https://github.com/openai/baselines).
 
 Use EasyAgents if
 * you are looking for an easy and simple way to get started with reinforcement learning
@@ -113,7 +115,7 @@ moreover the list only contains terms that are actually used for this project)
 | policy (aka gaming strategy)  | The 'stuff' we want to learn. A policy maps the current game state to an action. Policies can be very dump like one that randomly chooses an arbitrary action, independent of the current game state. Or they can be clever, like an that maximizes the reward over the whole game.      |
 | training example              | a state together with the desired output of the neural network. For an actor network thats (state, action), for a value network (state, value). |
 
-## Don't use easyagents if
+## Don't use EasyAgents if
 
 * you would like to leverage implementation specific advantages of an algorithm
 * you want to do distributed or in parallel reinforcement learning
