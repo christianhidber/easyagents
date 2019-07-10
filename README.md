@@ -36,8 +36,6 @@ ppo_agent.train()
 
 Points of interest:
 
-* If you prefer the baselines implementation change the import to 'from easyagents.baselines import Ppo'.
-  That's all no other changes are necessary (not implemented yet).
 * If you would like to see plots of the average returns, average episode length and losses during training (in a jupyter notebook):
 
     ```python
@@ -48,9 +46,11 @@ Points of interest:
 
 * If your environment renders the current state as an image (rgb_array), then you can create a movie like this 
   (in a jupyter notebook):
-    ```python
-    ppo_agent.render_episodes_to_html(fps=20)
-    ```
+  ```python
+  from IPython.display import HTML
+  
+  HTML( ppo_agent.render_episodes_to_html() )
+  ```
    or save it as an mp4 file:
     ```python
     filename = ppo_agent.render_episodes_to_mp4()
@@ -58,6 +58,8 @@ Points of interest:
 
 * By default every api call during training is logged, as well as a summary of every game played.
   You can restrict / extend logging to topic areas like 'agent api' or 'environment api' calls.
+* If you prefer the baselines implementation change the import to 'from easyagents.baselines import Ppo'.
+  That's all no other changes are necessary (not implemented yet).
 
 ### Customizing (layers, training, learning rate, evaluation)
 
