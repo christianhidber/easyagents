@@ -120,9 +120,6 @@ class EasyEnv(gym.Env):
         self._totalReward=0.0
         self._done=False
         result = self.env.reset(**kwargs)
-        if self._step_callback:
-            (state, reward, done, info ) = result
-            self._step_callback(gym_env=self.env,action=None, state=state, reward=reward, done=done, info=info)
         return result
 
 
