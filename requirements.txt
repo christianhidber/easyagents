@@ -1,11 +1,11 @@
 gym==0.10.11
 imageio==2.4.0
-imageio-ffmpeg==0.3.0
+imageio-ffmpeg
 IPython
 ipykernel
-matplotlib==3.1.1
-PILLOW==6.1.0
-pyglet==1.3.2
+matplotlib
+PILLOW
+pyglet
 jupyter
 tf-agents-nightly
 tf-nightly
