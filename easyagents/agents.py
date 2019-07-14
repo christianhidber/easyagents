@@ -204,7 +204,10 @@ class EasyAgent(object):
         """
         assert num_episodes >= 0, "num_episodes must be >= 0"
         for _ in range(num_episodes):
-            self.play_episode( lambda gym_env, action, state, reward, done, info: gym_env.render(mode=mode) )
+            if mode == 'ansi':
+                self.play_episode( lambda gym_env, action, state, reward, done, info: print(gym_env.render(mode=mode)) )
+            else:
+                self.play_episode(lambda gym_env, action, state, reward, done, info: print(gym_env.render(mode=mode)))
 
     def render_episodes_to_str(self, num_episodes : int = 1, mode='ansi') -> str:
         """ plays num_episodes, calling and environment.render(mode) after each step.
