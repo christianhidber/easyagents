@@ -129,11 +129,12 @@ class EasyAgent(object):
         """
         return (0.0, 0)
 
-    def plot_average_rewards(self, ylim=None):
+    def plot_average_rewards(self, ylim=None, scale: str='linear'):
         """ produces a matlib.pyplot plot showing the average sum of rewards per episode during training.
 
             Args:
             ylim    : [ymin,ymax] values for the plot
+            scale   : {"linear", "log"}
 
             Note:
             To see the plot you may call this method from IPython / jupyter notebook.
@@ -142,13 +143,15 @@ class EasyAgent(object):
         self._plot_episodes( yvalues=self.training_average_rewards,
                              episodes_per_value=episodes_per_value,
                              ylabel='rewards',
-                             ylim=ylim )
+                             ylim=ylim,
+                             scale=scale)
 
-    def plot_average_steps(self, ylim=None):
+    def plot_average_steps(self, ylim=None, scale: str='linear'):
         """ produces a matlib.pyplot plot showing the average number of steps per episode during training.
 
             Args:
             ylim    : [ymin,ymax] values for the plot
+            scale   : {"linear", "log"}
 
             Note:
             To see the plot you may call this method from IPython / jupyter notebook.
@@ -157,13 +160,16 @@ class EasyAgent(object):
         self._plot_episodes( yvalues=self.training_average_steps,
                              episodes_per_value=episodes_per_value,
                              ylabel='steps',
-                             ylim=ylim)
+                             ylim=ylim,
+                             scale=scale)
+
         
-    def plot_losses(self, ylim=None ):
+    def plot_losses(self, ylim=None, scale: str='linear'):
         """ produces a matlib.pyplot plot showing the losses during training.
 
             Args:
             ylim    : [ymin,ymax] values for the plot
+            scale   : {"linear", "log"}
 
             Note:
             To see the plot you may call this method from IPython / jupyter notebook.
@@ -173,9 +179,10 @@ class EasyAgent(object):
                              episodes_per_value=episodes_per_value,
                              ylabel='losses',
                              start_at_0=False,
-                             ylim=ylim)
+                             ylim=ylim,
+                             scale=scale)
 
-    def _plot_episodes(self, yvalues, episodes_per_value: int, ylabel : str, start_at_0 : bool = True, ylim=None):
+    def _plot_episodes(self, yvalues, episodes_per_value: int, ylabel : str, start_at_0 : bool = True, ylim=None, scale: str='linear'):
         """ yields a plot.
 
             Args:
@@ -188,6 +195,7 @@ class EasyAgent(object):
         plt.xlim( 0, self._training_duration.num_episodes + 1 )
         if not ylim is None:
             plt.ylim(ylim)
+        plt.yscale(scale)      
         plt.plot(steps, yvalues)
         plt.ylabel(ylabel)
         plt.xlabel('episodes')

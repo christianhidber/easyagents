@@ -47,7 +47,14 @@ class TestTfAgents(unittest.TestCase):
         ppo_agent.plot_average_rewards(ylim=[10,20])
         return
 
-    def test_plot_with_ylim(self):
+    def test_plot_with_log_scale(self):
+        ppo_agent = PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
+        ppo_agent.train()
+
+        ppo_agent.plot_average_rewards(scale='log')
+        return
+
+    def test_plot_losses_with_ylim(self):
         ppo_agent = PpoAgent( 'CartPole-v0', training_duration=TrainingDurationSingleEpisode(), logging=LoggingVerbose() )
         ppo_agent.train()
 
