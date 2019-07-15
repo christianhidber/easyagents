@@ -16,7 +16,8 @@ Try it on colab:
   (introduction. the classic reinforcement learning example balancing a stick on a cart)
 * [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_berater.ipynb)
   (example of a custom environment & training. gym environment based on a routing problem)
-  
+
+In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 ## Example
 
 Here's an example of the full code needed to run the tfagents implementation of Ppo on the cartpole example.
