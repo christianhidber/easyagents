@@ -217,25 +217,6 @@ class EasyAgent(object):
             else:
                 self.play_episode(lambda gym_env, action, state, reward, done, info: print(gym_env.render(mode=mode)))
 
-    def render_episodes_to_str(self, num_episodes : int = 1, mode='ansi') -> str:
-        """ plays num_episodes, calling and environment.render(mode) after each step.
-
-            gym_env.render(mode) is called (which should return a str).
-            The str concatenation of all returned values is returned.
-
-            Args:
-            num_episodes    : the number of episodes to render
-            mode            : the mode argument passed to render
-        """
-        assert num_episodes >= 0, "num_episodes must be >= 0"
-
-        buffer = StringIO()
-        for _ in range(num_episodes):
-            self.play_episode( lambda gym_env, action, state, reward, done, info: buffer.write( self._render_str(gym_env, mode=mode) ) )
-        result = buffer.getvalue()
-        buffer.close()
-        return result
-
     def render_episodes_to_html(self,
                                 num_episodes : int = 10,
                                 filepath : str = None,
