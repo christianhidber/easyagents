@@ -1,9 +1,7 @@
-#
-import warnings
-
-warnings.filterwarnings('ignore')
-
+# %%
 import matplotlib.pyplot as plt
+import matplotlib.image as mpi
+from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
 import networkx as nx
 import numpy as np
 import random
@@ -11,6 +9,9 @@ import random
 import gym
 from gym.utils import seeding
 from gym import spaces
+
+import pdb
+
 
 def state_name_to_int(state):
     state_name_map = {
@@ -51,12 +52,6 @@ def int_to_state_name(state_as_int):
     }
     return state_map[state_as_int]
 
-
-# %% md
-
-### Berater Environment (OpenAI Gym)
-
-# %%
 
 class BeraterEnv(gym.Env):
     """
@@ -109,6 +104,12 @@ class BeraterEnv(gym.Env):
 
         self.reset()
         self.optimum = self.calculate_customers_reward()
+
+        base = "https://raw.githubusercontent.com/christianhidber/easyagents/master/images/"
+        self.image_orso = mpi.imread(base + "Bear.png")
+        self.image_cave = mpi.imread(base + "Cave.png")
+        self.image_honey = mpi.imread(base + "Honey.png")
+        self.image_empty_pot = mpi.imread(base + "EmptyPot.png")
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -216,24 +217,21 @@ class BeraterEnv(gym.Env):
     def _render_matplotlib(self):
         '''Renders the current state as a graph with matplotlib
         '''
+
         G = nx.Graph()
         node_colors = []
         node_sizes = []
         for node in self.map.keys():
-            size = 0
-            color = 'black'
+            image = None
             if self.customer_reward[node] > 0:
-                color = 'gold'
-                size = 400
+                image = self.image_honey
             else:
-                color = 'darkgoldenrod'
-                size = 200
+                image = self.image_empty_pot
+            if node == 'S':
+                image = self.image_cave
             if self.state == node:
-                color = 'fuchsia'
-                size = 1000
-            node_sizes.append(size)
-            node_colors.append(color)
-            G.add_node(node)
+                image = self.image_orso
+            G.add_node(node, image=image)
         for source, connections in self.map.items():
             for target, cost in connections:
                 if cost >= 300:
@@ -244,13 +242,37 @@ class BeraterEnv(gym.Env):
                     color = 'forestgreen'
                 else:
                     color = 'greenyellow'
-                G.add_edge(source, target, color=color, weight=(400 - cost) / 50 + 1)
+                G.add_edge(source, target, color=color, weight=(400 - cost) / 50 + 1, image=self.image_cave)
         edges = G.edges()
         edge_colors = [G[u][v]['color'] for u, v in edges]
         edge_weights = [G[u][v]['weight'] for u, v in edges]
         pos = nx.planar_layout(G)
+
+        plt.figure(1)
+        plt.clf()
+        plt.subplot(111)
+        figure = plt.gcf()
+        ax = plt.gca()
         nx.draw(G, pos=pos, node_color=node_colors, node_size=node_sizes,
                 edges=edges, edge_color=edge_colors, width=edge_weights, with_labels=True)
+
+        for n in pos:
+            xp, yp = pos[n]
+            imagebox = OffsetImage(G.node[n]['image'], zoom=0.25)
+            imagebox.image.axes = ax
+
+            ab = AnnotationBbox(imagebox, (xp, yp),
+                                xybox=(0, 0),
+                                xycoords='data',
+                                boxcoords="offset points",
+                                pad=0.0,
+                                frameon=False
+                                )
+
+            ax.add_artist(ab)
+
+        plt.show()
+        return figure
 
     def _render_ansi(self):
         result = ("Episode: " + ("%4.0f  " % self.envEpisodeCount) +
@@ -263,49 +285,25 @@ class BeraterEnv(gym.Env):
         return result
 
     def _render_rgb(self):
-        figure = plt.figure(1)
-        figure.add_subplot(111)
-        self._render_matplotlib()
+        figure = self._render_matplotlib()
         figure.canvas.draw()
         buf = figure.canvas.tostring_rgb()
         ncols, nrows = figure.canvas.get_width_height()
         result = np.fromstring(buf, dtype=np.uint8).reshape(nrows, ncols, 3)
+        plt.clf()
         return result
 
     def render(self, mode='human'):
         if mode == 'ansi':
             return self._render_ansi()
         elif mode == 'human':
-            return self._render_matplotlib()
+            self._render_matplotlib()
+            return
         elif mode == 'rgb_array':
             return self._render_rgb()
         else:
             super().render(mode=mode)
 
-
-if not 'isEnvRegistered' in locals():
-  env_name="Berater-v1"
-  gym.envs.registration.register(id=env_name,entry_point=BeraterEnv,max_episode_steps=1000)
-  isEnvRegistered=True
-  print("Berater registered as '" + env_name + "'")
-else:
-  print("Already registered")
-
-#%%
-
-from easyagents.tfagents import PpoAgent
-from easyagents.config import TrainingDurationFast
-from easyagents.config import LoggingVerbose
-
-
-ppo_agent = PpoAgent(  gym_env_name = 'Berater-v1',
-                      fc_layers=(500,500,500), 
-                      training_duration=TrainingDurationFast(max_steps_per_episode=50),
-                      # logging=LoggingVerbose(),
-                      learning_rate=1e-4 )
-ppo_agent.train()
-
-#%%
-ppo_agent.render_episodes_to_mp4(num_episodes=1,filepath='c:\\temp\\_orso.mp4')
-
-#%%
+b = BeraterEnv()
+b.reset()
+b.render()
