@@ -1,6 +1,6 @@
 # Reinforcement Learning for Practitioners
 
-![EasyAgents logo](EazyAgentsIcon.png)
+![EasyAgents logo](images/EazyAgentsIcon.png)
 
 EasyAgents is a high level reinforcement learning api, written in Python and running on top 
 [OpenAI gym](https://github.com/openai/gym) using algorithms implemented in 
