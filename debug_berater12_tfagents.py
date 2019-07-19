@@ -110,6 +110,7 @@ class BeraterEnv(gym.Env):
         self.image_cave = mpi.imread(base + "Cave.png")
         self.image_honey = mpi.imread(base + "Honey.png")
         self.image_empty_pot = mpi.imread(base + "EmptyPot.png")
+        self.nx_graph, self.nx_pos = self._create_nx_graph()
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -214,24 +215,16 @@ class BeraterEnv(gym.Env):
         self.modulate_reward()
         return self.getObservation(state_name_to_int(self.state))
 
-    def _render_matplotlib(self):
-        '''Renders the current state as a graph with matplotlib
-        '''
+    def _create_nx_graph(self):
+        """ generates the networkx graph representing orso's world with all its paths.
 
-        G = nx.Graph()
-        node_colors = []
-        node_sizes = []
-        for node in self.map.keys():
-            image = None
-            if self.customer_reward[node] > 0:
-                image = self.image_honey
-            else:
-                image = self.image_empty_pot
-            if node == 'S':
-                image = self.image_cave
-            if self.state == node:
-                image = self.image_orso
-            G.add_node(node, image=image)
+        :return: graph, positions
+        """
+        nx_graph = nx.Graph()
+        for node_id in self.map.keys():
+            zoom = 0.3
+            image = self.image_empty_pot
+            nx_graph.add_node(node_id, image=image, zoom=zoom)
         for source, connections in self.map.items():
             for target, cost in connections:
                 if cost >= 300:
@@ -242,37 +235,55 @@ class BeraterEnv(gym.Env):
                     color = 'forestgreen'
                 else:
                     color = 'greenyellow'
-                G.add_edge(source, target, color=color, weight=(400 - cost) / 50 + 1, image=self.image_cave)
-        edges = G.edges()
-        edge_colors = [G[u][v]['color'] for u, v in edges]
-        edge_weights = [G[u][v]['weight'] for u, v in edges]
-        pos = nx.planar_layout(G)
+                nx_graph.add_edge(source, target, color=color, weight=6, image=self.image_cave)
+        nx_pos = nx.planar_layout(nx_graph)
+        return nx_graph, nx_pos
 
+    def _render_matplotlib(self):
+        """ Renders the current state as a graph with matplotlib
+        """
+        # draw graph using matplotlib
         plt.figure(1)
         plt.clf()
         plt.subplot(111)
-        figure = plt.gcf()
         ax = plt.gca()
-        nx.draw(G, pos=pos, node_color=node_colors, node_size=node_sizes,
-                edges=edges, edge_color=edge_colors, width=edge_weights, with_labels=True)
 
-        for n in pos:
-            xp, yp = pos[n]
-            imagebox = OffsetImage(G.node[n]['image'], zoom=0.25)
-            imagebox.image.axes = ax
+        edges = self.nx_graph.edges()
+        edge_colors = [self.nx_graph[u][v]['color'] for u, v in edges]
+        edge_weights = [self.nx_graph[u][v]['weight'] for u, v in edges]
+        nx.draw(self.nx_graph, pos=self.nx_pos,
+                edges=edges, edge_color=edge_colors, width=edge_weights)
 
-            ab = AnnotationBbox(imagebox, (xp, yp),
+        # draw images on graph nodes
+        # set image (according to the current state) and sizes (make orso's current position larger)
+        for node_id in self.nx_graph.nodes():
+            node = self.nx_graph.node[node_id]
+            node['zoom'] = 0.2
+            if node_id == self.state:
+                node['zoom'] = 0.3
+            node['image'] = self.image_empty_pot
+            if self.customer_reward[node_id] > 0:
+                node['image'] = self.image_honey
+            if node_id == 'S':
+                node['image'] = self.image_cave
+            if self.state == node_id:
+                node['image'] = self.image_orso
+
+        # position images
+        for n in self.nx_pos:
+            xp, yp = self.nx_pos[n]
+            offset_image = OffsetImage(self.nx_graph.node[n]['image'], self.nx_graph.node[n]['zoom'])
+            offset_image.image.axes = ax
+            ab = AnnotationBbox(offset_image, (xp, yp),
                                 xybox=(0, 0),
                                 xycoords='data',
                                 boxcoords="offset points",
                                 pad=0.0,
                                 frameon=False
                                 )
-
             ax.add_artist(ab)
 
         plt.show()
-        return figure
 
     def _render_ansi(self):
         result = ("Episode: " + ("%4.0f  " % self.envEpisodeCount) +
@@ -288,8 +299,8 @@ class BeraterEnv(gym.Env):
         figure = self._render_matplotlib()
         figure.canvas.draw()
         buf = figure.canvas.tostring_rgb()
-        ncols, nrows = figure.canvas.get_width_height()
-        result = np.fromstring(buf, dtype=np.uint8).reshape(nrows, ncols, 3)
+        num_cols, num_rows = figure.canvas.get_width_height()
+        result = np.fromstring(buf, dtype=np.uint8).reshape(num_rows, num_cols, 3)
         plt.clf()
         return result
 
