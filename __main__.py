@@ -6,8 +6,7 @@ import sys
 
 
 def main():
-    print("=== proof of concept / prototype ===")
-    print("EasyAgents: an easy, simple and (hopefully) painless way to play with reinforcement learning")
+    print("EasyAgents: reinforcement learning for practitioners.")
     print("")
     input("press enter to continue")  
 

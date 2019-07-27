@@ -1,7 +1,7 @@
-# %%
 import matplotlib.pyplot as plt
 import matplotlib.image as mpi
 from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
+from IPython.display import display, clear_output
 import networkx as nx
 import numpy as np
 import random
@@ -10,8 +10,12 @@ import gym
 from gym.utils import seeding
 from gym import spaces
 
-import pdb
 
+# %% md
+
+### Helper methods
+
+# %%
 
 def state_name_to_int(state):
     state_name_map = {
@@ -53,6 +57,11 @@ def int_to_state_name(state_as_int):
     return state_map[state_as_int]
 
 
+# %% md
+
+### Berater Environment (OpenAI Gym)
+
+# %%
 class BeraterEnv(gym.Env):
     """
     The Berater Problem
@@ -101,11 +110,13 @@ class BeraterEnv(gym.Env):
         self.reward_range = (-1, 1)
         self.envEpisodeCount = 0
         self.envStepCount = 0
+        self._figure = None
 
         self.reset()
         self.optimum = self.calculate_customers_reward()
 
         base = "https://raw.githubusercontent.com/christianhidber/easyagents/master/images/"
+        base = "../images/private/"
         self.image_orso = mpi.imread(base + "Bear.png")
         self.image_cave = mpi.imread(base + "Cave.png")
         self.image_honey = mpi.imread(base + "Honey.png")
@@ -213,6 +224,7 @@ class BeraterEnv(gym.Env):
         self.reward = 0
         self.envEpisodeCount += 1
         self.modulate_reward()
+        self._figure = None
         return self.getObservation(state_name_to_int(self.state))
 
     def _create_nx_graph(self):
@@ -222,7 +234,7 @@ class BeraterEnv(gym.Env):
         """
         nx_graph = nx.Graph()
         for node_id in self.map.keys():
-            zoom = 0.3
+            zoom = 0.6
             image = self.image_empty_pot
             nx_graph.add_node(node_id, image=image, zoom=zoom)
         for source, connections in self.map.items():
@@ -230,37 +242,38 @@ class BeraterEnv(gym.Env):
                 if cost >= 300:
                     color = 'dodgerblue'
                 elif cost >= 200:
-                    color = 'darkgoldenrod'
+                    color = 'grey'
                 elif cost >= 100:
                     color = 'forestgreen'
                 else:
                     color = 'greenyellow'
                 nx_graph.add_edge(source, target, color=color, weight=6, image=self.image_cave)
-        nx_pos = nx.planar_layout(nx_graph)
+        nx_pos = nx.kamada_kawai_layout(nx_graph)
         return nx_graph, nx_pos
 
     def _render_matplotlib(self):
         """ Renders the current state as a graph with matplotlib
         """
         # draw graph using matplotlib
-        plt.figure(1)
-        plt.clf()
-        plt.subplot(111)
-        ax = plt.gca()
+        self._figure = plt.figure("BeraterEnv", figsize=(12, 9))
+        if len(self._figure.axes) == 0:
+            self._figure.add_subplot(1, 1, 1)
+        self._figure.axes[0].cla()
+        plt.sca(self._figure.axes[0])
 
         edges = self.nx_graph.edges()
         edge_colors = [self.nx_graph[u][v]['color'] for u, v in edges]
         edge_weights = [self.nx_graph[u][v]['weight'] for u, v in edges]
         nx.draw(self.nx_graph, pos=self.nx_pos,
-                edges=edges, edge_color=edge_colors, width=edge_weights)
+                edges=edges, edge_color=edge_colors, width=edge_weights, style='dashed')
 
         # draw images on graph nodes
         # set image (according to the current state) and sizes (make orso's current position larger)
         for node_id in self.nx_graph.nodes():
             node = self.nx_graph.node[node_id]
-            node['zoom'] = 0.2
+            node['zoom'] = 0.4
             if node_id == self.state:
-                node['zoom'] = 0.3
+                node['zoom'] = 0.6
             node['image'] = self.image_empty_pot
             if self.customer_reward[node_id] > 0:
                 node['image'] = self.image_honey
@@ -270,6 +283,7 @@ class BeraterEnv(gym.Env):
                 node['image'] = self.image_orso
 
         # position images
+        ax = self._figure.axes[0]
         for n in self.nx_pos:
             xp, yp = self.nx_pos[n]
             offset_image = OffsetImage(self.nx_graph.node[n]['image'], self.nx_graph.node[n]['zoom'])
@@ -283,7 +297,8 @@ class BeraterEnv(gym.Env):
                                 )
             ax.add_artist(ab)
 
-        plt.show()
+        self._figure.canvas.draw()
+        return self._figure
 
     def _render_ansi(self):
         result = ("Episode: " + ("%4.0f  " % self.envEpisodeCount) +
@@ -301,20 +316,44 @@ class BeraterEnv(gym.Env):
         buf = figure.canvas.tostring_rgb()
         num_cols, num_rows = figure.canvas.get_width_height()
         result = np.fromstring(buf, dtype=np.uint8).reshape(num_rows, num_cols, 3)
-        plt.clf()
         return result
 
     def render(self, mode='human'):
         if mode == 'ansi':
             return self._render_ansi()
         elif mode == 'human':
-            self._render_matplotlib()
+            clear_output(wait=True)
+            figure = self._render_matplotlib()
+            plt.pause(0.01)
             return
         elif mode == 'rgb_array':
             return self._render_rgb()
         else:
             super().render(mode=mode)
 
+
+if not 'isEnvRegistered' in locals():
+  env_name="Berater-v1"
+  gym.envs.registration.register(id=env_name,entry_point=BeraterEnv,max_episode_steps=1000)
+  isEnvRegistered=True
+  print("Berater registered as '" + env_name + "'")
+else:
+  print("Already registered")
+
+
+from easyagents.tfagents import PpoAgent
+from easyagents.config import TrainingFast
+from easyagents.config import Logging
+
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+#%%
 b = BeraterEnv()
-b.reset()
 b.render()
+
+ppoAgent = PpoAgent(    gym_env_name = 'Berater-v1',
+                        training=TrainingFast(max_steps_per_episode = 50))
+ppoAgent.train()
+
+input("press enter")

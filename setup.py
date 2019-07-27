@@ -10,12 +10,12 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="easyagents",
-    version="0.0.28",
-    description="Easy, simple and (hopefully) painless use of reinforcement learning algorithms (prototype / proof of concept)",
+    version="0.0.35",
+    description="reinforcement learning for practitioners.",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/christianhidber/easyagents",
-    author="Christian Hidber, ...",
+    author="Christian Hidber, Oliver Zeigermann",
     author_email="christian.hidber@bsquare.ch",
     license="MIT",
     classifiers=[

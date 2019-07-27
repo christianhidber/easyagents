@@ -1,5 +1,6 @@
 REM Build and install easy_agents as a package on PyPI
 
+cd ..
 rmdir /s /q dist
 rmdir /s /q easy_agents.egg-info
 for /f %%i in ('dir /a:d /s /b env\Lib\site-packages\easyagents*') do rmdir /s /q %%i
