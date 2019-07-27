@@ -1,8 +1,6 @@
-import unittest
 import logging
-
+import unittest
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 class LoggingTest(unittest.TestCase):
@@ -30,5 +28,13 @@ class LoggingTest(unittest.TestCase):
         logging.error("error output")
         logging.fatal("fatal output")
         return
+
+    def test_matplotlib(self):
+        f1 = plt.figure("unittest", figsize=(17, 5))
+        plt.pause(0.01)
+        x,y = f1.get_size_inches()
+        assert (x,y)== (17,5)
+        assert not (x,y)== (17,6)
+        print()
 
 

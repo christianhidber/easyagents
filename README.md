@@ -39,27 +39,25 @@ ppo_agent.train()
 
 Points of interest:
 
-* If you would like to see plots of the average returns, average episode length and losses during training (in a jupyter notebook):
+* During training you get a plottet statistics are continuously updated. You can replot them anytime using
 
     ```python
-    ppo_agent.plot_average_rewards()
-    ppo_agent.plot_steps()
-    ppo_agent.plot_losses()
+    ppo_agent.plot_episodes()
     ```
+  ![CartPole_Training](images/readme_cartpole_training.png)
 
 * If your environment renders the current state as an image (rgb_array), then you can create a movie like this 
   (in a jupyter notebook):
   ```python
-  from IPython.display import HTML
-  
-  HTML( ppo_agent.render_episodes_to_html() )
+  ppo_agent.render_episodes_to_jupyter()
   ```
    or save it as an mp4 file:
     ```python
     filename = ppo_agent.render_episodes_to_mp4()
     ```
 
-* By default every api call during training is logged, as well as a summary of every game played.
+* For debugging your environment you can log every api call during training, as well as a summary of every 
+  game played.
   You can restrict / extend logging to topic areas like 'agent api' or 'environment api' calls.
 * If you prefer the baselines implementation change the import to 'from easyagents.baselines import Ppo'.
   That's all no other changes are necessary (not implemented yet).
@@ -68,10 +66,10 @@ Points of interest:
 
 ```python
 from easyagents.tfagents import PpoAgent
-from easyagents.config import TrainingDuration
+from easyagents.config import Training
 from easyagents.config import LoggingVerbose
 
-training_duration = TrainingDuration(   num_iterations = 2000,
+training = Training(   num_iterations = 2000,
                                         num_episodes_per_iteration = 100,
                                         num_epochs_per_iteration = 5,
                                         num_iterations_between_eval = 10,
@@ -79,7 +77,7 @@ training_duration = TrainingDuration(   num_iterations = 2000,
 ppo_agent = PpoAgent(   gym_env_name='CartPole-v0',
                         fc_layers=(500,500,500),
                         learning_rate=0.0001,
-                        training_duration=training_duration,
+                        training=training,
                         logging=LoggingVerbose() )
 ppo_agent.train()
 ```
@@ -89,7 +87,7 @@ Points of interest:
 * The signature of PpoAgent() stays the same across all implementations.
   Thus you can still switch to the OpenAI baselines implementation simply by substituting the import statement.
 * Define the number and size of fully connected layers using fc_layers.
-* You can also use the preconfigured TrainingDurationSingleEpisode() or TrainingDurationFast()
+* You can also use the preconfigured TrainingSingleEpisode() or TrainingFast()
 * All 'agent api' and all 'gym api' calls are logged. You can easly turn them individually on or off using
 
 ```python
