@@ -26,6 +26,10 @@ try:
     shell = get_ipython().__class__.__name__
     if shell == 'ZMQInteractiveShell':
         _is_jupyter_active = True
+    else:
+        import google.colab
+
+        _is_jupyter_active = True
 except ImportError:
     pass
 
@@ -147,7 +151,7 @@ class EasyAgent(object):
         """
 
         def subplot(axes: plt.Axes, yvalues, episodes_per_value: int,
-                    ylabel: str, ylim, scale: str, xlim : int, color: str):
+                    ylabel: str, ylim, scale: str, xlim: int, color: str):
             value_count = len(yvalues)
             steps = range(0, value_count * episodes_per_value, episodes_per_value)
 
@@ -157,12 +161,16 @@ class EasyAgent(object):
                 if figure == plt.gcf():
                     plt.sca(axes)
 
+            axes_color = 'grey'
             axes.set_xlabel('episodes')
             axes.set_ylabel(ylabel)
             axes.set_xlim(0, xlim)
             axes.spines['top'].set_visible(False)
             axes.spines['right'].set_visible(False)
-            axes.grid(color='grey', linestyle='-', linewidth=0.25, alpha=0.5)
+            axes.spines['bottom'].set_color(axes_color)
+            axes.spines['left'].set_color(axes_color)
+            #axes.tick_params(axes='both',color=axes_color)
+            axes.grid(color=axes_color, linestyle='-', linewidth=0.25, alpha=0.5)
             if ylim is not None:
                 axes.set_ylim(ylim)
             axes.set_yscale(scale)
@@ -208,16 +216,19 @@ class EasyAgent(object):
         if rgb_array is not None:
             ax = axes[0]
             ax.imshow(rgb_array)
-            # ax.axis('off')
-            ax.set_xlabel('rendering of last evals done state')
+            ax.set_xlabel("'done state' of last evaluation episode")
             ax.get_xaxis().set_ticks([])
             ax.get_yaxis().set_ticks([])
+            axes_color = 'grey'
+            for spin in ax.spines:
+                ax.spines[spin].set_color(axes_color)
             offset = 1
 
         episodes_per_value = self._training.num_episodes_per_iteration
-        xlim = episodes_per_value * (len(self.training_losses)-1)
+        xlim = episodes_per_value * (len(self.training_losses) - 1)
+        xlim = 1 if xlim <= 1 else xlim
         subplot(axes=axes[0 + offset], yvalues=self.training_losses, episodes_per_value=episodes_per_value,
-                ylabel='losses', ylim=ylim[0], scale=scale[0], xlim=xlim, color='indigo')
+                ylabel='loss', ylim=ylim[0], scale=scale[0], xlim=xlim, color='indigo')
         episodes_per_value = self._training.num_episodes_per_iteration * self._training.num_iterations_between_eval
         subplot(axes=axes[1 + offset], yvalues=self.training_average_rewards, episodes_per_value=episodes_per_value,
                 ylabel='rewards', ylim=ylim[1], scale=scale[1], xlim=xlim, color='g')

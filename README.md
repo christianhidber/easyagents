@@ -2,11 +2,11 @@
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
-EasyAgents is a high level reinforcement learning api, written in Python and running on top 
+EasyAgents is a high level reinforcement learning api, written in Python and running on top of
 [OpenAI gym](https://github.com/openai/gym) using algorithms implemented in 
 [tf-Agents](https://github.com/tensorflow/agents) and [OpenAI baselines](https://github.com/openai/baselines).
 
-Use EasyAgents if
+### Use EasyAgents if
 * you are looking for an easy and simple way to get started with reinforcement learning
 * you have implemented your own environment and want to experiment with it
 * you want mix and match different implementations and algorithms
@@ -22,13 +22,7 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
 
 Here's an example of the full code needed to run the tfagents implementation of Ppo on the cartpole example.
 
-Install from pypi using pip:
-
-```python
-pip install easyagents
-```
-
-### Simplest case (no configuration)
+### Simple case (no configuration)
 
 ```python
 from easyagents.tfagents import PpoAgent
@@ -39,28 +33,38 @@ ppo_agent.train()
 
 Points of interest:
 
-* During training you get a plottet statistics are continuously updated. You can replot them anytime using
+* During training you get continuously updated statistic plots
+
+  ![CartPole_Training](images/readme_cartpole_training.png)
+  
+  depicting the training loss, the average sum of rewards per episode as well as the average number of steps 
+  per episode.  Moreover, if your environment supports render mode 'rgb_array', then for an image is displayed 
+  from the last evaluation episodes done state. You can replot the statistics anytime using
 
     ```python
     ppo_agent.plot_episodes()
     ```
-  ![CartPole_Training](images/readme_cartpole_training.png)
+  changing the plots scale (linear or log) and limits individually.
 
-* If your environment renders the current state as an image (rgb_array), then you can create a movie like this 
-  (in a jupyter notebook):
+* If your environment renders the current state as an image (rgb_array), then you can create an episode movie 
+  containing one image for each visited state:
   ```python
   ppo_agent.render_episodes_to_jupyter()
   ```
+  
+   ![CartPole_Training](images/readme_cartpole_movie.png)
+    
    or save it as an mp4 file:
     ```python
     filename = ppo_agent.render_episodes_to_mp4()
     ```
+  choosing the number of episodes to be played as well as the frame per seconds.
 
 * For debugging your environment you can log every api call during training, as well as a summary of every 
   game played.
   You can restrict / extend logging to topic areas like 'agent api' or 'environment api' calls.
-* If you prefer the baselines implementation change the import to 'from easyagents.baselines import Ppo'.
-  That's all no other changes are necessary (not implemented yet).
+* If you prefer the OpenAI baselines implementation, change the import to 'from easyagents.baselines import Ppo'.
+  That's all no, other changes are necessary (not implemented yet).
 
 ### Customizing (layers, training, learning rate, evaluation)
 
@@ -94,7 +98,14 @@ Points of interest:
   PpoAgent( ..., logging=Logging( log_agent=true, log_gym_api=false, ... ), ...)
 ```
 
-* You may also use the preconfigure LoggingVerbose(), LoggingMinimal() or LoggingSilent()
+* You may also use the preconfigured LoggingVerbose(), LoggingMinimal() or LoggingSilent()
+
+### Installation
+Install from pypi using pip:
+
+```python
+pip install easyagents
+```
 
 ## Vocabulary
 
@@ -123,7 +134,8 @@ moreover the list only contains terms that are actually used for this project)
 
 * This repository is under active development and in an early stage. 
   Thus any- and everything may (and probably should) change.
-* If you have any difficulties in installing or using easyagents please let me know. I'll try to do my best to help you.
+* If you have any difficulties in installing or using easyagents please let us know. 
+  We'll try to do our best to help you.
 * Any ideas, help, suggestions, comments etc in python / open source development / reinforcement learning / whatever
   are more than welcome. Thanks a lot in advance.
 
