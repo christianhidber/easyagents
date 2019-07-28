@@ -2,6 +2,7 @@ import base64
 import os
 import tempfile
 from logging import INFO, getLogger
+from sys import maxsize, float_info
 from typing import List, Tuple
 
 import gym
@@ -149,40 +150,6 @@ class EasyAgent(object):
             if is_jupyter_display_figure is set, then display(figure) is called if we are running
             inside a jupyter notebook. Hereby an initial doubled figure output is avoided.
         """
-
-        def subplot(axes: plt.Axes, yvalues, episodes_per_value: int,
-                    ylabel: str, ylim, scale: str, xlim: int, color: str):
-            value_count = len(yvalues)
-            steps = range(0, value_count * episodes_per_value, episodes_per_value)
-
-            # under unittest the current figure seems to get lost, sometimes
-            if not _is_jupyter_active:
-                plt.figure(figure.number)
-                if figure == plt.gcf():
-                    plt.sca(axes)
-
-            axes_color = 'grey'
-            axes.set_xlabel('episodes')
-            axes.set_ylabel(ylabel)
-            axes.set_xlim(0, xlim)
-            axes.spines['top'].set_visible(False)
-            axes.spines['right'].set_visible(False)
-            axes.spines['bottom'].set_color(axes_color)
-            axes.spines['left'].set_color(axes_color)
-            #axes.tick_params(axes='both',color=axes_color)
-            axes.grid(color=axes_color, linestyle='-', linewidth=0.25, alpha=0.5)
-            if ylim is not None:
-                axes.set_ylim(ylim)
-            axes.set_yscale(scale)
-
-            if _is_jupyter_active:
-                axes.plot(steps, yvalues, color=color)
-            else:
-                if figure == plt.gcf():
-                    plt.sca(axes)
-                plt.plot(steps, yvalues, color=color)
-                plt.pause(0.01)
-
         assert ylim is None or len(ylim) == 3, "ylim must contain an (float,float) for each of the 3 plots."
         assert scale is None or len(scale) == 3, "scale must contain an 'linear' or 'log' for each of the 3 plots."
 
@@ -211,7 +178,8 @@ class EasyAgent(object):
             plt.figure(figure.number)
             plt.cla()
 
-        # plot the training statistics
+        # plot
+        # draw rgb image if available
         offset = 0
         if rgb_array is not None:
             ax = axes[0]
@@ -223,23 +191,77 @@ class EasyAgent(object):
             for spin in ax.spines:
                 ax.spines[spin].set_color(axes_color)
             offset = 1
-
+        # plot statistics (loss, rewards, steps) with same x-axes
         episodes_per_value = self._training.num_episodes_per_iteration
         xlim = episodes_per_value * (len(self.training_losses) - 1)
         xlim = 1 if xlim <= 1 else xlim
-        subplot(axes=axes[0 + offset], yvalues=self.training_losses, episodes_per_value=episodes_per_value,
-                ylabel='loss', ylim=ylim[0], scale=scale[0], xlim=xlim, color='indigo')
+        self._subplot(axes=axes[0 + offset], yvalues=self.training_losses, episodes_per_value=episodes_per_value,
+                      ylabel='loss', ylim=ylim[0], scale=scale[0], xlim=xlim, color='indigo')
+
         episodes_per_value = self._training.num_episodes_per_iteration * self._training.num_iterations_between_eval
-        subplot(axes=axes[1 + offset], yvalues=self.training_average_rewards, episodes_per_value=episodes_per_value,
-                ylabel='rewards', ylim=ylim[1], scale=scale[1], xlim=xlim, color='g')
-        subplot(axes=axes[2 + offset], yvalues=self.training_average_steps, episodes_per_value=episodes_per_value,
-                ylabel='steps', ylim=ylim[2], scale=scale[2], xlim=xlim, color='b')
+        self._subplot(axes=axes[1 + offset], yvalues=self.training_average_rewards,
+                      episodes_per_value=episodes_per_value,
+                      ylabel='sum of rewards', ylim=ylim[1], scale=scale[1], xlim=xlim, color='g')
+        self._subplot(axes=axes[2 + offset], yvalues=self.training_average_steps, episodes_per_value=episodes_per_value,
+                      ylabel='steps', ylim=ylim[2], scale=scale[2], xlim=xlim, color='b')
 
         # make sure the plots are presented to the user
         if _is_jupyter_active and is_jupyter_display_figure:
             display(figure)
         plt.pause(0.01)
         return figure
+
+    def _subplot(self, axes: plt.Axes, yvalues, episodes_per_value: int,
+                 ylabel: str, ylim, scale: str, xlim: int, color: str):
+        """ plot yvalues on axes.
+            if yvalues is of the form [y1, y2,...] then a simple line is dran in color
+            if yvalues is of the form [(min,y,max),...] then a min/max area around y is drawn as well
+        """
+        value_count = len(yvalues)
+        steps = range(0, value_count * episodes_per_value, episodes_per_value)
+        figure = axes.figure
+
+        # under unittest the current figure seems not to be available anymore
+        if not _is_jupyter_active:
+            plt.figure(figure.number)
+            if figure == plt.gcf():
+                plt.sca(axes)
+
+        # setup subplot (axes, labels, colors)
+        axes_color = 'grey'
+        axes.set_xlabel('episodes')
+        axes.set_ylabel(ylabel)
+        axes.set_xlim(0, xlim)
+        axes.spines['top'].set_visible(False)
+        axes.spines['right'].set_visible(False)
+        axes.spines['bottom'].set_color(axes_color)
+        axes.spines['left'].set_color(axes_color)
+        axes.grid(color=axes_color, linestyle='-', linewidth=0.25, alpha=0.5)
+        if ylim is not None:
+            axes.set_ylim(ylim)
+        axes.set_yscale(scale)
+
+        # extract min / max and y values if yvalues is of the form [(min,y,max),...)
+        yminvalues = None
+        ymaxvalues = None
+        if len(yvalues) > 0 and isinstance(yvalues[0], tuple):
+            ymaxvalues = [t[2] for t in yvalues]
+            yminvalues = [t[0] for t in yvalues]
+            yvalues = [t[1] for t in yvalues]
+
+        # plot values
+        fill_alpha = 0.1
+        if _is_jupyter_active:
+            if yminvalues is not None:
+                axes.fill_between(steps, yminvalues, ymaxvalues, color=color, alpha=fill_alpha)
+            axes.plot(steps, yvalues, color=color)
+        else:
+            if figure == plt.gcf():
+                plt.sca(axes)
+            if yminvalues is not None:
+                plt.fill_between(steps, yminvalues, ymaxvalues, color=color, alpha=fill_alpha)
+            plt.plot(steps, yvalues, color=color)
+            plt.pause(0.01)
 
     def render_episodes(self, num_episodes: int = 1, mode='human'):
         """ plays num_episodes, calling and environment.render after each step.
@@ -367,7 +389,7 @@ class EasyAgent(object):
         """
         return
 
-    def _train_eval_average_rewards_and_steps(self):
+    def _train_eval_rewards_and_steps(self):
         """ computes the expected sum of rewards and the expected step count for the previously trained policy.
             and adds them to the training logs.
             If the gym_env supports rgb_array rendering the last game_state is rendered and stored.
@@ -386,23 +408,31 @@ class EasyAgent(object):
             return
 
         self._log_agent(f'current policy       : evaluating... [{self._training.num_eval_episodes} episodes]')
+        max_reward = float_info.min
+        min_reward = float_info.max
         sum_rewards = 0.0
+        max_steps = 0
+        min_steps = maxsize
         sum_steps = 0
         num_episodes = self._training.num_eval_episodes
-        max_steps = self._training.max_steps_per_episode
+        max_eval_steps = self._training.max_steps_per_episode
         for i in range(num_episodes):
             (reward, steps) = self.play_episode(
-                max_steps=max_steps,
+                max_steps=max_eval_steps,
                 callback=lambda gym_env, action, state, reward, step, done, info:
-                render_to_rgb_array((i == (num_episodes - 1) and (done or step == max_steps)), gym_env))
+                render_to_rgb_array((i == (num_episodes - 1) and (done or step == max_eval_steps)), gym_env))
+            max_reward = max(max_reward, reward)
+            min_reward = min(min_reward, reward)
+            max_steps = max(max_steps, steps)
+            min_steps = min(min_steps, steps)
             sum_rewards += reward
             sum_steps += steps
         avg_rewards: float = sum_rewards / num_episodes
         avg_steps: float = sum_steps / num_episodes
         self._log_minimal(
             f'current policy       : avg_reward={float(avg_rewards):.3f}, avg_steps={float(avg_steps):.3f}')
-        self.training_average_rewards.append(avg_rewards)
-        self.training_average_steps.append(avg_steps)
+        self.training_average_rewards.append((min_reward, avg_rewards, max_reward))
+        self.training_average_steps.append((min_steps, avg_steps, max_steps))
 
     def _train_iteration_completed(self, iteration: int, total_loss: float = 0):
         """ called by the implementing agent in _train after each completed training iteration.
@@ -426,7 +456,7 @@ class EasyAgent(object):
             self._log_minimal(f'{msg} completed tf_agent.train(...) = {total_loss.numpy():>8.3f} [loss]')
 
         if iteration % self._training.num_iterations_between_eval == 0:
-            self._train_eval_average_rewards_and_steps()
+            self._train_eval_rewards_and_steps()
         if self._logging.plots:
             self._train_figure = self._plot_episodes(figure=self._train_figure,
                                                      is_jupyter_display_figure=self._train_is_jupyter_display_figure,

@@ -38,8 +38,8 @@ Points of interest:
   ![CartPole_Training](images/readme_cartpole_training.png)
   
   depicting the training loss, the average sum of rewards per episode as well as the average number of steps 
-  per episode.  Moreover, if your environment supports render mode 'rgb_array', then for an image is displayed 
-  from the last evaluation episodes done state. You can replot the statistics anytime using
+  per episode.  Moreover, if your environment supports render mode 'rgb_array', then an image 
+  of the last evaluation episodes done state is displayed. You can replot the statistics anytime using
 
     ```python
     ppo_agent.plot_episodes()
