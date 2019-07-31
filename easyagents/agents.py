@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import base64
 import os
 import tempfile
@@ -35,7 +36,7 @@ except ImportError:
     pass
 
 
-class EasyAgent(object):
+class EasyAgent(ABC):
     """ Abstract base class for all easy reinforcment learning agents.
 
         Args:
@@ -120,6 +121,20 @@ class EasyAgent(object):
 
             Args:
             max_steps   : if the episode is not done after max_steps it is aborted.
+                          if None the episode ends only when the environments step yields done.
+            callback    : callback(action,state,reward,step,done,info) is called after each step.
+                          if the callback yields True, the episode is aborted.
+            :returns rewards,steps
+        """
+        return self._play_episode(max_steps = max_steps, callback = callback)
+
+    def _play_episode(self, max_steps: int, callback) -> (float, int, bool):
+        """ Plays a full episode using the previously trained policy, yielding
+            the sum of rewards, the totale number of steps taken over the episode.
+
+            Args:
+            max_steps   : if the episode is not done after max_steps it is aborted.
+                          if None the episode ends only when the environments step yields done.
             callback    : callback(action,state,reward,step,done,info) is called after each step.
                           if the callback yields True, the episode is aborted.
             :returns rewards,steps
@@ -384,6 +399,7 @@ class EasyAgent(object):
         self._train_render_rgb_array = np.array([])
         self._train()
 
+    @abstractmethod
     def _train(self):
         """ overriden by the implementing agent and called by train()
         """
@@ -463,3 +479,34 @@ class EasyAgent(object):
                                                      rgb_array=self._train_render_rgb_array)
             self._train_is_jupyter_display_figure = True
         return
+
+class AbstractAgent(EasyAgent):
+    """ Base class for all Agent implementations.
+
+        Note: Do not derive from EasyAgent directly, always derived from AbstractAgent (or a subclass thereof) instead.
+    """
+
+    @abstractmethod
+    def _play_episode(self, max_steps: int, callback) -> (float, int, bool):
+        """ Plays a full episode using the previously trained policy, yielding
+            the sum of rewards, the totale number of steps taken over the episode.
+
+            Args:
+            max_steps   : if the episode is not done after max_steps it is aborted.
+                          if None the episode ends only when the environments step yields done.
+            callback    : callback(action,state,reward,step,done,info) is called after each step.
+                          if the callback yields True, the episode is aborted.
+            :returns rewards,steps
+        """
+        return super()._play_episode(max_steps, callback)
+
+    @abstractmethod
+    def _train(self):
+        """ overriden by the implementing agent and called by train()
+
+            Note:
+            o Call _train_iteration_completed(0) after the instantiation of the model is completed
+              (after this call, calling _play_episode is admissible).
+            o Call _train_iteration_completed(iteration) after each completed iteration.
+        """
+        super().train()

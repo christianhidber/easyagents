@@ -9,6 +9,7 @@ import logging
 def register(gym_env_name: str = None, log_api: bool = True, log_steps: bool = False, log_reset: bool = False):
     """ Registers the EasyEnv wrapper for the 'gym_env_name' environment.
         The wrapper is registered as 'Easy-<env_name>'.
+        max_episode_steps and reward_threshold is set according to the spec of the passed environment
 
         Limitation: currently only 1 gym env may be registered.
 
@@ -34,7 +35,12 @@ def register(gym_env_name: str = None, log_api: bool = True, log_steps: bool = F
         assert EasyEnv._gym_env_name is None, "Another environment was already registered"
 
         EasyEnv._gym_env_name = gym_env_name
-        gym.envs.registration.register(id=result, entry_point=EasyEnv)
+        gym_spec = gym.envs.registration.spec(gym_env_name)
+        gym.envs.registration.register(id=result,
+                                       entry_point=EasyEnv,
+                                       max_episode_steps=gym_spec.max_episode_steps,
+                                       max_episode_seconds=gym_spec.max_episode_seconds,
+                                       reward_threshold=gym_spec.reward_threshold)
     return result
 
 

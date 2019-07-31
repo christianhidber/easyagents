@@ -1,9 +1,11 @@
 import unittest
 
 from easyagents.config import LoggingMinimal
+from easyagents.config import LoggingVerbose
 from easyagents.config import TrainingFast
 from easyagents.config import TrainingSingleEpisode
 from easyagents.easyenv import EasyEnv
+from easyagents.tfagents import DqnAgent
 from easyagents.tfagents import PpoAgent
 
 
@@ -43,6 +45,20 @@ class TestTfAgents(unittest.TestCase):
         TestTfAgents.count += 1
 
 
+class TestDqnAgent(unittest.TestCase):
+
+    def setUp(self):
+        self.gym_env_name = 'CartPole-v0'
+
+    def test_dqn_create(self):
+        dqn_agent = DqnAgent(self.gym_env_name)
+        self.assertIsNotNone(dqn_agent, "failed to create a tfagents.DqnAgent instance for " + self.gym_env_name)
+
+    def test_dqn_train(self):
+        dqn_agent = DqnAgent(self.gym_env_name, training=TrainingFast(), logging=LoggingVerbose())
+        dqn_agent.train()
+
+
 class TestPpoAgent(unittest.TestCase):
 
     def setUp(self):
@@ -50,7 +66,7 @@ class TestPpoAgent(unittest.TestCase):
 
     def test_ppo_create(self):
         ppo_agent = PpoAgent(self.gym_env_name)
-        self.assertIsNotNone(ppo_agent, "failed to create a tfagents.Ppo instance for " + self.gym_env_name)
+        self.assertIsNotNone(ppo_agent, "failed to create a tfagents.PpoAgent instance for " + self.gym_env_name)
 
     def test_ppo_train(self):
         ppo_agent = PpoAgent(self.gym_env_name, training=TrainingFast())

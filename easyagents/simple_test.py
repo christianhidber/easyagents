@@ -36,5 +36,3 @@ class LoggingTest(unittest.TestCase):
         assert (x,y)== (17,5)
         assert not (x,y)== (17,6)
         print()
-
-
