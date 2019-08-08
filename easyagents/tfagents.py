@@ -335,3 +335,7 @@ class DqnAgent(TfAgent):
             tf_lossInfo = tf_agent.train(experience=trajectories)
             self._train_iteration_completed(iteration, tf_lossInfo.loss)
         return
+
+class ReinforceAgent(TfAgent):
+    def __init__(self):
+        print(self)
