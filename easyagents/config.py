@@ -34,27 +34,6 @@ class Logging(object):
         return
 
 
-class LoggingVerbose(Logging):
-    """Logging configuration for full logging (all agent api calls and all gym env calls are logged)
-    """
-
-    def __init__(self,
-                 log_minimal: bool = True,
-                 log_agent: bool = True,
-                 log_gym_api: bool = True,
-                 log_gym_api_steps: bool = True,
-                 log_gym_api_reset: bool = True,
-                 plots: bool = False):
-        super().__init__(
-            plots=plots,
-            log_minimal=log_minimal,
-            log_agent=log_agent,
-            log_gym_api=log_gym_api,
-            log_gym_api_steps=log_gym_api_steps,
-            log_gym_api_reset=log_gym_api_reset
-        )
-
-
 class LoggingMinimal(Logging):
     """Logging configuration for full logging (all agent api calls and all gym env calls are logged)
     """
@@ -83,10 +62,31 @@ class LoggingNormal(Logging):
     def __init__(self,
                  log_minimal: bool = True,
                  log_agent: bool = True,
-                 log_gym_api: bool = False,
+                 log_gym_api: bool = True,
                  log_gym_api_steps: bool = False,
                  log_gym_api_reset: bool = False,
                  plots: bool = False):
+        super().__init__(
+            plots=plots,
+            log_minimal=log_minimal,
+            log_agent=log_agent,
+            log_gym_api=log_gym_api,
+            log_gym_api_steps=log_gym_api_steps,
+            log_gym_api_reset=log_gym_api_reset
+        )
+
+
+class LoggingPlots(Logging):
+    """Logging configuration for full logging (all agent api calls and all gym env calls are logged)
+    """
+
+    def __init__(self,
+                 log_minimal: bool = False,
+                 log_agent: bool = False,
+                 log_gym_api: bool = False,
+                 log_gym_api_steps: bool = False,
+                 log_gym_api_reset: bool = False,
+                 plots: bool = True):
         super().__init__(
             plots=plots,
             log_minimal=log_minimal,
@@ -107,6 +107,27 @@ class LoggingSilent(Logging):
                  log_gym_api: bool = False,
                  log_gym_api_steps: bool = False,
                  log_gym_api_reset: bool = False,
+                 plots: bool = False):
+        super().__init__(
+            plots=plots,
+            log_minimal=log_minimal,
+            log_agent=log_agent,
+            log_gym_api=log_gym_api,
+            log_gym_api_steps=log_gym_api_steps,
+            log_gym_api_reset=log_gym_api_reset
+        )
+
+
+class LoggingVerbose(Logging):
+    """Logging configuration for full logging (all agent api calls and all gym env calls are logged)
+    """
+
+    def __init__(self,
+                 log_minimal: bool = True,
+                 log_agent: bool = True,
+                 log_gym_api: bool = True,
+                 log_gym_api_steps: bool = True,
+                 log_gym_api_reset: bool = True,
                  plots: bool = False):
         super().__init__(
             plots=plots,

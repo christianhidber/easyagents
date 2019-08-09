@@ -436,7 +436,9 @@ class EasyAgent(ABC):
             (reward, steps) = self.play_episode(
                 max_steps=max_eval_steps,
                 callback=lambda gym_env, action, state, reward, step, done, info:
-                render_to_rgb_array((i == (num_episodes - 1) and (done or step == max_eval_steps)), gym_env))
+                render_to_rgb_array(self._logging.plots and
+                                    (i == (num_episodes - 1) and (done or step == max_eval_steps)),
+                                    gym_env))
             max_reward = max(max_reward, reward)
             min_reward = min(min_reward, reward)
             max_steps = max(max_steps, steps)
@@ -467,7 +469,7 @@ class EasyAgent(ABC):
                 # overriding agent failed to to do a call with iteration==0: compensate.
                 self.training_average_rewards = [0]
                 self.training_average_steps = [0]
-            msg = f'training {iteration:4} of {self._training.num_iterations:<4}:'
+            msg = f'iteration {iteration:4} of {self._training.num_iterations:<4}:'
             self.training_losses.append(float(total_loss))
             self._log_minimal(f'{msg} completed tf_agent.train(...) = {total_loss.numpy():>8.3f} [loss]')
 

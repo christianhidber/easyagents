@@ -1,4 +1,6 @@
-# Reinforcement Learning for Practitioners
+### Reinforcement Learning for Practitioners
+
+Status: Active (under active development, breaking changes may occur)
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 

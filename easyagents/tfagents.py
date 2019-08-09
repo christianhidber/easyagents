@@ -230,19 +230,23 @@ class DqnAgent(TfAgent):
         networks with reinforcement learning.
 
         Args:
-        gym_env_name    :   name of an OpenAI gym environment to be used for training and evaluation
-        fc_layers       :   defines the neural network to be used, a sequence of fully connected
-                            layers of the given size. Eg (75,40) yields a neural network consisting
-                            out of 2 hidden layers, the first one containing 75 and the second layer
-                            containing 40 neurons.
-        training                : instance of config.Training to configure the #episodes used for training.
-        learning_rate           : value in (0,1]. Factor by which the impact on the policy update is reduced
-                                  for each training step. The same learning rate is used for the value and
-                                  the policy network.
-        reward_discount_gamma   : value in (0,1]. Factor by which a future reward is discounted for each step.
-        logging                 : instance of config.Logging to define the logging behaviour
-        num_training_steps_in_replay_buffer : size of the replay buffer
-        num_initial_collect_steps           : replay buffer is initialized with num_initial_collect_steps
+        gym_env_name                : name of an OpenAI gym environment to be used for training and evaluation
+        fc_layers                   : defines the neural network to be used, a sequence of fully connected
+                                      layers of the given size. Eg (75,40) yields a neural network consisting
+                                      out of 2 hidden layers, the first one containing 75 and the second layer
+                                      containing 40 neurons.
+        training                    : instance of config.Training to configure the #episodes used for training.
+        learning_rate               : value in (0,1]. Factor by which the impact on the policy update is reduced
+                                      for each training step. The same learning rate is used for the value and
+                                      the policy network.
+        reward_discount_gamma       : value in (0,1]. Factor by which a future reward is discounted for each step.
+        num_steps_in_replay_buffer  : size of the replay buffer. If None
+                                      Training.max_steps_per_episode * Training.num_episodes_per_iteration
+        num_episodes_to_preload_replay_buffer:  num of episodes to play to initially fill the replay buffer. If None
+                                                Training.num_episodes_per_iteration
+        num_steps_in_replay_batch   : num of steps sampled from replay buffer for each optimizer call. If None
+                                      Training.max_steps_per_episode
+        logging                     : instance of config.Logging to define the logging behaviour
 
         see also: https://deepmind.com/research/dqn/
     """
@@ -251,12 +255,11 @@ class DqnAgent(TfAgent):
                  gym_env_name: str,
                  fc_layers=None,
                  training: Training = None,
-                 num_training_steps_in_replay_buffer: int = 100000,
                  learning_rate: float = 0.001,
                  reward_discount_gamma: float = 1,
-                 batch_size=1,
-                 num_initial_collect_steps=1000,
-                 num_collect_steps_per_iteration=1000,
+                 num_steps_in_replay_buffer: int = None,
+                 num_episodes_to_preload_replay_buffer: int = None,
+                 num_steps_in_replay_batch: int = None,
                  logging: Logging = None):
         super().__init__(gym_env_name=gym_env_name,
                          fc_layers=fc_layers,
@@ -264,11 +267,25 @@ class DqnAgent(TfAgent):
                          learning_rate=learning_rate,
                          reward_discount_gamma=reward_discount_gamma,
                          logging=logging)
-        assert num_training_steps_in_replay_buffer >= 1, "num_training_steps_in_replay_buffer must be >= 1"
-        self._num_training_steps_in_replay_buffer = num_training_steps_in_replay_buffer
-        self._batch_size = batch_size
-        self._num_initial_collect_steps = num_initial_collect_steps
-        self._num_collect_steps_per_iteration = num_collect_steps_per_iteration
+        assert num_steps_in_replay_buffer is None or num_steps_in_replay_buffer >= 1, \
+            "num_training_steps_in_replay_buffer must be >= 1"
+        assert num_episodes_to_preload_replay_buffer is None or num_episodes_to_preload_replay_buffer >= 0, \
+            "num_episodes_to_preload_replay_buffer must be >= 0"
+        assert num_steps_in_replay_batch is None or num_steps_in_replay_batch >= 1, \
+            "num_steps_in_replay_batch must be >= 1"
+
+        self._num_steps_in_replay_buffer = self._training.max_steps_per_episode * \
+                                           self._training.num_episodes_per_iteration
+        if num_steps_in_replay_buffer is not None:
+            self._num_steps_in_replay_buffer = num_steps_in_replay_buffer
+
+        self._num_episodes_to_preload_replay_buffer = self._training.num_episodes_per_iteration
+        if num_episodes_to_preload_replay_buffer is not None:
+            self._num_episodes_to_preload_replay_buffer = num_episodes_to_preload_replay_buffer
+
+        self._num_steps_in_replay_batch = self._training.max_steps_per_episode
+        if num_steps_in_replay_batch is not None:
+            self._num_steps_in_replay_batch = num_steps_in_replay_batch
         return
 
     def _train(self):
@@ -277,12 +294,13 @@ class DqnAgent(TfAgent):
         self._log_agent("Creating environment:")
         train_env = self._create_tfagent_env()
 
-        # SetUp Optimizer, Networks and PpoAgent
+        # SetUp Optimizer, Networks and DqnAgent
         self._log_agent("Creating agent:")
         self._log_agent("  creating  tf.compat.v1.train.AdamOptimizer( ... )")
         optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=self._learning_rate)
         self._log_agent("  creating  QNetwork( ... )")
-        q_net = q_network.QNetwork(train_env.observation_spec(), train_env.action_spec(),
+        q_net = q_network.QNetwork(train_env.observation_spec(),
+                                   train_env.action_spec(),
                                    fc_layer_params=self.fc_layers)
         self._log_agent("  creating  DqnAgent( ... )")
         tf_agent = dqn_agent.DqnAgent(train_env.time_step_spec(),
@@ -296,42 +314,45 @@ class DqnAgent(TfAgent):
 
         # SetUp Data collection & Buffering
         self._log_agent("Creating data collection:")
-
+        self._log_agent("  creating  TFUniformReplayBuffer( ... )")
         replay_buffer = TFUniformReplayBuffer(data_spec=tf_agent.collect_data_spec,
-                                              batch_size=self._batch_size,
-                                              max_length=self._num_training_steps_in_replay_buffer)
-        dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=self._batch_size,
-                                           num_steps=2).prefetch(3)
-        iter_dataset = iter(dataset)
-
-        def collect_step(tf_env, tf_policy):
-            """ performs a single step in environment using policy and stores the transition in 'replay_buffer'.
-            """
-            time_step = tf_env.current_time_step()
-            action_step = tf_policy.action(time_step)
-            next_time_step = tf_env.step(action_step.action)
-            traj = trajectory.from_transition(time_step, action_step, next_time_step)
-            replay_buffer.add_batch(traj)
-
+                                              batch_size=1,
+                                              max_length=self._num_steps_in_replay_buffer)
+        self._log_agent("  creating  DynamicEpisodeDriver(RandomTFPolicy)")
         random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(), train_env.action_spec())
-        for _ in range(self._num_initial_collect_steps):
-            collect_step(train_env, random_policy)
+        preload_driver = DynamicEpisodeDriver(env=train_env,
+                                              policy=random_policy,
+                                              observers=[replay_buffer.add_batch],
+                                              num_episodes=self._num_episodes_to_preload_replay_buffer)
 
+        self._log_agent("  executing DynamicEpisodeDriver.run (preloading replay buffer)")
+        preload_driver.run()
+
+        self._log_agent(f'  creating  DynamicEpisodeDriver(trained_policy, ' +
+                        f'{self._training.num_episodes_per_iteration} episodes/iteration)')
+        driver = DynamicEpisodeDriver(env=train_env,
+                                      policy=self._trained_policy,
+                                      observers=[replay_buffer.add_batch],
+                                      num_episodes=self._training.num_episodes_per_iteration)
         # Train
         self._log_agent("Starting training:")
         tf_agent.train = common.function(tf_agent.train, autograph=False)
-
+        dataset = replay_buffer.as_dataset(num_parallel_calls=1,
+                                           sample_batch_size=self._num_steps_in_replay_batch,
+                                           num_steps=2).prefetch(3)
+        iter_dataset = iter(dataset)
         self._train_iteration_completed(0)
         for iteration in range(1, self._training.num_iterations + 1):
-            msg = f'training {iteration:4} of {self._training.num_iterations:<4}:'
-            self._log_agent(
-                f'{msg} collecting data with current policy for {self._num_collect_steps_per_iteration} steps')
-            for _ in range(self._num_collect_steps_per_iteration):
-                collect_step(train_env, tf_agent.collect_policy)
+            msg = f'iteration {iteration:4} of {self._training.num_iterations:<4}:'
+            self._log_agent(f'{msg} executing DynamicEpisodeDriver.run() (collecting data for ' +
+                            f'{self._training.num_episodes_per_iteration} episodes)')
+            driver.run()
 
-            self._log_agent(f'{msg} executing  iter(replay_buffer.as_dataset)')
-            trajectories, _ = next(iter_dataset)
-            self._log_agent(f'{msg} executing  tf_agent.train(...)')
-            tf_lossInfo = tf_agent.train(experience=trajectories)
+            tf_lossInfo = None
+            for t in range(1,self._training.num_epochs_per_iteration+1):
+                trajectories, _ = next(iter_dataset)
+                self._log_agent(f'{msg} batch {t:2} of {self._training.num_epochs_per_iteration:<2}' +
+                                f'    executing  tf_agent.train({len(trajectories.action)} steps from replay_buffer)')
+                tf_lossInfo = tf_agent.train(experience=trajectories)
             self._train_iteration_completed(iteration, tf_lossInfo.loss)
         return
