@@ -79,6 +79,7 @@ class TestPpoAgent(unittest.TestCase):
         result = str(ppo_agent)
         print(result)
 
+import tensorflow as tf
 
 class TestReinforceAgent(unittest.TestCase):
 
@@ -97,6 +98,19 @@ class TestReinforceAgent(unittest.TestCase):
         agent = ReinforceAgent(self.gym_env_name, training=TrainingFast())
         agent.train()
 
-
+    def test_train_custom_network(self):
+        custom_hidden_layers = [
+            tf.keras.layers.Dense(500),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Dropout(rate=0.4),
+            tf.keras.layers.Dense(250),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Dropout(rate=0.4)
+        ]
+        agent = ReinforceAgent(self.gym_env_name, training=TrainingFast(), custom_hidden_layers=custom_hidden_layers)
+        agent.train()
+    
 if __name__ == '__main__':
     unittest.main()
