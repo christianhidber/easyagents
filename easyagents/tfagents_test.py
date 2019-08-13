@@ -7,7 +7,8 @@ from easyagents.config import TrainingSingleEpisode
 from easyagents.easyenv import EasyEnv
 from easyagents.tfagents import DqnAgent
 from easyagents.tfagents import PpoAgent
-
+from easyagents.tfagents import ReinforceAgent
+from easyagents.tfagents import VpgAgent
 
 class TestTfAgents(unittest.TestCase):
     count = 0
@@ -77,6 +78,22 @@ class TestPpoAgent(unittest.TestCase):
         result = str(ppo_agent)
         print(result)
 
+class TestReinforceAgent(unittest.TestCase):
+
+    def setUp(self):
+        self.gym_env_name = 'CartPole-v0'
+
+    def test_create(self):
+        agent = ReinforceAgent(self.gym_env_name)
+        self.assertIsNotNone(agent, "failed to create a tfagents.ReinforceAgent instance for " + self.gym_env_name)
+
+    def test_create_with_alias(self):
+        agent = VpgAgent(self.gym_env_name)
+        self.assertIsNotNone(agent, "failed to create a tfagents.ReinforceAgent instance for " + self.gym_env_name)
+    
+    def test_train(self):
+        agent = ReinforceAgent(self.gym_env_name, training=TrainingFast())
+        agent.train()
 
 if __name__ == '__main__':
     unittest.main()
