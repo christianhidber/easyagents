@@ -2,6 +2,8 @@ import unittest
 
 from easyagents.config import LoggingMinimal
 from easyagents.config import LoggingVerbose
+from easyagents.config import LoggingNormal
+from easyagents.config import Training
 from easyagents.config import TrainingFast
 from easyagents.config import TrainingSingleEpisode
 from easyagents.easyenv import EasyEnv
@@ -55,7 +57,7 @@ class TestDqnAgent(unittest.TestCase):
         self.assertIsNotNone(dqn_agent, "failed to create a tfagents.DqnAgent instance for " + self.gym_env_name)
 
     def test_dqn_train(self):
-        dqn_agent = DqnAgent(self.gym_env_name, training=TrainingFast(), logging=LoggingVerbose())
+        dqn_agent = DqnAgent(self.gym_env_name, training=Training(), logging=LoggingNormal())
         dqn_agent.train()
 
 
