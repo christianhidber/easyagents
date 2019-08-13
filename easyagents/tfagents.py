@@ -362,11 +362,6 @@ class ReinforceAgent(TfAgent):
     """ creates a new agent based on the Reinforce algorithm using the tfagents implementation.
         Reinforce is also known as Vanilla Policy Gradient as it is the most basic policy gradient approach.
 
-        PPO is an actor-critic algorithm using 2 neural networks. The actor network
-        to predict the next action to be taken and the critic network to estimate
-        the value of the game state we are currently in (the expected, discounted
-        sum of future rewards when following the current actor network).
-
         Args:
         gym_env_name    :   name of an OpenAI gym environment to be used for training and evaluation
         fc_layers       :   defines the neural network to be used, a sequence of fully connected
@@ -453,10 +448,7 @@ class ReinforceAgent(TfAgent):
 
         self._log_agent("Starting training:")
         self._train_iteration_completed(0)
-        # OZ->CHH: as there is num_epochs parameter for VPG, should we apply it here? 
-        # Should we have it in the training config in the first place as it seems to be specific to PPO (neither DQN nor VPG seem to have it)? 
-        iterations = self._training.num_epochs_per_iteration * self._training.num_iterations
-        for iteration in range(1, iterations + 1):
+        for iteration in range(1, self._training.num_iterations + 1):
             msg = f'training {iteration:4} of {self._training.num_iterations:<4}:'
             self._log_agent(msg + " executing collect_driver.run()")
             collect_driver.run()
