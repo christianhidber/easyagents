@@ -19,7 +19,6 @@ from easyagents.config import Logging
 from easyagents.config import Training
 from easyagents.easyenv import EasyEnv
 
-
 class TfAgent(AbstractAgent):
     """ Reinforcement learning agents based on googles tf_agent implementations
         https://github.com/tensorflow/agents
@@ -358,6 +357,68 @@ class DqnAgent(TfAgent):
             self._train_iteration_completed(iteration, tf_lossInfo.loss)
         return
 
+from tf_agents.networks.network import DistributionNetwork
+from tf_agents.networks.actor_distribution_network import _categorical_projection_net, _normal_projection_net
+from tf_agents.networks import utils
+from tf_agents.specs import tensor_spec
+from tf_agents.utils import nest_utils
+        
+# most of the initial code copied from https://github.com/tensorflow/agents/blob/master/tf_agents/networks/actor_distribution_network.py         
+class CustomActorDistributionNetwork(DistributionNetwork):
+  def __init__(self,
+               input_tensor_spec,
+               output_tensor_spec,
+               hidden_layers,
+               discrete_projection_net=_categorical_projection_net,
+               continuous_projection_net=_normal_projection_net,
+               name='CustomActorDistributionNetwork'):
+    if len(tf.nest.flatten(input_tensor_spec)) > 1:
+      raise ValueError('Only a single observation is supported by this network')
+
+    def map_proj(spec):
+      if tensor_spec.is_discrete(spec):
+        return discrete_projection_net(spec)
+      else:
+        return continuous_projection_net(spec)
+
+    projection_networks = tf.nest.map_structure(map_proj, output_tensor_spec)
+    output_spec = tf.nest.map_structure(lambda proj_net: proj_net.output_spec,
+                                        projection_networks)
+
+    super(CustomActorDistributionNetwork, self).__init__(
+        input_tensor_spec=input_tensor_spec,
+        state_spec=(),
+        output_spec=output_spec,
+        name=name)
+
+    self._mlp_layers = hidden_layers
+    self._projection_networks = projection_networks
+    self._output_tensor_spec = output_tensor_spec
+
+  @property
+  def output_tensor_spec(self):
+    return self._output_tensor_spec
+
+  def call(self, observations, step_type, network_state):
+    del step_type  # unused.
+    outer_rank = nest_utils.get_outer_rank(observations, self.input_tensor_spec)
+    observations = tf.nest.flatten(observations)
+    states = tf.cast(observations[0], tf.float32)
+
+    # Reshape to only a single batch dimension for neural network functions.
+    batch_squash = utils.BatchSquash(outer_rank)
+    states = batch_squash.flatten(states)
+
+    for layer in self._mlp_layers:
+      states = layer(states)
+
+    # TODO(oars): Can we avoid unflattening to flatten again
+    states = batch_squash.unflatten(states)
+    output_actions = tf.nest.map_structure(
+        lambda proj_net: proj_net(states, outer_rank),
+        self._projection_networks)
+    return output_actions, network_state
+
 class ReinforceAgent(TfAgent):
     """ creates a new agent based on the Reinforce algorithm using the tfagents implementation.
         Reinforce is also known as Vanilla Policy Gradient as it is the most basic policy gradient approach.
@@ -368,6 +429,9 @@ class ReinforceAgent(TfAgent):
                             layers of the given size. Eg (75,40) yields a neural network consisting
                             out of 2 hidden layers, the first one containing 75 and the second layer
                             containing 40 neurons.
+        custom_hidden_layers : alternative to the fc_layers parameter, accepts a list of tensorflow layers
+                               serving as the hidden layers of the actor network. Expects to have 1d output,
+                               so CNN output needs to be flattened as the final layer.                            
         training                : instance of config.Training to configure the #episodes used for training.
         num_training_steps_in_replay_buffer : defines the size of the replay buffer in terms of game steps.
         learning_rate           : value in (0,1]. Factor by which the impact on the policy update is reduced
@@ -383,6 +447,7 @@ class ReinforceAgent(TfAgent):
     def __init__(self,
                  gym_env_name: str,
                  fc_layers=None,
+                 custom_hidden_layers=None,
                  training: Training = None,
                  num_training_steps_in_replay_buffer: int = 10001,
                  learning_rate: float = 0.001,
@@ -396,6 +461,7 @@ class ReinforceAgent(TfAgent):
                          logging=logging)
         assert num_training_steps_in_replay_buffer >= 1, "num_training_steps_in_replay_buffer must be >= 1"
         self._num_training_steps_in_replay_buffer = num_training_steps_in_replay_buffer
+        self.custom_hidden_layers = custom_hidden_layers
         return
 
     def _train(self):
@@ -415,9 +481,14 @@ class ReinforceAgent(TfAgent):
         self._log_agent("  creating  tf.compat.v1.train.AdamOptimizer( ... )")
         optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=self._learning_rate)
 
-        actor_net = actor_distribution_network.ActorDistributionNetwork(observation_spec,
-                                                                        action_spec,
-                                                                        fc_layer_params=self.fc_layers)
+        if self.custom_hidden_layers is not None:
+            actor_net = CustomActorDistributionNetwork(observation_spec,
+                                                       action_spec,
+                                                       self.custom_hidden_layers)
+        else:
+            actor_net = actor_distribution_network.ActorDistributionNetwork(observation_spec,
+                                                                            action_spec,
+                                                                            fc_layer_params=self.fc_layers)
 
         self._log_agent("  creating  ReinforceAgent( ... )")
         tf_agent = reinforce_agent.ReinforceAgent(timestep_spec, action_spec,
