@@ -5,9 +5,9 @@ matrix:
       python: 3.7           # this works for Linux but is ignored on macOS or Windows
       dist: xenial          # required for Python >= 3.7
       before_install:
-        - sudo apt-get install python-opengl
+#        - sudo apt-get install python-opengl
         - sudo apt-get install xvfb
-        - pip install pyvirtualdisplay
+#        - pip install pyvirtualdisplay
         - pip install pytest-xvfb
     - name: "Python 3.7.3 on Windows"
       os: windows           # Windows 10.0.17134 N/A Build 17134
