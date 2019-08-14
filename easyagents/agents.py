@@ -21,19 +21,26 @@ from easyagents.easyenv import register
 # (in order to get plot updates during training)
 _is_jupyter_active = False
 try:
+    # noinspection PyUnresolvedReferences
     from IPython import get_ipython
+    # noinspection PyUnresolvedReferences
     from IPython.display import display, clear_output
+    # noinspection PyUnresolvedReferences
     from IPython.display import HTML
 
     shell = get_ipython().__class__.__name__
     if shell == 'ZMQInteractiveShell':
         _is_jupyter_active = True
     else:
+        # noinspection PyPackageRequirements
         import google.colab
 
         _is_jupyter_active = True
 except ImportError:
     pass
+
+# download mp4 rendering
+imageio.plugins.ffmpeg.download()
 
 
 class EasyAgent(ABC):
@@ -84,6 +91,10 @@ class EasyAgent(ABC):
         self.training_average_steps = []
         self.training_losses = []
 
+        self._train_figure = None
+        self._train_is_jupyter_display_figure = False
+        self._train_render_rgb_array = np.array([])
+
         self._log = getLogger(name=__name__)
         self._log.setLevel(INFO)
         self._log_minimal(f'{self}')
@@ -115,7 +126,7 @@ class EasyAgent(ABC):
             self._log.info(msg)
         return
 
-    def play_episode(self, max_steps: int = None, callback=None) -> (float, int, bool):
+    def play_episode(self, max_steps: int = None, callback: object = None) -> object:
         """ Plays a full episode using the previously trained policy, yielding
             the sum of rewards, the totale number of steps taken over the episode.
 
@@ -126,7 +137,7 @@ class EasyAgent(ABC):
                           if the callback yields True, the episode is aborted.
             :returns rewards,steps
         """
-        return self._play_episode(max_steps = max_steps, callback = callback)
+        return self._play_episode(max_steps=max_steps, callback=callback)
 
     def _play_episode(self, max_steps: int, callback) -> (float, int, bool):
         """ Plays a full episode using the previously trained policy, yielding
@@ -171,14 +182,17 @@ class EasyAgent(ABC):
         if figure is None:
             x_set, y_set = 17, 5
             figure = plt.figure("EasyAgents", figsize=(x_set, y_set))
+            for axis in figure.axes:
+                figure.delaxes(axis)
             num_subplots = 3 if rgb_array is None else 4
             axes = [figure.add_subplot(1, num_subplots, i + 1) for i in range(num_subplots)]
             if rgb_array is not None:
                 figure.tight_layout(w_pad=3)
         else:
             axes = figure.axes
-            assert len(axes) >= 3, "figure must contain at least 3 axes"
-            assert len(axes) <= 4, "figure must contain at most 4 axes"
+            axeslen = len(axes)
+            assert axeslen >= 3, f'figure contains {axeslen} axes, but must contain at least 3 axes'
+            assert axeslen <= 4, f'figure contains {axeslen} axes, but may contain at most 4 axes'
         if scale is None:
             scale = ['log', 'linear', 'linear']
         if ylim is None:
@@ -336,6 +350,7 @@ class EasyAgent(ABC):
         Your browser does not support the video tag.
         </video>'''.format(width, height, b64.decode())
         result = HTML(result)
+        # noinspection PyTypeChecker
         display(result)
 
     def render_episodes_to_mp4(self, num_episodes: int = 10, filepath: str = None, fps: int = 20,
@@ -405,6 +420,7 @@ class EasyAgent(ABC):
         """
         return
 
+    # noinspection PyShadowingNames
     def _train_eval_rewards_and_steps(self):
         """ computes the expected sum of rewards and the expected step count for the previously trained policy.
             and adds them to the training logs.
@@ -416,6 +432,7 @@ class EasyAgent(ABC):
 
         def render_to_rgb_array(is_render: bool, gym_env: EasyEnv):
             if is_render and self._train_render_rgb_array is not None:
+                # noinspection PyBroadException
                 try:
                     self._train_render_rgb_array = None
                     self._train_render_rgb_array = self._render_to_rgb_array(gym_env)
@@ -481,6 +498,7 @@ class EasyAgent(ABC):
                                                      rgb_array=self._train_render_rgb_array)
             self._train_is_jupyter_display_figure = True
         return
+
 
 class AbstractAgent(EasyAgent):
     """ Base class for all Agent implementations.

@@ -308,7 +308,7 @@ class DqnAgent(TfAgent):
                                       train_env.action_spec(),
                                       q_network=q_net,
                                       optimizer=optimizer,
-                                      td_errors_loss_fn=dqn_agent.element_wise_squared_loss)
+                                      td_errors_loss_fn=common.element_wise_squared_loss)
         self._log_agent("  executing tf_agent.initialize()")
         tf_agent.initialize()
         self._trained_policy = tf_agent.policy

@@ -8,17 +8,14 @@ class LoggingTest(unittest.TestCase):
     def test_log(self):
         logging.basicConfig(level=logging.DEBUG)
         self._log = logging.getLogger(__name__)
-        # self._log.setLevel(logging.DEBUG)
 
         print("starting test_log")
         self._log.debug("debug output")
         self._log.warning("warning output")
         self._log.error("error output")
         self._log.fatal("fatal output")
-        return
 
     def test_rootlogger(self):
-        # logging.basicConfig()
         logging.basicConfig(level=logging.DEBUG)
 
         print("starting test_rootlogger")
@@ -27,12 +24,11 @@ class LoggingTest(unittest.TestCase):
         logging.warning("warning output")
         logging.error("error output")
         logging.fatal("fatal output")
-        return
 
     def test_matplotlib(self):
         f1 = plt.figure("unittest", figsize=(17, 5))
         plt.pause(0.01)
-        x,y = f1.get_size_inches()
-        assert (x,y)== (17,5)
-        assert not (x,y)== (17,6)
+        x, y = f1.get_size_inches()
+        assert (x, y) == (17, 5)
+        assert not (x, y) == (17, 6)
         print()

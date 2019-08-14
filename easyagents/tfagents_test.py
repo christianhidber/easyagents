@@ -1,9 +1,7 @@
 import unittest
 
 from easyagents.config import LoggingMinimal
-from easyagents.config import LoggingVerbose
 from easyagents.config import LoggingNormal
-from easyagents.config import Training
 from easyagents.config import TrainingFast
 from easyagents.config import TrainingSingleEpisode
 from easyagents.easyenv import EasyEnv
@@ -11,6 +9,7 @@ from easyagents.tfagents import DqnAgent
 from easyagents.tfagents import PpoAgent
 from easyagents.tfagents import ReinforceAgent
 from easyagents.tfagents import VpgAgent
+
 
 class TestTfAgents(unittest.TestCase):
     count = 0
@@ -23,14 +22,14 @@ class TestTfAgents(unittest.TestCase):
         easyenv = self.ppo._get_easyenv(tfenv)
         assert isinstance(easyenv, EasyEnv)
 
-    def test_play_episode_nocallback_success(self):
+    def test_play_episode_nocallback(self):
         self.ppo.train()
         reward, steps = self.ppo.play_episode()
         assert isinstance(reward, float)
         assert isinstance(steps, int)
         assert steps > 0
 
-    def test_play_episode_withcallback_success(self):
+    def test_play_episode_withcallback(self):
         self.ppo.train()
         TestTfAgents.count = 0
         reward, steps = self.ppo.play_episode(
@@ -38,7 +37,7 @@ class TestTfAgents(unittest.TestCase):
             TestTfAgents.increment_count())
         assert steps == TestTfAgents.count
 
-    def test_play_episode_withmaxsteps_success(self):
+    def test_play_episode_withmaxsteps(self):
         self.ppo.train()
         reward, steps = self.ppo.play_episode(max_steps=2)
         assert steps == 2
@@ -53,12 +52,12 @@ class TestDqnAgent(unittest.TestCase):
     def setUp(self):
         self.gym_env_name = 'CartPole-v0'
 
-    def test_dqn_create(self):
+    def test_create(self):
         dqn_agent = DqnAgent(self.gym_env_name)
         self.assertIsNotNone(dqn_agent, "failed to create a tfagents.DqnAgent instance for " + self.gym_env_name)
 
-    def test_dqn_train(self):
-        dqn_agent = DqnAgent(self.gym_env_name, training=Training(), logging=LoggingNormal())
+    def test_train(self):
+        dqn_agent = DqnAgent(self.gym_env_name, training=TrainingFast(), logging=LoggingNormal())
         dqn_agent.train()
 
 
@@ -67,18 +66,19 @@ class TestPpoAgent(unittest.TestCase):
     def setUp(self):
         self.gym_env_name = 'CartPole-v0'
 
-    def test_ppo_create(self):
+    def test_create(self):
         ppo_agent = PpoAgent(self.gym_env_name)
         self.assertIsNotNone(ppo_agent, "failed to create a tfagents.PpoAgent instance for " + self.gym_env_name)
 
-    def test_ppo_train(self):
+    def test_train(self):
         ppo_agent = PpoAgent(self.gym_env_name, training=TrainingFast())
         ppo_agent.train()
 
-    def test_ppo_str(self):
+    def test_str(self):
         ppo_agent = PpoAgent(self.gym_env_name, training=TrainingFast())
         result = str(ppo_agent)
         print(result)
+
 
 class TestReinforceAgent(unittest.TestCase):
 
@@ -92,10 +92,11 @@ class TestReinforceAgent(unittest.TestCase):
     def test_create_with_alias(self):
         agent = VpgAgent(self.gym_env_name)
         self.assertIsNotNone(agent, "failed to create a tfagents.ReinforceAgent instance for " + self.gym_env_name)
-    
+
     def test_train(self):
         agent = ReinforceAgent(self.gym_env_name, training=TrainingFast())
         agent.train()
+
 
 if __name__ == '__main__':
     unittest.main()
