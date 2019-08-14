@@ -52,13 +52,13 @@ class TestEasyEnv(unittest.TestCase):
         assert spec.max_episode_steps == easy_spec.max_episode_steps
         assert spec.reward_threshold == easy_spec.reward_threshold
 
-    def test_register_tfagents_suitegymload_success(self):
+    def test_register_tfagents_suitegymload(self):
         env_name='CartPole-v0'
         easyenv_name = easyagents.easyenv.register(env_name)
         tf_env = suite_gym.load(easyenv_name)
         assert tf_env is not None
 
-    def test_register_twiceSameName_success(self):
+    def test_register_twiceSameName(self):
         easyagents.easyenv.register('CartPole-v0')
         easyagents.easyenv.register('CartPole-v0')
 
