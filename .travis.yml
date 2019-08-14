@@ -6,9 +6,6 @@ matrix:
       dist: xenial          # required for Python >= 3.7
       before_install:
         - sudo apt-get install python-opengl
-        #- sudo apt-get install xvfb
-        #- pip install pyvirtualdisplay
-        #- pip install pytest-xvfb
       services:
         - xvfb
     - name: "Python 3.7.3 on Windows"
@@ -17,12 +14,12 @@ matrix:
       before_install:
         - choco install python
         - python -m pip install --upgrade pip
-      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+      env:
+        - PATH=/c/Python37:/c/Python37/Scripts:$PATH
+        - EAZYAGENTS_IGNORE_RENDER_TESTS=True
 
 install:
   - pip install -r requirements.txt
-  - pip install pytest
 
 script: pytest -r a -v
 
-# 'xvfb-run -s \"-screen 0 1400x900x24\" python <your_script.py>'

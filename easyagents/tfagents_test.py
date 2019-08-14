@@ -1,9 +1,7 @@
 import unittest
 
 from easyagents.config import LoggingMinimal
-from easyagents.config import LoggingVerbose
 from easyagents.config import LoggingNormal
-from easyagents.config import Training
 from easyagents.config import TrainingFast
 from easyagents.config import TrainingSingleEpisode
 from easyagents.easyenv import EasyEnv
