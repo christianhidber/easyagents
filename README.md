@@ -1,6 +1,7 @@
 ### Reinforcement Learning for Practitioners
+![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 
-Status: Active (under active development, breaking changes may occur)
+Status: under active development, breaking changes may occur
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
