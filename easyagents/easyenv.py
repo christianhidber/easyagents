@@ -1,110 +1,112 @@
-import gym
 import logging
 
-"""
-    this module is a hack a needs a fundamental rework and redesign (chh/19Q2)
-"""
+import gym
 
 
 def register(gym_env_name: str = None, log_api: bool = True, log_steps: bool = False, log_reset: bool = False):
-    """ Registers the EasyEnv wrapper for the 'gym_env_name' environment.
-        The wrapper is registered as 'Easy-<env_name>'.
-        max_episode_steps and reward_threshold is set according to the spec of the passed environment
+    """Registers the EasyEnv wrapper for the 'gym_env_name' environment.
 
-        Limitation: currently only 1 gym env may be registered.
+    The wrapper is registered as 'Easy-<env_name>'.
+    max_episode_steps and reward_threshold are set according to the spec of the passed environment.
+    If the same name is registered more than once, the second and all following calls are noOps.
 
-        Args:
-        gym_env_name    the name of the gym environment to be wrapped by LogEnv (instead of gym_factor)
-        log_api         if set all calls to the gym api are logged
-        log_steps       if set to False calls to the step method are not logged (even if log_api is set)
-        log_reset       if set to false calls to the reset method are not logged (even if log_api is set), 
-                        except if the current episode is not complete yet.
+    Args:
+        gym_env_name: the name of the gym environment to be wrapped by LogEnv (instead of gym_factor)
+        log_api: if set all calls to the gym api are logged
+        log_steps: if set to False calls to the step method are not logged (even if log_api is set)
+        log_reset: if set to false calls to the reset method are not logged (even if log_api is set),
+            except if the current episode is not complete yet.
 
-        Retuns:
+    Retuns:
         The new name of the wrapped environment.
     """
     assert gym_env_name is not None, "None is not an admissible environment name"
     assert type(gym_env_name) is str, "gym_env_name is not a str"
     assert len(gym_env_name) > 0, "empty string is not an admissible environment name"
 
-    result = EasyEnv.NAME_PREFIX + gym_env_name
-    EasyEnv._log_steps = log_steps
-    EasyEnv._log_reset = log_reset
-    EasyEnv._log_api = log_api
-    if EasyEnv._gym_env_name != gym_env_name:
-        assert EasyEnv._gym_env_name is None, "Another environment was already registered"
-
-        EasyEnv._gym_env_name = gym_env_name
+    result = EasyEnv._NAME_PREFIX + gym_env_name
+    if not result in EasyEnv._instance_counts:
         gym_spec = gym.envs.registration.spec(gym_env_name)
         gym.envs.registration.register(id=result,
                                        entry_point=EasyEnv,
                                        max_episode_steps=gym_spec.max_episode_steps,
                                        max_episode_seconds=gym_spec.max_episode_seconds,
-                                       reward_threshold=gym_spec.reward_threshold)
+                                       reward_threshold=gym_spec.reward_threshold,
+                                       kwargs={EasyEnv._KWARG_GYM_NAME: gym_env_name,
+                                               EasyEnv._KWARG_LOG_STEPS: log_steps,
+                                               EasyEnv._KWARG_LOG_RESET: log_reset,
+                                               EasyEnv._KWARG_LOG_API: log_api})
+        EasyEnv._instance_counts[result] = 0
     return result
 
 
-class EasyEnv(gym.Env):
-    """ Decorator for gym environments to intercept each gym env method call.
-        The decorator is used to support method call logging, supporting callbacks
-        and caching the last observation.
+class EasyEnv(gym.Wrapper):
+    """Wrapper for gym environments to intercept each gym env method call.
+
+    The wrapper is used to support method call logging, supporting callbacks
+    and caching the last observation.
     """
-    _gym_env_name = None
-    _log_steps = False
-    _log_reset = False
-    _log_api = False
-    _instanceCount = 0
+    _instance_counts = dict()
 
-    NAME_PREFIX = "Easy_"
+    _NAME_PREFIX = "Easy_"
+    _KWARG_GYM_NAME = "easyenv_gym_name"
+    _KWARG_LOG_STEPS = "easyenv_log_steps"
+    _KWARG_LOG_RESET = "easyenv_log_reset"
+    _KWARG_LOG_API = "easyenv_log_api"
 
-    def __init__(self):
-        target_env = gym.make(EasyEnv._gym_env_name)
-        self.env = target_env.unwrapped
-        self.action_space = self.env.action_space
-        self.observation_space = self.env.observation_space
-        self.reward_range = self.env.reward_range
-        self.metadata = self.env.metadata
+    def __init__(self, **kwargs):
+        assert EasyEnv._KWARG_GYM_NAME in kwargs, f'{EasyEnv._KWARG_GYM_NAME} missing from kwargs'
+        assert EasyEnv._KWARG_LOG_API in kwargs, f'{EasyEnv._KWARG_LOG_API} missing from kwargs'
+        assert EasyEnv._KWARG_LOG_RESET in kwargs, f'{EasyEnv._KWARG_LOG_RESET} missing from kwargs'
+        assert EasyEnv._KWARG_LOG_STEPS in kwargs, f'{EasyEnv._KWARG_LOG_STEPS} missing from kwargs'
 
-        self._logStarted = False
-        self._stepCount = 0
-        self._totalStepCount = 0
-        self._resetCount = 0
-        self._renderCount = 0
-        self._seedCount = 0
-        self._closeCount = 0
-        self._totalReward = 0.0
+        self._gym_env_name = kwargs[EasyEnv._KWARG_GYM_NAME]
+        super().__init__(gym.make(self._gym_env_name))
+        self._log_api = kwargs[EasyEnv._KWARG_LOG_API]
+        self._log_reset = kwargs[EasyEnv._KWARG_LOG_RESET]
+        self._log_steps = kwargs[EasyEnv._KWARG_LOG_STEPS]
+
+        easyenv_name = EasyEnv._NAME_PREFIX + self._gym_env_name
+        self._instance_id = EasyEnv._instance_counts[easyenv_name]
+        EasyEnv._instance_counts[easyenv_name] = self._instance_id + 1
+
+        self._close_count = 0
+        self._render_count = 0
+        self._reset_count = 0
+        self._seed_count = 0
+        self._step_count = 0
         self._done = False
-        self._instanceId = EasyEnv._instanceCount
-        EasyEnv._instanceCount += 1
-
-        self._step_callback = None
 
         self._log = logging.getLogger(__name__)
         self._log.setLevel(logging.DEBUG)
-        return
+        self._log_started = False
+
+        self._step_callback = None
+        self._total_reward = 0.0
+        self._total_step_count = 0
 
     def _log_api_call(self, msg):
         if self._log_api:
-            if not self._logStarted:
+            if not self._log_started:
                 self._log.debug(f'#EnvId ResetCount.Steps [R=sumRewards]')
-                self._logStarted = True
-            logMsg = f'#{self._instanceId} {self._resetCount:3}.{self._stepCount:<3} [totalReward={self._totalReward:6.1f}] {msg}'
+                self._log_started = True
+            logMsg = f'#{self._instance_id} {self._reset_count:3}.{self._step_count:<3} [totalReward={self._total_reward:6.1f}] {msg}'
             self._log.debug(logMsg)
         return
 
     def _set_step_callback(self, callback):
-        ''' callback is called after each execution of the step method.
+        """callback is called after each execution of the step method.
 
-            signature: callback(gym_env,action,state,reward,step,done,info)
-        '''
+        signature: callback(gym_env,action,state,reward,step,done,info)
+        """
         self._step_callback = callback
 
     def step(self, action):
-        self._stepCount += 1
-        self._totalStepCount += 1
+        self._step_count += 1
+        self._total_step_count += 1
         result = self.env.step(action)
         (state, reward, done, info) = result
-        self._totalReward += reward
+        self._total_reward += reward
         if self._log_steps:
             self._log_api_call(
                 f'executing step( {action} ) = ( reward={reward}, state={state}, done={done}, info={info} )')
@@ -113,18 +115,18 @@ class EasyEnv(gym.Env):
             self._done = True
         if self._step_callback:
             self._step_callback(gym_env=self.env, action=action, state=state, reward=reward,
-                                step=self._stepCount, done=done, info=info)
+                                step=self._step_count, done=done, info=info)
         return result
 
     def reset(self, **kwargs):
         if self._log_reset or not self._done:
             msg = "executing reset(...)"
-            if not self._done and self._stepCount > 0:
+            if not self._done and self._step_count > 0:
                 msg += " [episode not done]"
             self._log_api_call(msg)
-        self._resetCount += 1
-        self._stepCount = 0
-        self._totalReward = 0.0
+        self._reset_count += 1
+        self._step_count = 0
+        self._total_reward = 0.0
         self._done = False
         result = self.env.reset(**kwargs)
         if self._step_callback:
@@ -134,18 +136,18 @@ class EasyEnv(gym.Env):
 
     def render(self, mode='human', **kwargs):
         self._log_api_call("executing render(...)")
-        self._renderCount += 1
+        self._render_count += 1
         return self.env.render(mode, **kwargs)
 
     def close(self):
         if self.env:
             self._log_api_call("executing close()")
-            self._closeCount += 1
+            self._close_count += 1
             return self.env.close()
 
     def seed(self, seed=None):
         self._log_api_call("executing seed(...)")
-        self._seedCount += 1
+        self._seed_count += 1
         return self.env.seed(seed)
 
     @property
