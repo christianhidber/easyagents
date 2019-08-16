@@ -535,5 +535,3 @@ class ReinforceAgent(TfAgent):
 
             self._train_iteration_completed(iteration, total_loss)
         return
-
-VpgAgent = ReinforceAgent        
