@@ -1,5 +1,5 @@
-### Reinforcement Learning for Practitioners
-![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
+### Reinforcement Learning for Practitioners (v1)
+![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=v1)
 
 Status: under active development, breaking changes may occur
 
@@ -15,17 +15,19 @@ EasyAgents is a high level reinforcement learning api, written in Python and run
 * you want mix and match different implementations and algorithms
 
 Try it on colab:
-* [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
+* [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_cartpole.ipynb)
   (introduction. the classic reinforcement learning example balancing a stick on a cart)
-* [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_berater.ipynb)
+* [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_berater.ipynb)
   (example of a custom environment & training. gym environment based on a routing problem)
+* [LineWorld on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_line.ipynb)
+  (implement your own environment, workshop example)
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 ## Example
 
 Here's an example of the full code needed to run the tfagents implementation of Ppo on the cartpole example.
 
-### Simple case (no configuration)
+### Simple case 
 
 ```python
 from easyagents.tfagents import PpoAgent
@@ -141,11 +143,3 @@ moreover the list only contains terms that are actually used for this project)
   We'll try to do our best to help you.
 * Any ideas, help, suggestions, comments etc in python / open source development / reinforcement learning / whatever
   are more than welcome. Thanks a lot in advance.
-
-## Stuff to work on
-
-This is just a heap of ideas, issues and stuff that needs work / should be thought about (besides all the stuff that isn't mentioned):
-
-* easyenv.register should allow multiple environments to be registered
-* support for OpenAI baselines
-* support for multiple agents (not just ppo)
