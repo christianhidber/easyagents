@@ -374,8 +374,8 @@ class EasyAgent(ABC):
 
         if filepath is None:
             filepath = self._gym_env_name
-            if filepath.startswith(EasyEnv.NAME_PREFIX):
-                filepath = filepath[len(EasyEnv.NAME_PREFIX):]
+            if filepath.startswith(EasyEnv._NAME_PREFIX):
+                filepath = filepath[len(EasyEnv._NAME_PREFIX):]
             filepath = os.path.join(tempfile.gettempdir(),
                                     next(tempfile._get_candidate_names()) + "_" + filepath + ".mp4")
         with imageio.get_writer(filepath, fps=fps) as video:
