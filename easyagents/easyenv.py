@@ -1,9 +1,58 @@
+import inspect
 import logging
 
 import gym
 
 
-def register(gym_env_name: str = None, log_api: bool = True, log_steps: bool = False, log_reset: bool = False):
+def register_with_gym(gym_env_name: str, entry_point: type):
+    """Registers the class entry_point in gym by the name gym_env_name allowing overriding registrations.
+
+    Thus different implementations of the same class (and the same name) maybe registered consecutively.
+    The latest registrated version is used for instantiation.
+    This facilitates developing an environment in a jupyter notebook without haveing to
+    reregister a modified class under a new name.
+
+    Args:
+        gym_env_name: the gym environment name to be used as argument with gym.make
+        entry_point: the class to be registed with gym id gym_env_name
+    """
+    assert gym_env_name is not None, "None is not an admissible environment name"
+    assert type(gym_env_name) is str, "gym_env_name is not a str"
+    assert len(gym_env_name) > 0, "empty string is not an admissible environment name"
+    assert inspect.isclass(entry_point), "entry_point not a class"
+    assert issubclass(entry_point, gym.Env), "entry_point not a subclass of gym.Env"
+    assert callable(entry_point), "entry_point not callable"
+
+    if gym_env_name not in _ShimEnv._entry_points:
+        gym.envs.registration.register(id=gym_env_name,
+                                       entry_point=_ShimEnv,
+                                       kwargs={_ShimEnv._KWARG_GYM_NAME: gym_env_name})
+    _ShimEnv._entry_points[gym_env_name] = entry_point
+
+
+class _ShimEnv(gym.Wrapper):
+    """Wrapper to redirect the instantiation of a gym environment to its current implementation.
+    """
+
+    _KWARG_GYM_NAME = "shimenv_gym_name"
+    _entry_points = {}
+
+    def __init__(self, **kwargs):
+        assert _ShimEnv._KWARG_GYM_NAME in kwargs, f'{_EasyEnv._KWARG_GYM_NAME} missing from kwargs'
+
+        self._gym_env_name = kwargs[_ShimEnv._KWARG_GYM_NAME]
+        entry_point = _ShimEnv._entry_points[self._gym_env_name]
+        self._gym_env = entry_point()
+        super().__init__(self._gym_env)
+
+    def step(self, action):
+        return self.env.step(action)
+
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
+
+
+def _register(gym_env_name: str, log_api: bool = True, log_steps: bool = False, log_reset: bool = False):
     """Registers the EasyEnv wrapper for the 'gym_env_name' environment.
 
     The wrapper is registered as 'Easy-<env_name>'.
@@ -24,23 +73,23 @@ def register(gym_env_name: str = None, log_api: bool = True, log_steps: bool = F
     assert type(gym_env_name) is str, "gym_env_name is not a str"
     assert len(gym_env_name) > 0, "empty string is not an admissible environment name"
 
-    result = EasyEnv._NAME_PREFIX + gym_env_name
-    if not result in EasyEnv._instance_counts:
+    result = _EasyEnv._NAME_PREFIX + gym_env_name
+    if result not in _EasyEnv._instance_counts:
         gym_spec = gym.envs.registration.spec(gym_env_name)
         gym.envs.registration.register(id=result,
-                                       entry_point=EasyEnv,
+                                       entry_point=_EasyEnv,
                                        max_episode_steps=gym_spec.max_episode_steps,
                                        max_episode_seconds=gym_spec.max_episode_seconds,
                                        reward_threshold=gym_spec.reward_threshold,
-                                       kwargs={EasyEnv._KWARG_GYM_NAME: gym_env_name,
-                                               EasyEnv._KWARG_LOG_STEPS: log_steps,
-                                               EasyEnv._KWARG_LOG_RESET: log_reset,
-                                               EasyEnv._KWARG_LOG_API: log_api})
-        EasyEnv._instance_counts[result] = 0
+                                       kwargs={_EasyEnv._KWARG_GYM_NAME: gym_env_name,
+                                               _EasyEnv._KWARG_LOG_STEPS: log_steps,
+                                               _EasyEnv._KWARG_LOG_RESET: log_reset,
+                                               _EasyEnv._KWARG_LOG_API: log_api})
+        _EasyEnv._instance_counts[result] = 0
     return result
 
 
-class EasyEnv(gym.Wrapper):
+class _EasyEnv(gym.Wrapper):
     """Wrapper for gym environments to intercept each gym env method call.
 
     The wrapper is used to support method call logging, supporting callbacks
@@ -55,20 +104,20 @@ class EasyEnv(gym.Wrapper):
     _KWARG_LOG_API = "easyenv_log_api"
 
     def __init__(self, **kwargs):
-        assert EasyEnv._KWARG_GYM_NAME in kwargs, f'{EasyEnv._KWARG_GYM_NAME} missing from kwargs'
-        assert EasyEnv._KWARG_LOG_API in kwargs, f'{EasyEnv._KWARG_LOG_API} missing from kwargs'
-        assert EasyEnv._KWARG_LOG_RESET in kwargs, f'{EasyEnv._KWARG_LOG_RESET} missing from kwargs'
-        assert EasyEnv._KWARG_LOG_STEPS in kwargs, f'{EasyEnv._KWARG_LOG_STEPS} missing from kwargs'
+        assert _EasyEnv._KWARG_GYM_NAME in kwargs, f'{_EasyEnv._KWARG_GYM_NAME} missing from kwargs'
+        assert _EasyEnv._KWARG_LOG_API in kwargs, f'{_EasyEnv._KWARG_LOG_API} missing from kwargs'
+        assert _EasyEnv._KWARG_LOG_RESET in kwargs, f'{_EasyEnv._KWARG_LOG_RESET} missing from kwargs'
+        assert _EasyEnv._KWARG_LOG_STEPS in kwargs, f'{_EasyEnv._KWARG_LOG_STEPS} missing from kwargs'
 
-        self._gym_env_name = kwargs[EasyEnv._KWARG_GYM_NAME]
+        self._gym_env_name = kwargs[_EasyEnv._KWARG_GYM_NAME]
         super().__init__(gym.make(self._gym_env_name))
-        self._log_api = kwargs[EasyEnv._KWARG_LOG_API]
-        self._log_reset = kwargs[EasyEnv._KWARG_LOG_RESET]
-        self._log_steps = kwargs[EasyEnv._KWARG_LOG_STEPS]
+        self._log_api = kwargs[_EasyEnv._KWARG_LOG_API]
+        self._log_reset = kwargs[_EasyEnv._KWARG_LOG_RESET]
+        self._log_steps = kwargs[_EasyEnv._KWARG_LOG_STEPS]
 
-        easyenv_name = EasyEnv._NAME_PREFIX + self._gym_env_name
-        self._instance_id = EasyEnv._instance_counts[easyenv_name]
-        EasyEnv._instance_counts[easyenv_name] = self._instance_id + 1
+        easyenv_name = _EasyEnv._NAME_PREFIX + self._gym_env_name
+        self._instance_id = _EasyEnv._instance_counts[easyenv_name]
+        _EasyEnv._instance_counts[easyenv_name] = self._instance_id + 1
 
         self._close_count = 0
         self._render_count = 0

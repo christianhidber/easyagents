@@ -17,7 +17,7 @@ from tf_agents.utils import common
 from easyagents.agents import AbstractAgent
 from easyagents.config import Logging
 from easyagents.config import Training
-from easyagents.easyenv import EasyEnv
+from easyagents.easyenv import _EasyEnv
 
 
 class TfAgent(AbstractAgent):
@@ -66,7 +66,7 @@ class TfAgent(AbstractAgent):
         result = tf_py_environment.TFPyEnvironment(py_env)
         return result
 
-    def _get_easyenv(self, tf_py_env: tf_py_environment.TFPyEnvironment) -> EasyEnv:
+    def _get_easyenv(self, tf_py_env: tf_py_environment.TFPyEnvironment) -> _EasyEnv:
         """ extracts the underlying EasyEnv from tf_py_env created by _create_tfagent_env
         """
         assert isinstance(tf_py_env,
@@ -76,7 +76,7 @@ class TfAgent(AbstractAgent):
         assert len(tf_py_env.pyenv.envs) == 1, "passed TFPyEnvironment.pyenv does not contain a unique environment"
 
         result = tf_py_env.pyenv.envs[0]._env.gym
-        assert isinstance(result, EasyEnv), "passed TFPyEnvironment does not contain a EasyEnv"
+        assert isinstance(result, _EasyEnv), "passed TFPyEnvironment does not contain a EasyEnv"
         return result
 
     def _play_episode(self, max_steps: int = None, callback=None) -> (float, int, bool):

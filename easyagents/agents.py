@@ -14,8 +14,8 @@ from matplotlib.pyplot import Figure
 
 from easyagents.config import Logging
 from easyagents.config import Training
-from easyagents.easyenv import EasyEnv
-from easyagents.easyenv import register
+from easyagents.easyenv import _EasyEnv
+from easyagents.easyenv import _register
 
 # check if we are running in Jupyter, if so interactive plotting must be handled differently
 # (in order to get plot updates during training)
@@ -100,10 +100,10 @@ class EasyAgent(ABC):
         self._log_minimal(f'{self}')
         self._log_minimal(f'Training {self._training}')
 
-        self._gym_env_name = register(gym_env_name=self._gym_env_name,
-                                      log_api=self._logging.log_gym_api,
-                                      log_steps=self._logging.log_gym_api_steps,
-                                      log_reset=self._logging.log_gym_api_reset)
+        self._gym_env_name = _register(gym_env_name=self._gym_env_name,
+                                       log_api=self._logging.log_gym_api,
+                                       log_steps=self._logging.log_gym_api_steps,
+                                       log_reset=self._logging.log_gym_api_reset)
         return
 
     def __str__(self):
@@ -374,8 +374,8 @@ class EasyAgent(ABC):
 
         if filepath is None:
             filepath = self._gym_env_name
-            if filepath.startswith(EasyEnv._NAME_PREFIX):
-                filepath = filepath[len(EasyEnv._NAME_PREFIX):]
+            if filepath.startswith(_EasyEnv._NAME_PREFIX):
+                filepath = filepath[len(_EasyEnv._NAME_PREFIX):]
             filepath = os.path.join(tempfile.gettempdir(),
                                     next(tempfile._get_candidate_names()) + "_" + filepath + ".mp4")
         with imageio.get_writer(filepath, fps=fps) as video:
@@ -430,7 +430,7 @@ class EasyAgent(ABC):
             The evaluation is performed on a instance of gym_env_name.
         """
 
-        def render_to_rgb_array(is_render: bool, gym_env: EasyEnv):
+        def render_to_rgb_array(is_render: bool, gym_env: _EasyEnv):
             if is_render and self._train_render_rgb_array is not None:
                 # noinspection PyBroadException
                 try:
