@@ -362,13 +362,14 @@ class EasyAgent(ABC):
             otherwise an exception is thrown.
 
             Args:
-            num_episodes    : the number of episodes to render
-            filepath        : the path to which the movie is written to. If None a temp filepath is generated.
-            fps             : frames per second
+                num_episodes: the number of episodes to render
+                filepath: the path to which the movie is written to. If None a temp filepath is generated.
+                fps: frames per second
+                mode: the mode passed to the env's render function
 
             Note:
-            code adapted from:
-            https://colab.research.google.com/github/tensorflow/agents/blob/master/tf_agents/colabs/1_dqn_tutorial.ipynb
+                code adapted from:
+                https://colab.research.google.com/github/tensorflow/agents/blob/master/tf_agents/colabs/1_dqn_tutorial.ipynb
         """
         assert num_episodes >= 0, "num_episodes must be >= 0"
 
@@ -389,16 +390,18 @@ class EasyAgent(ABC):
         """ calls gym_env.render(mode) and validates the return value to be a numpy rgb array
             throws an exception if not an rgb array
 
-            return: numpy rgb array
+            Returns:
+                numpy rgb array
         """
         result = gym_env.render(mode=mode)
 
-        assert result is not None, "gym_env.render() yielded None"
-        assert isinstance(result, np.ndarray), "gym_env.render() did not yield a numpy.ndarray."
-        assert result.min() >= 0, "gym_env.render() contains negative values => not an rgb array"
-        assert result.max() <= 255, "gym_env.render() contains values > 255 => not an rgb array"
-        assert len(result.shape) == 3, "gym_env.render() shape is not of the form (x,y,n)"
-        assert result.shape[2] == 3 or result.shape[2] == 4, "gym_env.render() shape is not of the form (x,y,3|4)"
+        assert result is not None, f'gym_env.render(mode={mode}) yielded None'
+        assert isinstance(result, np.ndarray), f'gym_env.render(mode={mode}) did not yield a numpy.ndarray.'
+        assert result.min() >= 0, f'gym_env.render(mode={mode}) contains negative values => not an rgb array'
+        assert result.max() <= 255, f'gym_env.render(mode={mode}) contains values > 255 => not an rgb array'
+        assert len(result.shape) == 3, f'gym_env.render(mode={mode}) shape is not of the form (x,y,n)'
+        assert result.shape[2] == 3 or result.shape[2] == 4, \
+            f'gym_env.render(mode={mode}) shape is not of the form (x,y,3|4)'
         return result
 
     def train(self):
@@ -470,14 +473,15 @@ class EasyAgent(ABC):
         self.training_average_steps.append((min_steps, avg_steps, max_steps))
 
     def _train_iteration_completed(self, iteration: int, total_loss: float = 0):
-        """ called by the implementing agent in _train after each completed training iteration.
+        """called by the implementing agent in _train after each completed training iteration.
 
-            performs houskeeping to update the visualization and statistics
+        performs houskeeping to update the visualization and statistics
 
-            if called with iteration == 0 an initial evaluation of an untrained policy is performed
-        
-        :param  iteration   : the count of the completed iteration (starting at 1)
-                loss        : the loss for this training iteration 
+        if called with iteration == 0 an initial evaluation of an untrained policy is performed
+
+        Args:
+            iteration: the count of the completed iteration (starting at 1)
+            total_loss: the loss for this training iteration
         """
         assert iteration >= 0, "passed iteration < 0"
 
@@ -512,11 +516,13 @@ class AbstractAgent(EasyAgent):
             the sum of rewards, the totale number of steps taken over the episode.
 
             Args:
-            max_steps   : if the episode is not done after max_steps it is aborted.
-                          if None the episode ends only when the environments step yields done.
-            callback    : callback(action,state,reward,step,done,info) is called after each step.
-                          if the callback yields True, the episode is aborted.
-            :returns rewards,steps
+                max_steps: if the episode is not done after max_steps it is aborted.
+                    if None the episode ends only when the environments step yields done.
+                callback: callback(action,state,reward,step,done,info) is called after each step.
+                    if the callback yields True, the episode is aborted.
+
+            Returns:
+                rewards,steps
         """
         return super()._play_episode(max_steps, callback)
 
