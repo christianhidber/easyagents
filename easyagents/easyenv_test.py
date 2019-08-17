@@ -16,14 +16,14 @@ logging.basicConfig(level=logging.DEBUG)
 class TestEasyEnv(unittest.TestCase):
     step_callback_call_count = 0
 
-    def test_cartpole(self):
+    def test_gym_make(self):
         env_name = 'CartPole-v0'
         gym.make(env_name)
 
-    def test_instanceid(self):
+    def test_instance_counts(self):
         env_name = 'CartPole-v0'
         name = easyagents.easyenv.register(env_name)
-        old_count=0
+        old_count = 0
         if name in easyagents.easyenv.EasyEnv._instance_counts:
             old_count = easyagents.easyenv.EasyEnv._instance_counts[name]
         gym.make(name)
@@ -42,11 +42,6 @@ class TestEasyEnv(unittest.TestCase):
         env = gym.make(name)
         assert env is not None
 
-    def test_register_twice(self):
-        env_name = 'CartPole-v0'
-        easyagents.easyenv.register(env_name)
-        easyagents.easyenv.register(env_name)
-
     def test_register_properties_set(self):
         env_name = 'CartPole-v0'
         spec = gym.envs.registration.spec(env_name)
@@ -57,11 +52,23 @@ class TestEasyEnv(unittest.TestCase):
         assert spec.max_episode_steps == easy_spec.max_episode_steps
         assert spec.reward_threshold == easy_spec.reward_threshold
 
-    def test_register_tfagents_suitegymload(self):
+    def test_register_tfagentsSuiteGymLoad(self):
         env_name = 'CartPole-v0'
         easyenv_name = easyagents.easyenv.register(env_name)
         tf_env = suite_gym.load(easyenv_name)
         assert tf_env is not None
+
+    def test_register_twiceSameEnv(self):
+        env_name = 'CartPole-v0'
+        easyagents.easyenv.register(env_name)
+        easyagents.easyenv.register(env_name)
+
+    def test_register_twiceDifferentEnvs(self):
+        env_name1 = 'CartPole-v0'
+        n1 = easyagents.easyenv.register(env_name1)
+        env_name2 = 'MountainCar-v0'
+        n2 = easyagents.easyenv.register(env_name2)
+        assert n1 != n2
 
     def test_set_step_callback(self):
         ppo_agent = easyagents.tfagents.PpoAgent('CartPole-v0', training=TrainingSingleEpisode(),
