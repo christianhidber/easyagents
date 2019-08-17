@@ -4,7 +4,7 @@ import logging
 import gym
 
 
-def register_with_gym(gym_env_name: str, entry_point: type):
+def register_with_gym(gym_env_name: str, entry_point: type, max_episode_steps: int = None):
     """Registers the class entry_point in gym by the name gym_env_name allowing overriding registrations.
 
     Thus different implementations of the same class (and the same name) maybe registered consecutively.
@@ -12,8 +12,12 @@ def register_with_gym(gym_env_name: str, entry_point: type):
     This facilitates developing an environment in a jupyter notebook without haveing to
     reregister a modified class under a new name.
 
+    limitation: the max_episode_steps value of the first registration holds for all registrations
+        with the same gym_env_name
+
     Args:
         gym_env_name: the gym environment name to be used as argument with gym.make
+        max_episode_steps: all episodes end latest after this number of steps
         entry_point: the class to be registed with gym id gym_env_name
     """
     assert gym_env_name is not None, "None is not an admissible environment name"
@@ -26,6 +30,7 @@ def register_with_gym(gym_env_name: str, entry_point: type):
     if gym_env_name not in _ShimEnv._entry_points:
         gym.envs.registration.register(id=gym_env_name,
                                        entry_point=_ShimEnv,
+                                       max_episode_steps=max_episode_steps,
                                        kwargs={_ShimEnv._KWARG_GYM_NAME: gym_env_name})
     _ShimEnv._entry_points[gym_env_name] = entry_point
 
