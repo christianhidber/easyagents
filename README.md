@@ -1,4 +1,4 @@
-### Reinforcement Learning for Practitioners (v1)
+### Reinforcement Learning for Practitioners (v1-alpha)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=v1)
 
 Status: under active development, breaking changes may occur
@@ -23,9 +23,41 @@ Try it on colab:
   (implement your own environment, workshop example)
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
-## Example
 
-...
+
+## Ideas for v1
+
+### Guiding Principles
+* **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
+* **simple & consistent** over "flexible & powerful"
+* **inspired by keras**: 
+    * same api across all algorithms
+    * support different implementations of the same algorithm
+
+### Scenarios
+* Simple
+````
+agent = PpoAgent( "LineWorld-v0" )
+agent.train( SingleEpisode() )
+agent.train()
+agent.save(...)
+agent.load(...)
+agent.play()
+````
+* Advanced
+````
+agent = PpoAgent( "LineWorld-v0", fc_layers=(500,250,50) )
+agent.train( train=[Fast(), ModelCheckPoint(), ReduceLROnPlateau(), TensorBoard()],
+             play=[JupyterStatistics(), JupyterRender(), Mp4()],
+             api=[AgentApi()] )
+````
+    
+### Design ideas
+* separate "public api" from concrete implementation using a frontend / backend architecture 
+  (inspired by scikit learn, matplotlib, keras)
+* pluggable backends
+* extensible through callbacks (inspired by keras). separate callback types for training, evaluation and monitoring
+* pre-configurable, algorithm specific train & play loops 
 
 ### Installation
 Install from pypi using pip:
