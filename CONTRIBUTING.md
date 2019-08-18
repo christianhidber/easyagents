@@ -14,9 +14,10 @@ minor, then feel free to make them without discussion.
 
 ## General Guidelines
 While not being dogmatic, we try to adhere to the following 
-* [PEP 8](https://www.python.org/dev/peps/pep-0008/) as style guide for code
 * [Google Docstring](http://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) for code documentation
+* [PEP 8](https://www.python.org/dev/peps/pep-0008/) as style guide for code
 * [PyTest](https://docs.pytest.org/en/latest/) for unit testing
+* [Typing](https://docs.python.org/3/library/typing.html) to support type hints
 
 ## Supported Platforms
 
