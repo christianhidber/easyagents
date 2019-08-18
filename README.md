@@ -142,10 +142,39 @@ moreover the list only contains terms that are actually used for this project)
 * Any ideas, help, suggestions, comments etc in python / open source development / reinforcement learning / whatever
   are more than welcome. Thanks a lot in advance.
 
-## Stuff to work on
+## Ideas for the next version (v1)
 
-This is just a heap of ideas, issues and stuff that needs work / should be thought about (besides all the stuff that isn't mentioned):
+### Guiding Principles
+* **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
+* **simple & consistent** over "flexible & powerful"
+* **inspired by keras**: 
+    * same api across all algorithms
+    * support different implementations of the same algorithm
 
-* easyenv.register should allow multiple environments to be registered
-* support for OpenAI baselines
-* support for multiple agents (not just ppo)
+### Scenarios
+* Simple
+````
+agent = PpoAgent( "LineWorld-v0" )
+agent.train( SingleEpisode() )
+agent.train()
+agent.save(...)
+agent.load(...)
+agent.play()
+````
+* Advanced
+````
+agent = PpoAgent( "LineWorld-v0", fc_layers=(500,250,50) )
+agent.train( train=[Fast(), ModelCheckPoint(), ReduceLROnPlateau(), TensorBoard()],
+             play=[JupyterStatistics(), JupyterRender(), Mp4()],
+             api=[AgentApi()] )
+````
+    
+### Design ideas
+* separate "public api" from concrete implementation using a frontend / backend architecture 
+  (inspired by scikit learn, matplotlib, keras)
+* pluggable backends
+* extensible through callbacks (inspired by keras). separate callback types for training, evaluation and monitoring
+* pre-configurable, algorithm specific train & play loops 
+
+  
+
