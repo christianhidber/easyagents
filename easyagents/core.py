@@ -6,12 +6,8 @@ from abc import ABC, abstractmethod
 from easyagents.env import _is_registered_with_gym
 
 
-class AgentConfig(ABC):
-    """Base class for all agent configurations, containing in particular the name of the gym environment.
-
-    Derived classes may contain algorithm specific configuration data.
-    Note that parameters which may change during training or evaluation should be placed in the
-    TrainingContext and PlayContext respectively.
+class ModelConfig(ABC):
+    """The model configurations, containing the name of the gym environment and the neural network architecture.
 
     Args:
         gym_env_name: the name of the registered gym environment to use, eg 'CartPole-v0'

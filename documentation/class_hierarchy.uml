@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>Python</ID>
+  <OriginalElement>#C:/Dev/GitHub/easyagents/easyagents/agents.py</OriginalElement>
+  <nodes>
+    <node x="32.5" y="82.0">abc.ABC</node>
+    <node x="4.0" y="246.0">agents.PpoAgent</node>
+    <node x="36.0" y="0.0">object</node>
+    <node x="0.0" y="164.0">agents.EasyAgent</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="abc.ABC" target="object">
+      <point x="0.0" y="-16.0" />
+      <point x="0.0" y="16.0" />
+    </edge>
+    <edge source="agents.PpoAgent" target="agents.EasyAgent">
+      <point x="0.0" y="-16.0" />
+      <point x="0.0" y="16.0" />
+    </edge>
+    <edge source="agents.EasyAgent" target="abc.ABC">
+      <point x="0.0" y="-16.0" />
+      <point x="0.0" y="16.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="77.0" y="139.0" />
+  <SelectedNodes />
+  <Categories />
+</Diagram>
+

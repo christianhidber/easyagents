@@ -7,7 +7,7 @@
 
 from abc import ABC
 from typing import Dict, List
-from easyagents.core import AgentConfig, TrainCallback
+from easyagents.core import ModelConfig, TrainCallback
 from easyagents.backends.core import Backend
 from easyagents.backends.default import DefaultBackend
 
@@ -81,6 +81,6 @@ class PpoAgent(EasyAgent):
 
     def __init__(self, gym_env_name: str, fc_layers=None, backend_name: str = None):
         super().__init__(backend_name=backend_name)
-        self._agent_config = AgentConfig(gym_env_name=gym_env_name,fc_layers=fc_layers)
+        self._agent_config = ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
         self._backendAgent = self._backend.create_ppo_agent(self._agent_config)
         return

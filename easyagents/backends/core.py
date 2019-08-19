@@ -5,7 +5,7 @@
 
 from abc import ABC, abstractmethod
 from typing import List
-from easyagents.core import TrainCallback, AgentConfig
+from easyagents.core import TrainCallback, ModelConfig
 
 
 class BackendAgent(ABC):
@@ -25,7 +25,7 @@ class Backend(ABC):
     """
 
     @abstractmethod
-    def create_ppo_agent(self, agent_config: AgentConfig) -> BackendAgent:
+    def create_ppo_agent(self, agent_config: ModelConfig) -> BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation.
 
             If this backend does not implement PpoAgent then throw a NotImplementedError exception.
