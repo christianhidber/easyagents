@@ -5,7 +5,7 @@ from easyagents.config import LoggingMinimal
 from easyagents.config import LoggingNormal
 from easyagents.config import TrainingFast
 from easyagents.config import TrainingSingleEpisode
-from easyagents.easyenv import EasyEnv
+from easyagents.easyenv import _EasyEnv
 from easyagents.tfagents import DqnAgent
 from easyagents.tfagents import PpoAgent
 from easyagents.tfagents import ReinforceAgent
@@ -20,7 +20,7 @@ class TestTfAgents(unittest.TestCase):
     def test_get_easyenv(self):
         tfenv = self.ppo._create_tfagent_env()
         easyenv = self.ppo._get_easyenv(tfenv)
-        assert isinstance(easyenv, EasyEnv)
+        assert isinstance(easyenv, _EasyEnv)
 
     def test_play_episode_nocallback(self):
         self.ppo.train()
