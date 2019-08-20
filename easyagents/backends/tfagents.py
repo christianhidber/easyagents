@@ -1,16 +1,16 @@
 """This module contains the backend implementation for tf Agents (see https://github.com/tensorflow/agents)"""
 
-from easyagents.backends.core import Backend, BackendAgent
-from easyagents.core import ModelConfig
+from easyagents import core
+from easyagents.backends import core as bcore
 
 
-class TfAgentsBackend(Backend):
+class Backend(bcore.Backend):
     """Backend for TfAgents.
 
         Serves as a factory to create algorithm specific wrappers for the TfAgents implementations.
     """
 
-    def create_ppo_agent(self, model_config: ModelConfig) -> BackendAgent:
+    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore.BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation.
 
             If this backend does not implement PpoAgent then throw a NotImplementedError exception.
@@ -18,7 +18,7 @@ class TfAgentsBackend(Backend):
         return TfPpoAgent(model_config=model_config)
 
 
-class TfAgent(BackendAgent):
+class TfAgent(bcore.BackendAgent):
     """Base class of all TfAgent based agent implementations.
 
         Contains all TfAgents specific code shared among all implementations.
@@ -26,7 +26,7 @@ class TfAgent(BackendAgent):
 
 
 class TfPpoAgent(TfAgent):
-    """TfAgents Implementation for Ppo, deriving from the TfAgent, implementig the PpoBackendAgent interface"""
+    """TfAgents Implementation for Ppo, deriving from the TfAgent"""
 
-    def __init__(self, model_config: ModelConfig):
-        pass
+    def __init__(self, model_config: core.ModelConfig):
+        super().__init__(model_config)

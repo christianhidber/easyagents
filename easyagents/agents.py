@@ -6,14 +6,14 @@
 """
 
 from abc import ABC
-from typing import Dict, List
-from easyagents.core import ModelConfig, TrainCallback
-from easyagents.backends.core import Backend
-from easyagents.backends.default import DefaultBackend
+from typing import Dict, List, Tuple, Optional
+from easyagents import core
+from easyagents.backends import core as bcore
+from easyagents.backends import default
 
 _DFEAULT_BACKEND_NAME = 'default'
 
-_backends: Dict[str, Backend] = {_DFEAULT_BACKEND_NAME: DefaultBackend()}
+_backends: Dict[str, bcore.Backend] = {_DFEAULT_BACKEND_NAME: default.Backend()}
 
 
 def get_backends():
@@ -21,7 +21,7 @@ def get_backends():
     return _backends.keys()
 
 
-def register_backend(backend_name: str, backend: Backend):
+def register_backend(backend_name: str, backend: bcore.Backend):
     assert backend_name is not None, "backend_name not set"
     assert backend_name, "backend_name is empty"
     assert backend is not None, "backend not set"
@@ -37,26 +37,43 @@ class EasyAgent(ABC):
             backend_name: the backend (implementation) to be used, if None the a default implementation is used
     """
 
-    def __init__(self, backend_name: str = None):
+    def __init__(self,
+                 gym_env_name: str = None,
+                 fc_layers: Tuple[int, ...] = None,
+                 model_config: core.ModelConfig = None,
+                 backend_name: str = None):
+
+        if model_config is None:
+            model_config = core.ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
         if backend_name is None:
             backend_name = _DFEAULT_BACKEND_NAME
 
+        assert model_config is not None, "model_config not set."
         assert backend_name in get_backends(), \
             f'"{backend_name}" is not admissible. The registered backends are {get_backends()}.'
 
-        self._agent_config = None
-        self._backend = _backends[backend_name]
-        self._backend_agent = None
+        self._model_config: core.ModelConfig = model_config
+        self._backend: bcore.Backend = _backends[backend_name]
+        self._backend_agent: Optional[bcore.BackendAgent] = None
         return
 
-    def train(self, train: List[TrainCallback] = None):
+    def train(self,
+              train_context: core.TrainContext,
+              train: List[core.TrainCallback] = None,
+              play: List[core.PlayCallback] = None):
         """Trains a new model using the gym environment passed during instantiation.
 
         Args:
-            train: list of callbacks called during the train loop (but not during evaluation after each iteration)
-            """
-        self._backend_agent.train(train=train)
-        return
+            train: list of callbacks called during the train loop (but not during the intermittent evaluations)
+            play: list of callbacks called during the evaluation (but not during data collection for the training)
+            train_context: training configuration to be used (num_iterations,num_episodes_per_iteration,...)
+        """
+        assert train_context is not None
+        if train is None:
+            train = []
+        if play is None:
+            play = []
+        self._backend_agent.train(train_context=train_context, train=train, play=play)
 
 
 class PpoAgent(EasyAgent):
@@ -79,8 +96,48 @@ class PpoAgent(EasyAgent):
                 call get_backends() to get a list of the available backends.
     """
 
-    def __init__(self, gym_env_name: str, fc_layers=None, backend_name: str = None):
-        super().__init__(backend_name=backend_name)
-        self._agent_config = ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
-        self._backendAgent = self._backend.create_ppo_agent(self._agent_config)
+    def __init__(self,
+                 gym_env_name: str,
+                 fc_layers: Optional[Tuple[int, ...]] = None,
+
+                 backend_name: str = None):
+        super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend_name)
+        self._backendAgent = self._backend.create_ppo_agent(self._model_config)
         return
+
+    def train(self,
+              num_iterations: int = 1000,
+              num_episodes_per_iteration: int = 10,
+              max_steps_per_episode: int = 1000,
+              num_epochs_per_iteration: int = 10,
+              learning_rate: float = 1,
+              train: List[core.TrainCallback] = None,
+              play: List[core.PlayCallback] = None,
+              train_context: core.TrainContext = None):
+        """Trains a new model using the gym environment passed during instantiation.
+
+        Args:
+            num_iterations: number of times the training is repeated (with additional data)
+            num_episodes_per_iteration: number of episodes played per training iteration
+            max_steps_per_episode: maximum number of steps per episode
+            num_epochs_per_iteration: number of times the data collected for the current iteration
+                is used to retrain the current policy.
+            learning_rate: the learning rate used in the next iteration's policy training (0,1]
+
+            train: list of callbacks called during the train loop (but not during the intermittent evaluations)
+            play: list of callbacks called during the evaluation (but not during data collection for the training)
+            train_context: training configuration to be used. if set overrides all other training context arguments.
+        """
+        if train_context is None:
+            train_context = core.TrainContext()
+            train_context.num_iterations = num_iterations
+            train_context.num_episodes_per_iteration = num_episodes_per_iteration
+            train_context.max_steps_per_episode = max_steps_per_episode
+            train_context.num_epochs_per_iteration = num_epochs_per_iteration
+            train_context.learning_rate = learning_rate
+
+        if train is None:
+            train = []
+        if play is None:
+            play = []
+        self._backend_agent.train(train_context=train_context, train=train, play=play)
