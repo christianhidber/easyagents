@@ -6,44 +6,43 @@ from abc import ABC
 from typing import Optional, Dict, Tuple, List
 
 from easyagents.env import _is_registered_with_gym
+from gym import core as gymcore
 
 
 class ApiContext(object):
     """Contains the context of the backend or gym api call
-
-        Attributes:
-            gym_env: the gym environment for gym api calls, None otherwise
     """
+
     def __init__(self):
-        self.gym_env = None
+        pass
 
 
 class ApiCallback(ABC):
     """Base class for all callbacks monitoring the backend algorithms api calls or the api calls to the gym
         environment"""
 
-    def on_backend_call_begin(self, call_name: str, play_context: ApiContext):
+    def on_backend_call_begin(self, call_name: str, api_context: ApiContext):
         """Before a call into a backend implementation."""
 
-    def on_backend_call_end(self, call_name: str, play_context: ApiContext):
+    def on_backend_call_end(self, call_name: str, api_context: ApiContext):
         """After a call into a backend implementation was completed."""
 
-    def on_gym_init_begin(self, play_context: ApiContext):
+    def on_gym_init_begin(self, api_context: ApiContext):
         """Before a call to gym.init"""
 
-    def on_gym_init_end(self, play_context: ApiContext):
+    def on_gym_init_end(self, api_context: ApiContext):
         """After a call to gym.init was completed"""
 
-    def on_gym_step_begin(self, play_context: ApiContext):
+    def on_gym_step_begin(self, api_context: ApiContext):
         """Before a call to gym.step"""
 
-    def on_gym_step_end(self, play_context: ApiContext):
+    def on_gym_step_end(self, api_context: ApiContext):
         """After a call to gym.step was completed"""
 
-    def on_gym_reset_begin(self, play_context: ApiContext):
+    def on_gym_reset_begin(self, api_context: ApiContext):
         """Before a call to gym.reset"""
 
-    def on_gym_reset_end(self, play_context: ApiContext):
+    def on_gym_reset_end(self, api_context: ApiContext):
         """After a call to gym.reset was completed"""
 
 
@@ -95,11 +94,26 @@ class PlayContext(object):
             current_steps_in_episode: the number of steps taken in the current episode.
             current_steps: the number of steps played (over all episodes so far)
             rewards: dict containg for each episode the reward received in each step
-            gym_env: the gym environment instance used to play
+            gym_env: the gym environment used to play
     """
 
     def __init__(self):
-        self.gym_env = None
+        self.num_episodes: Optional[int]
+        self.max_steps_per_episode: Optional[int]
+        self.play_done: bool
+        self.current_episode: int
+        self.current_steps_in_episode: int
+        self.current_steps: int
+        self.rewards: Dict[int, List[float]]
+        self.gym_env: gymcore.Env
+
+    def _validate(self):
+        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
+        assert self.num_episodes is None or self.num_episodes > 0, "num_episodes not admissible"
+        assert self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
+
+    def _reset(self):
+        """Clears all values modified during a train() call."""
         self.num_episodes: Optional[int] = None
         self.max_steps_per_episode: Optional[int] = None
         self.play_done: bool = False
@@ -107,6 +121,7 @@ class PlayContext(object):
         self.current_steps_in_episode: int = 0
         self.current_steps: int = 0
         self.rewards: Dict[int, List[float]] = dict()
+        self.gym_env = None
 
 
 class PlayCallback(ABC):
@@ -155,8 +170,8 @@ class TrainContext(object):
 
         Attributes:
             num_iterations: number of times the training is repeated (with additional data), unlimited if None
-            num_episodes_per_iteration: number of episodes played per training iteration, unlimited if None
-            max_steps_per_episode: maximum number of steps per episode, unlimited if None
+            num_episodes_per_iteration: number of episodes played per training iteration
+            max_steps_per_episode: maximum number of steps per episode
             num_epochs_per_iteration: number of times the data collected for the current iteration
                 is used to retrain the current policy
             learning_rate: the learning rate used in the next iteration's policy training (0,1]
@@ -168,7 +183,8 @@ class TrainContext(object):
                 The episodes played for evaluation are not included in this count.
 
             loss: dict containing the loss for each iteration training. The dict is indexed by the current_episode.
-            num_iterations_between_eval: number of training iterations before the current policy is evaluated
+            num_iterations_between_eval: number of training iterations before the current policy is evaluated.
+                if 0 no evaluation is performed.
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
             eval_average_rewards: dict containg the rewards statistics for each policy evaluation.
                 Each entry contains the tuple (min, average, max) over the sum of rewardsover all episodes
@@ -176,25 +192,62 @@ class TrainContext(object):
             eval_average_steps: dict containg the steps statistics for each policy evaluation.
                 Each entry contains the tuple (min, average, max) over the number of step over all episodes
                 played for the current evaluation. The dict is indexed by the current_episode.
-            gym_env: the gym environment instance used to play
     """
 
     def __init__(self):
-        self.gym_env = None
         self.num_iterations: Optional[int] = None
-        self.num_episodes_per_iteration: Optional[int] = None
-        self.max_steps_per_episode: Optional[int] = None
-        self.num_epochs_per_iteration: Optional[int] = None
-        self.num_iterations_between_eval: int = 100
+        self.num_episodes_per_iteration: int = 10
+        self.max_steps_per_episode: Optional = 1000
+        self.num_epochs_per_iteration: int = 10
+        self.num_iterations_between_eval: int = 50
         self.num_episodes_per_eval: int = 10
         self.learning_rate: float = 1
-        self.train_done: bool = False
-        self.current_iteration: int = 0
-        self.current_episode_in_iteration: int = 0
-        self.current_episode: int = 0
-        self.loss: Dict[int, float] = dict()
-        self.eval_average_rewards: Dict[int, Tuple[float, float, float]] = dict()
-        self.eval_average_steps: Dict[int, Tuple[float, float, float]] = dict()
+
+        self.train_done: bool
+        self.current_iteration: int
+        self.current_episode_in_iteration: int
+        self.current_episode: int
+        self.loss: Dict[int, float]
+        self.eval_average_rewards: Dict[int, Tuple[float, float, float]]
+        self.eval_average_steps: Dict[int, Tuple[float, float, float]]
+        self._reset()
+
+    def _validate(self):
+        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
+        assert self.num_iterations is None or self.num_iterations > 0, "num_iterations not admissible"
+        assert self.num_episodes_per_iteration > 0, "num_episodes_per_iteration not admissible"
+        assert self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
+        assert self.num_epochs_per_iteration > 0, "num_epochs_per_iteration not admissible"
+        assert self.num_iterations_between_eval > 0, "num_iterations_between_eval not admissible"
+        assert self.num_episodes_per_eval > 0, "num_episodes_per_eval not admissible"
+        assert 0 < self.learning_rate <= 1, "learning_rate not in interval (0,1]"
+
+    def _reset(self):
+        """Clears all values modified during a train() call."""
+        self.train_done = False
+        self.current_iteration = 0
+        self.current_episode_in_iteration = 0
+        self.current_episode = 0
+        self.loss = dict()
+        self.eval_average_rewards = dict()
+        self.eval_average_steps = dict()
+
+
+class SingleEpisodeTrainContext(TrainContext):
+    """Configures training for 1 single episode, max 100 steps, no evaluation.
+
+        Hints:
+        o This configuration is typically used for short tests.
+    """
+    def __init__(self):
+        super().__init__()
+        self.num_iterations = 1
+        self.num_episodes_per_iteration = 1
+        self.max_steps_per_episode = 100
+        self.num_epochs_per_iteration = 1
+        self.num_iterations_between_eval = 1
+        self.num_episodes_per_eval = 1
+        self.learning_rate = 1
 
 
 class TrainCallback(ABC):

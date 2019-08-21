@@ -73,7 +73,7 @@ class EasyAgent(ABC):
             train = []
         if play is None:
             play = []
-        self._backend_agent.train(train_context=train_context, train=train, play=play)
+        self._backend_agent._train_callbacks(train_context=train_context, train=train, play=play)
 
 
 class PpoAgent(EasyAgent):
@@ -140,4 +140,4 @@ class PpoAgent(EasyAgent):
             train = []
         if play is None:
             play = []
-        self._backend_agent.train(train_context=train_context, train=train, play=play)
+        self._backend_agent._train_callbacks(train_context=train_context, train=train, play=play)
