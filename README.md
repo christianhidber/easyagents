@@ -110,6 +110,11 @@ Install from pypi using pip:
 pip install easyagents
 ```
 
+If you have a GPU, you might want to make use of it by:
+```python
+pip install tf-nightly-gpu
+```
+
 ## Vocabulary
 
 Here's a list of terms in the reinforcement learning space, explained in a colloquial way. The explanations are typically inprecise and just try to convey the general idea (if you find they are wrong or a term is missing: please let me know,
