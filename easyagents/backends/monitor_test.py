@@ -9,6 +9,7 @@ import gym
 class MonitorTest(unittest.TestCase):
     def setUp(self):
         self.env_name = 'CartPole-v0'
+        monitor._MonitorEnv._monitor_total_counts[self.env_name] = monitor._MonitorTotalCounts(self.env_name)
         self.total = monitor._register_gym_monitor(self.env_name)
         self.env: monitor._MonitorEnv = monitor._get(gym.make(self.total.gym_env_name))
 
