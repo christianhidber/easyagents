@@ -4,7 +4,7 @@ from easyagents import core
 from easyagents.backends import core as bcore
 
 
-class Backend(bcore.Backend):
+class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend for TfAgents.
 
         Serves as a factory to create algorithm specific wrappers for the TfAgents implementations.
@@ -23,6 +23,9 @@ class TfAgent(bcore.BackendAgent):
 
         Contains all TfAgents specific code shared among all implementations.
     """
+
+    def train_implementation(self, train_context: core.TrainContext):
+        pass
 
 
 class TfPpoAgent(TfAgent):

@@ -13,7 +13,7 @@ from easyagents.backends import default
 
 _DFEAULT_BACKEND_NAME = 'default'
 
-_backends: Dict[str, bcore.Backend] = {_DFEAULT_BACKEND_NAME: default.Backend()}
+_backends: Dict[str, bcore.BackendAgentFactory] = {_DFEAULT_BACKEND_NAME: default.BackendAgentFactory()}
 
 
 def get_backends():
@@ -21,7 +21,7 @@ def get_backends():
     return _backends.keys()
 
 
-def register_backend(backend_name: str, backend: bcore.Backend):
+def register_backend(backend_name: str, backend: bcore.BackendAgentFactory):
     assert backend_name is not None, "backend_name not set"
     assert backend_name, "backend_name is empty"
     assert backend is not None, "backend not set"
@@ -53,7 +53,7 @@ class EasyAgent(ABC):
             f'"{backend_name}" is not admissible. The registered backends are {get_backends()}.'
 
         self._model_config: core.ModelConfig = model_config
-        self._backend: bcore.Backend = _backends[backend_name]
+        self._backend: bcore.BackendAgentFactory = _backends[backend_name]
         self._backend_agent: Optional[bcore.BackendAgent] = None
         return
 
@@ -112,8 +112,9 @@ class PpoAgent(EasyAgent):
               num_epochs_per_iteration: int = 10,
               learning_rate: float = 1,
               train: List[core.TrainCallback] = None,
+              train_context: core.TrainContext = None,
               play: List[core.PlayCallback] = None,
-              train_context: core.TrainContext = None):
+              api: List[core.ApiCallback] = None):
         """Trains a new model using the gym environment passed during instantiation.
 
         Args:
@@ -125,8 +126,9 @@ class PpoAgent(EasyAgent):
             learning_rate: the learning rate used in the next iteration's policy training (0,1]
 
             train: list of callbacks called during the train loop (but not during the intermittent evaluations)
-            play: list of callbacks called during the evaluation (but not during data collection for the training)
             train_context: training configuration to be used. if set overrides all other training context arguments.
+            play: list of callbacks called during the evaluation (but not during data collection for the training)
+            api: list of callbacks called during the calls to the gym env or the backend implementation
         """
         if train_context is None:
             train_context = core.TrainContext()
@@ -140,4 +142,7 @@ class PpoAgent(EasyAgent):
             train = []
         if play is None:
             play = []
-        self._backend_agent._train_callbacks(train_context=train_context, train=train, play=play)
+        if api is None:
+            api = []
+        self._backend_agent.train(train_callbacks=train, train_context=train_context,
+                                  play_callbacks=play, api_callbacks=api)

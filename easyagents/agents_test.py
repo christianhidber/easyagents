@@ -3,17 +3,17 @@ import unittest
 import easyagents.agents
 from easyagents.agents import EasyAgent
 from easyagents.core import ModelConfig
-from easyagents.backends.default import Backend
+from easyagents.backends.default import BackendAgentFactory
 
 _env_name = 'CartPole-v0'
 
 
 class BackendRegistrationTest(unittest.TestCase):
 
-    def setup_method(self, method):
+    def setUp(self):
         self._oldbackends = easyagents.agents._backends.copy()
 
-    def teardown_method(self, method):
+    def tearDown(self):
         easyagents.agents._backends = self._oldbackends
 
     def test_getbackends(self):
@@ -22,16 +22,16 @@ class BackendRegistrationTest(unittest.TestCase):
 
     def test_register(self):
         assert "MyBackend" not in easyagents.agents.get_backends()
-        easyagents.agents.register_backend("MyBackend", Backend())
+        easyagents.agents.register_backend("MyBackend", BackendAgentFactory())
         assert "MyBackend" in easyagents.agents.get_backends()
 
     def test_register_backend_empty(self):
         with pytest.raises(AssertionError):
-            easyagents.agents.register_backend(backend_name="", backend=Backend())
+            easyagents.agents.register_backend(backend_name="", backend=BackendAgentFactory())
 
     def test_register_backend_nameNone_exception(self):
         with pytest.raises(AssertionError):
-            easyagents.agents.register_backend(backend_name=None, backend=Backend())
+            easyagents.agents.register_backend(backend_name=None, backend=BackendAgentFactory())
 
     def test_register_backend_backendNone_exception(self):
         with pytest.raises(AssertionError):
