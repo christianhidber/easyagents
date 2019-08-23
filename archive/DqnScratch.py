@@ -106,17 +106,12 @@ class DqnAgent(TfAgent):
         preload_driver.run()
 
         driver = DynamicEpisodeDriver(env=train_env, policy=self._trained_policy, observers=[replay_buffer.add_batch])
-        tf_agent.train = common.function(tf_agent.train, autograph=False)
-        dataset = replay_buffer.as_dataset(num_parallel_calls=1,sample_batch_size=self._num_steps_in_replay_batch,
-                                           num_steps=2).prefetch(3)
+        dataset = replay_buffer.as_dataset(num_parallel_calls=3,sample_batch_size=64,num_steps=2).prefetch(3)
         iter_dataset = iter(dataset)
-        self._train_iteration_completed(0)
-        for iteration in range(1, self._training.num_iterations + 1):
+        for iteration in range(1, 20000):
             driver.run()
 
-            tf_lossInfo = None
             for t in range(1,self._training.num_epochs_per_iteration+1):
                 trajectories, _ = next(iter_dataset)
-                tf_lossInfo = tf_agent.train(experience=trajectories)
-            self._train_iteration_completed(iteration, tf_lossInfo.loss)
+                tf_agent.train(experience=trajectories)
         return
