@@ -43,14 +43,12 @@ class BackendAgentTest(unittest.TestCase):
                     train_callbacks=[traincount],
                     play_callbacks=[],
                     api_callbacks=[apicount])
-        assert traincount.train_begin_count == traincount.train_end_count
-        assert traincount.train_end_count == 1
-        assert traincount.iteration_begin_count == traincount.iteration_end_count
-        assert traincount.iteration_end_count == 2
-        assert train_context.current_episode in train_context.loss
-        assert apicount.gym_init_begin_count == apicount.gym_init_end_count
-        assert apicount.gym_init_end_count > 0
-        assert apicount.gym_reset_begin_count == apicount.gym_reset_end_count
-        assert apicount.gym_reset_end_count > 0
-        assert apicount.gym_step_begin_count == apicount.gym_step_end_count
-        assert apicount.gym_step_end_count > 0
+        assert traincount.train_begin_count == traincount.train_end_count == 1
+        assert traincount.iteration_begin_count == traincount.iteration_end_count == 2
+        assert train_context.episodes_done_in_training == 2
+        assert train_context.episodes_done_in_iteration == 1
+        assert train_context.episodes_done_in_training in train_context.loss
+        assert train_context.steps_done_in_training > train_context.steps_done_in_iteration > 0
+        assert apicount.gym_init_begin_count == apicount.gym_init_end_count > 0
+        assert apicount.gym_reset_begin_count == apicount.gym_reset_end_count > 0
+        assert apicount.gym_step_begin_count == apicount.gym_step_end_count > 0

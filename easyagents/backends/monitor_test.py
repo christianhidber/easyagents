@@ -19,7 +19,7 @@ class MonitorTest(unittest.TestCase):
 
     def test_create(self):
         assert self.env
-        assert self.env.total.instances == 1
+        assert self.env.total.instances_created == 1
         assert self.env.gym_env_name == self.env_name
 
     def test_register_gym_monitor(self):
@@ -30,8 +30,8 @@ class MonitorTest(unittest.TestCase):
     def test_reset_beforeSteps_noEpisodeInc(self):
         self.env.reset()
         self.env.reset()
-        assert self.total.episodes == 0
-        assert self.env.current_episode == 0
+        assert self.total.episodes_done == 0
+        assert self.env.episodes_done == 0
 
     def test_setbackendagent_twice(self):
         model_config = core.ModelConfig(self.env_name)

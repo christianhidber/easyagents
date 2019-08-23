@@ -4,7 +4,8 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Callable
+import logging
 
 import gym.core
 from easyagents import core
@@ -21,13 +22,38 @@ class BackendAgent(ABC):
         assert model_config is not None, "model_config not set."
         self.model_config = model_config
         self._train_callbacks: Optional[List[core.TrainCallback]] = None
-        self._train_context: Optional[core.TrainContext] = None
+        self.train_context: Optional[core.TrainContext] = None
         self._play_callbacks: Optional[List[core.PlayCallback]] = None
         self._play_context: Optional[core.PlayContext] = None
         self._api_callbacks: Optional[List[core.ApiCallback]] = None
         self._api_context: Optional[core.ApiContext] = None
         self._total = monitor._register_gym_monitor(model_config.original_env_name)
         self.gym_env_name = self._total.gym_env_name
+
+        self._total_episodes_on_iteration_begin = 0
+        self._total_steps_on_iteration_begin = 0
+
+    def api_call(self, api_id: str, f: Callable):
+        """Called by the implementing agent to execute a call into the backend library.
+
+            This enables detailed inspection of the agents interactions with its underlying implementation.
+        """
+        self._api_context.api_id = api_id
+        for c in self._api_callbacks:
+            c.on_backend_call_begin(self._api_context)
+        result = f()
+        for c in self._api_callbacks:
+            c.on_backend_call_end(self._api_context)
+        self._api_context.api_id = None
+        return result
+
+    def api_log(self, msg: str):
+        """Logs msg.
+
+            Hint:
+            o may be propgated to the api_callbacks in a later version (19Q3)
+        """
+        logging.debug(msg)
 
     def _on_gym_init_begin(self):
         """called when the monitored environment begins the instantiation of a new gym environment.
@@ -47,8 +73,8 @@ class BackendAgent(ABC):
             o the new env is seeded with the api_context's seed
         """
         self._api_context.gym_env = gym_env
-        if self._api_context._seed is not None:
-            self._api_context.gym_env.seed(self._api_context._seed)
+        if self.model_config.seed is not None:
+            self._api_context.gym_env.seed(self.model_config.seed)
         for c in self._api_callbacks:
             c.on_gym_init_end(self._api_context)
         self._api_context.gym_env = None
@@ -95,8 +121,13 @@ class BackendAgent(ABC):
 
     def on_iteration_begin(self):
         """Must be called by train_implementation at the begining of a new iteration"""
+        self._total_episodes_on_iteration_begin = self._total.episodes_done
+        self._total_steps_on_iteration_begin = self._total.steps_done
+        self.train_context.episodes_done_in_iteration = 0
+        self.train_context.steps_done_in_iteration = 0
+
         for c in self._train_callbacks:
-            c.on_iteration_begin(self._train_context)
+            c.on_iteration_begin(self.train_context)
 
     def on_iteration_end(self, iteration_loss: float):
         """Must be called by train_implementation at the end of an iteration
@@ -104,19 +135,31 @@ class BackendAgent(ABC):
         Args:
             iteration_loss: loss after the training of the model in this iteration
         """
-        self._train_context.loss[self._train_context.current_episode] = iteration_loss
+        self.train_context.episodes_done_in_iteration = (self._total.episodes_done -
+                                                         self._total_episodes_on_iteration_begin)
+        self.train_context.episodes_done_in_training += self.train_context.episodes_done_in_iteration
+        self.train_context.steps_done_in_iteration = (self._total.steps_done - self._total_steps_on_iteration_begin)
+        self.train_context.steps_done_in_training += self.train_context.steps_done_in_iteration
+        self.train_context.loss[self.train_context.episodes_done_in_training] = iteration_loss
+
         for c in self._train_callbacks:
-            c.on_iteration_end(self._train_context)
+            c.on_iteration_end(self.train_context)
+
+        self.train_context.iterations_done_in_training += 1
 
     def _on_train_begin(self):
         """Must NOT be called by train_implementation"""
+
+        self._total_episodes_on_iteration_begin = 0
+        self._total_steps_on_iteration_begin = 0
+
         for c in self._train_callbacks:
-            c.on_train_begin(self._train_context)
+            c.on_train_begin(self.train_context)
 
     def _on_train_end(self):
         """Must NOT be called by train_implementation"""
         for c in self._train_callbacks:
-            c.on_train_end(self._train_context)
+            c.on_train_end(self.train_context)
 
     def train(self,
               train_callbacks: List[core.TrainCallback],
@@ -139,24 +182,21 @@ class BackendAgent(ABC):
         assert api_callbacks is not None, "api_callbacks not set"
 
         self._train_callbacks = train_callbacks
-        self._train_context = train_context
-        self._train_context._reset()
-        self._train_context._validate()
+        self.train_context = train_context
+        self.train_context._reset()
+        self.train_context._validate()
         self._play_callbacks = play_callbacks
         self._play_context = core.PlayContext(train_context)
         self._api_callbacks = api_callbacks
         self._api_context = core.ApiContext()
 
-        old_api_seed = self._api_context._seed
         try:
             monitor._MonitorEnv._register_backend_agent(self)
-            self._api_context._seed = self._train_context.seed
             self._on_train_begin()
-            self.train_implementation(self._train_context)
+            self.train_implementation(self.train_context)
             self._on_train_end()
         finally:
             monitor._MonitorEnv._register_backend_agent(None)
-            self._api_context._seed = old_api_seed
 
     @abstractmethod
     def train_implementation(self, train_context: core.TrainContext):

@@ -25,25 +25,25 @@ class _MonitorTotalCounts(object):
 
         self._original_env_name = gym_env_name
         self.gym_env_name = _MonitorEnv._NAME_PREFIX + self._original_env_name
-        self._instances: int = 0
-        self._episodes: int = 0
-        self._steps: int = 0
+        self._instances_created: int = 0
+        self._episodes_done: int = 0
+        self._steps_done: int = 0
 
     @property
-    def instances(self):
+    def instances_created(self):
         """the total number of instances created"""
         with _MonitorEnv._lock:
-            return self._instances
+            return self._instances_created
 
-    def instances_inc(self):
+    def instances_created_inc(self):
         """increments the total number of instances created"""
         with _MonitorEnv._lock:
-            self._instances += 1
-            return self._instances
+            self._instances_created += 1
+            return self._instances_created
 
     @property
-    def episodes(self):
-        """the total number of new episodes (over all instances).
+    def episodes_done(self):
+        """the total number of episodes completed (over all instances).
 
             A new episodes starts with a new instance or a call to reset.
             If step() was not called after the last reset, than the episode count is not incremented.
@@ -51,29 +51,29 @@ class _MonitorTotalCounts(object):
             the episode count at most by 1.
         """
         with _MonitorEnv._lock:
-            return self._episodes
+            return self._episodes_done
 
-    def episodes_inc(self):
+    def episodes_done_inc(self):
         """increments the total number of new episodes (over all instances).
         """
         with _MonitorEnv._lock:
-            self._episodes += 1
-            return self._episodes
+            self._episodes_done += 1
+            return self._episodes_done
 
     @property
-    def steps(self):
-        """the total number of step() calls (over all instances)"""
+    def steps_done(self):
+        """the number of step completed (over all instances)"""
         with _MonitorEnv._lock:
-            return self._steps
+            return self._steps_done
 
-    def steps_inc(self):
+    def steps_done_inc(self):
         """increments the total number of step() calls (over all instances)"""
         with _MonitorEnv._lock:
-            self._steps += 1
-            return self._steps
+            self._steps_done += 1
+            return self._steps_done
 
     def __str__(self):
-        return f'[{self._original_env_name}] total instances={self.instances} episodes={self.episodes} steps={self.steps}'
+        return f'[{self._original_env_name}] total instances={self.instances_created} episodes={self.episodes_done} steps={self.steps_done}'
 
 
 class _MonitorEnv(gym.Wrapper):
@@ -83,11 +83,11 @@ class _MonitorEnv(gym.Wrapper):
         gym_env_name: the name of the monitored gym env
         instance: unique id among all monitor instances for the given gym_env
         total: statistics over all monitor instances for the given gym_env
-        instance_step: the total number of steps in this instance
-        current_episode: the current episode starting at 0
-        current_step: the current step inside the current episode
-        current_sum_of_rewards: the sum of rewards over all steps in the current episode
-        current_done: true if the current episode is done
+        episodes_done: the number of episodes completed in this instance (episode reached done or was resetted)
+        episode_sum_of_rewards: the sum of rewards over all steps in the current episode
+        is_episode_done: true if the current episode is done (and a new episode isn't started yet with reset())
+        steps_done_in_episode: the number of steps completed in the current episode
+        steps_done_in_instance: the total number of steps in this instance
     """
 
     _NAME_PREFIX = "_MonitorEnv_"
@@ -115,19 +115,19 @@ class _MonitorEnv(gym.Wrapper):
         self.gym_env_name = kwargs[_MonitorEnv._KWARG_GYM_ENV_NAME]
         with _MonitorEnv._lock:
             self.total = _MonitorEnv._monitor_total_counts[self.gym_env_name]
-        self.instance_step: int = 0
-        self.current_episode: int = 0
-        self.current_step: int = 0
-        self.current_sum_of_rewards: float = 0
-        self.current_done: bool = False
-        self.instance_id = self.total.instances
+        self.steps_done_in_instance: int = 0
+        self.episodes_done: int = 0
+        self.steps_done_in_episode: int = 0
+        self.episode_sum_of_rewards: float = 0
+        self.is_episode_done: bool = False
+        self.instance_id = self.total.instances_created
         self._backend_agent: Optional[bcore.BackendAgent] = _MonitorEnv._backend_agent
 
         if self._backend_agent:
             self._backend_agent._on_gym_init_begin()
         gym_env = gym.make(self.gym_env_name)
         super().__init__(gym_env)
-        self.total.instances_inc()
+        self.total.instances_created_inc()
         if self._backend_agent:
             self._backend_agent._on_gym_init_end(self.env)
 
@@ -137,12 +137,12 @@ class _MonitorEnv(gym.Wrapper):
             self._backend_agent._on_gym_reset_begin(self.env, **kwargs)
 
         result = self.env.reset(**kwargs)
-        if self.current_step > 0:
-            self.current_episode += 1
-            self.total.episodes_inc()
-        self.current_done = False
-        self.current_sum_of_rewards = 0
-        self.current_step = 0
+        if self.steps_done_in_episode > 0 and not self.is_episode_done:
+            self.episodes_done += 1
+            self.total.episodes_done_inc()
+        self.is_episode_done = False
+        self.episode_sum_of_rewards = 0
+        self.steps_done_in_episode = 0
 
         if self._backend_agent:
             self._backend_agent._on_gym_reset_end(self.env, result, **kwargs)
@@ -159,19 +159,22 @@ class _MonitorEnv(gym.Wrapper):
 
         result = self.env.step(action)
         (state, reward, done, info) = result
-        if done:
-            self.current_done = True
-        self.current_sum_of_rewards += reward
-        self.current_step += 1
-        self.total.steps_inc()
+        if not self.is_episode_done and done:
+            self.is_episode_done = True
+            self.episodes_done += 1
+            self.total.episodes_done_inc()
+        self.episode_sum_of_rewards += reward
+        self.steps_done_in_episode += 1
+        self.steps_done_in_instance += 1
+        self.total.steps_done_inc()
 
         if self._backend_agent:
             self._backend_agent._on_gym_step_end(self.env, action, result)
         return result
 
     def __str__(self):
-        return f'[{self.gym_env_name}#{self.instance_id:}] {self.current_episode:3}#{self.current_step:<3} ' + \
-               f'Σr={self.current_sum_of_rewards:6.1f}'
+        return f'[{self.gym_env_name}#{self.instance_id:}] {self.episodes_done:3}#{self.steps_done_in_episode:<3} ' + \
+               f'Σr={self.episode_sum_of_rewards:6.1f}'
 
 
 def _get(env: gym.Env) -> _MonitorEnv:
