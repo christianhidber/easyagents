@@ -4,7 +4,7 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, Callable
+from typing import List, Optional, Tuple
 import logging
 
 import gym.core
@@ -15,37 +15,20 @@ from easyagents.backends import monitor
 class BackendAgent(ABC):
     """Base class for all backend agent implementations.
 
-        Implements the train loop and calls the TrainCallbacks.
+        Implements the train loop and calls the Callbacks.
     """
 
     def __init__(self, model_config: core.ModelConfig):
         assert model_config is not None, "model_config not set."
+
         self.model_config = model_config
-        self._train_callbacks: Optional[List[core.TrainCallback]] = None
-        self.train_context: Optional[core.TrainContext] = None
-        self._play_callbacks: Optional[List[core.PlayCallback]] = None
-        self._play_context: Optional[core.PlayContext] = None
-        self._api_callbacks: Optional[List[core.ApiCallback]] = None
-        self._api_context: Optional[core.ApiContext] = None
-        self._total = monitor._register_gym_monitor(model_config.original_env_name)
-        self.gym_env_name = self._total.gym_env_name
+        self._callbacks: Optional[List[core.AgentCallback]] = []
+        self._agent_context: core.AgentContext = core.AgentContext(self.model_config)
+        self._total = monitor._register_gym_monitor(self.model_config.original_env_name)
+        self.model_config.gym_env_name = self._total.gym_env_name
 
         self._total_episodes_on_iteration_begin = 0
         self._total_steps_on_iteration_begin = 0
-
-    def api_call(self, api_id: str, f: Callable):
-        """Called by the implementing agent to execute a call into the backend library.
-
-            This enables detailed inspection of the agents interactions with its underlying implementation.
-        """
-        self._api_context.api_id = api_id
-        for c in self._api_callbacks:
-            c.on_backend_call_begin(self._api_context)
-        result = f()
-        for c in self._api_callbacks:
-            c.on_backend_call_end(self._api_context)
-        self._api_context.api_id = None
-        return result
 
     def api_log(self, msg: str):
         """Logs msg.
@@ -60,10 +43,10 @@ class BackendAgent(ABC):
 
         Hint:
             the total instances count is not incremented yet."""
-        self._api_context.gym_env = None
-        for c in self._api_callbacks:
-            c.on_gym_init_begin(self._api_context)
-        self._api_context.gym_env = None
+        self._agent_context.api.gym_env = None
+        for c in self._callbacks:
+            c.on_gym_init_begin(self._agent_context)
+        self._agent_context.api.gym_env = None
 
     def _on_gym_init_end(self, gym_env: gym.core.Env):
         """called when the monitored environment completed the instantiation of a new gym environment.
@@ -72,80 +55,52 @@ class BackendAgent(ABC):
             o the total instances count is incremented by now
             o the new env is seeded with the api_context's seed
         """
-        self._api_context.gym_env = gym_env
-        if self.model_config.seed is not None:
-            self._api_context.gym_env.seed(self.model_config.seed)
-        for c in self._api_callbacks:
-            c.on_gym_init_end(self._api_context)
-        self._api_context.gym_env = None
+        self._agent_context.api.gym_env = gym_env
+        if self._agent_context.model.seed is not None:
+            self._agent_context.api.gym_env.seed(self._agent_context.model.seed)
+        for c in self._callbacks:
+            c.on_gym_init_end(self._agent_context)
+        self._agent_context.api.gym_env = None
 
     def _on_gym_reset_begin(self, gym_env: gym.core.Env, **kwargs):
         """called when the monitored environment begins a reset.
 
         Hint:
             the total reset count is not incremented yet."""
-        self._api_context.gym_env = gym_env
-        for c in self._api_callbacks:
-            c.on_gym_reset_begin(self._api_context)
-        self._api_context.gym_env = None
+        self._agent_context.api.gym_env = gym_env
+        for c in self._callbacks:
+            c.on_gym_reset_begin(self._agent_context, **kwargs)
+        self._agent_context.api.gym_env = None
 
     def _on_gym_reset_end(self, gym_env: gym.core.Env, reset_result: Tuple, **kwargs):
         """called when the monitored environment completed a reset.
 
         Hint:
             the total episode count is incremented by now (if a step was performed before the last reset)."""
-        self._api_context.gym_env = gym_env
-        for c in self._api_callbacks:
-            c.on_gym_reset_end(self._api_context, reset_result, **kwargs)
-        self._api_context.gym_env = None
+        self._agent_context.api.gym_env = gym_env
+        for c in self._callbacks:
+            c.on_gym_reset_end(self._agent_context, reset_result, **kwargs)
+        self._agent_context.api.gym_env = None
 
     def _on_gym_step_begin(self, gym_env: gym.core.Env, action):
         """called when the monitored environment begins a step.
 
         Hint:
             the total step count is not incremented yet."""
-        self._api_context.gym_env = gym_env
-        for c in self._api_callbacks:
-            c.on_gym_step_begin(self._api_context, action)
-        self._api_context.gym_env = None
+        self._agent_context.api.gym_env = gym_env
+        for c in self._callbacks:
+            c.on_gym_step_begin(self._agent_context, action)
+        self._agent_context.api.gym_env = None
 
     def _on_gym_step_end(self, gym_env: gym.core.Env, action, step_result: Tuple):
         """called when the monitored environment completed a step.
 
         Hint:
             the step count is incremented by now."""
-        self._api_context.gym_env = gym_env
-        for c in self._api_callbacks:
-            c.on_gym_step_end(self._api_context, action, step_result)
-        self._api_context.gym_env = None
-
-    def on_iteration_begin(self):
-        """Must be called by train_implementation at the begining of a new iteration"""
-        self._total_episodes_on_iteration_begin = self._total.episodes_done
-        self._total_steps_on_iteration_begin = self._total.steps_done
-        self.train_context.episodes_done_in_iteration = 0
-        self.train_context.steps_done_in_iteration = 0
-
-        for c in self._train_callbacks:
-            c.on_iteration_begin(self.train_context)
-
-    def on_iteration_end(self, iteration_loss: float):
-        """Must be called by train_implementation at the end of an iteration
-
-        Args:
-            iteration_loss: loss after the training of the model in this iteration
-        """
-        self.train_context.episodes_done_in_iteration = (self._total.episodes_done -
-                                                         self._total_episodes_on_iteration_begin)
-        self.train_context.episodes_done_in_training += self.train_context.episodes_done_in_iteration
-        self.train_context.steps_done_in_iteration = (self._total.steps_done - self._total_steps_on_iteration_begin)
-        self.train_context.steps_done_in_training += self.train_context.steps_done_in_iteration
-        self.train_context.loss[self.train_context.episodes_done_in_training] = iteration_loss
-
-        for c in self._train_callbacks:
-            c.on_iteration_end(self.train_context)
-
-        self.train_context.iterations_done_in_training += 1
+        self._agent_context.api.gym_env = gym_env
+        for c in self._callbacks:
+            c.on_gym_step_end(self._agent_context, action, step_result)
+        self._agent_context.api.gym_env = None
 
     def _on_train_begin(self):
         """Must NOT be called by train_implementation"""
@@ -153,50 +108,67 @@ class BackendAgent(ABC):
         self._total_episodes_on_iteration_begin = 0
         self._total_steps_on_iteration_begin = 0
 
-        for c in self._train_callbacks:
-            c.on_train_begin(self.train_context)
+        for c in self._callbacks:
+            c.on_train_begin(self._agent_context)
 
     def _on_train_end(self):
         """Must NOT be called by train_implementation"""
-        for c in self._train_callbacks:
-            c.on_train_end(self.train_context)
+        for c in self._callbacks:
+            c.on_train_end(self._agent_context)
 
-    def train(self,
-              train_callbacks: List[core.TrainCallback],
-              train_context: core.TrainContext,
-              play_callbacks: List[core.PlayCallback],
-              api_callbacks: List[core.ApiCallback]
-              ):
+    def on_train_iteration_begin(self):
+        """Must be called by train_implementation at the begining of a new iteration"""
+        self._total_episodes_on_iteration_begin = self._total.episodes_done
+        self._total_steps_on_iteration_begin = self._total.steps_done
+        self._agent_context.train.episodes_done_in_iteration = 0
+        self._agent_context.train.steps_done_in_iteration = 0
+
+        for c in self._callbacks:
+            c.on_train_iteration_begin(self._agent_context)
+
+    def on_train_iteration_end(self, iteration_loss: float):
+        """Must be called by train_implementation at the end of an iteration
+
+        Args:
+            iteration_loss: loss after the training of the model in this iteration
+        """
+        tc = self._agent_context.train
+        tc.episodes_done_in_iteration = (self._total.episodes_done - self._total_episodes_on_iteration_begin)
+        tc.episodes_done_in_training += tc.episodes_done_in_iteration
+        tc.steps_done_in_iteration = (self._total.steps_done - self._total_steps_on_iteration_begin)
+        tc.steps_done_in_training += tc.steps_done_in_iteration
+        tc.loss[tc.episodes_done_in_training] = iteration_loss
+
+        for c in self._callbacks:
+            c.on_train_iteration_end(self._agent_context)
+
+        tc.iterations_done_in_training += 1
+
+    def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback]):
         """
             Minimal implementation forwarding to train_implementation overriden by the subclass
 
             Args:
                 train_context: training configuration to be used
-                train_callbacks: list of callbacks called during the train loop (but not during the intermittent evals)
-                play_callbacks: list of callbacks called during the eval (but not during data collection for training)
-                api_callbacks: list of callbacks called during backend and gym api calls
+                callbacks: list of callbacks called during the training and evaluation.
         """
-        assert train_callbacks is not None, "train_callbacks not set"
+        assert callbacks is not None, "callbacks not set"
         assert train_context, "train_context not set"
-        assert play_callbacks is not None, "play_callbacks not set"
-        assert api_callbacks is not None, "api_callbacks not set"
 
-        self._train_callbacks = train_callbacks
-        self.train_context = train_context
-        self.train_context._reset()
-        self.train_context._validate()
-        self._play_callbacks = play_callbacks
-        self._play_context = core.PlayContext(train_context)
-        self._api_callbacks = api_callbacks
-        self._api_context = core.ApiContext()
+        train_context._reset()
+        train_context._validate()
+        self._agent_context.train = train_context
+        self._agent_context.play = core.PlayContext(train_context=train_context)
+        self._callbacks = callbacks
 
         try:
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_train_begin()
-            self.train_implementation(self.train_context)
+            self.train_implementation(self._agent_context.train)
             self._on_train_end()
         finally:
             monitor._MonitorEnv._register_backend_agent(None)
+            self._callbacks = None
 
     @abstractmethod
     def train_implementation(self, train_context: core.TrainContext):

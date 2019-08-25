@@ -138,7 +138,7 @@ class TfPpoAgent(TfAgent):
         tf_agent.train = common.function(tf_agent.train, autograph=False)
 
         self.api_log("Starting training:")
-        self.on_iteration_begin()
+        self.on_train_iteration_begin()
         for iteration in range(self.train_context.num_iterations):
             msg = f'iteration {self.train_context.iterations_done_in_training:4} of ' \
                   f'{self.train_context.num_iterations:<4}:'
@@ -154,7 +154,7 @@ class TfPpoAgent(TfAgent):
             self.api_log(msg + " executing replay_buffer.clear()")
             replay_buffer.clear()
 
-            self.on_iteration_end(total_loss)
+            self.on_train_iteration_end(total_loss)
             if self.train_context.training_done:
                 break
         return

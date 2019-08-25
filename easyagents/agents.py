@@ -57,23 +57,17 @@ class EasyAgent(ABC):
         self._backend_agent: Optional[bcore.BackendAgent] = None
         return
 
-    def train(self,
-              train_context: core.TrainContext,
-              train: List[core.TrainCallback] = None,
-              play: List[core.PlayCallback] = None):
+    def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback] = None):
         """Trains a new model using the gym environment passed during instantiation.
 
         Args:
-            train: list of callbacks called during the train loop (but not during the intermittent evaluations)
-            play: list of callbacks called during the evaluation (but not during data collection for the training)
+            callbacks: list of callbacks called during the training and evaluation
             train_context: training configuration to be used (num_iterations,num_episodes_per_iteration,...)
         """
         assert train_context is not None
-        if train is None:
-            train = []
-        if play is None:
-            play = []
-        self._backend_agent._train_callbacks(train_context=train_context, train=train, play=play)
+        if callbacks is None:
+            callbacks = []
+        self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
 
 class PpoAgent(EasyAgent):
@@ -111,10 +105,8 @@ class PpoAgent(EasyAgent):
               max_steps_per_episode: int = 1000,
               num_epochs_per_iteration: int = 10,
               learning_rate: float = 1,
-              train: List[core.TrainCallback] = None,
               train_context: core.TrainContext = None,
-              play: List[core.PlayCallback] = None,
-              api: List[core.ApiCallback] = None):
+              callbacks: List[core.AgentCallback] = None):
         """Trains a new model using the gym environment passed during instantiation.
 
         Args:
@@ -125,10 +117,8 @@ class PpoAgent(EasyAgent):
                 is used to retrain the current policy.
             learning_rate: the learning rate used in the next iteration's policy training (0,1]
 
-            train: list of callbacks called during the train loop (but not during the intermittent evaluations)
             train_context: training configuration to be used. if set overrides all other training context arguments.
-            play: list of callbacks called during the evaluation (but not during data collection for the training)
-            api: list of callbacks called during the calls to the gym env or the backend implementation
+            callbacks: list of callbacks called during training and evaluation
         """
         if train_context is None:
             train_context = core.TrainContext()
@@ -138,11 +128,6 @@ class PpoAgent(EasyAgent):
             train_context.num_epochs_per_iteration = num_epochs_per_iteration
             train_context.learning_rate = learning_rate
 
-        if train is None:
-            train = []
-        if play is None:
-            play = []
-        if api is None:
-            api = []
-        self._backend_agent.train(train_callbacks=train, train_context=train_context,
-                                  play_callbacks=play, api_callbacks=api)
+        if callbacks is None:
+            callbacks = []
+        super().train(train_context=train_context, callbacks=callbacks)

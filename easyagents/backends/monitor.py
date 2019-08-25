@@ -73,7 +73,8 @@ class _MonitorTotalCounts(object):
             return self._steps_done
 
     def __str__(self):
-        return f'[{self._original_env_name}] total instances={self.instances_created} episodes={self.episodes_done} steps={self.steps_done}'
+        return f'[{self._original_env_name}] total instances={self.instances_created} ' + \
+               f'episodes={self.episodes_done} steps={self.steps_done}'
 
 
 class _MonitorEnv(gym.Wrapper):

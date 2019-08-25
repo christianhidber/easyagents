@@ -28,13 +28,13 @@ class BackendAgent(bcore.BackendAgent):
         self.action = action
 
     def train_implementation(self, train_context: core.TrainContext):
-        env = gym.make(self.gym_env_name)
+        env = gym.make(self.model_config.gym_env_name)
         for i in range(train_context.num_iterations):
-            self.on_iteration_begin()
+            self.on_train_iteration_begin()
             for e in range(train_context.num_episodes_per_iteration):
                 env.reset()
                 if self.action is not None:
                     done = False
                     while not done:
                         (observation, reward, done, info) = env.step(self.action)
-            self.on_iteration_end(0)
+            self.on_train_iteration_end(0)

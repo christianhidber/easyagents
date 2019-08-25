@@ -13,78 +13,11 @@ class ApiContext(object):
     """Contains the context of the backend or gym api call
 
     Attributes:
-        gym_env: the target gym instance of a pending gym api call (None on a backend call)
-        api_id: a string identifiying the backend call (None on a gym call)
+        gym_env: the target gym instance of a pending gym api call (None on a backend api call)
     """
 
     def __init__(self):
         self.gym_env: Optional[gym.core.Env] = None
-        self.api_id: str = None
-
-
-class ApiCallback(ABC):
-    """Base class for all callbacks monitoring the backend algorithms api calls or the api calls to the gym
-        environment"""
-
-    def on_backend_call_begin(self, call_name: str, api_context: ApiContext):
-        """Before a call into a backend implementation."""
-        pass
-
-    def on_backend_call_end(self, call_name: str, api_context: ApiContext):
-        """After a call into a backend implementation was completed."""
-        pass
-
-    def on_gym_init_begin(self, api_context: ApiContext):
-        """called when the monitored environment begins the instantiation of a new gym environment.
-
-            Args:
-                api_context: api_context passed to calling agent
-        """
-
-    def on_gym_init_end(self, api_context: ApiContext):
-        """called when the monitored environment completed the instantiation of a new gym environment.
-
-        Args:
-            api_context: api_context passed to calling agent
-        """
-        pass
-
-    def on_gym_reset_begin(self, api_context: ApiContext, **kwargs):
-        """Before a call to gym.reset
-
-            Args:
-                api_context: api_context passed to calling agent
-                kwargs: the args to be passed to the underlying environment
-        """
-
-    def on_gym_reset_end(self, api_context: ApiContext, reset_result: Tuple, **kwargs):
-        """After a call to gym.reset was completed
-
-        Args:
-            api_context: api_context passed to calling agent
-            reset_result: object returned by gym.reset
-            kwargs: args passed to gym.reset
-        """
-        pass
-
-    def on_gym_step_begin(self, api_context: ApiContext, action):
-        """Before a call to gym.step
-
-        Args:
-            api_context: api_context passed to calling agent
-            action: the action to be passed to the underlying environment
-        """
-        pass
-
-    def on_gym_step_end(self, api_context: ApiContext, action, step_result: Tuple):
-        """After a call to gym.step was completed
-
-        Args:
-            api_context: api_context passed to calling agent
-            action: the action to be passed to the underlying environment
-            step_result: (observation,reward,done,info) tuple returned by gym.step
-        """
-        pass
 
 
 class ModelConfig(object):
@@ -243,22 +176,6 @@ class SingleEpisodeTrainContext(TrainContext):
         self.learning_rate = 1
 
 
-class TrainCallback(ABC):
-    """Base class for all callbacks controlling / monitoring the training loop of an agent"""
-
-    def on_train_begin(self, train_context: TrainContext):
-        """Called once at the entry of an agent.train() call. """
-
-    def on_train_end(self, train_context: TrainContext):
-        """Called once before exiting an agent.train() call"""
-
-    def on_iteration_begin(self, train_context: TrainContext):
-        """Called once at the start of a new iteration. """
-
-    def on_iteration_end(self, train_context: TrainContext):
-        """Called once after the current iteration is completed"""
-
-
 class PlayContext(object):
     """Contains the current configuration of an agents play method like the number of episodes to play
         and the max number of steps per episode.
@@ -299,6 +216,7 @@ class PlayContext(object):
         self.current_steps: int
         self.rewards: Dict[int, List[float]]
         self.gym_env: gym.core.Env
+        self._reset()
 
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
@@ -315,32 +233,10 @@ class PlayContext(object):
         self.gym_env = None
 
 
-class PlayCallback(ABC):
-    """Base class for all callbacks monitoring the evaluation or the play of an agent"""
-
-    def on_episode_begin(self, play_context: PlayContext):
-        """Called once at the start of new episode to be played. """
-
-    def on_episode_end(self, play_context: PlayContext):
-        """Called once after an episode is done or stopped."""
-
-    def on_play_begin(self, play_context: PlayContext):
-        """Called once at the entry of an agent.play() call. """
-
-    def on_play_end(self, play_context: PlayContext):
-        """Called once before exiting an agent.play() call"""
-
-    def on_step_begin(self, play_context: PlayContext):
-        """Called once before a new step is taken in the current episode. """
-
-    def on_step_end(self, play_context: PlayContext):
-        """Called once after a step is completed in the current episode."""
-
-
 class AgentContext(object):
     """Collection of state and configuration settings for a EasyAgent instance.
 
-    Args:
+    Attributes:
         model: model configuration including the name of the underlying gym_environment and the
             policy's neural network archtitecture.
         train: training configuration and current train state. None if not inside a train call.
@@ -349,11 +245,110 @@ class AgentContext(object):
         api: api logging state.
     """
 
-    def __init__(self, model: ModelConfig, api: ApiContext):
+    def __init__(self, model: ModelConfig):
+        """
+        Args:
+            model: model configuration including the name of the underlying gym_environment and the
+                policy's neural network archtitecture.
+        """
         assert isinstance(model, ModelConfig), "model not set"
-        assert isinstance(api, ApiContext), "api not set"
 
         self.model: ModelConfig = model
         self.train: Optional[TrainContext] = None
         self.play: Optional[PlayContext] = None
-        self.api: ApiContext = api
+        self.api: ApiContext = ApiContext()
+
+
+class AgentCallback(ABC):
+    """Base class for all callbacks monitoring the backend algorithms api calls or the api calls to the gym
+        environment"""
+
+    def on_api_log(self, api_context: AgentContext, api_target: str, log_msg: str):
+        """Logs a call to the api of the agents implementation library / framework."""
+        pass
+
+    def on_log(self, api_context: AgentContext, log_msg: str):
+        """Logs a general message"""
+        pass
+
+    def on_gym_init_begin(self, api_context: AgentContext):
+        """called when the monitored environment begins the instantiation of a new gym environment.
+
+            Args:
+                api_context: api_context passed to calling agent
+        """
+
+    def on_gym_init_end(self, api_context: AgentContext):
+        """called when the monitored environment completed the instantiation of a new gym environment.
+
+        Args:
+            api_context: api_context passed to calling agent
+        """
+        pass
+
+    def on_gym_reset_begin(self, api_context: AgentContext, **kwargs):
+        """Before a call to gym.reset
+
+            Args:
+                api_context: api_context passed to calling agent
+                kwargs: the args to be passed to the underlying environment
+        """
+
+    def on_gym_reset_end(self, api_context: AgentContext, reset_result: Tuple, **kwargs):
+        """After a call to gym.reset was completed
+
+        Args:
+            api_context: api_context passed to calling agent
+            reset_result: object returned by gym.reset
+            kwargs: args passed to gym.reset
+        """
+        pass
+
+    def on_gym_step_begin(self, api_context: AgentContext, action):
+        """Before a call to gym.step
+
+        Args:
+            api_context: api_context passed to calling agent
+            action: the action to be passed to the underlying environment
+        """
+        pass
+
+    def on_gym_step_end(self, api_context: AgentContext, action, step_result: Tuple):
+        """After a call to gym.step was completed
+
+        Args:
+            api_context: api_context passed to calling agent
+            action: the action to be passed to the underlying environment
+            step_result: (observation,reward,done,info) tuple returned by gym.step
+        """
+        pass
+
+    def on_play_episode_begin(self, play_context: AgentContext):
+        """Called once at the start of new episode to be played (during play or eval, but not train). """
+
+    def on_play_episode_end(self, play_context: AgentContext):
+        """Called once after an episode is done or stopped (during play or eval, but not train)."""
+
+    def on_play_begin(self, play_context: AgentContext):
+        """Called once at the entry of an agent.play() call (during play or eval, but not train). """
+
+    def on_play_end(self, play_context: AgentContext):
+        """Called once before exiting an agent.play() call (during play or eval, but not train)"""
+
+    def on_play_step_begin(self, play_context: AgentContext):
+        """Called once before a new step is taken in the current episode (during play or eval, but not train). """
+
+    def on_play_step_end(self, play_context: AgentContext):
+        """Called once after a step is completed in the current episode (during play or eval, but not train)."""
+
+    def on_train_begin(self, train_context: AgentContext):
+        """Called once at the entry of an agent.train() call. """
+
+    def on_train_end(self, train_context: AgentContext):
+        """Called once before exiting an agent.train() call"""
+
+    def on_train_iteration_begin(self, train_context: AgentContext):
+        """Called once at the start of a new iteration. """
+
+    def on_train_iteration_end(self, train_context: AgentContext):
+        """Called once after the current iteration is completed"""
