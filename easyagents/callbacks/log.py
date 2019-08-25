@@ -69,8 +69,9 @@ class Count(core.AgentCallback):
         self.train_iteration_end_count += 1
 
 
-class Log(core.AgentCallback):
-    """Logs all AgentCallback calls to a Logger"""
+
+class _LogCallbackBase(core.AgentCallback):
+    """Base class for Callback loggers"""
 
     def __init__(self, logger: logging.Logger = None, prefix: str = None):
         """Writes all calls to a callback function to logger with the given prefix.
@@ -92,6 +93,18 @@ class Log(core.AgentCallback):
             if arg is not None:
                 msg += str(arg) + ' '
         self._logger.warning(msg)
+
+class LogCallbacks(_LogCallbackBase):
+    """Logs all AgentCallback calls to a Logger"""
+
+    def __init__(self, logger: logging.Logger = None, prefix: str = None):
+        """Writes all calls to a callback function to logger with the given prefix.
+
+        Args:
+            logger: the logger to log (if None a new logger with level debug is created)
+            prefix: a string written in front of each log msg
+            """
+        super().__init__(logger=logger, prefix=prefix)
 
     def on_api_log(self, agent_context: core.AgentContext, api_target: str, log_msg: str):
         msg = f'{api_target:<30}'
@@ -131,3 +144,13 @@ class Log(core.AgentCallback):
 
     def on_train_iteration_end(self, agent_context: core.TrainContext):
         self.log('on_train_iteration_end', agent_context)
+
+class LogIterationLoss(_LogCallbackBase):
+    """Logs the agents loss after each training iteration to a python logger"""
+
+    def on_train_iteration_end(self, agent_context: core.AgentContext):
+        tc = agent_context.train
+        loss = tc.loss[tc.episodes_done_in_training]
+        self.log(f'iteration {tc.iterations_done_in_training:<3} of {tc.num_iterations:<3}: loss = {loss:>8.3f}')
+
+

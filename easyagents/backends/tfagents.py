@@ -147,6 +147,7 @@ class TfPpoAgent(TfAgent):
 
             self.api_log('tf_agent.train', msg)
             total_loss, _ = tf_agent.train(experience=trajectories)
+            self.log(f'loss={total_loss:6.1f}')
 
             self.api_log('replay_buffer.clear', msg)
             replay_buffer.clear()

@@ -1,8 +1,8 @@
 import pytest
 import unittest
 import easyagents.agents
-import easyagents.callbacks.debug
-from easyagents import core
+import easyagents.callbacks.log
+
 from easyagents.backends.default import BackendAgentFactory
 from easyagents.callbacks.duration import SingleEpisode
 
@@ -47,8 +47,9 @@ class TfAgentsPpoAgentTest(unittest.TestCase):
 
     def test_train(self):
         ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend_name='tfagents')
-        count=easyagents.callbacks.debug.Count()
-        ppo.train([easyagents.callbacks.debug.Log(), count, SingleEpisode()])
+        count = easyagents.callbacks.log.Count()
+        ppo.train([easyagents.callbacks.log.LogCallbacks(), count, SingleEpisode()])
+
 
 if __name__ == '__main__':
     unittest.main()

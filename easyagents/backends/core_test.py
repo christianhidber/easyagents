@@ -2,14 +2,13 @@ import unittest
 
 import easyagents.core as core
 import easyagents.backends.debug as debug
-import easyagents.callbacks.debug
+import easyagents.callbacks.log
 
 
 class BackendAgentTest(unittest.TestCase):
-
-    _single_episode=core.TrainContext()
-    _single_episode.num_episodes_per_iteration=1
-    _single_episode.num_iterations=1
+    _single_episode = core.TrainContext()
+    _single_episode.num_episodes_per_iteration = 1
+    _single_episode.num_iterations = 1
 
     class DebugAgent(debug.BackendAgent):
         def __init__(self):
@@ -21,8 +20,8 @@ class BackendAgentTest(unittest.TestCase):
         agent.train(train_context=train_context, callbacks=[])
         assert train_context.training_done
         assert train_context.iterations_done_in_training == 1
-        assert train_context.episodes_done_in_iteration ==1
-        assert train_context.episodes_done_in_training==1
+        assert train_context.episodes_done_in_iteration == 1
+        assert train_context.episodes_done_in_training == 1
 
     def test_train_missingArgs(self):
         agent = BackendAgentTest.DebugAgent()
@@ -34,10 +33,10 @@ class BackendAgentTest(unittest.TestCase):
 
     def test_callbacks(self):
         agent = BackendAgentTest.DebugAgent()
-        count = easyagents.callbacks.debug.Count()
+        count = easyagents.callbacks.log.Count()
         train_context = BackendAgentTest._single_episode
-        train_context.num_iterations=2
-        agent.train(train_context=train_context,callbacks=[count])
+        train_context.num_iterations = 2
+        agent.train(train_context=train_context, callbacks=[count])
         assert count.train_begin_count == count.train_end_count == 1
         assert count.train_iteration_begin_count == count.train_iteration_end_count == 2
         assert train_context.episodes_done_in_training == 2
