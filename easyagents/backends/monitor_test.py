@@ -2,7 +2,7 @@ import unittest
 
 import easyagents.core as core
 import easyagents.backends.monitor as monitor
-import easyagents.backends.noop as noop
+import easyagents.backends.debug as debug
 import gym
 
 
@@ -35,7 +35,7 @@ class MonitorTest(unittest.TestCase):
 
     def test_setbackendagent_twice(self):
         model_config = core.ModelConfig(self.env_name)
-        agent = noop.BackendAgent(model_config)
+        agent = debug.BackendAgent(model_config)
         monitor._MonitorEnv._register_backend_agent(agent)
         monitor._MonitorEnv._register_backend_agent(agent)
         monitor._MonitorEnv._register_backend_agent(None)

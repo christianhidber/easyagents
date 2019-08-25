@@ -28,10 +28,10 @@ class Count(core.AgentCallback):
                f'train_iteration={self.train_iteration_begin_count}:{self.train_iteration_end_count}' + \
                f'api_log={self.api_log_count} log={self.log_count} '
 
-    def on_api_log(self, api_context: core.AgentContext, api_target: str, log_msg: str):
+    def on_api_log(self, agent_context: core.AgentContext, api_target: str, log_msg: str):
         self.api_log_count += 1
 
-    def on_log(self, api_context: core.AgentContext, log_msg: str):
+    def on_log(self, agent_context: core.AgentContext, log_msg: str):
         self.log_count += 1
 
     def on_gym_init_begin(self, agent_context: core.AgentContext):
@@ -52,19 +52,19 @@ class Count(core.AgentCallback):
     def on_gym_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         self.gym_step_end_count += 1
 
-    def on_train_begin(self, train_context: core.TrainContext):
+    def on_train_begin(self, agent_context: core.TrainContext):
         """Called once at the entry of an agent.train() call. """
         self.train_begin_count += 1
 
-    def on_train_end(self, train_context: core.TrainContext):
+    def on_train_end(self, agent_context: core.TrainContext):
         """Called once before exiting an agent.train() call"""
         self.train_end_count += 1
 
-    def on_train_iteration_begin(self, train_context: core.TrainContext):
+    def on_train_iteration_begin(self, agent_context: core.TrainContext):
         """Called once at the start of a new iteration. """
         self.train_iteration_begin_count += 1
 
-    def on_train_iteration_end(self, train_context: core.TrainContext):
+    def on_train_iteration_end(self, agent_context: core.TrainContext):
         """Called once after the current iteration is completed"""
         self.train_iteration_end_count += 1
 
@@ -93,13 +93,13 @@ class Log(core.AgentCallback):
                 msg += str(arg) + ' '
         self._logger.warning(msg)
 
-    def on_api_log(self, api_context: core.AgentContext, api_target: str, log_msg: str):
+    def on_api_log(self, agent_context: core.AgentContext, api_target: str, log_msg: str):
         msg = f'{api_target:<30}'
         if log_msg:
             msg += ' ' + log_msg
         self.log('on_api_log', msg)
 
-    def on_log(self, api_context: core.AgentContext, log_msg: str):
+    def on_log(self, agent_context: core.AgentContext, log_msg: str):
         self.log('on_log', log_msg)
 
     def on_gym_init_begin(self, agent_context: core.AgentContext):
@@ -120,14 +120,14 @@ class Log(core.AgentCallback):
     def on_gym_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         self.log('on_gym_step_end', agent_context)
 
-    def on_train_begin(self, train_context: core.TrainContext):
-        self.log('on_train_begin', train_context)
+    def on_train_begin(self, agent_context: core.TrainContext):
+        self.log('on_train_begin', agent_context)
 
-    def on_train_end(self, train_context: core.TrainContext):
-        self.log('on_train_end', train_context)
+    def on_train_end(self, agent_context: core.TrainContext):
+        self.log('on_train_end', agent_context)
 
-    def on_train_iteration_begin(self, train_context: core.TrainContext):
-        self.log('on_train_iteration_begin', train_context)
+    def on_train_iteration_begin(self, agent_context: core.TrainContext):
+        self.log('on_train_iteration_begin', agent_context)
 
-    def on_train_iteration_end(self, train_context: core.TrainContext):
-        self.log('on_train_iteration_end', train_context)
+    def on_train_iteration_end(self, agent_context: core.TrainContext):
+        self.log('on_train_iteration_end', agent_context)

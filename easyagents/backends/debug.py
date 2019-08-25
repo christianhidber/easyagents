@@ -1,6 +1,6 @@
 """This module contains the backend for a  / constant action agent implementation.
 
-    All agents created by the NoOp backend execute a "no operations" train loop,
+    All agents created by the debug backend execute a "no operations" train loop,
     without an underlying model / neural network.
 """
 
@@ -10,6 +10,8 @@ import gym
 
 
 class BackendAgentFactory(bcore.BackendAgentFactory):
+
+    name='debug'
 
     def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore.BackendAgent:
         return BackendAgent(model_config=model_config)

@@ -143,8 +143,8 @@ class TrainContext(object):
 
     def __str__(self):
         return f'done={self.training_done} ' + \
-                f'#iterations={self.iterations_done_in_training} ' + \
-                f'#episodes={self.episodes_done_in_iteration} '
+               f'#iterations={self.iterations_done_in_training} ' + \
+               f'#episodes={self.episodes_done_in_iteration} '
 
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
@@ -168,24 +168,6 @@ class TrainContext(object):
         self.loss = dict()
         self.eval_average_rewards = dict()
         self.eval_average_steps = dict()
-
-
-class SingleEpisodeTrainContext(TrainContext):
-    """Configures training for 1 single episode, max 100 steps, no evaluation.
-
-        Hints:
-        o This configuration is typically used for short tests.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.num_iterations = 1
-        self.num_episodes_per_iteration = 1
-        self.max_steps_per_episode = 100
-        self.num_epochs_per_iteration = 1
-        self.num_iterations_between_eval = 1
-        self.num_episodes_per_eval = 1
-        self.learning_rate = 1
 
 
 class PlayContext(object):
@@ -282,92 +264,92 @@ class AgentCallback(ABC):
     """Base class for all callbacks monitoring the backend algorithms api calls or the api calls to the gym
         environment"""
 
-    def on_api_log(self, api_context: AgentContext, api_target: str, log_msg: str):
+    def on_api_log(self, agent_context: AgentContext, api_target: str, log_msg: str):
         """Logs a call to the api of the agents implementation library / framework."""
         pass
 
-    def on_log(self, api_context: AgentContext, log_msg: str):
+    def on_log(self, agent_context: AgentContext, log_msg: str):
         """Logs a general message"""
         pass
 
-    def on_gym_init_begin(self, api_context: AgentContext):
+    def on_gym_init_begin(self, agent_context: AgentContext):
         """called when the monitored environment begins the instantiation of a new gym environment.
 
             Args:
-                api_context: api_context passed to calling agent
+                agent_context: api_context passed to calling agent
         """
 
-    def on_gym_init_end(self, api_context: AgentContext):
+    def on_gym_init_end(self, agent_context: AgentContext):
         """called when the monitored environment completed the instantiation of a new gym environment.
 
         Args:
-            api_context: api_context passed to calling agent
+            agent_context: api_context passed to calling agent
         """
         pass
 
-    def on_gym_reset_begin(self, api_context: AgentContext, **kwargs):
+    def on_gym_reset_begin(self, agent_context: AgentContext, **kwargs):
         """Before a call to gym.reset
 
             Args:
-                api_context: api_context passed to calling agent
+                agent_context: api_context passed to calling agent
                 kwargs: the args to be passed to the underlying environment
         """
 
-    def on_gym_reset_end(self, api_context: AgentContext, reset_result: Tuple, **kwargs):
+    def on_gym_reset_end(self, agent_context: AgentContext, reset_result: Tuple, **kwargs):
         """After a call to gym.reset was completed
 
         Args:
-            api_context: api_context passed to calling agent
+            agent_context: api_context passed to calling agent
             reset_result: object returned by gym.reset
             kwargs: args passed to gym.reset
         """
         pass
 
-    def on_gym_step_begin(self, api_context: AgentContext, action):
+    def on_gym_step_begin(self, agent_context: AgentContext, action):
         """Before a call to gym.step
 
         Args:
-            api_context: api_context passed to calling agent
+            agent_context: api_context passed to calling agent
             action: the action to be passed to the underlying environment
         """
         pass
 
-    def on_gym_step_end(self, api_context: AgentContext, action, step_result: Tuple):
+    def on_gym_step_end(self, agent_context: AgentContext, action, step_result: Tuple):
         """After a call to gym.step was completed
 
         Args:
-            api_context: api_context passed to calling agent
+            agent_context: api_context passed to calling agent
             action: the action to be passed to the underlying environment
             step_result: (observation,reward,done,info) tuple returned by gym.step
         """
         pass
 
-    def on_play_episode_begin(self, play_context: AgentContext):
+    def on_play_episode_begin(self, agent_context: AgentContext):
         """Called once at the start of new episode to be played (during play or eval, but not train). """
 
-    def on_play_episode_end(self, play_context: AgentContext):
+    def on_play_episode_end(self, agent_context: AgentContext):
         """Called once after an episode is done or stopped (during play or eval, but not train)."""
 
-    def on_play_begin(self, play_context: AgentContext):
+    def on_play_begin(self, agent_context: AgentContext):
         """Called once at the entry of an agent.play() call (during play or eval, but not train). """
 
-    def on_play_end(self, play_context: AgentContext):
+    def on_play_end(self, agent_context: AgentContext):
         """Called once before exiting an agent.play() call (during play or eval, but not train)"""
 
-    def on_play_step_begin(self, play_context: AgentContext):
+    def on_play_step_begin(self, agent_context: AgentContext):
         """Called once before a new step is taken in the current episode (during play or eval, but not train). """
 
-    def on_play_step_end(self, play_context: AgentContext):
+    def on_play_step_end(self, agent_context: AgentContext):
         """Called once after a step is completed in the current episode (during play or eval, but not train)."""
 
-    def on_train_begin(self, train_context: AgentContext):
+    def on_train_begin(self, agent_context: AgentContext):
         """Called once at the entry of an agent.train() call. """
 
-    def on_train_end(self, train_context: AgentContext):
+    def on_train_end(self, agent_context: AgentContext):
         """Called once before exiting an agent.train() call"""
 
-    def on_train_iteration_begin(self, train_context: AgentContext):
+    def on_train_iteration_begin(self, agent_context: AgentContext):
         """Called once at the start of a new iteration. """
 
-    def on_train_iteration_end(self, train_context: AgentContext):
+    def on_train_iteration_end(self, agent_context: AgentContext):
         """Called once after the current iteration is completed"""

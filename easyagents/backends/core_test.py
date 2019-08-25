@@ -1,18 +1,23 @@
 import unittest
 
 import easyagents.core as core
-import easyagents.backends.noop as noop
+import easyagents.backends.debug as debug
 import easyagents.callbacks.debug
 
 
 class BackendAgentTest(unittest.TestCase):
-    class DebugAgent(noop.BackendAgent):
+
+    _single_episode=core.TrainContext()
+    _single_episode.num_episodes_per_iteration=1
+    _single_episode.num_iterations=1
+
+    class DebugAgent(debug.BackendAgent):
         def __init__(self):
             super().__init__(core.ModelConfig(gym_env_name='CartPole-v0'), action=1)
 
     def test_train_emptyArgs(self):
         agent = BackendAgentTest.DebugAgent()
-        train_context = core.SingleEpisodeTrainContext()
+        train_context = BackendAgentTest._single_episode
         agent.train(train_context=train_context, callbacks=[])
         assert train_context.training_done
         assert train_context.iterations_done_in_training == 1
@@ -21,7 +26,7 @@ class BackendAgentTest(unittest.TestCase):
 
     def test_train_missingArgs(self):
         agent = BackendAgentTest.DebugAgent()
-        context = core.SingleEpisodeTrainContext()
+        context = BackendAgentTest._single_episode
         with self.assertRaises(AssertionError):
             agent.train(train_context=None, callbacks=[])
         with self.assertRaises(AssertionError):
@@ -30,9 +35,8 @@ class BackendAgentTest(unittest.TestCase):
     def test_callbacks(self):
         agent = BackendAgentTest.DebugAgent()
         count = easyagents.callbacks.debug.Count()
-        train_context = core.SingleEpisodeTrainContext()
-        train_context.num_iterations = 2
-        train_context.seed = 0
+        train_context = BackendAgentTest._single_episode
+        train_context.num_iterations=2
         agent.train(train_context=train_context,callbacks=[count])
         assert count.train_begin_count == count.train_end_count == 1
         assert count.train_iteration_begin_count == count.train_iteration_end_count == 2
@@ -43,3 +47,4 @@ class BackendAgentTest(unittest.TestCase):
         assert count.gym_init_begin_count == count.gym_init_end_count > 0
         assert count.gym_reset_begin_count == count.gym_reset_end_count > 0
         assert count.gym_step_begin_count == count.gym_step_end_count > 0
+        train_context.num_iterations = 1

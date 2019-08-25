@@ -48,7 +48,7 @@ class EasyAgent(ABC):
         if model_config is None:
             model_config = core.ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
         if backend_name is None:
-            backend_name = easyagents.backends.default._BACKEND_NAME
+            backend_name = easyagents.backends.default.BackendAgentFactory.name
 
         assert model_config is not None, "model_config not set."
         assert backend_name in get_backends(), \
@@ -69,6 +69,9 @@ class EasyAgent(ABC):
         assert train_context is not None
         if callbacks is None:
             callbacks = []
+        if not isinstance(callbacks,list):
+            assert isinstance(callbacks,core.AgentCallback), "callback not a AgentCallback or a list thereof."
+            callbacks=[callbacks]
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
 
@@ -102,16 +105,17 @@ class PpoAgent(EasyAgent):
         return
 
     def train(self,
+              callbacks: List[core.AgentCallback] = None,
               num_iterations: int = 1000,
               num_episodes_per_iteration: int = 10,
               max_steps_per_episode: int = 1000,
               num_epochs_per_iteration: int = 10,
               learning_rate: float = 1,
-              train_context: core.TrainContext = None,
-              callbacks: List[core.AgentCallback] = None):
+              train_context: core.TrainContext = None):
         """Trains a new model using the gym environment passed during instantiation.
 
         Args:
+            callbacks: list of callbacks called during training and evaluation
             num_iterations: number of times the training is repeated (with additional data)
             num_episodes_per_iteration: number of episodes played per training iteration
             max_steps_per_episode: maximum number of steps per episode
@@ -120,7 +124,6 @@ class PpoAgent(EasyAgent):
             learning_rate: the learning rate used in the next iteration's policy training (0,1]
 
             train_context: training configuration to be used. if set overrides all other training context arguments.
-            callbacks: list of callbacks called during training and evaluation
         """
         if train_context is None:
             train_context = core.TrainContext()
@@ -130,6 +133,4 @@ class PpoAgent(EasyAgent):
             train_context.num_epochs_per_iteration = num_epochs_per_iteration
             train_context.learning_rate = learning_rate
 
-        if callbacks is None:
-            callbacks = []
         super().train(train_context=train_context, callbacks=callbacks)

@@ -4,6 +4,7 @@ import easyagents.agents
 import easyagents.callbacks.debug
 from easyagents import core
 from easyagents.backends.default import BackendAgentFactory
+from easyagents.callbacks.duration import SingleEpisode
 
 _env_name = 'CartPole-v0'
 
@@ -40,11 +41,14 @@ class BackendRegistrationTest(unittest.TestCase):
 
 class TfAgentsPpoAgentTest(unittest.TestCase):
 
+    def test_callback_single(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train(SingleEpisode())
+
     def test_train(self):
         ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend_name='tfagents')
         count=easyagents.callbacks.debug.Count()
-        callbacks=[easyagents.callbacks.debug.Log(), count]
-        ppo.train(callbacks=callbacks,train_context=core.SingleEpisodeTrainContext())
+        ppo.train([easyagents.callbacks.debug.Log(), count, SingleEpisode()])
 
 if __name__ == '__main__':
     unittest.main()
