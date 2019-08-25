@@ -18,6 +18,10 @@ class ApiContext(object):
 
     def __init__(self):
         self.gym_env: Optional[gym.core.Env] = None
+        self._totals = None
+
+    def __str__(self):
+        return f'{self._totals}'
 
 
 class ModelConfig(object):
@@ -58,6 +62,9 @@ class ModelConfig(object):
         self.gym_env_name = None
         self.fc_layers = fc_layers
         self.seed = seed
+
+    def __str__(self):
+        return f'fc_layers={self.fc_layers}'
 
 
 class TrainContext(object):
@@ -133,6 +140,11 @@ class TrainContext(object):
         self.eval_average_rewards: Dict[int, Tuple[float, float, float]]
         self.eval_average_steps: Dict[int, Tuple[float, float, float]]
         self._reset()
+
+    def __str__(self):
+        return f'done={self.training_done} ' + \
+                f'#iterations={self.iterations_done_in_training} ' + \
+                f'#episodes={self.episodes_done_in_iteration} '
 
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
@@ -257,6 +269,13 @@ class AgentContext(object):
         self.train: Optional[TrainContext] = None
         self.play: Optional[PlayContext] = None
         self.api: ApiContext = ApiContext()
+
+    def __str__(self):
+        result = f'api=[{self.api}]'
+        if self.train is not None:
+            result += f' train=[{self.train}] '
+        result += f'model=[{self.model}] '
+        return result
 
 
 class AgentCallback(ABC):

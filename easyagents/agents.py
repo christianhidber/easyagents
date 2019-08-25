@@ -9,11 +9,13 @@ from abc import ABC
 from typing import Dict, List, Tuple, Optional
 from easyagents import core
 from easyagents.backends import core as bcore
-from easyagents.backends import default
+import easyagents.backends.default
+import easyagents.backends.tfagents
 
-_DFEAULT_BACKEND_NAME = 'default'
-
-_backends: Dict[str, bcore.BackendAgentFactory] = {_DFEAULT_BACKEND_NAME: default.BackendAgentFactory()}
+_backends: Dict[str, bcore.BackendAgentFactory] = {
+    easyagents.backends.default.BackendAgentFactory.name: easyagents.backends.default.BackendAgentFactory(),
+    easyagents.backends.tfagents.BackendAgentFactory.name: easyagents.backends.tfagents.BackendAgentFactory()
+}
 
 
 def get_backends():
@@ -46,11 +48,11 @@ class EasyAgent(ABC):
         if model_config is None:
             model_config = core.ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
         if backend_name is None:
-            backend_name = _DFEAULT_BACKEND_NAME
+            backend_name = easyagents.backends.default._BACKEND_NAME
 
         assert model_config is not None, "model_config not set."
         assert backend_name in get_backends(), \
-            f'"{backend_name}" is not admissible. The registered backends are {get_backends()}.'
+            f'{backend_name} is not admissible. The registered backends are {get_backends()}.'
 
         self._model_config: core.ModelConfig = model_config
         self._backend: bcore.BackendAgentFactory = _backends[backend_name]
@@ -96,7 +98,7 @@ class PpoAgent(EasyAgent):
 
                  backend_name: str = None):
         super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend_name)
-        self._backendAgent = self._backend.create_ppo_agent(self._model_config)
+        self._backend_agent = self._backend.create_ppo_agent(self._model_config)
         return
 
     def train(self,

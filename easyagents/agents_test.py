@@ -1,8 +1,8 @@
 import pytest
 import unittest
 import easyagents.agents
-from easyagents.agents import EasyAgent
-from easyagents.core import ModelConfig
+import easyagents.callbacks.debug
+from easyagents import core
 from easyagents.backends.default import BackendAgentFactory
 
 _env_name = 'CartPole-v0'
@@ -38,39 +38,13 @@ class BackendRegistrationTest(unittest.TestCase):
             easyagents.agents.register_backend(backend_name="testBackend", backend=None)
 
 
-class EasyAgentsTest(unittest.TestCase):
-    class NoOpAgent(EasyAgent):
-        def __init__(self, gym_env_name: str, fc_layers=None):
-            super().__init__()
-            self._agent_config = ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
-            return
+class TfAgentsPpoAgentTest(unittest.TestCase):
 
-
-class ModelConfigTest(unittest.TestCase):
-
-    def test_create(self):
-        assert ModelConfig(gym_env_name=_env_name) is not None
-        assert ModelConfig(gym_env_name=_env_name, fc_layers=(10, 20)) is not None
-
-    def test_create_envNotRegistered_exception(self):
-        with pytest.raises(AssertionError):
-            ModelConfig(gym_env_name="MyEnv-v0")
-
-    def test_create_envNotnameNotSet_exception(self):
-        with pytest.raises(AssertionError):
-            ModelConfig(gym_env_name=None)
-
-    def test_create_fclayersEmpty_exception(self):
-        with pytest.raises(AssertionError):
-            ModelConfig(gym_env_name=_env_name, fc_layers=())
-
-    def test_create_fclayersSimpleInt(self):
-        assert ModelConfig(gym_env_name=_env_name, fc_layers=10) is not None
-
-    def test_create_fclayersNegativeValue(self):
-        with pytest.raises(AssertionError):
-            ModelConfig(gym_env_name=_env_name, fc_layers=-10)
-
+    def test_train(self):
+        ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend_name='tfagents')
+        count=easyagents.callbacks.debug.Count()
+        callbacks=[easyagents.callbacks.debug.Log(), count]
+        ppo.train(callbacks=callbacks,train_context=core.SingleEpisodeTrainContext())
 
 if __name__ == '__main__':
     unittest.main()

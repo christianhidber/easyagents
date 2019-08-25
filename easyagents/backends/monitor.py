@@ -29,6 +29,10 @@ class _MonitorTotalCounts(object):
         self._episodes_done: int = 0
         self._steps_done: int = 0
 
+    def __str__(self):
+        return f'[{self._original_env_name}] #instances={self.instances_created} ' + \
+               f'#episodes={self.episodes_done} #steps={self.steps_done}'
+
     @property
     def instances_created(self):
         """the total number of instances created"""
@@ -71,10 +75,6 @@ class _MonitorTotalCounts(object):
         with _MonitorEnv._lock:
             self._steps_done += 1
             return self._steps_done
-
-    def __str__(self):
-        return f'[{self._original_env_name}] total instances={self.instances_created} ' + \
-               f'episodes={self.episodes_done} steps={self.steps_done}'
 
 
 class _MonitorEnv(gym.Wrapper):

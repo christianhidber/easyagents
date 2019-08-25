@@ -2,9 +2,10 @@ from easyagents import core
 from easyagents.backends import core as bcore
 from easyagents.backends import tfagents
 
-
 class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend which redirects all calls to the some default implementation."""
+
+    name = 'default'
 
     def __init__(self):
         self._tfagents = tfagents.BackendAgentFactory()

@@ -14,6 +14,10 @@ class BackendAgentTest(unittest.TestCase):
         agent = BackendAgentTest.DebugAgent()
         train_context = core.SingleEpisodeTrainContext()
         agent.train(train_context=train_context, callbacks=[])
+        assert train_context.training_done
+        assert train_context.iterations_done_in_training == 1
+        assert train_context.episodes_done_in_iteration ==1
+        assert train_context.episodes_done_in_training==1
 
     def test_train_missingArgs(self):
         agent = BackendAgentTest.DebugAgent()
@@ -23,7 +27,7 @@ class BackendAgentTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             agent.train(train_context=context, callbacks=None)
 
-    def test_train_callbacks(self):
+    def test_callbacks(self):
         agent = BackendAgentTest.DebugAgent()
         count = easyagents.callbacks.debug.Count()
         train_context = core.SingleEpisodeTrainContext()

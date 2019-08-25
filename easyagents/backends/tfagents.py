@@ -1,5 +1,6 @@
 """This module contains the backend implementation for tf Agents (see https://github.com/tensorflow/agents)"""
 
+import easyagents.agents
 from easyagents import core
 from easyagents.backends import core as bcore
 from easyagents.backends import monitor
@@ -15,7 +16,6 @@ from tf_agents.networks import actor_distribution_network
 from tf_agents.networks import value_network
 from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
 from tf_agents.utils import common
-
 
 # noinspection PyUnresolvedReferences
 class TfAgent(bcore.BackendAgent):
@@ -39,12 +39,12 @@ class TfAgent(bcore.BackendAgent):
             tf.compat.v1.set_random_seed(self.model_config.seed)
         return
 
-    def _create_tfagent_env(self) -> tf_py_environment.TFPyEnvironment:
+    def _create_tfagent_env(self, train_context: core.TrainContext) -> tf_py_environment.TFPyEnvironment:
         """ creates a new instance of the gym environment and wraps it in a tfagent TFPyEnvironment"""
         self.api_log(f'creating TFPyEnvironment( suite_gym.load( ... ) )')
         py_env = suite_gym.load(self.model_config.gym_env_name,
-                                discount=self.train_context.reward_discount_gamma,
-                                max_episode_steps=self.train_context.max_steps_per_episode)
+                                discount=train_context.reward_discount_gamma,
+                                max_episode_steps=train_context.max_steps_per_episode)
         result = tf_py_environment.TFPyEnvironment(py_env)
         return result
 
@@ -96,66 +96,63 @@ class TfPpoAgent(TfAgent):
     # noinspection DuplicatedCode
     def train_implementation(self, train_context: core.TrainContext):
         """Tf-Agents Ppo Implementation of the train loop."""
-        # Create Environment
-        self.api_log("Creating environment:")
-        train_env = self._create_tfagent_env()
+        self.log('Creating environment...')
+        train_env = self._create_tfagent_env(train_context=train_context)
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
 
         # SetUp Optimizer, Networks and PpoAgent
-        self.api_log("Creating agent:")
-        self.api_log("  creating  tf.compat.v1.train.AdamOptimizer( ... )")
-        optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=self.train_context.learning_rate)
+        self.api_log('AdamOptimizer', 'create')
+        optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=train_context.learning_rate)
 
+        self.api_log('ActorDistributionNetwork', 'create')
         actor_net = actor_distribution_network.ActorDistributionNetwork(observation_spec, action_spec,
                                                                         fc_layer_params=self.model_config.fc_layers)
+        self.api_log('ValueNetwork', 'create')
         value_net = value_network.ValueNetwork(observation_spec, fc_layer_params=self.model_config.fc_layers)
 
-        self.api_log("  creating  PpoAgent( ... )")
+        self.api_log('PpoAgent', 'create')
         tf_agent = ppo_agent.PPOAgent(timestep_spec, action_spec, optimizer,
                                       actor_net=actor_net, value_net=value_net,
-                                      num_epochs=self.train_context.num_epochs_per_iteration)
-        self.api_log("  executing tf_agent.initialize()")
+                                      num_epochs=train_context.num_epochs_per_iteration)
+        self.api_log('tf_agent.initialize()')
         tf_agent.initialize()
         self._trained_policy = tf_agent.policy
 
         # SetUp Data collection & Buffering
-        self.api_log("Creating data collection:")
         collect_data_spec = tf_agent.collect_data_spec
-        self.api_log("  creating TFUniformReplayBuffer()")
+        self.api_log('TFUniformReplayBuffer', 'create')
         replay_buffer = TFUniformReplayBuffer(collect_data_spec,
                                               batch_size=1, max_length=train_context.max_steps_in_buffer)
 
         collect_policy = tf_agent.collect_policy
-        self.api_log("  creating DynamicEpisodeDriver()")
-        collect_driver = DynamicEpisodeDriver(train_env, collect_policy,
-                                              observers=[replay_buffer.add_batch],
-                                              num_episodes=self.train_context.num_episodes_per_iteration)
+        self.api_log('DynamicEpisodeDriver', 'create')
+        collect_driver = DynamicEpisodeDriver(train_env, collect_policy, observers=[replay_buffer.add_batch],
+                                              num_episodes=train_context.num_episodes_per_iteration)
 
         # Train
         collect_driver.run = common.function(collect_driver.run, autograph=False)
         tf_agent.train = common.function(tf_agent.train, autograph=False)
 
-        self.api_log("Starting training:")
-        self.on_train_iteration_begin()
-        for iteration in range(self.train_context.num_iterations):
-            msg = f'iteration {self.train_context.iterations_done_in_training:4} of ' \
-                  f'{self.train_context.num_iterations:<4}:'
-            self.api_log(msg + " executing collect_driver.run()")
+        self.log('Starting training...')
+        for iteration in range(train_context.num_iterations):
+            self.on_train_iteration_begin()
+            msg = f'iteration {train_context.iterations_done_in_training:4} of {train_context.num_iterations:<4}'
+            self.api_log('collect_driver.run', msg)
             collect_driver.run()
 
-            self.api_log(msg + " executing replay_buffer.gather_all()")
+            self.api_log('replay_buffer.gather_all', msg)
             trajectories = replay_buffer.gather_all()
 
-            self.api_log(msg + " executing tf_agent.train(...)")
+            self.api_log('tf_agent.train', msg)
             total_loss, _ = tf_agent.train(experience=trajectories)
 
-            self.api_log(msg + " executing replay_buffer.clear()")
+            self.api_log('replay_buffer.clear', msg)
             replay_buffer.clear()
 
             self.on_train_iteration_end(total_loss)
-            if self.train_context.training_done:
+            if train_context.training_done:
                 break
         return
 
@@ -166,9 +163,12 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
         Serves as a factory to create algorithm specific wrappers for the TfAgents implementations.
     """
 
+    name = 'tfagents'
+
     def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore.BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation.
 
             If this backend does not implement PpoAgent then throw a NotImplementedError exception.
         """
         return TfPpoAgent(model_config=model_config)
+

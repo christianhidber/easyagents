@@ -24,19 +24,29 @@ class BackendAgent(ABC):
         self.model_config = model_config
         self._callbacks: Optional[List[core.AgentCallback]] = []
         self._agent_context: core.AgentContext = core.AgentContext(self.model_config)
-        self._total = monitor._register_gym_monitor(self.model_config.original_env_name)
-        self.model_config.gym_env_name = self._total.gym_env_name
+        self._agent_context.api._totals = monitor._register_gym_monitor(self.model_config.original_env_name)
+        self.model_config.gym_env_name = self._agent_context.api._totals.gym_env_name
 
         self._total_episodes_on_iteration_begin = 0
         self._total_steps_on_iteration_begin = 0
 
-    def api_log(self, msg: str):
-        """Logs msg.
+    def api_log(self, api_target: str, log_msg: Optional[str] = None):
+        """Logs a call to api_target with additional log_msg."""
+        self._agent_context.api.gym_env = None
+        if api_target is None:
+            api_target=''
+        if log_msg is None:
+            log_msg=''
+        for c in self._callbacks:
+            c.on_api_log(self._agent_context, api_target, log_msg=log_msg)
 
-            Hint:
-            o may be propgated to the api_callbacks in a later version (19Q3)
-        """
-        logging.debug(msg)
+    def log(self, log_msg: str):
+        """Logs msg."""
+        self._agent_context.api.gym_env = None
+        if log_msg is None:
+            log_msg=''
+        for c in self._callbacks:
+            c.on_log(self._agent_context, log_msg=log_msg)
 
     def _on_gym_init_begin(self):
         """called when the monitored environment begins the instantiation of a new gym environment.
@@ -118,8 +128,8 @@ class BackendAgent(ABC):
 
     def on_train_iteration_begin(self):
         """Must be called by train_implementation at the begining of a new iteration"""
-        self._total_episodes_on_iteration_begin = self._total.episodes_done
-        self._total_steps_on_iteration_begin = self._total.steps_done
+        self._total_episodes_on_iteration_begin = self._agent_context.api._totals.episodes_done
+        self._total_steps_on_iteration_begin = self._agent_context.api._totals.steps_done
         self._agent_context.train.episodes_done_in_iteration = 0
         self._agent_context.train.steps_done_in_iteration = 0
 
@@ -133,16 +143,19 @@ class BackendAgent(ABC):
             iteration_loss: loss after the training of the model in this iteration
         """
         tc = self._agent_context.train
-        tc.episodes_done_in_iteration = (self._total.episodes_done - self._total_episodes_on_iteration_begin)
+        totals=self._agent_context.api._totals
+        tc.episodes_done_in_iteration = (totals.episodes_done - self._total_episodes_on_iteration_begin)
         tc.episodes_done_in_training += tc.episodes_done_in_iteration
-        tc.steps_done_in_iteration = (self._total.steps_done - self._total_steps_on_iteration_begin)
+        tc.steps_done_in_iteration = (totals.steps_done - self._total_steps_on_iteration_begin)
         tc.steps_done_in_training += tc.steps_done_in_iteration
         tc.loss[tc.episodes_done_in_training] = iteration_loss
+        tc.iterations_done_in_training += 1
+        if tc.num_iterations is not None:
+            tc.training_done = tc.iterations_done_in_training >= tc.num_iterations
 
         for c in self._callbacks:
             c.on_train_iteration_end(self._agent_context)
 
-        tc.iterations_done_in_training += 1
 
     def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback]):
         """
