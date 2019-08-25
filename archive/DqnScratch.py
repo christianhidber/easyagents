@@ -21,7 +21,6 @@ from easyagents.easyenv import _EasyEnv
 from easyagents.tfagents import CustomActorDistributionNetwork
 
 
-
 class DqnAgent(TfAgent):
     """ creates a new agent based on the DQN algorithm using the tfagents implementation.
         DQN stands for deep Q-network and was developed by deepmind combining deep neural
@@ -87,31 +86,32 @@ class DqnAgent(TfAgent):
         return
 
     def _train(self):
+
         py_env = suite_gym.load("Orso-v1")
         train_env = tf_py_environment.TFPyEnvironment(py_env)
 
+        observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
-        observation_spec=train_env.observation_spec()
-        time_spec=train_env.time_step_spec()
-        q_net = q_network.QNetwork(observation_spec,action_spec(), fc_layer_params=(500,500))
+        q_net = q_network.QNetwork(observation_spec, action_spec(), fc_layer_params=(500, 500))
+
 
         optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=self._learning_rate)
+        time_spec = train_env.time_step_spec()
         tf_agent = dqn_agent.DqnAgent(time_spec, action_spec, q_network=q_net, optimizer=optimizer)
         tf_agent.initialize()
 
-        replay_buffer = TFUniformReplayBuffer(data_spec=tf_agent.collect_data_spec,batch_size=64,max_length=100000)
+        replay_buffer = TFUniformReplayBuffer(data_spec=tf_agent.collect_data_spec, batch_size=64, max_length=100000)
         random_policy = random_tf_policy.RandomTFPolicy(time_spec, action_spec)
         preload_driver = DynamicEpisodeDriver(env=train_env, policy=random_policy, observers=[replay_buffer.add_batch],
                                               num_episodes=1000)
         preload_driver.run()
 
         driver = DynamicEpisodeDriver(env=train_env, policy=self._trained_policy, observers=[replay_buffer.add_batch])
-        dataset = replay_buffer.as_dataset(num_parallel_calls=3,sample_batch_size=64,num_steps=2).prefetch(3)
+        dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=64, num_steps=2).prefetch(3)
         iter_dataset = iter(dataset)
         for iteration in range(1, 20000):
             driver.run()
 
-            for t in range(1,self._training.num_epochs_per_iteration+1):
+            for t in range(1, self._training.num_epochs_per_iteration + 1):
                 trajectories, _ = next(iter_dataset)
                 tf_agent.train(experience=trajectories)
-        return
