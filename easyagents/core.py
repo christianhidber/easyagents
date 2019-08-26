@@ -185,9 +185,9 @@ class PlayContext(object):
             num_episodes: number of episodes to play, unlimited if None
             max_steps_per_episode: maximum number of steps per episode, unlimited if None
             play_done: if true the play loop is terminated at the end of the current episode
-            current_episode: the number of episodes played (including the current episode).
-            current_steps_in_episode: the number of steps taken in the current episode.
-            current_steps: the number of steps played (over all episodes so far)
+            episodes_done: the number of episodes played (including the current episode).
+            steps_done_in_episode: the number of steps taken in the current episode.
+            steps_done: the number of steps played (over all episodes so far)
             rewards: dict containg for each episode the reward received in each step
             gym_env: the gym environment used to play
     """
@@ -205,9 +205,9 @@ class PlayContext(object):
             self.max_steps_per_episode = train_context.max_steps_per_episode
 
         self.play_done: bool
-        self.current_episode: int
-        self.current_steps_in_episode: int
-        self.current_steps: int
+        self.episodes_done: int
+        self.steps_done_in_episode: int
+        self.steps_done: int
         self.rewards: Dict[int, List[float]]
         self.gym_env: gym.core.Env
         self._reset()
@@ -220,9 +220,9 @@ class PlayContext(object):
     def _reset(self):
         """Clears all values modified during a train() call."""
         self.play_done: bool = False
-        self.current_episode: int = 0
-        self.current_steps_in_episode: int = 0
-        self.current_steps: int = 0
+        self.episodes_done: int = 0
+        self.steps_done_in_episode: int = 0
+        self.steps_done: int = 0
         self.rewards: Dict[int, List[float]] = dict()
         self.gym_env = None
 

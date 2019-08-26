@@ -29,6 +29,19 @@ class BackendAgent(bcore.BackendAgent):
         super().__init__(model_config)
         self.action = action
 
+    def play_implementation(self, play_context: core.PlayContext):
+        env = gym.make(self.model_config.gym_env_name)
+        for i in range(play_context.num_episodes):
+            self.on_play_episode_begin()
+            env.reset()
+            if self.action is not None:
+                done = False
+                while not done:
+                    (observation, reward, done, info) = env.step(self.action)
+            self.on_play_episode_end()
+            if play_context.play_done:
+                break
+
     def train_implementation(self, train_context: core.TrainContext):
         env = gym.make(self.model_config.gym_env_name)
         for i in range(train_context.num_iterations):
@@ -40,3 +53,8 @@ class BackendAgent(bcore.BackendAgent):
                     while not done:
                         (observation, reward, done, info) = env.step(self.action)
             self.on_train_iteration_end(0)
+            if train_context.training_done:
+                break
+
+
+
