@@ -1,5 +1,7 @@
 """This module contains the backend implementation for tf Agents (see https://github.com/tensorflow/agents)"""
 
+from typing import Optional
+
 import easyagents.agents
 from easyagents import core
 from easyagents.backends import core as bcore
@@ -16,6 +18,7 @@ from tf_agents.networks import actor_distribution_network
 from tf_agents.networks import value_network
 from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
 from tf_agents.utils import common
+
 
 # noinspection PyUnresolvedReferences
 class TfAgent(bcore.BackendAgent):
@@ -39,12 +42,20 @@ class TfAgent(bcore.BackendAgent):
             tf.compat.v1.set_random_seed(self.model_config.seed)
         return
 
-    def _create_tfagent_env(self, train_context: core.TrainContext) -> tf_py_environment.TFPyEnvironment:
-        """ creates a new instance of the gym environment and wraps it in a tfagent TFPyEnvironment"""
+    def _create_tfagent_env(self, max_steps_per_episode: Optional[int],
+                            discount: float = 1) -> tf_py_environment.TFPyEnvironment:
+        """ creates a new instance of the gym environment and wraps it in a tfagent TFPyEnvironment
+
+            Args:
+                max_steps_per_episode: the max number of steps in an episode (or None for no limit)
+                discount: the reward discount factor
+        """
+        assert max_steps_per_episode is None or max_steps_per_episode > 0, "maxsteps not admissible"
+        assert 0 < discount <= 1, "discount not admissible"
+
         self.api_log(f'creating TFPyEnvironment( suite_gym.load( ... ) )')
-        py_env = suite_gym.load(self.model_config.gym_env_name,
-                                discount=train_context.reward_discount_gamma,
-                                max_episode_steps=train_context.max_steps_per_episode)
+        py_env = suite_gym.load(self.model_config.gym_env_name, discount=discount,
+                                max_episode_steps=max_steps_per_episode)
         result = tf_py_environment.TFPyEnvironment(py_env)
         return result
 
@@ -59,9 +70,6 @@ class TfAgent(bcore.BackendAgent):
         result = tf_py_env.pyenv.envs[0]._env.gym
         assert isinstance(result, monitor._MonitorEnv), "passed TFPyEnvironment does not contain a _MonitorEnv"
         return result
-
-    def train_implementation(self, train_context: core.TrainContext):
-        pass
 
 
 # noinspection PyUnresolvedReferences
@@ -92,12 +100,33 @@ class TfPpoAgent(TfAgent):
 
     def __init__(self, model_config: core.ModelConfig):
         super().__init__(model_config=model_config)
+        self._gym_eval_env: gym.Env = None
+
+    def play_implementation(self, play_context: core.PlayContext):
+        """Agent specific implementation of playing a single episode with the current policy.
+
+            Args:
+                play_context: play configuration to be used
+        """
+        assert play_context, "play_context not set."
+        assert self._trained_policy, "trained_policy not set."
+
+        if self._gym_eval_env is None:
+            self._gym_eval_env = self._create_tfagent_env(max_steps_per_episode=play_context.max_steps_per_episode)
+
+        time_step = self._gym_eval_env.reset()
+        while True:
+            action_step = self._trained_policy.action(time_step)
+            time_step = self._gym_eval_env.step(action_step.action)
+            if play_context.play_done:
+                break
 
     # noinspection DuplicatedCode
     def train_implementation(self, train_context: core.TrainContext):
         """Tf-Agents Ppo Implementation of the train loop."""
         self.log('Creating environment...')
-        train_env = self._create_tfagent_env(train_context=train_context)
+        train_env = self._create_tfagent_env(max_steps_per_episode=train_context.max_steps_per_episode,
+                                             discount=train_context.reward_discount_gamma)
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
@@ -136,7 +165,7 @@ class TfPpoAgent(TfAgent):
         tf_agent.train = common.function(tf_agent.train, autograph=False)
 
         self.log('Starting training...')
-        for iteration in range(train_context.num_iterations):
+        while True:
             self.on_train_iteration_begin()
             msg = f'iteration {train_context.iterations_done_in_training:4} of {train_context.num_iterations:<4}'
             self.api_log('collect_driver.run', msg)
@@ -172,4 +201,3 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
             If this backend does not implement PpoAgent then throw a NotImplementedError exception.
         """
         return TfPpoAgent(model_config=model_config)
-
