@@ -177,7 +177,7 @@ class PlayContext(object):
         The EasyAgent.play() method proceeds (roughly) as follow:
 
         for e in num_episodes
-            play (while current_steps_in_episode < max_steps_per_episode)
+            play (while steps_done_in_episode < max_steps_per_episode)
             if playing_done
                 break
 
@@ -336,11 +336,21 @@ class AgentCallback(ABC):
     def on_play_end(self, agent_context: AgentContext):
         """Called once before exiting an agent.play() call (during play or eval, but not train)"""
 
-    def on_play_step_begin(self, agent_context: AgentContext):
-        """Called once before a new step is taken in the current episode (during play or eval, but not train). """
+    def on_play_step_begin(self, agent_context: AgentContext, action):
+        """Called once before a new step is taken in the current episode (during play or eval, but not train).
 
-    def on_play_step_end(self, agent_context: AgentContext):
-        """Called once after a step is completed in the current episode (during play or eval, but not train)."""
+            Args:
+                 agent_context: the context describing the agents current configuration
+                 action: the action to be passed to the upcoming gym_env.step call
+        """
+
+    def on_play_step_end(self, agent_context: AgentContext, action, step_result: Tuple):
+        """Called once after a step is completed in the current episode (during play or eval, but not train).
+
+        Args:
+            gym_env: the gym_env the last step was done on
+            step_reuslt: the result (state, reward, done, info) of the last step call
+        """
 
     def on_train_begin(self, agent_context: AgentContext):
         """Called once at the entry of an agent.train() call. """
