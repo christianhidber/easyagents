@@ -1,7 +1,8 @@
 """This module contains the backend implementation for tf Agents (see https://github.com/tensorflow/agents)"""
-
+from abc import ABCMeta
 from typing import Optional
 
+# noinspection PyUnresolvedReferences
 import easyagents.agents
 from easyagents import core
 from easyagents.backends import core as bcore
@@ -21,7 +22,7 @@ from tf_agents.utils import common
 
 
 # noinspection PyUnresolvedReferences
-class TfAgent(bcore.BackendAgent):
+class TfAgent(bcore.BaseBackendAgent, metaclass=ABCMeta):
     """Reinforcement learning agents based on googles tf_agent implementations
 
         https://github.com/tensorflow/agents
@@ -53,7 +54,7 @@ class TfAgent(bcore.BackendAgent):
         assert max_steps_per_episode is None or max_steps_per_episode > 0, "maxsteps not admissible"
         assert 0 < discount <= 1, "discount not admissible"
 
-        self.api_log(f'creating TFPyEnvironment( suite_gym.load( ... ) )')
+        self.log_api(f'creating TFPyEnvironment( suite_gym.load( ... ) )')
         py_env = suite_gym.load(self.model_config.gym_env_name, discount=discount,
                                 max_episode_steps=max_steps_per_episode)
         result = tf_py_environment.TFPyEnvironment(py_env)
@@ -132,31 +133,31 @@ class TfPpoAgent(TfAgent):
         timestep_spec = train_env.time_step_spec()
 
         # SetUp Optimizer, Networks and PpoAgent
-        self.api_log('AdamOptimizer', 'create')
+        self.log_api('AdamOptimizer', 'create')
         optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=train_context.learning_rate)
 
-        self.api_log('ActorDistributionNetwork', 'create')
+        self.log_api('ActorDistributionNetwork', 'create')
         actor_net = actor_distribution_network.ActorDistributionNetwork(observation_spec, action_spec,
                                                                         fc_layer_params=self.model_config.fc_layers)
-        self.api_log('ValueNetwork', 'create')
+        self.log_api('ValueNetwork', 'create')
         value_net = value_network.ValueNetwork(observation_spec, fc_layer_params=self.model_config.fc_layers)
 
-        self.api_log('PpoAgent', 'create')
+        self.log_api('PpoAgent', 'create')
         tf_agent = ppo_agent.PPOAgent(timestep_spec, action_spec, optimizer,
                                       actor_net=actor_net, value_net=value_net,
                                       num_epochs=train_context.num_epochs_per_iteration)
-        self.api_log('tf_agent.initialize()')
+        self.log_api('tf_agent.initialize()')
         tf_agent.initialize()
         self._trained_policy = tf_agent.policy
 
         # SetUp Data collection & Buffering
         collect_data_spec = tf_agent.collect_data_spec
-        self.api_log('TFUniformReplayBuffer', 'create')
+        self.log_api('TFUniformReplayBuffer', 'create')
         replay_buffer = TFUniformReplayBuffer(collect_data_spec,
                                               batch_size=1, max_length=train_context.max_steps_in_buffer)
 
         collect_policy = tf_agent.collect_policy
-        self.api_log('DynamicEpisodeDriver', 'create')
+        self.log_api('DynamicEpisodeDriver', 'create')
         collect_driver = DynamicEpisodeDriver(train_env, collect_policy, observers=[replay_buffer.add_batch],
                                               num_episodes=train_context.num_episodes_per_iteration)
 
@@ -168,17 +169,17 @@ class TfPpoAgent(TfAgent):
         while True:
             self.on_train_iteration_begin()
             msg = f'iteration {train_context.iterations_done_in_training:4} of {train_context.num_iterations:<4}'
-            self.api_log('collect_driver.run', msg)
+            self.log_api('collect_driver.run', msg)
             collect_driver.run()
 
-            self.api_log('replay_buffer.gather_all', msg)
+            self.log_api('replay_buffer.gather_all', msg)
             trajectories = replay_buffer.gather_all()
 
-            self.api_log('tf_agent.train', msg)
+            self.log_api('tf_agent.train', msg)
             total_loss, _ = tf_agent.train(experience=trajectories)
             self.log(f'loss={total_loss:6.1f}')
 
-            self.api_log('replay_buffer.clear', msg)
+            self.log_api('replay_buffer.clear', msg)
             replay_buffer.clear()
 
             self.on_train_iteration_end(total_loss)

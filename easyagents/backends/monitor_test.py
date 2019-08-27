@@ -9,9 +9,11 @@ import gym
 class MonitorTest(unittest.TestCase):
     def setUp(self):
         self.env_name = 'CartPole-v0'
-        monitor._MonitorEnv._monitor_total_counts[self.env_name] = monitor._MonitorTotalCounts(self.env_name)
+        if self.env_name in monitor._MonitorEnv._monitor_total_counts:
+            monitor._MonitorEnv._monitor_total_counts[self.env_name] = monitor._MonitorTotalCounts(self.env_name)
         self.total = monitor._register_gym_monitor(self.env_name)
         self.env: monitor._MonitorEnv = monitor._get(gym.make(self.total.gym_env_name))
+        self.env.reset()
 
     def tearDown(self):
         monitor._MonitorEnv._register_backend_agent(None)
@@ -21,6 +23,16 @@ class MonitorTest(unittest.TestCase):
         assert self.env
         assert self.env.total.instances_created == 1
         assert self.env.gym_env_name == self.env_name
+
+    def test_max_steps_per_episode(self):
+        self.env.max_steps_per_episode = 3
+        while True:
+            (state, reward, done, info) = self.env.step(1)
+            if done:
+                break
+            if self.env.steps_done_in_episode > 1000:
+                break
+        assert self.env.steps_done_in_episode == 3
 
     def test_register_gym_monitor(self):
         assert self.env_name == self.total._original_env_name

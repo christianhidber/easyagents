@@ -85,10 +85,10 @@ class _MonitorEnv(gym.Wrapper):
         instance: unique id among all monitor instances for the given gym_env
         total: statistics over all monitor instances for the given gym_env
         episodes_done: the number of episodes completed in this instance (episode reached done or was resetted)
-        episode_sum_of_rewards: the sum of rewards over all steps in the current episode
         is_episode_done: true if the current episode is done (and a new episode isn't started yet with reset())
         steps_done_in_episode: the number of steps completed in the current episode
         steps_done_in_instance: the total number of steps in this instance
+        max_steps_per_episode: the max number of steps in an episode (None if unlimited)
     """
 
     _NAME_PREFIX = "_MonitorEnv_"
@@ -119,7 +119,7 @@ class _MonitorEnv(gym.Wrapper):
         self.steps_done_in_instance: int = 0
         self.episodes_done: int = 0
         self.steps_done_in_episode: int = 0
-        self.episode_sum_of_rewards: float = 0
+        self.max_steps_per_episode: Optional[int] = None
         self.is_episode_done: bool = False
         self.instance_id = self.total.instances_created
         self._backend_agent: Optional[bcore.BackendAgent] = _MonitorEnv._backend_agent
@@ -130,52 +130,55 @@ class _MonitorEnv(gym.Wrapper):
         super().__init__(gym_env)
         self.total.instances_created_inc()
         if self._backend_agent:
-            self._backend_agent._on_gym_init_end(self.env)
+            self._backend_agent._on_gym_init_end(self)
 
     def reset(self, **kwargs):
         """performs a reset on the wrapped environment."""
         if self._backend_agent:
-            self._backend_agent._on_gym_reset_begin(self.env, **kwargs)
+            self._backend_agent._on_gym_reset_begin(self, **kwargs)
 
         result = self.env.reset(**kwargs)
         if self.steps_done_in_episode > 0 and not self.is_episode_done:
             self.episodes_done += 1
             self.total.episodes_done_inc()
         self.is_episode_done = False
-        self.episode_sum_of_rewards = 0
         self.steps_done_in_episode = 0
 
         if self._backend_agent:
-            self._backend_agent._on_gym_reset_end(self.env, result, **kwargs)
+            self._backend_agent._on_gym_reset_end(self, result, **kwargs)
         return result
 
     def step(self, action):
         """performs a step on the wrapped environment.
 
         Hint:
-        o the step count is incremented before step_end()
+        o episode is terminated if steps_done_in_episode >= max_steps_per_episode
+
+        Returns:
+            (state, reward, done, info)
         """
         if self._backend_agent:
-            self._backend_agent._on_gym_step_begin(self.env, action)
+            self._backend_agent._on_gym_step_begin(self, action)
 
         result = self.env.step(action)
         (state, reward, done, info) = result
+        self.steps_done_in_episode += 1
+        self.steps_done_in_instance += 1
+        self.total.steps_done_inc()
+        if self.max_steps_per_episode and self.steps_done_in_episode >= self.max_steps_per_episode:
+            done = True
+            result = (state, reward, done, info)
         if not self.is_episode_done and done:
             self.is_episode_done = True
             self.episodes_done += 1
             self.total.episodes_done_inc()
-        self.episode_sum_of_rewards += reward
-        self.steps_done_in_episode += 1
-        self.steps_done_in_instance += 1
-        self.total.steps_done_inc()
 
         if self._backend_agent:
-            self._backend_agent._on_gym_step_end(self.env, action, result)
+            self._backend_agent._on_gym_step_end(self, action, result)
         return result
 
     def __str__(self):
-        return f'[{self.gym_env_name}#{self.instance_id:}] {self.episodes_done:3}#{self.steps_done_in_episode:<3} ' + \
-               f'Σr={self.episode_sum_of_rewards:6.1f}'
+        return f'[{self.gym_env_name}#{self.instance_id:}] {self.episodes_done:3}#{self.steps_done_in_episode:<3} '
 
 
 def _get(env: gym.Env) -> _MonitorEnv:
@@ -194,7 +197,6 @@ def _register_gym_monitor(gym_env_name: str) -> _MonitorTotalCounts:
     """Registers the _MonitorEnv wrapper for the 'gym_env_name' environment.
 
     The wrapper is registered as '_MonitorEnv-<env_name>'.
-    max_episode_steps and reward_threshold are set according to the spec of gym_env_name.
     If the same name is registered more than once, the second and all following calls are noOps.
 
     Args:
@@ -210,12 +212,16 @@ def _register_gym_monitor(gym_env_name: str) -> _MonitorTotalCounts:
     with _MonitorEnv._lock:
         if gym_env_name not in _MonitorEnv._monitor_total_counts:
             result = _MonitorTotalCounts(gym_env_name)
-            gym_spec = gym.envs.registration.spec(gym_env_name)
+
+            gym_spec = None
+            try:
+                gym_spec = gym.envs.registration.spec(gym_env_name)
+            except:
+                pass
+            assert gym_spec, f'no registration found for gym environment {gym_env_name}'
+
             gym.envs.registration.register(id=result.gym_env_name,
                                            entry_point=_MonitorEnv,
-                                           max_episode_steps=gym_spec.max_episode_steps,
-                                           max_episode_seconds=gym_spec.max_episode_seconds,
-                                           reward_threshold=gym_spec.reward_threshold,
                                            kwargs={_MonitorEnv._KWARG_GYM_ENV_NAME: gym_env_name})
             _MonitorEnv._monitor_total_counts[gym_env_name] = result
         else:

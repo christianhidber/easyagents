@@ -31,14 +31,14 @@ class BackendAgent(bcore.BackendAgent):
 
     def play_implementation(self, play_context: core.PlayContext):
         env = gym.make(self.model_config.gym_env_name)
-        for i in range(play_context.num_episodes):
-            self.on_play_episode_begin()
+        while True:
+            self.on_play_episode_begin(env=env)
             env.reset()
             if self.action is not None:
                 done = False
                 while not done:
                     (observation, reward, done, info) = env.step(self.action)
-            self.on_play_episode_end()
+            self.on_play_episode_end(env=env)
             if play_context.play_done:
                 break
 
