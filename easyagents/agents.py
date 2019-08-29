@@ -56,7 +56,7 @@ class EasyAgent(ABC):
 
         self._model_config: core.ModelConfig = model_config
         self._backend: bcore.BackendAgentFactory = _backends[backend_name]
-        self._backend_agent: Optional[bcore.BackendAgent] = None
+        self._backend_agent: Optional[bcore._BackendAgent] = None
         return
 
     def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback] = None):

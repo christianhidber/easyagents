@@ -11,7 +11,7 @@ from easyagents import core
 from easyagents.backends import monitor
 
 
-class BackendAgent(ABC):
+class _BackendAgent(ABC):
     """Base class for all backend agent implementations.
 
         Implements the train loop and calls the Callbacks.
@@ -153,20 +153,16 @@ class BackendAgent(ABC):
         """
         assert isinstance(env, monitor._MonitorEnv), "env not set."
         self._agent_context.play.gym_env = env.env
-        env.max_steps_per_episode = self._agent_context.play.max_steps_per_episode
 
         for c in self._callbacks:
             c.on_play_episode_begin(self._agent_context)
 
-    def on_play_episode_end(self, env: monitor._MonitorEnv):
+    def on_play_episode_end(self):
         """Must be called by play_implementation at the end of an episode
 
         Args:
             env: the gym environment used to play the episode.
         """
-        assert isinstance(env, monitor._MonitorEnv), "env not set."
-        assert self._agent_context.play.gym_env is env.env, "env mismatch."
-
         pc = self._agent_context.play
         pc.episodes_done += 1
         if pc.num_episodes and pc.episodes_done >= pc.num_episodes:
@@ -175,7 +171,6 @@ class BackendAgent(ABC):
         for c in self._callbacks:
             c.on_play_episode_end(self._agent_context)
 
-        env.max_steps_per_episode = None
         pc.gym_env = None
 
 
@@ -310,7 +305,7 @@ class BackendAgent(ABC):
         """
 
 
-class BaseBackendAgent(BackendAgent, metaclass=ABCMeta):
+class BackendAgent(_BackendAgent, metaclass=ABCMeta):
     """Base class for all BackendAgent implementation.
 
         Explicitely exhibits all methods that should be overriden by an implementing agent.
@@ -367,7 +362,7 @@ class BackendAgentFactory(ABC):
     """
 
     @abstractmethod
-    def create_ppo_agent(self, model_config: core.ModelConfig) -> BackendAgent:
+    def create_ppo_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation.
 
             If this backend does not implement PpoAgent then throw a NotImplementedError exception.

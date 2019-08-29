@@ -13,4 +13,4 @@ class LogCallbacksTest(unittest.TestCase):
 
     def test_log_loss(self):
         agent = easyagents.PpoAgent("CartPole-v0")
-        agent.train([LogIterationLoss(), Fast()])
+        agent.train([LogLoss(), Fast()])

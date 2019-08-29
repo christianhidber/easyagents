@@ -4,7 +4,7 @@ import logging
 from easyagents import core
 
 
-class Count(core.AgentCallback):
+class CountCallbacks(core.AgentCallback):
 
     def __init__(self):
         self.gym_init_begin_count = 0
@@ -52,19 +52,19 @@ class Count(core.AgentCallback):
     def on_gym_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         self.gym_step_end_count += 1
 
-    def on_train_begin(self, agent_context: core.TrainContext):
+    def on_train_begin(self, agent_context: core.AgentContext):
         """Called once at the entry of an agent.train() call. """
         self.train_begin_count += 1
 
-    def on_train_end(self, agent_context: core.TrainContext):
+    def on_train_end(self, agent_context: core.AgentContext):
         """Called once before exiting an agent.train() call"""
         self.train_end_count += 1
 
-    def on_train_iteration_begin(self, agent_context: core.TrainContext):
+    def on_train_iteration_begin(self, agent_context: core.AgentContext):
         """Called once at the start of a new iteration. """
         self.train_iteration_begin_count += 1
 
-    def on_train_iteration_end(self, agent_context: core.TrainContext):
+    def on_train_iteration_end(self, agent_context: core.AgentContext):
         """Called once after the current iteration is completed"""
         self.train_iteration_end_count += 1
 
@@ -133,19 +133,38 @@ class LogCallbacks(_LogCallbackBase):
     def on_gym_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         self.log('on_gym_step_end', agent_context)
 
-    def on_train_begin(self, agent_context: core.TrainContext):
+    def on_play_begin(self, agent_context: core.AgentContext):
+        self.log('on_play_begin', agent_context)
+
+    def on_play_end(self, agent_context: core.AgentContext):
+        self.log('on_play_end', agent_context)
+
+    def on_play_episode_begin(self, agent_context: core.AgentContext):
+        self.log('on_play_episode_begin', agent_context)
+
+    def on_play_episode_end(self, agent_context: core.AgentContext):
+        self.log('on_play_episode_end', agent_context)
+
+    def on_play_step_begin(self, agent_context: core.AgentContext, action):
+        self.log('on_play_step_begin', agent_context)
+
+    def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
+        self.log('on_play_step_end', agent_context)
+
+    def on_train_begin(self, agent_context: core.AgentContext):
         self.log('on_train_begin', agent_context)
 
-    def on_train_end(self, agent_context: core.TrainContext):
+    def on_train_end(self, agent_context: core.AgentContext):
         self.log('on_train_end', agent_context)
 
-    def on_train_iteration_begin(self, agent_context: core.TrainContext):
+    def on_train_iteration_begin(self, agent_context: core.AgentContext):
         self.log('on_train_iteration_begin', agent_context)
 
-    def on_train_iteration_end(self, agent_context: core.TrainContext):
+    def on_train_iteration_end(self, agent_context: core.AgentContext):
         self.log('on_train_iteration_end', agent_context)
 
-class LogIterationLoss(_LogCallbackBase):
+
+class LogLoss(_LogCallbackBase):
     """Logs the agents loss after each training iteration to a python logger"""
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
@@ -154,3 +173,17 @@ class LogIterationLoss(_LogCallbackBase):
         self.log(f'iteration {tc.iterations_done_in_training:<3} of {tc.num_iterations:<3}: loss = {loss:>8.3f}')
 
 
+class LogAgent(LogLoss):
+    """Logs agent activities and iteration summaries to a python logger."""
+
+    def on_api_log(self, agent_context: core.AgentContext, api_target: str, log_msg: str):
+        self.log(api_target, log_msg)
+
+    def on_log(self, agent_context: core.AgentContext, log_msg: str):
+        self.log(log_msg)
+
+    def on_play_end(self, agent_context: core.AgentContext):
+        self.log("play.gym_env", agent_context.play.gym_env)
+
+    def on_train_iteration_end(self, agent_context: core.AgentContext):
+        self.log("train", agent_context.train)

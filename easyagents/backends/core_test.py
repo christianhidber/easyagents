@@ -17,7 +17,7 @@ class BackendAgentTest(unittest.TestCase):
 
     def test_play_callbacks(self):
         agent = BackendAgentTest.DebugAgent()
-        count = easyagents.callbacks.log.Count()
+        count = easyagents.callbacks.log.CountCallbacks()
 
     def test_train_emptyArgs(self):
         agent = BackendAgentTest.DebugAgent()
@@ -38,7 +38,7 @@ class BackendAgentTest(unittest.TestCase):
 
     def test_train_callbacks(self):
         agent = BackendAgentTest.DebugAgent()
-        count = easyagents.callbacks.log.Count()
+        count = easyagents.callbacks.log.CountCallbacks()
         train_context = BackendAgentTest._single_train_episode
         train_context.num_iterations = 2
         agent.train(train_context=train_context, callbacks=[count])

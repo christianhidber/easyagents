@@ -13,11 +13,11 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 
     name='debug'
 
-    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore.BackendAgent:
+    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         return BackendAgent(model_config=model_config)
 
 
-class BackendAgent(bcore.BackendAgent):
+class BackendAgent(bcore._BackendAgent):
 
     def __init__(self, model_config: core.ModelConfig, action=None):
         """Simple constant action agent.
@@ -38,7 +38,7 @@ class BackendAgent(bcore.BackendAgent):
                 done = False
                 while not done:
                     (observation, reward, done, info) = env.step(self.action)
-            self.on_play_episode_end(env=env)
+            self.on_play_episode_end()
             if play_context.play_done:
                 break
 

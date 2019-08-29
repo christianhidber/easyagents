@@ -22,7 +22,7 @@ from tf_agents.utils import common
 
 
 # noinspection PyUnresolvedReferences
-class TfAgent(bcore.BaseBackendAgent, metaclass=ABCMeta):
+class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
     """Reinforcement learning agents based on googles tf_agent implementations
 
         https://github.com/tensorflow/agents
@@ -32,8 +32,7 @@ class TfAgent(bcore.BaseBackendAgent, metaclass=ABCMeta):
         super().__init__(model_config=model_config)
         self._initialize()
         self._trained_policy = None
-        self._gym_eval_env = None
-        return
+        self._eval_env = None
 
     def _initialize(self):
         """ initializes TensorFlow behaviour and random seeds."""
@@ -43,24 +42,20 @@ class TfAgent(bcore.BaseBackendAgent, metaclass=ABCMeta):
             tf.compat.v1.set_random_seed(self.model_config.seed)
         return
 
-    def _create_tfagent_env(self, max_steps_per_episode: Optional[int],
-                            discount: float = 1) -> tf_py_environment.TFPyEnvironment:
+    def _create_tfagent_env(self, discount: float = 1) -> tf_py_environment.TFPyEnvironment:
         """ creates a new instance of the gym environment and wraps it in a tfagent TFPyEnvironment
 
             Args:
-                max_steps_per_episode: the max number of steps in an episode (or None for no limit)
                 discount: the reward discount factor
         """
-        assert max_steps_per_episode is None or max_steps_per_episode > 0, "maxsteps not admissible"
         assert 0 < discount <= 1, "discount not admissible"
 
         self.log_api(f'creating TFPyEnvironment( suite_gym.load( ... ) )')
-        py_env = suite_gym.load(self.model_config.gym_env_name, discount=discount,
-                                max_episode_steps=max_steps_per_episode)
+        py_env = suite_gym.load(self.model_config.gym_env_name, discount=discount)
         result = tf_py_environment.TFPyEnvironment(py_env)
         return result
 
-    def _get_monitor_env(self, tf_py_env: tf_py_environment.TFPyEnvironment) -> monitor._MonitorEnv:
+    def _get_gym_env(self, tf_py_env: tf_py_environment.TFPyEnvironment) -> monitor._MonitorEnv:
         """ extracts the underlying _MonitorEnv from tf_py_env created by _create_tfagent_env"""
         assert isinstance(tf_py_env, tf_py_environment.TFPyEnvironment), \
             "passed tf_py_env is not an instance of TFPyEnvironment"
@@ -71,6 +66,28 @@ class TfAgent(bcore.BaseBackendAgent, metaclass=ABCMeta):
         result = tf_py_env.pyenv.envs[0]._env.gym
         assert isinstance(result, monitor._MonitorEnv), "passed TFPyEnvironment does not contain a _MonitorEnv"
         return result
+
+    def play_implementation(self, play_context: core.PlayContext):
+        """Agent specific implementation of playing a single episode with the current policy.
+
+            Args:
+                play_context: play configuration to be used
+        """
+        assert play_context, "play_context not set."
+        assert self._trained_policy, "trained_policy not set."
+
+        if self._eval_env is None:
+            self._eval_env = self._create_tfagent_env()
+        gym_env = self._get_gym_env(self._eval_env)
+        while True:
+            self.on_play_episode_begin(env=gym_env)
+            time_step = self._eval_env.reset()
+            while not time_step.is_last():
+                action_step = self._trained_policy.action(time_step)
+                time_step = self._eval_env.step(action_step.action)
+            self.on_play_episode_end()
+            if play_context.play_done:
+                break
 
 
 # noinspection PyUnresolvedReferences
@@ -101,33 +118,12 @@ class TfPpoAgent(TfAgent):
 
     def __init__(self, model_config: core.ModelConfig):
         super().__init__(model_config=model_config)
-        self._gym_eval_env: gym.Env = None
-
-    def play_implementation(self, play_context: core.PlayContext):
-        """Agent specific implementation of playing a single episode with the current policy.
-
-            Args:
-                play_context: play configuration to be used
-        """
-        assert play_context, "play_context not set."
-        assert self._trained_policy, "trained_policy not set."
-
-        if self._gym_eval_env is None:
-            self._gym_eval_env = self._create_tfagent_env(max_steps_per_episode=play_context.max_steps_per_episode)
-
-        time_step = self._gym_eval_env.reset()
-        while True:
-            action_step = self._trained_policy.action(time_step)
-            time_step = self._gym_eval_env.step(action_step.action)
-            if play_context.play_done:
-                break
 
     # noinspection DuplicatedCode
     def train_implementation(self, train_context: core.TrainContext):
         """Tf-Agents Ppo Implementation of the train loop."""
         self.log('Creating environment...')
-        train_env = self._create_tfagent_env(max_steps_per_episode=train_context.max_steps_per_episode,
-                                             discount=train_context.reward_discount_gamma)
+        train_env = self._create_tfagent_env(discount=train_context.reward_discount_gamma)
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
@@ -196,7 +192,7 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 
     name = 'tfagents'
 
-    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore.BackendAgent:
+    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation.
 
             If this backend does not implement PpoAgent then throw a NotImplementedError exception.

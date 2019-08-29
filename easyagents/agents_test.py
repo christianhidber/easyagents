@@ -47,7 +47,7 @@ class TfAgentsPpoAgentTest(unittest.TestCase):
 
     def test_train(self):
         ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend_name='tfagents')
-        count = easyagents.callbacks.log.Count()
+        count = easyagents.callbacks.log.CountCallbacks()
         ppo.train([easyagents.callbacks.log.LogCallbacks(), count, SingleEpisode()])
 
 
