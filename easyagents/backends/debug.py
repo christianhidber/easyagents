@@ -8,7 +8,6 @@ from easyagents import core
 from easyagents.backends import core as bcore
 import gym
 
-
 class BackendAgentFactory(bcore.BackendAgentFactory):
 
     name='debug'

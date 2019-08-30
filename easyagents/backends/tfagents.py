@@ -63,7 +63,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
             "passed TFPyEnvironment.pyenv does not contain a PyEnvironment"
         assert len(tf_py_env.pyenv.envs) == 1, "passed TFPyEnvironment.pyenv does not contain a unique environment"
 
-        result = tf_py_env.pyenv.envs[0]._env.gym
+        result = tf_py_env.pyenv.envs[0].gym
         assert isinstance(result, monitor._MonitorEnv), "passed TFPyEnvironment does not contain a _MonitorEnv"
         return result
 
@@ -173,7 +173,7 @@ class TfPpoAgent(TfAgent):
 
             self.log_api('tf_agent.train', msg)
             total_loss, _ = tf_agent.train(experience=trajectories)
-            self.log(f'loss={total_loss:6.1f}')
+            self.log_api('', f'loss={total_loss:6.1f}')
 
             self.log_api('replay_buffer.clear', msg)
             replay_buffer.clear()

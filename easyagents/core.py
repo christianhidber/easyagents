@@ -111,10 +111,10 @@ class TrainContext(object):
             num_iterations_between_eval: number of training iterations before the current policy is evaluated.
                 if 0 no evaluation is performed.
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
-            eval_average_rewards: dict containg the rewards statistics for each policy evaluation.
+            eval_rewards: dict containg the rewards statistics for each policy evaluation.
                 Each entry contains the tuple (min, average, max) over the sum of rewardsover all episodes
                 played for the current evaluation. The dict is indexed by the current_episode.
-            eval_average_steps: dict containg the steps statistics for each policy evaluation.
+            eval_steps: dict containg the steps statistics for each policy evaluation.
                 Each entry contains the tuple (min, average, max) over the number of step over all episodes
                 played for the current evaluation. The dict is indexed by the current_episode.
     """
@@ -137,14 +137,15 @@ class TrainContext(object):
         self.steps_done_in_training: int
         self.steps_done_in_iteration = 0
         self.loss: Dict[int, float]
-        self.eval_average_rewards: Dict[int, Tuple[float, float, float]]
-        self.eval_average_steps: Dict[int, Tuple[float, float, float]]
+        self.eval_rewards: Dict[int, Tuple[float, float, float]]
+        self.eval_steps: Dict[int, Tuple[float, float, float]]
         self._reset()
 
     def __str__(self):
-        return f'done={self.training_done} ' + \
-               f'#iterations={self.iterations_done_in_training} ' + \
-               f'#episodes={self.episodes_done_in_iteration} '
+        return f'training_done={self.training_done} ' + \
+               f'#iterations_done_in_training={self.iterations_done_in_training} ' + \
+               f'#episodes_done_in_iteration={self.episodes_done_in_iteration} ' + \
+               f'#steps_done_in_iteration={self.steps_done_in_iteration} '
 
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
@@ -166,8 +167,8 @@ class TrainContext(object):
         self.steps_done_in_training = 0
         self.steps_done_in_iteration = 0
         self.loss = dict()
-        self.eval_average_rewards = dict()
-        self.eval_average_steps = dict()
+        self.eval_rewards = dict()
+        self.eval_steps = dict()
 
 
 class PlayContext(object):
@@ -188,11 +189,14 @@ class PlayContext(object):
             episodes_done: the number of episodes played (including the current episode).
             steps_done_in_episode: the number of steps taken in the current episode.
             steps_done: the number of steps played (over all episodes so far)
-            rewards: dict containg for each episode the reward received in each step
+
+            actions: dict containing for each episode the actions taken in each step
+            rewards: dict containing for each episode the rewards received in each step
+            sum_of_rewards: dict containing for each episode the sum of rewards over all steps
             gym_env: the gym environment used to play
     """
 
-    def __init__(self, train_context: Optional[TrainContext]):
+    def __init__(self, train_context: Optional[TrainContext] = None):
         """
         Args:
              train_context: if set num_episodes, max_steps_per_episode and seed are set from train_context
@@ -208,8 +212,10 @@ class PlayContext(object):
         self.episodes_done: int
         self.steps_done_in_episode: int
         self.steps_done: int
+        self.actions: Dict[int, List[object]]
         self.rewards: Dict[int, List[float]]
-        self.gym_env: gym.core.Env
+        self.sum_of_rewards: Dict[int, float]
+        self.gym_env: Optional[gym.core.Env]
         self._reset()
 
     def _validate(self):
@@ -223,8 +229,10 @@ class PlayContext(object):
         self.episodes_done: int = 0
         self.steps_done_in_episode: int = 0
         self.steps_done: int = 0
+        self.actions: Dict[int, List[object]] = dict()
         self.rewards: Dict[int, List[float]] = dict()
-        self.gym_env = None
+        self.sum_of_rewards: Dict[int, float] = dict()
+        self.gym_env: Optional[gym.core.Env] = None
 
 
 class AgentContext(object):

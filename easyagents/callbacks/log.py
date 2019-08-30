@@ -69,7 +69,6 @@ class CountCallbacks(core.AgentCallback):
         self.train_iteration_end_count += 1
 
 
-
 class _LogCallbackBase(core.AgentCallback):
     """Base class for Callback loggers"""
 
@@ -87,12 +86,13 @@ class _LogCallbackBase(core.AgentCallback):
         if self._prefix is None:
             self._prefix = ''
 
-    def log(self, id: str, *args):
-        msg = self._prefix + f'{id:<25}'
+    def log(self, msg_id: str, *args):
+        msg = self._prefix + f'{msg_id:<25}'
         for arg in args:
             if arg is not None:
                 msg += str(arg) + ' '
         self._logger.warning(msg)
+
 
 class LogCallbacks(_LogCallbackBase):
     """Logs all AgentCallback calls to a Logger"""
@@ -164,17 +164,8 @@ class LogCallbacks(_LogCallbackBase):
         self.log('on_train_iteration_end', agent_context)
 
 
-class LogLoss(_LogCallbackBase):
-    """Logs the agents loss after each training iteration to a python logger"""
-
-    def on_train_iteration_end(self, agent_context: core.AgentContext):
-        tc = agent_context.train
-        loss = tc.loss[tc.episodes_done_in_training]
-        self.log(f'iteration {tc.iterations_done_in_training:<3} of {tc.num_iterations:<3}: loss = {loss:>8.3f}')
-
-
-class LogAgent(LogLoss):
-    """Logs agent activities and iteration summaries to a python logger."""
+class LogAgent(_LogCallbackBase):
+    """Logs agent activities to a python logger."""
 
     def on_api_log(self, agent_context: core.AgentContext, api_target: str, log_msg: str):
         self.log(api_target, log_msg)
@@ -182,8 +173,46 @@ class LogAgent(LogLoss):
     def on_log(self, agent_context: core.AgentContext, log_msg: str):
         self.log(log_msg)
 
-    def on_play_end(self, agent_context: core.AgentContext):
-        self.log("play.gym_env", agent_context.play.gym_env)
+
+class LogIteration(_LogCallbackBase):
+    """Logs training iteration summaries to a python logger."""
+
+    def log_iteration(self, agent_context: core.AgentContext):
+        tc = agent_context.train
+        e = tc.episodes_done_in_training
+        msg = f'episodes_done={e:<3} '
+        if e in tc.loss:
+            msg = msg + f'loss={tc.loss[e]:6.1f} '
+        if e in tc.eval_rewards:
+            r = tc.eval_rewards[e]
+            msg = msg + f'rewards=({r[0]:.1f},{r[1]:.1f},{r[2]:.1f}) '
+        if e in tc.eval_steps:
+            s = tc.eval_steps[e]
+            msg = msg + f'steps=({s[0]:.1f},{s[1]:.1f},{s[2]:.1f}) '
+        self.log(f'iteration {tc.iterations_done_in_training} of {tc.num_iterations} {msg}')
+
+    def on_train_iteration_begin(self, agent_context: core.AgentContext):
+        tc = agent_context.train
+        if 0 in tc.eval_rewards and tc.episodes_done_in_training == 0:
+            self.log_iteration(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
-        self.log("train", agent_context.train)
+        self.log_iteration(agent_context)
+
+class LogStep(_LogCallbackBase):
+    """Logs each environment step to a python logger."""
+
+    def on_gym_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
+        prefix = ''
+        tc = agent_context.train
+        if tc:
+            prefix = f'train iteration={tc.iterations_done_in_training:<2} step={tc.steps_done_in_iteration:<4}'
+        pc = agent_context.play
+        if pc:
+            prefix = f'play  episode={pc.episodes_done:<2} step={pc.steps_done_in_episode:<5} ' + \
+                     f'sum_of_rewards={pc.sum_of_rewards[pc.episodes_done]:<7.1f}'
+        (observation, reward, done, info) = step_result
+        msg = ''
+        if info:
+            msg = f' info={msg}'
+        self.log(f'{prefix} reward={reward:<5.1f} done={str(done):5} action={action} observation={observation}{msg}')

@@ -1,14 +1,16 @@
 import unittest
 
 import easyagents.core as core
+import easyagents.env
 import easyagents.backends.monitor as monitor
 import easyagents.backends.debug as debug
 import gym
 
 
 class MonitorTest(unittest.TestCase):
+
     def setUp(self):
-        self.env_name = 'CartPole-v0'
+        self.env_name = easyagents.env._StepCountEnv.register_with_gym()
         if self.env_name in monitor._MonitorEnv._monitor_total_counts:
             monitor._MonitorEnv._monitor_total_counts[self.env_name] = monitor._MonitorTotalCounts(self.env_name)
         self.total = monitor._register_gym_monitor(self.env_name)

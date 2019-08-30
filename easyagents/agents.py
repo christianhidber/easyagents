@@ -59,6 +59,24 @@ class EasyAgent(ABC):
         self._backend_agent: Optional[bcore._BackendAgent] = None
         return
 
+    def play(self, play_context: core.PlayContext, callbacks: List[core.AgentCallback] = None):
+        """Plays episodes with the current policy according to play_context.
+
+        Hints:
+        o updates rewards in play_context
+
+        Args:
+            play_context: specifies the num of episodes to play
+            callbacks: list of callbacks called during the play of the episodes
+        """
+        assert play_context, "play_context not set."
+        if callbacks is None:
+            callbacks = []
+        if not isinstance(callbacks, list):
+            assert isinstance(callbacks, core.AgentCallback), "callback not a AgentCallback or a list thereof."
+            callbacks = [callbacks]
+        self._backend_agent.play(play_context=play_context, callbacks=callbacks)
+
     def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback] = None):
         """Trains a new model using the gym environment passed during instantiation.
 
@@ -66,12 +84,12 @@ class EasyAgent(ABC):
             callbacks: list of callbacks called during the training and evaluation
             train_context: training configuration to be used (num_iterations,num_episodes_per_iteration,...)
         """
-        assert train_context is not None
+        assert train_context, "train_context not set."
         if callbacks is None:
             callbacks = []
-        if not isinstance(callbacks,list):
-            assert isinstance(callbacks,core.AgentCallback), "callback not a AgentCallback or a list thereof."
-            callbacks=[callbacks]
+        if not isinstance(callbacks, list):
+            assert isinstance(callbacks, core.AgentCallback), "callback not a AgentCallback or a list thereof."
+            callbacks = [callbacks]
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
 
@@ -104,6 +122,25 @@ class PpoAgent(EasyAgent):
         self._backend_agent = self._backend.create_ppo_agent(self._model_config)
         return
 
+    def play(self,
+             callbacks: List[core.AgentCallback] = None,
+             num_episodes: int = 1,
+             max_steps_per_episode: int = 1000,
+             play_context: core.PlayContext = None):
+        """Plays num_episodes with the current policy.
+
+            Args:
+               callbacks: list of callbacks called during each episode play
+               num_episodes: number of episodes to play
+               max_steps_per_episode: max steps per episode
+               play_context: play configuration to be used. If set override all other play context arguments
+        """
+        if play_context is None:
+            play_context = core.PlayContext()
+            play_context.max_steps_per_episode=max_steps_per_episode
+            play_context.num_episodes=num_episodes
+        super().play(play_context=play_context,callbacks=callbacks)
+
     def train(self,
               callbacks: List[core.AgentCallback] = None,
               num_iterations: int = 1000,
@@ -122,7 +159,6 @@ class PpoAgent(EasyAgent):
             num_epochs_per_iteration: number of times the data collected for the current iteration
                 is used to retrain the current policy.
             learning_rate: the learning rate used in the next iteration's policy training (0,1]
-
             train_context: training configuration to be used. if set overrides all other training context arguments.
         """
         if train_context is None:
