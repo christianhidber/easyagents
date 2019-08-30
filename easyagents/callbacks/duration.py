@@ -34,3 +34,4 @@ class SingleEpisode(core.AgentCallback):
         train.num_episodes_per_iteration = 1
         train.num_iterations_between_eval = 0
         train.max_steps_per_episode = self.max_steps
+        train.num_iterations_between_eval = 0
