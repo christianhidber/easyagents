@@ -1,4 +1,3 @@
-from .duration import Fast
-from .duration import SingleEpisode
-from .log import LogCallbacks
-from .log import LogIteration
+from .duration import Fast, SingleEpisode
+from .log import LogCallbacks, LogIteration, LogStep, LogAgent
+from easyagents.callbacks.log import LogCallbacks, LogIteration, LogStep, LogAgent

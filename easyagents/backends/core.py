@@ -9,6 +9,7 @@ import gym
 
 from easyagents import core
 from easyagents.backends import monitor
+from easyagents.callbacks import plot
 
 
 class _BackendEvalCallback(core.AgentCallback):
@@ -25,7 +26,7 @@ class _BackendEvalCallback(core.AgentCallback):
         tc = self._train_contex
         sum_of_r = pc.sum_of_rewards.values()
         tc.eval_rewards[tc.episodes_done_in_training] = (
-        min(sum_of_r), sum(sum_of_r) / len(sum_of_r), max(sum_of_r))
+            min(sum_of_r), sum(sum_of_r) / len(sum_of_r), max(sum_of_r))
         steps = [len(episode_rewards) for episode_rewards in pc.rewards.values()]
         tc.eval_steps[tc.episodes_done_in_training] = (min(steps), sum(steps) / len(steps), max(steps))
 
@@ -40,10 +41,14 @@ class _BackendAgent(ABC):
         assert model_config is not None, "model_config not set."
 
         self.model_config = model_config
-        self._callbacks: Optional[List[core.AgentCallback]] = []
         self._agent_context: core.AgentContext = core.AgentContext(self.model_config)
         self._agent_context.api._totals = monitor._register_gym_monitor(self.model_config.original_env_name)
         self.model_config.gym_env_name = self._agent_context.api._totals.gym_env_name
+
+        self._callbacks: Optional[List[core.AgentCallback]] = []
+        self._preprocess_callbacks: List[core.AgentCallback] = []
+        self._postprocess_callbacks: List[core.AgentCallback] = []
+
         self._train_total_episodes_on_iteration_begin: int = 0
 
     def _eval_current_policy(self):
@@ -248,7 +253,6 @@ class _BackendAgent(ABC):
         for c in self._callbacks:
             c.on_train_iteration_begin(self._agent_context)
 
-
     def on_train_iteration_end(self, iteration_loss: float):
         """Must be called by train_implementation at the end of an iteration
 
@@ -266,7 +270,9 @@ class _BackendAgent(ABC):
             tc.training_done = tc.iterations_done_in_training >= tc.num_iterations
         self._train_total_episodes_on_iteration_begin = 0
         tc.iterations_done_in_training += 1
-        if tc.num_episodes_per_eval > 0 and (tc.iterations_done_in_training % tc.num_iterations_between_eval == 0):
+        if tc.num_episodes_per_eval > 0 and \
+            tc.num_iterations_between_eval and \
+            (tc.iterations_done_in_training % tc.num_iterations_between_eval == 0):
             self._eval_current_policy()
 
         for c in self._callbacks:
@@ -306,7 +312,7 @@ class _BackendAgent(ABC):
         play_context._validate()
         self._agent_context.play = play_context
         old_callbacks = self._callbacks
-        self._callbacks = callbacks
+        self._callbacks = self._preprocess_callbacks + callbacks + self._postprocess_callbacks
         try:
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_play_begin()
@@ -338,7 +344,7 @@ class _BackendAgent(ABC):
         train_context._validate()
         self._agent_context.train = train_context
         self._agent_context.play = None
-        self._callbacks = callbacks
+        self._callbacks = self._preprocess_callbacks + callbacks + self._postprocess_callbacks
 
         try:
             monitor._MonitorEnv._register_backend_agent(self)

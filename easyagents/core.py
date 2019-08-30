@@ -5,8 +5,9 @@
 from abc import ABC
 from typing import Optional, Dict, Tuple, List
 
-from easyagents.env import _is_registered_with_gym
+import easyagents.env
 import gym.core
+import matplotlib.pyplot as plt
 
 
 class ApiContext(object):
@@ -49,7 +50,7 @@ class ModelConfig(object):
 
         assert isinstance(gym_env_name, str), "passed gym_env_name not a string."
         assert gym_env_name != "", "gym environment name is empty."
-        assert _is_registered_with_gym(gym_env_name), \
+        assert easyagents.env._is_registered_with_gym(gym_env_name), \
             f'"{gym_env_name}" is not the name of an environment registered with OpenAI gym.' + \
             'Consider using easyagents.env.register_with_gym to register your environment.'
         assert fc_layers is not None, "fc_layers not set"
@@ -245,6 +246,7 @@ class AgentContext(object):
         play: play / eval configuration and current state. None if not inside a play call (directly or
             due to a evaluation inside a train loop)
         api: api logging state.
+        figure: the matplotlib.pyplot figure to plot to during training or playing
     """
 
     def __init__(self, model: ModelConfig):
@@ -259,6 +261,7 @@ class AgentContext(object):
         self.train: Optional[TrainContext] = None
         self.play: Optional[PlayContext] = None
         self.api: ApiContext = ApiContext()
+        self.figure: plt.Figure = None
 
     def __str__(self):
         result = f'api=[{self.api}]'
@@ -333,19 +336,19 @@ class AgentCallback(ABC):
         pass
 
     def on_play_episode_begin(self, agent_context: AgentContext):
-        """Called once at the start of new episode to be played (during play or eval, but not train). """
+        """Called once at the start of new episode to be played (during play or eval, but not during train). """
 
     def on_play_episode_end(self, agent_context: AgentContext):
-        """Called once after an episode is done or stopped (during play or eval, but not train)."""
+        """Called once after an episode is done or stopped (during play or eval, but not during train)."""
 
     def on_play_begin(self, agent_context: AgentContext):
-        """Called once at the entry of an agent.play() call (during play or eval, but not train). """
+        """Called once at the entry of an agent.play() call (during play or eval, but not during train). """
 
     def on_play_end(self, agent_context: AgentContext):
-        """Called once before exiting an agent.play() call (during play or eval, but not train)"""
+        """Called once before exiting an agent.play() call (during play or eval, but not during train)"""
 
     def on_play_step_begin(self, agent_context: AgentContext, action):
-        """Called once before a new step is taken in the current episode (during play or eval, but not train).
+        """Called once before a new step is taken in the current episode (during play or eval, but not during train).
 
             Args:
                  agent_context: the context describing the agents current configuration
@@ -353,7 +356,7 @@ class AgentCallback(ABC):
         """
 
     def on_play_step_end(self, agent_context: AgentContext, action, step_result: Tuple):
-        """Called once after a step is completed in the current episode (during play or eval, but not train).
+        """Called once after a step is completed in the current episode (during play or eval, but not during train).
 
         Args:
             gym_env: the gym_env the last step was done on
