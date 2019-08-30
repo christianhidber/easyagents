@@ -189,7 +189,7 @@ class LogIteration(_LogCallbackBase):
         if e in tc.eval_steps:
             s = tc.eval_steps[e]
             msg = msg + f'steps=({s[0]:.1f},{s[1]:.1f},{s[2]:.1f}) '
-        self.log(f'iteration {tc.iterations_done_in_training} of {tc.num_iterations} {msg}')
+        self.log(f'iteration {tc.iterations_done_in_training:<2} of {tc.num_iterations} {msg}')
 
     def on_train_iteration_begin(self, agent_context: core.AgentContext):
         tc = agent_context.train

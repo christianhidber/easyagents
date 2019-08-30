@@ -24,6 +24,19 @@ class ApiContext(object):
     def __str__(self):
         return f'{self._totals}'
 
+class PyPlotContext(object):
+    """Contain the context for the maplotlib.pyplot figure plotting.
+
+    Attributes
+        figure: the figure to plot to
+        is_jupyter_active: True if we plot to jupyter notebook cell, False otherwise.
+    """
+
+    def __init__(self):
+        self.figure : Optional[plt.Figure] = None
+        self._call_jupyter_display = False
+        self.is_jupyter_active = False
+
 
 class ModelConfig(object):
     """The model configurations, containing the name of the gym environment and the neural network architecture.
@@ -261,7 +274,7 @@ class AgentContext(object):
         self.train: Optional[TrainContext] = None
         self.play: Optional[PlayContext] = None
         self.api: ApiContext = ApiContext()
-        self.figure: plt.Figure = None
+        self.pyplot: PyPlotContext = PyPlotContext()
 
     def __str__(self):
         result = f'api=[{self.api}]'
