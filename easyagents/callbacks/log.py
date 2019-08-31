@@ -174,6 +174,15 @@ class LogAgent(_LogCallbackBase):
         self.log(log_msg)
 
 
+class LogAgentContext(_LogCallbackBase):
+    """Logs the agent context and its subcontexts after every training iteration / episode played """
+
+    def on_play_episode_end(self, agent_context: core.AgentContext):
+        self.log(str(agent_context))
+
+    def on_train_iteration_end(self, agent_context: core.AgentContext):
+        self.log(str(agent_context))
+
 class LogIteration(_LogCallbackBase):
     """Logs training iteration summaries to a python logger."""
 
@@ -182,7 +191,10 @@ class LogIteration(_LogCallbackBase):
         e = tc.episodes_done_in_training
         msg = f'episodes_done={e:<3} '
         if e in tc.loss:
-            msg = msg + f'loss={tc.loss[e]:6.1f} '
+            msg = msg + f'loss={tc.loss[e]:<7.1f} '
+            if isinstance(tc, core.ActorCriticTrainContext):
+                msg = msg + f'[actor={tc.actor_loss[e]:<7.1f} '
+                msg = msg + f'critic={tc.critic_loss[e]:<7.1f}] '
         if e in tc.eval_rewards:
             r = tc.eval_rewards[e]
             msg = msg + f'rewards=({r[0]:.1f},{r[1]:.1f},{r[2]:.1f}) '
@@ -199,15 +211,16 @@ class LogIteration(_LogCallbackBase):
     def on_train_iteration_end(self, agent_context: core.AgentContext):
         self.log_iteration(agent_context)
 
+
 class LogStep(_LogCallbackBase):
     """Logs each environment step to a python logger."""
 
     def on_gym_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         prefix = ''
-        tc = agent_context.train
+        tc: core.TrainContext = agent_context.train
         if tc:
             prefix = f'train iteration={tc.iterations_done_in_training:<2} step={tc.steps_done_in_iteration:<4}'
-        pc = agent_context.play
+        pc: core.PlayContext = agent_context.play
         if pc:
             prefix = f'play  episode={pc.episodes_done:<2} step={pc.steps_done_in_episode:<5} ' + \
                      f'sum_of_rewards={pc.sum_of_rewards[pc.episodes_done]:<7.1f}'

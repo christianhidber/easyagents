@@ -9,6 +9,9 @@ import easyagents.env
 import gym.core
 import matplotlib.pyplot as plt
 
+"""The seed used for all agents and gym environments. If None no seed is set (default)."""
+seed: Optional[int] = None
+
 
 class ApiContext(object):
     """Contains the context of the backend or gym api call
@@ -24,6 +27,7 @@ class ApiContext(object):
     def __str__(self):
         return f'{self._totals}'
 
+
 class PyPlotContext(object):
     """Contain the context for the maplotlib.pyplot figure plotting.
 
@@ -34,11 +38,19 @@ class PyPlotContext(object):
     """
 
     def __init__(self):
-        self.figure : Optional[plt.Figure] = None
+        self.figure: Optional[plt.Figure] = None
         self._call_jupyter_display = False
         self.is_jupyter_active = False
         self.max_columns = 3
 
+    def __str__(self):
+        return f'is_jupyter_active={self.is_jupyter_active} ' +\
+                f'max_columns={self.max_columns}'
+
+    @property
+    def is_plot_active(self):
+        """Yields true if the figure contains at least 1 subplot, false otherweise."""
+        return len(self.figure.axes) > 0
 
 class ModelConfig(object):
     """The model configurations, containing the name of the gym environment and the neural network architecture.
@@ -51,12 +63,11 @@ class ModelConfig(object):
             seed: the seed to be used for example for the gym_env or None for no seed
     """
 
-    def __init__(self, gym_env_name: str, fc_layers: Optional[Tuple[int, ...]] = None, seed: Optional[int] = None):
+    def __init__(self, gym_env_name: str, fc_layers: Optional[Tuple[int, ...]] = None):
         """
             Args:
                 gym_env_name: the name of the registered gym environment to use, eg 'CartPole-v0'
                 fc_layers: int tuple defining the number and size of each fully connected layer.
-                seed: the seed to be used for example for the gym_env or None for no seed
         """
         if fc_layers is None:
             fc_layers = (100, 100)
@@ -80,7 +91,7 @@ class ModelConfig(object):
         self.seed = seed
 
     def __str__(self):
-        return f'fc_layers={self.fc_layers}'
+        return f'fc_layers={self.fc_layers} seed={self.seed} gym_env_name={self.gym_env_name}'
 
 
 class TrainContext(object):
@@ -142,7 +153,7 @@ class TrainContext(object):
         self.num_epochs_per_iteration: int = 10
         self.num_iterations_between_eval: int = 50
         self.num_episodes_per_eval: int = 10
-        self.learning_rate: float = 1
+        self.learning_rate: float = 0.001
         self.reward_discount_gamma: float = 1
         self.max_steps_in_buffer: int = 100000
 
@@ -159,9 +170,19 @@ class TrainContext(object):
 
     def __str__(self):
         return f'training_done={self.training_done} ' + \
-               f'#iterations_done_in_training={self.iterations_done_in_training} ' + \
-               f'#episodes_done_in_iteration={self.episodes_done_in_iteration} ' + \
-               f'#steps_done_in_iteration={self.steps_done_in_iteration} '
+                f'#iterations_done_in_training={self.iterations_done_in_training} ' + \
+                f'#episodes_done_in_iteration={self.episodes_done_in_iteration} ' + \
+                f'#steps_done_in_iteration={self.steps_done_in_iteration} ' + \
+                f'#iterations={self.num_iterations} ' + \
+                f'#episodes_per_iteration={self.num_episodes_per_iteration} ' + \
+                f'#max_steps_per_episode={self.max_steps_per_episode} ' + \
+                f'#epochs_per_iteration={self.num_epochs_per_iteration} ' + \
+                f'#iterations_between_eval={self.num_iterations_between_eval} ' + \
+                f'#episodes_per_eval={self.num_episodes_per_eval} ' + \
+                f'#learning_rate={self.learning_rate} ' + \
+                f'#reward_discount_gamma={self.reward_discount_gamma} ' + \
+                f'#max_steps_in_buffer={self.max_steps_in_buffer} '
+
 
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
@@ -185,6 +206,25 @@ class TrainContext(object):
         self.loss = dict()
         self.eval_rewards = dict()
         self.eval_steps = dict()
+
+
+class ActorCriticTrainContext(TrainContext):
+    """TrainContext for Actor-Critic type agents like Ppo or Sac.
+
+    Attributes:
+        actor_loss: loss observed during training of the actor network. dict is indexed by the current_episode.
+        critic_loss: loss observed during training of the critic network. dict is indexed by the current_episode.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.actor_loss: Dict[int, float]
+        self.critic_loss: Dict[int, float]
+
+    def _reset(self):
+        self.actor_loss = dict()
+        self.critic_loss = dict()
+        super()._reset()
 
 
 class PlayContext(object):
@@ -234,6 +274,14 @@ class PlayContext(object):
         self.gym_env: Optional[gym.core.Env]
         self._reset()
 
+    def __str__(self):
+        return f'#episodes={self.num_episodes} ' +\
+                f'max_steps_per_episode={self.max_steps_per_episode} '+\
+                f'play_done={self.play_done} '+\
+                f'episodes_done={self.episodes_done} '+\
+                f'steps_done_in_episode={self.steps_done_in_episode} ' +\
+                f'steps_done={self.steps_done} '
+
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
         assert self.num_episodes is None or self.num_episodes > 0, "num_episodes not admissible"
@@ -261,7 +309,7 @@ class AgentContext(object):
         play: play / eval configuration and current state. None if not inside a play call (directly or
             due to a evaluation inside a train loop)
         api: api logging state.
-        figure: the matplotlib.pyplot figure to plot to during training or playing
+        pyplot: the context containing the matplotlib.pyplot figure to plot to during training or playing
     """
 
     def __init__(self, model: ModelConfig):
@@ -279,10 +327,15 @@ class AgentContext(object):
         self.pyplot: PyPlotContext = PyPlotContext()
 
     def __str__(self):
-        result = f'api=[{self.api}]'
+        result = f'agent_context:'
+        result += f'\napi   =[{self.api}]'
         if self.train is not None:
-            result += f' train=[{self.train}] '
-        result += f'model=[{self.model}] '
+            result += f'\ntrain =[{self.train}] '
+        if self.play is not None:
+            result += f'\nplay  =[{self.play}] '
+        if self.pyplot is not None:
+            result += f'\npyplot=[{self.pyplot}] '
+        result += f'\nmodel =[{self.model}] '
         return result
 
 
@@ -371,12 +424,7 @@ class AgentCallback(ABC):
         """
 
     def on_play_step_end(self, agent_context: AgentContext, action, step_result: Tuple):
-        """Called once after a step is completed in the current episode (during play or eval, but not during train).
-
-        Args:
-            gym_env: the gym_env the last step was done on
-            step_reuslt: the result (state, reward, done, info) of the last step call
-        """
+        """Called once after a step is completed in the current episode (during play or eval, but not during train)."""
 
     def on_train_begin(self, agent_context: AgentContext):
         """Called once at the entry of an agent.train() call. """

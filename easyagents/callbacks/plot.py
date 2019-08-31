@@ -55,10 +55,12 @@ class _PlotPreProcess(core.AgentCallback):
             pyc.figure.delaxes(ax)
 
     def on_train_end(self, agent_context: core.AgentContext):
-        self._clear(agent_context)
+        if agent_context.pyplot.is_plot_active:
+            self._clear(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
-        self._clear(agent_context)
+        if agent_context.pyplot.is_plot_active:
+            self._clear(agent_context)
 
 
 class _PlotPostProcess(core.AgentCallback):
@@ -68,18 +70,19 @@ class _PlotPostProcess(core.AgentCallback):
         """Fixes the layout of multiple subplots and refreshs the display."""
         pyc = agent_context.pyplot
 
-        count = len(pyc.figure.axes)
-        rows = math.ceil( count/pyc.max_columns )
-        columns = math.ceil( count/rows )
-        for i in range(count):
-            pyc.figure.axes[i].change_geometry(rows,columns,i+1)
-        pyc.figure.tight_layout()
+        if pyc.is_plot_active:
+            count = len(pyc.figure.axes)
+            rows = math.ceil(count / pyc.max_columns)
+            columns = math.ceil(count / rows)
+            for i in range(count):
+                pyc.figure.axes[i].change_geometry(rows, columns, i + 1)
+            pyc.figure.tight_layout()
 
-        if pyc.is_jupyter_active and pyc._call_jupyter_display:
-            # noinspection PyTypeChecker
-            display(pyc.figure)
-        plt.pause(0.01)
-        pyc._call_jupyter_display = True
+            if pyc.is_jupyter_active and pyc._call_jupyter_display:
+                # noinspection PyTypeChecker
+                display(pyc.figure)
+            plt.pause(0.01)
+            pyc._call_jupyter_display = True
 
     def on_train_end(self, agent_context: core.AgentContext):
         self._refresh(agent_context)
@@ -88,6 +91,7 @@ class _PlotPostProcess(core.AgentCallback):
         self._refresh(agent_context)
 
 
+# noinspection DuplicatedCode
 class _PlotCallback(core.AgentCallback):
     """Base class of plyplot callbacks generating a plot after a trained iteration or an episode played.
 
@@ -106,9 +110,9 @@ class _PlotCallback(core.AgentCallback):
     def _create_subplot(self, agent_context: core.AgentContext):
         pyc = agent_context.pyplot
         count = len(pyc.figure.axes) + 1
-        rows = math.ceil( count/pyc.max_columns )
-        columns = math.ceil( count/rows )
-        self.axes = pyc.figure.add_subplot(rows,columns,count)
+        rows = math.ceil(count / pyc.max_columns)
+        columns = math.ceil(count / rows)
+        self.axes = pyc.figure.add_subplot(rows, columns, count)
 
     def _set_current_axes(self, agent_context: core.AgentContext):
         pyc = agent_context.pyplot
@@ -141,33 +145,25 @@ class _PlotCallback(core.AgentCallback):
             self._set_current_axes(agent_context)
             self.plot_trained_iteration(agent_context)
 
-    def plot_axes(self,
-                  xvalues: List[int], yvalues: List[Union[float, Tuple[float, float, float]]], ylabel: str,
+    def plot_axes(self, xlim: Tuple[float, float], ylabel: str,
                   xlabel: str = 'episodes', yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
         """Draws the graph given by xvalues, yvalues.
 
         Attributes:
-            xvalues: the graphs x-values (must have same length as y-values)
-            yvalues: the graphs y-values or (min,y,max)-tuples (must have same length as x-values)
+            xlim: (min,max) for the x-axes
             xlabel: label of the x-axes
+            ylim: (min,max) for the y-axes (or None)
             ylabel: label of the y-axes
-            yscale: scale of the y-axes ('linear' or 'log')
-            ylim: (min,max) for the y-axes
+            yscale: scale of the y-axes ('linear', 'log', ...)
         """
-        assert xvalues
-        assert yvalues
-        assert len(xvalues) == len(yvalues), "xvalues do not match yvalues"
+        assert xlim and xlim[0] < xlim[1]
         assert ylabel
-        assert yscale == 'linear' or yscale == 'log'
-
-        xmax = max(xvalues)
-        xmax = 1 if xmax <= 1 else xmax
 
         # setup subplot (axes, labels, colors)
         axes_color = 'grey'
         self.axes.set_xlabel(xlabel)
         self.axes.set_ylabel(ylabel)
-        self.axes.set_xlim(0, xmax)
+        self.axes.set_xlim(xlim)
         self.axes.spines['top'].set_visible(False)
         self.axes.spines['right'].set_visible(False)
         self.axes.spines['bottom'].set_color(axes_color)
@@ -179,7 +175,8 @@ class _PlotCallback(core.AgentCallback):
 
     def plot_to_subplot(self, agent_context: core.AgentContext,
                         xvalues: List[int], yvalues: List[Union[float, Tuple[float, float, float]]], ylabel: str,
-                        xlabel: str = 'episodes', yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None,
+                        xlabel: str = 'episodes', xlim: Optional[Tuple[float, float]] = None,
+                        yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None,
                         color: str = 'blue'):
         """Draws the graph given by xvalues, yvalues.
 
@@ -187,14 +184,16 @@ class _PlotCallback(core.AgentCallback):
             agent_context: context containing the figure to plot to
             xvalues: the graphs x-values (must have same length as y-values)
             yvalues: the graphs y-values or (min,y,max)-tuples (must have same length as x-values)
+            ylim: (min,max) for the x-axes
             xlabel: label of the x-axes
             ylabel: label of the y-axes
-            yscale: scale of the y-axes ('linear' or 'log')
-            ylim: (min,max) for the y-axes
+            yscale: scale of the y-axes ('linear', 'log',...)
+            ylim: (min,max) for the y-axes (or None)
             color: the graphs color (must be the name of a matplotlib color)
         """
-        self.plot_axes(xvalues=xvalues, yvalues=yvalues, ylabel=ylabel,
-                       xlabel=xlabel, yscale=yscale, ylim=ylim)
+        if not xlim:
+            xlim = (0, max(xvalues))
+        self.plot_axes(xlim=xlim, ylabel=ylabel, xlabel=xlabel, yscale=yscale, ylim=ylim)
         self.plot_values(agent_context=agent_context, xvalues=xvalues, yvalues=yvalues, color=color)
 
     def plot_values(self, agent_context: core.AgentContext,
@@ -247,35 +246,70 @@ class _PlotCallback(core.AgentCallback):
 
 class PlotLoss(_PlotCallback):
 
-    def __init__(self):
+    def __init__(self, yscale: str = 'symlog', ylim: Optional[Tuple[float, float]] = None):
+        """Plots the loss resulting from each iterations policy training.
+
+        Hints:
+        o for actro-critic agents the loss from training the actor- and critic-networks are plotted
+            along with the total loss.
+
+        Args:
+            yscale: scale of the y-axes ('linear', 'symlog',...)
+            ylim: (min,max) for the y-axes
+        """
         super().__init__(is_plot_trained_iteration=True)
+        self.ylim = ylim
+        self.yscale = yscale
 
     def plot_trained_iteration(self, agent_context: core.AgentContext):
-        tc = agent_context.train
-        self.plot_to_subplot(agent_context, color='indigo',
-                             xvalues=list(tc.loss.keys()),
-                             yvalues=list(tc.loss.values()), ylabel='loss', yscale='log')
+        ac = agent_context
+        tc = ac.train
+        xvalues = list(tc.loss.keys())
+        self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes',
+                       ylim=self.ylim, ylabel='loss', yscale=self.yscale)
+        self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(tc.loss.values()), color='indigo')
+        if isinstance(tc, core.ActorCriticTrainContext):
+            acc: core.ActorCriticTrainContext = tc
+            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g')
+            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.critic_loss.values()), color='b')
+            self.axes.legend(('total', 'actor', 'critic'))
 
 
 class PlotRewards(_PlotCallback):
 
-    def __init__(self):
+    def __init__(self, yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
+        """Plots the sum of rewards observed during policy evaluation.
+
+        Args:
+            yscale: scale of the y-axes ('linear', 'symlog',...)
+            ylim: (min,max) for the y-axes
+        """
         super().__init__(is_plot_trained_iteration=True)
+        self.ylim = ylim
+        self.yscale = yscale
 
     def plot_trained_iteration(self, agent_context: core.AgentContext):
         tc = agent_context.train
-        self.plot_to_subplot(agent_context, color='green',
-                             xvalues=list(tc.eval_rewards.keys()),
+        self.plot_to_subplot(agent_context, color='green', ylim=self.ylim, yscale=self.yscale,
+                             xvalues=list(tc.eval_rewards.keys()), xlim=(0, tc.episodes_done_in_training),
                              yvalues=list(tc.eval_rewards.values()), ylabel='sum of rewards')
 
 
 class PlotSteps(_PlotCallback):
 
-    def __init__(self):
+    def __init__(self, yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
+        """Plots the step counts observed during policy evaluation.
+
+        Args:
+            yscale: scale of the y-axes ('linear','log')
+            ylim: (min,max) for the y-axes
+        """
         super().__init__(is_plot_trained_iteration=True)
+        self.ylim = ylim
+        self.yscale = yscale
 
     def plot_trained_iteration(self, agent_context: core.AgentContext):
         tc = agent_context.train
-        self.plot_to_subplot(agent_context, color='blue',
-                             xvalues=list(tc.eval_steps.keys()),
+        self.plot_to_subplot(agent_context, color='blue', ylim=self.ylim, yscale=self.yscale,
+                             xvalues=list(tc.eval_steps.keys()), xlim=(0, tc.episodes_done_in_training),
                              yvalues=list(tc.eval_steps.values()), ylabel='steps')

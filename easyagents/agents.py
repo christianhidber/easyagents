@@ -17,7 +17,6 @@ _backends: Dict[str, bcore.BackendAgentFactory] = {
     easyagents.backends.tfagents.BackendAgentFactory.name: easyagents.backends.tfagents.BackendAgentFactory()
 }
 
-
 def get_backends():
     """returns a list of all registered backend identifiers."""
     return _backends.keys()
@@ -137,9 +136,9 @@ class PpoAgent(EasyAgent):
         """
         if play_context is None:
             play_context = core.PlayContext()
-            play_context.max_steps_per_episode=max_steps_per_episode
-            play_context.num_episodes=num_episodes
-        super().play(play_context=play_context,callbacks=callbacks)
+            play_context.max_steps_per_episode = max_steps_per_episode
+            play_context.num_episodes = num_episodes
+        super().play(play_context=play_context, callbacks=callbacks)
 
     def train(self,
               callbacks: List[core.AgentCallback] = None,
@@ -147,8 +146,10 @@ class PpoAgent(EasyAgent):
               num_episodes_per_iteration: int = 10,
               max_steps_per_episode: int = 1000,
               num_epochs_per_iteration: int = 10,
-              learning_rate: float = 1,
-              train_context: core.TrainContext = None):
+              num_iterations_between_eval: int = 20,
+              num_episodes_per_eval: int = 10,
+              learning_rate: float = 0.001,
+              train_context: core.ActorCriticTrainContext = None):
         """Trains a new model using the gym environment passed during instantiation.
 
         Args:
@@ -157,16 +158,22 @@ class PpoAgent(EasyAgent):
             num_episodes_per_iteration: number of episodes played per training iteration
             max_steps_per_episode: maximum number of steps per episode
             num_epochs_per_iteration: number of times the data collected for the current iteration
-                is used to retrain the current policy.
+                is used to retrain the current policy
+            num_iterations_between_eval: number of training iterations before the current policy is evaluated.
+                if 0 no evaluation is performed.
+            num_episodes_per_eval: number of episodes played to estimate the average return and steps
             learning_rate: the learning rate used in the next iteration's policy training (0,1]
             train_context: training configuration to be used. if set overrides all other training context arguments.
         """
         if train_context is None:
-            train_context = core.TrainContext()
+            train_context = core.ActorCriticTrainContext()
             train_context.num_iterations = num_iterations
             train_context.num_episodes_per_iteration = num_episodes_per_iteration
             train_context.max_steps_per_episode = max_steps_per_episode
             train_context.num_epochs_per_iteration = num_epochs_per_iteration
+            train_context.num_episodes_per_iteration = num_episodes_per_iteration
+            train_context.num_iterations_between_eval=num_iterations_between_eval
+            train_context.num_episodes_per_eval = num_episodes_per_eval
             train_context.learning_rate = learning_rate
 
         super().train(train_context=train_context, callbacks=callbacks)

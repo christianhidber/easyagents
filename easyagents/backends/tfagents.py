@@ -1,6 +1,5 @@
 """This module contains the backend implementation for tf Agents (see https://github.com/tensorflow/agents)"""
 from abc import ABCMeta
-from typing import Optional
 
 # noinspection PyUnresolvedReferences
 import easyagents.agents
@@ -36,9 +35,12 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
 
     def _initialize(self):
         """ initializes TensorFlow behaviour and random seeds."""
+        self.log_api('v1.enable_v2_behavior')
         tf.compat.v1.enable_v2_behavior()
+        self.log_api('v1.enable_eager_execution')
         tf.compat.v1.enable_eager_execution()
         if self.model_config.seed:
+            self.log_api(f'v1.set_random_seed({self.model_config.seed})')
             tf.compat.v1.set_random_seed(self.model_config.seed)
         return
 
@@ -121,6 +123,8 @@ class TfPpoAgent(TfAgent):
 
     # noinspection DuplicatedCode
     def train_implementation(self, train_context: core.TrainContext):
+        assert isinstance(train_context, core.ActorCriticTrainContext)
+
         """Tf-Agents Ppo Implementation of the train loop."""
         self.log('Creating environment...')
         train_env = self._create_tfagent_env(discount=train_context.reward_discount_gamma)
@@ -172,13 +176,16 @@ class TfPpoAgent(TfAgent):
             trajectories = replay_buffer.gather_all()
 
             self.log_api('tf_agent.train', msg)
-            total_loss, _ = tf_agent.train(experience=trajectories)
-            self.log_api('', f'loss={total_loss:6.1f}')
+            loss_info = tf_agent.train(experience=trajectories)
+            total_loss = loss_info.loss.numpy()
+            actor_loss = loss_info.extra.policy_gradient_loss.numpy()
+            critic_loss = loss_info.extra.value_estimation_loss.numpy()
+            self.log_api('', f'loss={total_loss:<7.1f} [actor={actor_loss:<7.1f} critic={critic_loss:<7.1f}]')
 
             self.log_api('replay_buffer.clear', msg)
             replay_buffer.clear()
 
-            self.on_train_iteration_end(total_loss)
+            self.on_train_iteration_end(loss=total_loss, actor_loss=actor_loss, critic_loss=critic_loss)
             if train_context.training_done:
                 break
         return

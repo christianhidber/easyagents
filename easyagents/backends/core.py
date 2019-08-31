@@ -258,19 +258,31 @@ class _BackendAgent(ABC):
         for c in self._callbacks:
             c.on_train_iteration_begin(self._agent_context)
 
-    def on_train_iteration_end(self, iteration_loss: float):
+    def on_train_iteration_end(self, loss: float, **kwargs):
         """Must be called by train_implementation at the end of an iteration
 
-        Evaluates the current policy.
+        Evaluates the current policy. Use kwargs to set additional dict values in train context.
+        Eg for an ActorCriticTrainContext the losses may be set like this:
+            on_train_iteration(loss=123,actor_loss=456,critic_loss=789)
 
         Args:
-            iteration_loss: loss after the training of the model in this iteration
+            loss: loss after the training of the model in this iteration
+            **kwargs: if a keyword matches a dict property of the TrainContext instance, then
+                        the dict[episodes_done_in_training] is set to the arg.
         """
         tc = self._agent_context.train
         totals = self._agent_context.api._totals
         tc.episodes_done_in_iteration = (totals.episodes_done - self._train_total_episodes_on_iteration_begin)
         tc.episodes_done_in_training += tc.episodes_done_in_iteration
-        tc.loss[tc.episodes_done_in_training] = iteration_loss
+        tc.loss[tc.episodes_done_in_training] = loss
+
+        # set traincontext dict from kwargs:
+        for prop_name in kwargs:
+            prop_instance = getattr(tc, prop_name, None)
+            prop_value = kwargs[prop_name]
+            if prop_instance is not None and isinstance(prop_instance, dict):
+                prop_instance[tc.episodes_done_in_training] = prop_value
+
         tc.iterations_done_in_training += 1
         if tc.num_iterations is not None:
             tc.training_done = tc.iterations_done_in_training >= tc.num_iterations
