@@ -30,12 +30,14 @@ class PyPlotContext(object):
     Attributes
         figure: the figure to plot to
         is_jupyter_active: True if we plot to jupyter notebook cell, False otherwise.
+        max_columns: the max number of subplot columns in the pyplot figure
     """
 
     def __init__(self):
         self.figure : Optional[plt.Figure] = None
         self._call_jupyter_display = False
         self.is_jupyter_active = False
+        self.max_columns = 3
 
 
 class ModelConfig(object):
