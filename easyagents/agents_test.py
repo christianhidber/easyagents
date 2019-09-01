@@ -51,25 +51,25 @@ class TfAgentsPpoAgentTest(unittest.TestCase):
         agent.train(SingleEpisode())
 
     def test_train_cartpole(self):
-        ppo = easyagents.agents.PpoAgent(gym_env_name="CartPole-v0", backend_name='tfagents')
-        tc = easyagents.core.TrainContext()
-        tc.num_iterations = 100
+        ppo = easyagents.agents.PpoAgent(gym_env_name="CartPole-v0", backend='tfagents')
+        tc = easyagents.core.ActorCriticTrainContext()
+        tc.num_iterations = 3
         tc.num_episodes_per_iteration = 10
         tc.max_steps_per_episode = 500
         tc.num_epochs_per_iteration = 5
-        tc.num_iterations_between_eval = 5
-        tc.num_episodes_per_eval = 10
+        tc.num_iterations_between_eval = 2
+        tc.num_episodes_per_eval = 5
         ppo.train([LogIteration()], train_context=tc)
 
     def test_train_single_episode(self):
-        ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend_name='tfagents')
+        ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend='tfagents')
         count = easyagents.callbacks.log.CountCallbacks()
         ppo.train([easyagents.callbacks.log.LogAgent(), count, SingleEpisode()])
         assert count.gym_init_begin_count == count.gym_init_end_count == 1
         assert count.gym_step_begin_count == count.gym_step_end_count <= 10
 
     def test_play_single_episode(self):
-        ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend_name='tfagents')
+        ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend='tfagents')
         count = easyagents.callbacks.log.CountCallbacks()
         cb = [easyagents.callbacks.log.LogAgent(), count, SingleEpisode()]
         ppo.train(SingleEpisode())

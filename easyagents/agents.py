@@ -116,8 +116,8 @@ class PpoAgent(EasyAgent):
                  gym_env_name: str,
                  fc_layers: Optional[Tuple[int, ...]] = None,
 
-                 backend_name: str = None):
-        super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend_name)
+                 backend: str = None):
+        super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
         self._backend_agent = self._backend.create_ppo_agent(self._model_config)
         return
 

@@ -18,6 +18,6 @@ class LogCallbacksTest(unittest.TestCase):
         agent.train([LogIteration(), Fast()])
 
     def test_cartpole_log_iteration(self):
-        ppo = easyagents.agents.PpoAgent(gym_env_name="CartPole-v0", backend_name='tfagents')
+        ppo = easyagents.agents.PpoAgent(gym_env_name="CartPole-v0", backend='tfagents')
         ppo.train([LogIteration(),Fast()])
 
