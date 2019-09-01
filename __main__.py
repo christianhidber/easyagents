@@ -8,7 +8,7 @@ import sys
 def main():
     print("EasyAgents: reinforcement learning for practitioners.")
     print("")
-    input("press enter to continue")  
+    input("press enter to continue")
 
 
 if __name__ == "__main__":

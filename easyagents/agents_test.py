@@ -1,44 +1,81 @@
-import unittest
-import os
 import pytest
+import unittest
+import easyagents.agents
+import easyagents.callbacks.log
+import easyagents.env
+import easyagents.core
 
-from easyagents.config import LoggingMinimal
-from easyagents.config import TrainingSingleEpisode
-from easyagents.tfagents import PpoAgent
+from easyagents.backends.default import BackendAgentFactory
+from easyagents.callbacks.duration import SingleEpisode, Fast
+from easyagents.callbacks.log import LogAgent, LogIteration, LogStep
 
-is_ignore_rendering = False if os.environ.get('EAZYAGENTS_IGNORE_RENDER_TESTS') is None else True
+_env_name = easyagents.env._StepCountEnv.register_with_gym()
 
 
-class TestAgents(unittest.TestCase):
+# noinspection PyTypeChecker
+class BackendRegistrationTest(unittest.TestCase):
 
     def setUp(self):
-        self.ppo = PpoAgent('CartPole-v0', training=TrainingSingleEpisode(), logging=LoggingMinimal())
-        self.ppo.train()
+        self._oldbackends = easyagents.agents._backends.copy()
 
-    def test_plot_episodes(self):
-        self.ppo.plot_episodes()
+    def tearDown(self):
+        easyagents.agents._backends = self._oldbackends
 
-    def test_plot_episodes_scale(self):
-        self.ppo.plot_episodes(scale=['log', 'linear', 'linear'])
+    def test_getbackends(self):
+        assert easyagents.agents._backends is not None
+        assert easyagents.agents.get_backends() is not None
 
-    def test_plot_episodes_scale_exception(self):
-        self.assertRaises(BaseException, lambda: self.ppo.plot_episodes(scale='log'))
+    def test_register(self):
+        assert "MyBackend" not in easyagents.agents.get_backends()
+        easyagents.agents.register_backend("MyBackend", BackendAgentFactory())
+        assert "MyBackend" in easyagents.agents.get_backends()
 
-    def test_plot_episodes_ylim(self):
-        self.ppo.plot_episodes(ylim=[(-1000, 10000), (0, 100), (0, 200)])
+    def test_register_backend_empty(self):
+        with pytest.raises(AssertionError):
+            easyagents.agents.register_backend(backend_name="", backend=BackendAgentFactory())
 
-    def test_plot_episodes_ylim_exception(self):
-        self.assertRaises(BaseException, lambda: self.ppo.plot_episodes(ylim=[(-1000, 10000), (0, 100)]))
+    def test_register_backend_nameNone_exception(self):
+        with pytest.raises(AssertionError):
+            easyagents.agents.register_backend(backend_name=None, backend=BackendAgentFactory())
 
-    def test_render_episodes(self):
-        if is_ignore_rendering:
-            pytest.skip("is_ignore_rendering active.")
-        self.ppo.render_episodes()
+    def test_register_backend_backendNone_exception(self):
+        with pytest.raises(AssertionError):
+            easyagents.agents.register_backend(backend_name="testBackend", backend=None)
 
-    def test_render_episodes_to_mp4(self):
-        if is_ignore_rendering:
-            pytest.skip("is_ignore_rendering active.")
-        self.ppo.render_episodes_to_mp4()
+
+# noinspection PyTypeChecker
+class TfAgentsPpoAgentTest(unittest.TestCase):
+
+    def test_callback_single(self):
+        agent = easyagents.PpoAgent(_env_name)
+        agent.train(SingleEpisode())
+
+    def test_train_cartpole(self):
+        ppo = easyagents.agents.PpoAgent(gym_env_name="CartPole-v0", backend='tfagents')
+        tc = easyagents.core.ActorCriticTrainContext()
+        tc.num_iterations = 3
+        tc.num_episodes_per_iteration = 10
+        tc.max_steps_per_episode = 500
+        tc.num_epochs_per_iteration = 5
+        tc.num_iterations_between_eval = 2
+        tc.num_episodes_per_eval = 5
+        ppo.train([LogIteration()], train_context=tc)
+
+    def test_train_single_episode(self):
+        ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend='tfagents')
+        count = easyagents.callbacks.log.CountCallbacks()
+        ppo.train([easyagents.callbacks.log.LogAgent(), count, SingleEpisode()])
+        assert count.gym_init_begin_count == count.gym_init_end_count == 1
+        assert count.gym_step_begin_count == count.gym_step_end_count <= 10
+
+    def test_play_single_episode(self):
+        ppo = easyagents.agents.PpoAgent(gym_env_name=_env_name, backend='tfagents')
+        count = easyagents.callbacks.log.CountCallbacks()
+        cb = [easyagents.callbacks.log.LogAgent(), count, SingleEpisode()]
+        ppo.train(SingleEpisode())
+        ppo.play(cb)
+        assert count.gym_init_begin_count == count.gym_init_end_count == 1
+        assert count.gym_step_begin_count == count.gym_step_end_count <= 10
 
 
 if __name__ == '__main__':
