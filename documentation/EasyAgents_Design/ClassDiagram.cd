@@ -146,11 +146,11 @@
   <Class Name="EasyAgents_Design.BackendAgent">
     <Position X="14" Y="3.25" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAAQAEACIAAAAAAAAAAACAAAAAGEBAgAAAACAAAAAAA=</HashCode>
+      <HashCode>AAAAAEACIAAAAAAAAAAACQAAAAGEBAgAAAACAAAAAAA=</HashCode>
       <FileName>backend\core\BackendAgent.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
-      <Field Name="moddel_config" />
+      <Field Name="model_config" />
     </ShowAsAssociation>
   </Class>
   <Class Name="EasyAgents_Design.DefaultBackendAgentFactory" Collapsed="true">
