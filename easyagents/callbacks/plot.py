@@ -4,6 +4,7 @@ import easyagents.core as core
 import matplotlib.pyplot as plt
 import imageio
 import math
+import gym
 
 # download mp4 rendering
 imageio.plugins.ffmpeg.download()
@@ -92,19 +93,25 @@ class _PlotPostProcess(core.AgentCallback):
 
 
 # noinspection DuplicatedCode
-class _PlotCallback(core.AgentCallback):
+class PlotCallback(core.AgentCallback):
     """Base class of plyplot callbacks generating a plot after a trained iteration or an episode played.
 
         Attributes:
             axes: the subplot to plot onto
-            is_plot_trained_iteration: True if a plot is created during train
-            is_plot_played_episode: True if a plot is created during play
+            is_plot_train_iteration_end: True if a plot is created during train
+            is_plot_play_episode_end: True if a plot is created during play / eval
+            is_plot_play_step_end: True if a plot is created for each step during play / eval
     """
 
-    def __init__(self, is_plot_trained_iteration: bool = False, is_plot_played_episode: bool = False):
+    def __init__(self,
+                 is_plot_train_iteration_end: bool = False,
+                 is_plot_play_episode_end: bool = False,
+                 is_plot_play_step_end: bool = False
+                 ):
         self.axes = None
-        self.is_plot_trained_iteration = is_plot_trained_iteration
-        self.is_plot_played_episode = is_plot_played_episode
+        self.is_plot_train_iteration_end = is_plot_train_iteration_end
+        self.is_plot_play_episode_end = is_plot_play_episode_end
+        self.is_plot_play_step_end = is_plot_play_step_end
         pass
 
     def _create_subplot(self, agent_context: core.AgentContext):
@@ -123,27 +130,32 @@ class _PlotCallback(core.AgentCallback):
                 plt.sca(self.axes)
 
     def on_play_begin(self, agent_context: core.AgentContext):
-        if self.is_plot_played_episode:
+        if self.is_plot_play_episode_end:
             self._create_subplot(agent_context)
 
     def on_play_episode_end(self, agent_context: core.AgentContext):
-        if self.is_plot_played_episode:
+        if self.is_plot_play_episode_end:
             self._set_current_axes(agent_context)
-            self.plot_played_episode(agent_context)
+            self.plot_play_episode_end(agent_context)
+
+    def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
+        if self.is_plot_play_step_end:
+            self._set_current_axes(agent_context)
+            self.plot_play_step_end(agent_context)
 
     def on_train_begin(self, agent_context: core.AgentContext):
-        if self.is_plot_trained_iteration:
+        if self.is_plot_train_iteration_end:
             self._create_subplot(agent_context)
 
     def on_train_end(self, agent_context: core.AgentContext):
-        if self.is_plot_trained_iteration:
+        if self.is_plot_train_iteration_end:
             self._set_current_axes(agent_context)
-            self.plot_trained_iteration(agent_context)
+            self.plot_train_iteration_end(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
-        if self.is_plot_trained_iteration:
+        if self.is_plot_train_iteration_end:
             self._set_current_axes(agent_context)
-            self.plot_trained_iteration(agent_context)
+            self.plot_train_iteration_end(agent_context)
 
     def plot_axes(self, xlim: Tuple[float, float], ylabel: str,
                   xlabel: str = 'episodes', yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
@@ -173,11 +185,11 @@ class _PlotCallback(core.AgentCallback):
             self.axes.set_ylim(ylim)
         self.axes.set_yscale(yscale)
 
-    def plot_to_subplot(self, agent_context: core.AgentContext,
-                        xvalues: List[int], yvalues: List[Union[float, Tuple[float, float, float]]], ylabel: str,
-                        xlabel: str = 'episodes', xlim: Optional[Tuple[float, float]] = None,
-                        yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None,
-                        color: str = 'blue'):
+    def plot_subplot(self, agent_context: core.AgentContext,
+                     xvalues: List[int], yvalues: List[Union[float, Tuple[float, float, float]]], ylabel: str,
+                     xlabel: str = 'episodes', xlim: Optional[Tuple[float, float]] = None,
+                     yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None,
+                     color: str = 'blue'):
         """Draws the graph given by xvalues, yvalues.
 
         Attributes:
@@ -235,16 +247,20 @@ class _PlotCallback(core.AgentCallback):
             plt.plot(xvalues, yvalues, color=color)
             plt.pause(0.01)
 
-    def plot_played_episode(self, agent_context: core.AgentContext):
+    def plot_play_episode_end(self, agent_context: core.AgentContext):
         """Plots a graph after each episode during play."""
         pass
 
-    def plot_trained_iteration(self, agent_context: core.AgentContext):
+    def plot_play_step_end(self, agent_context: core.AgentContext):
+        """Plots a graph after each step during play."""
+        pass
+
+    def plot_train_iteration_end(self, agent_context: core.AgentContext):
         """Plots a graph after each iteration during train."""
         pass
 
 
-class PlotLoss(_PlotCallback):
+class PlotLoss(PlotCallback):
 
     def __init__(self, yscale: str = 'symlog', ylim: Optional[Tuple[float, float]] = None):
         """Plots the loss resulting from each iterations policy training.
@@ -257,11 +273,11 @@ class PlotLoss(_PlotCallback):
             yscale: scale of the y-axes ('linear', 'symlog',...)
             ylim: (min,max) for the y-axes
         """
-        super().__init__(is_plot_trained_iteration=True)
+        super().__init__(is_plot_train_iteration_end=True)
         self.ylim = ylim
         self.yscale = yscale
 
-    def plot_trained_iteration(self, agent_context: core.AgentContext):
+    def plot_train_iteration_end(self, agent_context: core.AgentContext):
         ac = agent_context
         tc = ac.train
         xvalues = list(tc.loss.keys())
@@ -275,7 +291,7 @@ class PlotLoss(_PlotCallback):
             self.axes.legend(('total', 'actor', 'critic'))
 
 
-class PlotRewards(_PlotCallback):
+class PlotRewards(PlotCallback):
 
     def __init__(self, yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
         """Plots the sum of rewards observed during policy evaluation.
@@ -284,18 +300,47 @@ class PlotRewards(_PlotCallback):
             yscale: scale of the y-axes ('linear', 'symlog',...)
             ylim: (min,max) for the y-axes
         """
-        super().__init__(is_plot_trained_iteration=True)
+        super().__init__(is_plot_train_iteration_end=True)
         self.ylim = ylim
         self.yscale = yscale
 
-    def plot_trained_iteration(self, agent_context: core.AgentContext):
+    def plot_train_iteration_end(self, agent_context: core.AgentContext):
         tc = agent_context.train
-        self.plot_to_subplot(agent_context, color='green', ylim=self.ylim, yscale=self.yscale,
-                             xvalues=list(tc.eval_rewards.keys()), xlim=(0, tc.episodes_done_in_training),
-                             yvalues=list(tc.eval_rewards.values()), ylabel='sum of rewards')
+        self.plot_subplot(agent_context, color='green', ylim=self.ylim, yscale=self.yscale,
+                          xvalues=list(tc.eval_rewards.keys()), xlim=(0, tc.episodes_done_in_training),
+                          yvalues=list(tc.eval_rewards.values()), ylabel='sum of rewards')
 
 
-class PlotSteps(_PlotCallback):
+class PlotState(PlotCallback):
+    """Renders the gym state as a plot to the pyplot figure using gym.render('rgb_array').
+
+        During training only the last state of the last game evaluation is plotted.
+        During play all states are plotted.
+    """
+
+    def __init__(self, mode='rgb_array'):
+        """
+        Args:
+            mode: the render mode passed to gym.render(), yielding an rgb_array
+        """
+        super().__init__(is_plot_play_episode_end=True, is_plot_play_step_end=True)
+        self._render_mode=mode
+        self._is_active = True
+
+    def _render_rgb(self,env:gym.Env):
+        """Yields an rgb array representing the env's current state or None."""
+        assert env
+        result = None
+        if self._is_active:
+            pass
+        return result
+
+
+    def plot_play_step_end(self, agent_context: core.AgentContext):
+        env : gym.Env = agent_context.play.gym_env
+
+
+class PlotSteps(PlotCallback):
 
     def __init__(self, yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
         """Plots the step counts observed during policy evaluation.
@@ -304,12 +349,12 @@ class PlotSteps(_PlotCallback):
             yscale: scale of the y-axes ('linear','log')
             ylim: (min,max) for the y-axes
         """
-        super().__init__(is_plot_trained_iteration=True)
+        super().__init__(is_plot_train_iteration_end=True)
         self.ylim = ylim
         self.yscale = yscale
 
-    def plot_trained_iteration(self, agent_context: core.AgentContext):
+    def plot_train_iteration_end(self, agent_context: core.AgentContext):
         tc = agent_context.train
-        self.plot_to_subplot(agent_context, color='blue', ylim=self.ylim, yscale=self.yscale,
-                             xvalues=list(tc.eval_steps.keys()), xlim=(0, tc.episodes_done_in_training),
-                             yvalues=list(tc.eval_steps.values()), ylabel='steps')
+        self.plot_subplot(agent_context, color='blue', ylim=self.ylim, yscale=self.yscale,
+                          xvalues=list(tc.eval_steps.keys()), xlim=(0, tc.episodes_done_in_training),
+                          yvalues=list(tc.eval_steps.values()), ylabel='steps')
