@@ -54,7 +54,7 @@ class EasyAgent(ABC):
             f'{backend_name} is not admissible. The registered backends are {get_backends()}.'
 
         self._model_config: core.ModelConfig = model_config
-        self._backend: bcore.BackendAgentFactory = _backends[backend_name]
+        self._backend_agent_factory: bcore.BackendAgentFactory = _backends[backend_name]
         self._backend_agent: Optional[bcore._BackendAgent] = None
         return
 
@@ -118,7 +118,7 @@ class PpoAgent(EasyAgent):
 
                  backend: str = None):
         super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
-        self._backend_agent = self._backend.create_ppo_agent(self._model_config)
+        self._backend_agent = self._backend_agent_factory.create_ppo_agent(self._model_config)
         return
 
     def play(self,

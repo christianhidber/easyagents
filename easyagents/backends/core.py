@@ -42,8 +42,8 @@ class _BackendAgent(ABC):
 
         self.model_config = model_config
         self._agent_context: core.AgentContext = core.AgentContext(self.model_config)
-        self._agent_context.api._totals = monitor._register_gym_monitor(self.model_config.original_env_name)
-        self.model_config.gym_env_name = self._agent_context.api._totals.gym_env_name
+        self._agent_context.gym._totals = monitor._register_gym_monitor(self.model_config.original_env_name)
+        self.model_config.gym_env_name = self._agent_context.gym._totals.gym_env_name
 
         self._preprocess_callbacks: List[core.AgentCallback] = [plot._PlotPreProcess()]
         self._callbacks: Optional[List[core.AgentCallback]] = []
@@ -65,7 +65,7 @@ class _BackendAgent(ABC):
 
     def log_api(self, api_target: str, log_msg: Optional[str] = None):
         """Logs a call to api_target with additional log_msg."""
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
         if api_target is None:
             api_target = ''
         if log_msg is None:
@@ -75,7 +75,7 @@ class _BackendAgent(ABC):
 
     def log(self, log_msg: str):
         """Logs msg."""
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
         if log_msg is None:
             log_msg = ''
         for c in self._callbacks:
@@ -86,10 +86,10 @@ class _BackendAgent(ABC):
 
         Hint:
             the total instances count is not incremented yet."""
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
         for c in self._callbacks:
             c.on_gym_init_begin(self._agent_context)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_init_end(self, env: monitor._MonitorEnv):
         """called when the monitored environment completed the instantiation of a new gym environment.
@@ -98,32 +98,32 @@ class _BackendAgent(ABC):
             o the total instances count is incremented by now
             o the new env is seeded with the api_context's seed
         """
-        self._agent_context.api.gym_env = env.env
+        self._agent_context.gym.gym_env = env.env
         if self._agent_context.model.seed is not None:
-            self._agent_context.api.gym_env.seed(self._agent_context.model.seed)
+            self._agent_context.gym.gym_env.seed(self._agent_context.model.seed)
         for c in self._callbacks:
             c.on_gym_init_end(self._agent_context)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_reset_begin(self, env: monitor._MonitorEnv, **kwargs):
         """called when the monitored environment begins a reset.
 
         Hint:
             the total reset count is not incremented yet."""
-        self._agent_context.api.gym_env = env.env
+        self._agent_context.gym.gym_env = env.env
         for c in self._callbacks:
             c.on_gym_reset_begin(self._agent_context, **kwargs)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_reset_end(self, env: monitor._MonitorEnv, reset_result: Tuple, **kwargs):
         """called when the monitored environment completed a reset.
 
         Hint:
             the total episode count is incremented by now (if a step was performed before the last reset)."""
-        self._agent_context.api.gym_env = env.env
+        self._agent_context.gym.gym_env = env.env
         for c in self._callbacks:
             c.on_gym_reset_end(self._agent_context, reset_result, **kwargs)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_step_begin(self, env: monitor._MonitorEnv, action):
         """called when the monitored environment begins a step.
@@ -132,7 +132,7 @@ class _BackendAgent(ABC):
             o sets env.max_steps_per_episode if we are in train / play. Thus the episode is ended
               by the MonitorEnv if the step limit is exceeded
         """
-        self._agent_context.api.gym_env = env.env
+        self._agent_context.gym.gym_env = env.env
         env.max_steps_per_episode = None
         pc = self._agent_context.play
         if pc:
@@ -145,7 +145,7 @@ class _BackendAgent(ABC):
                 self._on_train_step_begin(action)
         for c in self._callbacks:
             c.on_gym_step_begin(self._agent_context, action)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_step_end(self, env: monitor._MonitorEnv, action, step_result: Tuple):
         """called when the monitored environment completed a step.
@@ -154,7 +154,7 @@ class _BackendAgent(ABC):
             env: the gym_env the last step was done on
             step_result: the result (state, reward, done, info) of the last step call
         """
-        self._agent_context.api.gym_env = env.env
+        self._agent_context.gym.gym_env = env.env
         pc = self._agent_context.play
         if pc:
             self._on_play_step_end(action, step_result)
@@ -164,7 +164,7 @@ class _BackendAgent(ABC):
                 self._on_train_step_end(action, step_result)
         for c in self._callbacks:
             c.on_gym_step_end(self._agent_context, action, step_result)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
         env.max_steps_per_episode = None
 
     def _on_play_begin(self):
@@ -240,7 +240,7 @@ class _BackendAgent(ABC):
     def _on_train_end(self):
         """Must NOT be called by train_implementation"""
         tc = self._agent_context.train
-        if not tc.episodes_done_in_training in tc.eval_rewards:
+        if tc.episodes_done_in_training not in tc.eval_rewards:
             self._eval_current_policy()
 
         for c in self._callbacks:
@@ -253,7 +253,7 @@ class _BackendAgent(ABC):
         tc.steps_done_in_iteration = 0
         if tc.iterations_done_in_training == 0:
             self._eval_current_policy()
-        self._train_total_episodes_on_iteration_begin = self._agent_context.api._totals.episodes_done
+        self._train_total_episodes_on_iteration_begin = self._agent_context.gym._totals.episodes_done
 
         for c in self._callbacks:
             c.on_train_iteration_begin(self._agent_context)
@@ -271,7 +271,7 @@ class _BackendAgent(ABC):
                         the dict[episodes_done_in_training] is set to the arg.
         """
         tc = self._agent_context.train
-        totals = self._agent_context.api._totals
+        totals = self._agent_context.gym._totals
         tc.episodes_done_in_iteration = (totals.episodes_done - self._train_total_episodes_on_iteration_begin)
         tc.episodes_done_in_training += tc.episodes_done_in_iteration
         tc.loss[tc.episodes_done_in_training] = loss

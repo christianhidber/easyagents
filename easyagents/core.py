@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 seed: Optional[int] = None
 
 
-class ApiContext(object):
-    """Contains the context of the backend or gym api call
+class GymContext(object):
+    """Contains the context for gym api call
 
     Attributes:
-        gym_env: the target gym instance of a pending gym api call (None on a backend api call)
+        gym_env: the target gym instance of a pending gym api call
     """
 
     def __init__(self):
@@ -308,7 +308,7 @@ class AgentContext(object):
         train: training configuration and current train state. None if not inside a train call.
         play: play / eval configuration and current state. None if not inside a play call (directly or
             due to a evaluation inside a train loop)
-        api: api logging state.
+        gym: context for gym environment related calls.
         pyplot: the context containing the matplotlib.pyplot figure to plot to during training or playing
     """
 
@@ -323,12 +323,12 @@ class AgentContext(object):
         self.model: ModelConfig = model
         self.train: Optional[TrainContext] = None
         self.play: Optional[PlayContext] = None
-        self.api: ApiContext = ApiContext()
+        self.gym: GymContext = GymContext()
         self.pyplot: PyPlotContext = PyPlotContext()
 
     def __str__(self):
         result = f'agent_context:'
-        result += f'\napi   =[{self.api}]'
+        result += f'\napi   =[{self.gym}]'
         if self.train is not None:
             result += f'\ntrain =[{self.train}] '
         if self.play is not None:
