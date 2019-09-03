@@ -1,6 +1,4 @@
-﻿
-
-using EasyAgents_Design;
+﻿using EasyAgents_Design;
 
 namespace EasyAgents.core
 {
@@ -10,5 +8,11 @@ namespace EasyAgents.core
         GymContext gym;
         PyPlotContext pyplot;
         PlayContext play;
+
+        bool is_eval { get; }
+
+        bool is_play { get; }
+
+        bool is_train { get; }
     }
 }

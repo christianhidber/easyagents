@@ -21,7 +21,7 @@ class _BackendEvalCallback(core.AgentCallback):
 
         self._train_contex = train_context
 
-    def on_play_end(self, agent_context: core.AgentContext):
+    def on_play_episode_end(self, agent_context: core.AgentContext):
         pc = agent_context.play
         tc = self._train_contex
         sum_of_r = pc.sum_of_rewards.values()
@@ -60,8 +60,9 @@ class _BackendAgent(ABC):
         assert tc, "train_context not set"
 
         if tc.num_episodes_per_eval and tc.num_iterations_between_eval:
+            callbacks = [_BackendEvalCallback(self._agent_context.train)] + self._callbacks
             self.play(play_context=core.PlayContext(self._agent_context.train),
-                      callbacks=[_BackendEvalCallback(self._agent_context.train)])
+                      callbacks=callbacks)
 
     def log_api(self, api_target: str, log_msg: Optional[str] = None):
         """Logs a call to api_target with additional log_msg."""

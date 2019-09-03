@@ -1,44 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="EasyAgents_Design.PlayContext">
-    <Position X="22" Y="2" Width="2" />
+    <Position X="22" Y="3.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAEAgAAAAAAAACAAAAAAAAEAAACgAQAAAABAAAAAIAE=</HashCode>
       <FileName>core\PlayContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents_Design.AgentCriticTrainContext">
-    <Position X="19.25" Y="6.25" Width="2.25" />
+    <Position X="19.25" Y="7.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAIAAAAAA=</HashCode>
       <FileName>core\AgentCriticTrainContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents.core.GymContext">
-    <Position X="17.25" Y="2" Width="1.5" />
+    <Position X="17.25" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>core\GymContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents.core.PyPlotContext">
-    <Position X="24.5" Y="2" Width="1.5" />
+    <Position X="24.5" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAQBAAAAAAAAA=</HashCode>
       <FileName>core\PyPlotContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents.core.TrainContext">
-    <Position X="19.25" Y="2" Width="2.25" />
+    <Position X="19.25" Y="3.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAIAEAAUBEAAAAAAAAAAJAACQJAAAABEAAAAABAA=</HashCode>
       <FileName>core\TrainContext.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="EasyAgents.core.AgentContext" Collapsed="true">
+  <Class Name="EasyAgents.core.AgentContext">
     <Position X="21" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAIAEAAAAAAAAEAAAAAACAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAIAEIAAAAgAAECAAAAACAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>core\AgentContext.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>

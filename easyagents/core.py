@@ -44,13 +44,14 @@ class PyPlotContext(object):
         self.max_columns = 3
 
     def __str__(self):
-        return f'is_jupyter_active={self.is_jupyter_active} ' +\
-                f'max_columns={self.max_columns}'
+        return f'is_jupyter_active={self.is_jupyter_active} ' + \
+               f'max_columns={self.max_columns}'
 
     @property
     def is_plot_active(self):
         """Yields true if the figure contains at least 1 subplot, false otherweise."""
         return len(self.figure.axes) > 0
+
 
 class ModelConfig(object):
     """The model configurations, containing the name of the gym environment and the neural network architecture.
@@ -170,19 +171,18 @@ class TrainContext(object):
 
     def __str__(self):
         return f'training_done={self.training_done} ' + \
-                f'#iterations_done_in_training={self.iterations_done_in_training} ' + \
-                f'#episodes_done_in_iteration={self.episodes_done_in_iteration} ' + \
-                f'#steps_done_in_iteration={self.steps_done_in_iteration} ' + \
-                f'#iterations={self.num_iterations} ' + \
-                f'#episodes_per_iteration={self.num_episodes_per_iteration} ' + \
-                f'#max_steps_per_episode={self.max_steps_per_episode} ' + \
-                f'#epochs_per_iteration={self.num_epochs_per_iteration} ' + \
-                f'#iterations_between_eval={self.num_iterations_between_eval} ' + \
-                f'#episodes_per_eval={self.num_episodes_per_eval} ' + \
-                f'#learning_rate={self.learning_rate} ' + \
-                f'#reward_discount_gamma={self.reward_discount_gamma} ' + \
-                f'#max_steps_in_buffer={self.max_steps_in_buffer} '
-
+               f'#iterations_done_in_training={self.iterations_done_in_training} ' + \
+               f'#episodes_done_in_iteration={self.episodes_done_in_iteration} ' + \
+               f'#steps_done_in_iteration={self.steps_done_in_iteration} ' + \
+               f'#iterations={self.num_iterations} ' + \
+               f'#episodes_per_iteration={self.num_episodes_per_iteration} ' + \
+               f'#max_steps_per_episode={self.max_steps_per_episode} ' + \
+               f'#epochs_per_iteration={self.num_epochs_per_iteration} ' + \
+               f'#iterations_between_eval={self.num_iterations_between_eval} ' + \
+               f'#episodes_per_eval={self.num_episodes_per_eval} ' + \
+               f'#learning_rate={self.learning_rate} ' + \
+               f'#reward_discount_gamma={self.reward_discount_gamma} ' + \
+               f'#max_steps_in_buffer={self.max_steps_in_buffer} '
 
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
@@ -275,17 +275,12 @@ class PlayContext(object):
         self._reset()
 
     def __str__(self):
-        return f'#episodes={self.num_episodes} ' +\
-                f'max_steps_per_episode={self.max_steps_per_episode} '+\
-                f'play_done={self.play_done} '+\
-                f'episodes_done={self.episodes_done} '+\
-                f'steps_done_in_episode={self.steps_done_in_episode} ' +\
-                f'steps_done={self.steps_done} '
-
-    def _validate(self):
-        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
-        assert self.num_episodes is None or self.num_episodes > 0, "num_episodes not admissible"
-        assert self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
+        return f'#episodes={self.num_episodes} ' + \
+               f'max_steps_per_episode={self.max_steps_per_episode} ' + \
+               f'play_done={self.play_done} ' + \
+               f'episodes_done={self.episodes_done} ' + \
+               f'steps_done_in_episode={self.steps_done_in_episode} ' + \
+               f'steps_done={self.steps_done} '
 
     def _reset(self):
         """Clears all values modified during a train() call."""
@@ -297,6 +292,11 @@ class PlayContext(object):
         self.rewards: Dict[int, List[float]] = dict()
         self.sum_of_rewards: Dict[int, float] = dict()
         self.gym_env: Optional[gym.core.Env] = None
+
+    def _validate(self):
+        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
+        assert self.num_episodes is None or self.num_episodes > 0, "num_episodes not admissible"
+        assert self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
 
 
 class AgentContext(object):
@@ -337,6 +337,22 @@ class AgentContext(object):
             result += f'\npyplot=[{self.pyplot}] '
         result += f'\nmodel =[{self.model}] '
         return result
+
+    @property
+    def is_eval(self):
+        """Yields true if a policy evaluation inside an agent.train(...) call is in progress."""
+        return self.train and self.play
+
+    @property
+    def is_play(self):
+        """Yields true if an agent.play(...) call is in progress, but not a policy evaluation"""
+        return self.play and not self.train
+
+    @property
+    def is_train(self):
+        """Yields true if an agent.tain(...) call is in progress, but not a policy evaluation."""
+
+        return self.train and not self.play
 
 
 class AgentCallback(ABC):
