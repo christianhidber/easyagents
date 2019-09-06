@@ -46,7 +46,7 @@ class _BackendAgent(ABC):
         self.model_config.gym_env_name = self._agent_context.gym._totals.gym_env_name
 
         self._preprocess_callbacks: List[core.AgentCallback] = [plot._PlotPreProcess()]
-        self._callbacks: Optional[List[core.AgentCallback]] = []
+        self._callbacks: List[core.AgentCallback] = []
         self._postprocess_callbacks: List[core.AgentCallback] = [plot._PlotPostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
@@ -61,8 +61,7 @@ class _BackendAgent(ABC):
 
         if tc.num_episodes_per_eval and tc.num_iterations_between_eval:
             callbacks = [_BackendEvalCallback(self._agent_context.train)] + self._callbacks
-            self.play(play_context=core.PlayContext(self._agent_context.train),
-                      callbacks=callbacks)
+            self.play(play_context=core.PlayContext(self._agent_context.train), callbacks=callbacks)
 
     def log_api(self, api_target: str, log_msg: Optional[str] = None):
         """Logs a call to api_target with additional log_msg."""
@@ -133,17 +132,15 @@ class _BackendAgent(ABC):
             o sets env.max_steps_per_episode if we are in train / play. Thus the episode is ended
               by the MonitorEnv if the step limit is exceeded
         """
-        self._agent_context.gym.gym_env = env.env
+        ac = self._agent_context
+        ac.gym.gym_env = env.env
         env.max_steps_per_episode = None
-        pc = self._agent_context.play
-        if pc:
-            env.max_steps_per_episode = pc.max_steps_per_episode
+        if ac.is_play or ac.is_eval:
+            env.max_steps_per_episode = ac.play.max_steps_per_episode
             self._on_play_step_begin(action)
-        else:
-            tc = self._agent_context.train
-            if tc:
-                env.max_steps_per_episode = tc.max_steps_per_episode
-                self._on_train_step_begin(action)
+        if ac.is_train:
+            env.max_steps_per_episode = ac.train.max_steps_per_episode
+            self._on_train_step_begin(action)
         for c in self._callbacks:
             c.on_gym_step_begin(self._agent_context, action)
         self._agent_context.gym.gym_env = None
@@ -155,14 +152,12 @@ class _BackendAgent(ABC):
             env: the gym_env the last step was done on
             step_result: the result (state, reward, done, info) of the last step call
         """
-        self._agent_context.gym.gym_env = env.env
-        pc = self._agent_context.play
-        if pc:
+        ac = self._agent_context
+        ac.gym.gym_env = env.env
+        if ac.is_play or ac.is_eval:
             self._on_play_step_end(action, step_result)
-        else:
-            tc = self._agent_context.train
-            if tc:
-                self._on_train_step_end(action, step_result)
+        if ac.is_train:
+            self._on_train_step_end(action, step_result)
         for c in self._callbacks:
             c.on_gym_step_end(self._agent_context, action, step_result)
         self._agent_context.gym.gym_env = None
@@ -189,9 +184,9 @@ class _BackendAgent(ABC):
         pc = self._agent_context.play
         pc.gym_env = env
         pc.steps_done_in_episode = 0
-        pc.actions[pc.episodes_done] = []
-        pc.rewards[pc.episodes_done] = []
-        pc.sum_of_rewards[pc.episodes_done] = 0
+        pc.actions[pc.episodes_done+1] = []
+        pc.rewards[pc.episodes_done+1] = []
+        pc.sum_of_rewards[pc.episodes_done+1] = 0
 
         for c in self._callbacks:
             c.on_play_episode_begin(self._agent_context)
@@ -227,9 +222,9 @@ class _BackendAgent(ABC):
         pc = self._agent_context.play
         pc.steps_done_in_episode += 1
         pc.steps_done += 1
-        pc.actions[pc.episodes_done].append(action)
-        pc.rewards[pc.episodes_done].append(reward)
-        pc.sum_of_rewards[pc.episodes_done] += reward
+        pc.actions[pc.episodes_done+1].append(action)
+        pc.rewards[pc.episodes_done+1].append(reward)
+        pc.sum_of_rewards[pc.episodes_done+1] += reward
         for c in self._callbacks:
             c.on_play_step_end(self._agent_context, action, step_result)
 

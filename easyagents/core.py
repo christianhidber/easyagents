@@ -4,6 +4,7 @@
 
 from abc import ABC
 from typing import Optional, Dict, Tuple, List
+from enum import Flag, auto
 
 import easyagents.env
 import gym.core
@@ -28,29 +29,51 @@ class GymContext(object):
         return f'{self._totals}'
 
 
+class PlotType(Flag):
+    """Defines the point in time when a plot is created / updated.
+
+    NONE: No plot is updated.
+    PLAY_EPISODE: Called after the last step of each played episode. The gym environment is still
+        accessible through agent_context.play-gym_env.
+    PLAY_STEP: Called after each play step. The gym environment is still
+        accessible through agent_context.play-gym_env.
+    TRAIN_EVAL: Called after the last step of the last evaluation episode during training.
+        The gym environment is accessible through agent_context.play-gym_env.
+    TRAIN_ITERATION: Called after each train iteration. No gym environment is available.
+    """
+    NONE = 0
+    PLAY_EPISODE = auto()
+    PLAY_STEP = auto()
+    TRAIN_EVAL = auto()
+    TRAIN_ITERATION = auto()
+
+
 class PyPlotContext(object):
     """Contain the context for the maplotlib.pyplot figure plotting.
 
     Attributes
         figure: the figure to plot to
+        figsize: figure (width,height) in inches for the figure to be created.
         is_jupyter_active: True if we plot to jupyter notebook cell, False otherwise.
         max_columns: the max number of subplot columns in the pyplot figure
     """
 
     def __init__(self):
+        self._plot_type = PlotType.NONE
         self.figure: Optional[plt.Figure] = None
+        self.figsize: (float, float) = (17, 6)
         self._call_jupyter_display = False
         self.is_jupyter_active = False
         self.max_columns = 3
 
     def __str__(self):
-        return f'is_jupyter_active={self.is_jupyter_active} ' + \
-               f'max_columns={self.max_columns}'
+        return f'is_jupyter_active={self.is_jupyter_active} max_columns={self.max_columns} ' + \
+               f'_plot_type={self._plot_type} figure={self.figure.number} axes={len(self.figure.axes)} '
 
-    @property
-    def is_plot_active(self):
-        """Yields true if the figure contains at least 1 subplot, false otherweise."""
-        return len(self.figure.axes) > 0
+    def is_active(self, plot_type: PlotType):
+        """Yields true if the plot_type flag is set."""
+        result = (self._plot_type & plot_type) == plot_type
+        return result
 
 
 class ModelConfig(object):
@@ -339,20 +362,35 @@ class AgentContext(object):
         return result
 
     @property
-    def is_eval(self):
+    def is_eval(self) -> bool:
         """Yields true if a policy evaluation inside an agent.train(...) call is in progress."""
-        return self.train and self.play
+        return (self.play is not None) and (self.train is not None)
 
     @property
-    def is_play(self):
+    def is_play(self) -> bool:
         """Yields true if an agent.play(...) call is in progress, but not a policy evaluation"""
-        return self.play and not self.train
+        return (self.play is not None) and (self.train is None)
+
+    def is_plot(self, plot_type: PlotType) -> bool:
+        """Yields true if plot_type is ready to be plotted."""
+        result = False
+        if plot_type == PlotType.PLAY_EPISODE:
+            result = self.is_play and self.pyplot.is_active(PlotType.PLAY_EPISODE)
+        if plot_type == PlotType.PLAY_STEP:
+            result = self.is_play and self.pyplot.is_active(PlotType.PLAY_STEP)
+        if plot_type == PlotType.TRAIN_EVAL:
+            result = self.is_eval
+            result = result and self.pyplot.is_active(PlotType.TRAIN_EVAL)
+            result = result and (self.play.episodes_done == self.train.num_episodes_per_eval)
+        if plot_type == PlotType.TRAIN_ITERATION:
+            result = self.is_train and self.pyplot.is_active(PlotType.TRAIN_ITERATION)
+        return result
 
     @property
-    def is_train(self):
+    def is_train(self) -> bool:
         """Yields true if an agent.tain(...) call is in progress, but not a policy evaluation."""
 
-        return self.train and not self.play
+        return (self.train is not None) and (self.play is None)
 
 
 class AgentCallback(ABC):

@@ -1,22 +1,40 @@
 import unittest
 import easyagents
-from easyagents.callbacks.duration import Fast
-from easyagents.callbacks.plot import PlotLoss, PlotRewards, PlotSteps
+from easyagents.callbacks.duration import Fast, SingleEpisode
+from easyagents.callbacks.plot import PlotLoss, PlotRewards, PlotSteps, PlotState
 
 
 class PlotLossTest(unittest.TestCase):
 
-    def test_plotloss(self):
+    def test_play_plotstate(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([SingleEpisode()])
+        agent.play([PlotState()])
+
+    def test_play_plotrewards(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([Fast(),PlotRewards()])
+        agent.play([PlotState(),PlotRewards()])
+
+    def test_train_plotloss(self):
         agent = easyagents.PpoAgent("CartPole-v0")
         agent.train([Fast(), PlotLoss()])
 
-    def test_plotrewards(self):
+    def test_train_plotrewards(self):
         agent = easyagents.PpoAgent("CartPole-v0")
         agent.train([Fast(), PlotRewards()])
 
-    def test_multiple_subplots(self):
+    def test_train_plotstate(self):
         agent = easyagents.PpoAgent("CartPole-v0")
-        agent.train([Fast(), PlotRewards(), PlotLoss(), PlotSteps()])
+        agent.train([Fast(), PlotState()])
+
+    def test_train_plotsteps(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([Fast(), PlotSteps()])
+
+    def test_train_multiple_subplots(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([Fast(), PlotState(), PlotRewards(), PlotLoss(), PlotSteps()])
 
 """
     def test(self):
