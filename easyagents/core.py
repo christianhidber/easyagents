@@ -491,3 +491,9 @@ class AgentCallback(ABC):
 
     def on_train_iteration_end(self, agent_context: AgentContext):
         """Called once after the current iteration is completed"""
+
+class _PostProcessCallback(AgentCallback):
+    pass
+
+class _PreProcessCallback(AgentCallback):
+    pass

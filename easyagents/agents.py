@@ -8,6 +8,7 @@
 from abc import ABC
 from typing import Dict, List, Tuple, Optional
 from easyagents import core
+from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
 import easyagents.backends.default
 import easyagents.backends.tfagents
@@ -16,6 +17,7 @@ _backends: Dict[str, bcore.BackendAgentFactory] = {
     easyagents.backends.default.BackendAgentFactory.name: easyagents.backends.default.BackendAgentFactory(),
     easyagents.backends.tfagents.BackendAgentFactory.name: easyagents.backends.tfagents.BackendAgentFactory()
 }
+
 
 def get_backends():
     """returns a list of all registered backend identifiers."""
@@ -58,6 +60,24 @@ class EasyAgent(ABC):
         self._backend_agent: Optional[bcore._BackendAgent] = None
         return
 
+
+    def _prepare_callbacks(self, callbacks: List[core.AgentCallback]) -> List[core.AgentCallback]:
+        """Adds the default callbacks and sorts all callbacks in the order
+        _PreProcessCallbacks, AgentCallbacks, _PostProcessCallbacks."""
+        preProcess = [plot._PlotPreProcess()]
+        agent = []
+        postProcess = [plot._PlotPostProcess()]
+        for c in callbacks:
+            if isinstance(c, core._PreProcessCallback):
+                preProcess.append(c)
+            else:
+                if isinstance(c, core._PostProcessCallback):
+                    postProcess.append(c)
+                else:
+                    agent.append(c)
+        result = preProcess + agent + postProcess
+        return result
+
     def play(self, play_context: core.PlayContext, callbacks: List[core.AgentCallback] = None):
         """Plays episodes with the current policy according to play_context.
 
@@ -72,8 +92,9 @@ class EasyAgent(ABC):
         if callbacks is None:
             callbacks = []
         if not isinstance(callbacks, list):
-            assert isinstance(callbacks, core.AgentCallback), "callback not a AgentCallback or a list thereof."
+            assert isinstance(callbacks, core.AgentCallback), "callback not an AgentCallback or a list thereof."
             callbacks = [callbacks]
+        callbacks = self._prepare_callbacks(callbacks)
         self._backend_agent.play(play_context=play_context, callbacks=callbacks)
 
     def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback] = None):
@@ -89,6 +110,7 @@ class EasyAgent(ABC):
         if not isinstance(callbacks, list):
             assert isinstance(callbacks, core.AgentCallback), "callback not a AgentCallback or a list thereof."
             callbacks = [callbacks]
+        callbacks = self._prepare_callbacks(callbacks)
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
 
@@ -172,7 +194,7 @@ class PpoAgent(EasyAgent):
             train_context.max_steps_per_episode = max_steps_per_episode
             train_context.num_epochs_per_iteration = num_epochs_per_iteration
             train_context.num_episodes_per_iteration = num_episodes_per_iteration
-            train_context.num_iterations_between_eval=num_iterations_between_eval
+            train_context.num_iterations_between_eval = num_iterations_between_eval
             train_context.num_episodes_per_eval = num_episodes_per_eval
             train_context.learning_rate = learning_rate
 

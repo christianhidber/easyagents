@@ -33,7 +33,7 @@ except ImportError:
     pass
 
 
-class _PlotPreProcess(core.AgentCallback):
+class _PlotPreProcess(core._PreProcessCallback):
     """Initializes the matplotlib agent_context.pyplot.figure"""
 
     def _setup(self, agent_context: core.AgentContext):
@@ -56,7 +56,7 @@ class _PlotPreProcess(core.AgentCallback):
         self._setup(agent_context=agent_context)
 
 
-class _PlotPostProcess(core.AgentCallback):
+class _PlotPostProcess(core._PostProcessCallback):
     """Plots the matplotlib agent_context.figure"""
 
     def _display(self, agent_context: core.AgentContext):
@@ -110,6 +110,7 @@ class PlotCallback(core.AgentCallback):
                 plot_type: point in time when the plot is updated
         """
         self.axes = None
+        self.axes_color = 'grey'
         self._plot_type = plot_type
 
     def _clear_axes(self, agent_context: core.AgentContext):
@@ -182,7 +183,7 @@ class PlotCallback(core.AgentCallback):
         assert ylabel is not None
 
         # setup subplot (axes, labels, colors)
-        axes_color = 'grey'
+        axes_color = self.axes_color
         self.axes.set_xlabel(xlabel)
         self.axes.set_ylabel(ylabel)
         self.axes.set_xlim(xlim)
@@ -347,10 +348,23 @@ class PlotState(PlotCallback):
         ax.set_xlabel(xlabel)
         ax.get_xaxis().set_ticks([])
         ax.get_yaxis().set_ticks([])
-        axes_color = 'grey'
+        axes_color = self.axes_color
         for spin in ax.spines:
             ax.spines[spin].set_visible(True)
             ax.spines[spin].set_color(axes_color)
+
+    def _plot_text(self, text: str):
+        if text:
+            ax = self.axes
+            ax.text(0.5, 0.5, text, horizontalalignment='center', verticalalignment='center',
+                    color='blue', wrap=True)
+            ax.set_xlabel('')
+            ax.get_xaxis().set_ticks([])
+            ax.get_yaxis().set_ticks([])
+            axes_color = self.axes_color
+            for spin in ax.spines:
+                ax.spines[spin].set_visible(True)
+                ax.spines[spin].set_color(axes_color)
 
     # noinspection PyArgumentList,DuplicatedCode
     def _render_to_rgb_array(self, gym_env: gym.Env, mode: str) -> np.ndarray:
@@ -372,8 +386,11 @@ class PlotState(PlotCallback):
         return result
 
     def plot(self, agent_context: core.AgentContext):
-        rgb_array: np.ndarray = self._render_to_rgb_array(agent_context.play.gym_env, self._render_mode)
-        self._plot_rgb_array(agent_context, rgb_array)
+        try:
+            rgb_array: np.ndarray = self._render_to_rgb_array(agent_context.play.gym_env, self._render_mode)
+            self._plot_rgb_array(agent_context, rgb_array)
+        except Exception as e:
+            self._plot_text(f'gym.Env.render(mode="{self._render_mode}") failed:\n')
 
 
 class PlotSteps(PlotCallback):
@@ -401,3 +418,21 @@ class PlotSteps(PlotCallback):
             yvalues = [len(pc.actions[episode]) for episode in pc.actions.keys()]
         self.plot_subplot(agent_context, color='blue', ylim=self.ylim, yscale=self.yscale,
                           xvalues=xvalues, yvalues=yvalues, ylabel='steps')
+
+
+class ToMovie(core._PostProcessCallback):
+    """Plots the pyplot figure to an mp4 file
+
+    Attributes:
+        fps: frame per seconds
+        filepath: the filepath of the mp4 file.
+    """
+
+    def __init__(self, fps: Optional[int] = None, filepath: str = None):
+        """Writes the ploted graphs and images to the mp4 file given by filepath.
+
+        Args:
+            fps: frames per second
+            filepath: the filepath of the mp4 file. If None the file is written to a temp file
+        """
+        super().__init__()

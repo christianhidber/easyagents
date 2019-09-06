@@ -8,6 +8,7 @@ import easyagents.core
 from easyagents.backends.default import BackendAgentFactory
 from easyagents.callbacks.duration import SingleEpisode, Fast
 from easyagents.callbacks.log import LogAgent, LogIteration, LogStep
+from easyagents.callbacks.plot import _PlotPostProcess, _PlotPreProcess, ToMovie, PlotRewards
 
 _env_name = easyagents.env._StepCountEnv.register_with_gym()
 
@@ -24,6 +25,15 @@ class BackendRegistrationTest(unittest.TestCase):
     def test_getbackends(self):
         assert easyagents.agents._backends is not None
         assert easyagents.agents.get_backends() is not None
+
+    def test_prepare_callbacks(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        c = [ToMovie(), PlotRewards()]
+        d = agent._prepare_callbacks(c)
+        assert isinstance(d[0], _PlotPreProcess)
+        assert isinstance(d[1], PlotRewards)
+        assert isinstance(d[-2], _PlotPostProcess)
+        assert isinstance(d[-1], ToMovie)
 
     def test_register(self):
         assert "MyBackend" not in easyagents.agents.get_backends()
