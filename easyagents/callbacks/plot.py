@@ -1,11 +1,15 @@
 from typing import Optional, List, Tuple, Union
 
 import easyagents.core as core
+import base64
 import matplotlib.pyplot as plt
 import numpy as np
 import imageio
 import math
 import gym
+import tempfile
+import os.path
+import datetime
 
 # download mp4 rendering
 imageio.plugins.ffmpeg.download()
@@ -436,3 +440,64 @@ class ToMovie(core._PostProcessCallback):
             filepath: the filepath of the mp4 file. If None the file is written to a temp file
         """
         super().__init__()
+        self.fps = fps
+        self._is_filepath_set = filepath is not None
+        self.filepath = filepath
+        if not self._is_filepath_set:
+             self.filepath = self._get_temp_path()
+        self._video = imageio.get_writer(self.filepath,fps=fps) if fps else imageio.get_writer(self.filepath)
+
+    def _get_temp_path(self):
+        result = os.path.join(tempfile.gettempdir(), tempfile.gettempprefix())
+        n = datetime.datetime.now()
+        result = result + \
+                 f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-{n.microsecond:06}.mp4'
+        return result
+
+    def _get_rgb_array(self, agent_context: core.AgentContext) -> np.ndarray:
+        """Yields an rgb array representing the current content of the subplots."""
+        pyc = agent_context.pyplot
+        pyc.figure.canvas.draw()
+        result = np.frombuffer(pyc.figure.canvas.tostring_rgb(), dtype='uint8')
+        result = result.reshape(pyc.figure.canvas.get_width_height()[::-1] + (3,))
+        return result
+
+    def _close(self,agent_context: core.AgentContext):
+        """closes the mp4 file and displays it in jupyter cell (if in a jupyter notebook)"""
+        self._video.close()
+        self._video = None
+        if agent_context.pyplot.is_jupyter_active:
+            with open(self.filepath, 'rb') as f:
+                video = f.read()
+                b64 = base64.b64encode(video)
+            if not self._is_filepath_set:
+                os.remove(self.filepath)
+            result = '''
+            <video width="{0}" height="{1}" controls>
+                <source src="data:video/mp4;base64,{2}" type="video/mp4">
+            Your browser does not support the video tag.
+            </video>'''.format(640, 480, b64.decode())
+            result = HTML(result)
+            # noinspection PyTypeChecker
+            clear_output(wait=True)
+            # noinspection PyTypeChecker
+            display(result)
+
+    def on_play_episode_end(self, agent_context: core.AgentContext):
+        if agent_context.is_plot(core.PlotType.PLAY_EPISODE) or agent_context.is_plot(core.PlotType.TRAIN_EVAL):
+            self._video.append_data(self._get_rgb_array(agent_context))
+
+    def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
+        if agent_context.is_plot(core.PlotType.PLAY_STEP):
+            self._video.append_data(self._get_rgb_array(agent_context))
+
+    def on_train_iteration_end(self, agent_context: core.AgentContext):
+        if agent_context.is_plot(core.PlotType.TRAIN_ITERATION):
+            self._video.append_data(self._get_rgb_array(agent_context))
+
+    def on_play_end(self, agent_context: core.AgentContext):
+        if agent_context.is_plot(core.PlotType.PLAY_EPISODE):
+            self._close(agent_context)
+
+    def on_train_end(self, agent_context: core.AgentContext):
+        self._close(agent_context)
