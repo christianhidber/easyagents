@@ -45,9 +45,9 @@ class _BackendAgent(ABC):
         self._agent_context.gym._totals = monitor._register_gym_monitor(self.model_config.original_env_name)
         self.model_config.gym_env_name = self._agent_context.gym._totals.gym_env_name
 
-        self._preprocess_callbacks: List[core._PreProcessCallback] = [plot._PlotPreProcess()]
+        self._preprocess_callbacks: List[core._PreProcessCallback] = [plot._PreProcess()]
         self._callbacks: List[core.AgentCallback] = []
-        self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PlotPostProcess()]
+        self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
 

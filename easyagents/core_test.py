@@ -2,7 +2,7 @@ import pytest
 import unittest
 
 from easyagents.core import ModelConfig, AgentCallback, AgentContext, TrainContext, PlayContext
-from easyagents.callbacks.duration import SingleEpisode, Fast
+from easyagents.callbacks.duration import _SingleEpisode, Fast
 import easyagents.backends.debug
 
 _env_name = easyagents.env._StepCountEnv.register_with_gym()

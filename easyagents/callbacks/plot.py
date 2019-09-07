@@ -37,7 +37,7 @@ except ImportError:
     pass
 
 
-class _PlotPreProcess(core._PreProcessCallback):
+class _PreProcess(core._PreProcessCallback):
     """Initializes the matplotlib agent_context.pyplot.figure"""
 
     def _setup(self, agent_context: core.AgentContext):
@@ -60,26 +60,27 @@ class _PlotPreProcess(core._PreProcessCallback):
         self._setup(agent_context=agent_context)
 
 
-class _PlotPostProcess(core._PostProcessCallback):
+class _PostProcess(core._PostProcessCallback):
     """Plots the matplotlib agent_context.figure"""
 
     def _display(self, agent_context: core.AgentContext):
         """Fixes the layout of multiple subplots and refreshs the display."""
         pyc = agent_context.pyplot
         count = len(pyc.figure.axes)
-        rows = math.ceil(count / pyc.max_columns)
-        columns = math.ceil(count / rows)
-        for i in range(count):
-            pyc.figure.axes[i].change_geometry(rows, columns, i + 1)
-        pyc.figure.tight_layout()
+        if count > 0:
+            rows = math.ceil(count / pyc.max_columns)
+            columns = math.ceil(count / rows)
+            for i in range(count):
+                pyc.figure.axes[i].change_geometry(rows, columns, i + 1)
+            pyc.figure.tight_layout()
 
-        if pyc.is_jupyter_active:
-            clear_output(wait=True)
-            if pyc._call_jupyter_display:
-                # noinspection PyTypeChecker
-                display(pyc.figure)
-        plt.pause(0.01)
-        pyc._call_jupyter_display = True
+            if pyc.is_jupyter_active:
+                clear_output(wait=True)
+                if pyc._call_jupyter_display:
+                    # noinspection PyTypeChecker
+                    display(pyc.figure)
+            plt.pause(0.01)
+            pyc._call_jupyter_display = True
 
     def on_play_episode_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.TRAIN_EVAL) or agent_context.is_plot(core.PlotType.PLAY_EPISODE):
@@ -100,7 +101,7 @@ class _PlotPostProcess(core._PostProcessCallback):
 
 
 # noinspection DuplicatedCode
-class PlotCallback(core.AgentCallback):
+class _PlotCallbackBase(core.AgentCallback):
     """Base class of plyplot callbacks generating a plot after a trained iteration or an episode played.
 
         Attributes:
@@ -231,7 +232,7 @@ class PlotCallback(core.AgentCallback):
 
     def plot_values(self, agent_context: core.AgentContext,
                     xvalues: List[int], yvalues: List[Union[float, Tuple[float, float, float]]],
-                    color: str = 'blue'):
+                    color: str = 'blue', pause:bool=True):
         """Draws the graph given by xvalues, yvalues.
 
         Attributes:
@@ -239,6 +240,7 @@ class PlotCallback(core.AgentCallback):
             xvalues: the graphs x-values (must have same length as y-values)
             yvalues: the graphs y-values or (min,y,max)-tuples (must have same length as x-values)
             color: the graphs color (must be the name of a matplotlib color)
+            pause: pause to redraw the plot.
         """
         assert xvalues is not None
         assert yvalues is not None
@@ -264,10 +266,11 @@ class PlotCallback(core.AgentCallback):
             if yminvalues is not None:
                 plt.fill_between(xvalues, yminvalues, ymaxvalues, color=color, alpha=fill_alpha)
             plt.plot(xvalues, yvalues, color=color)
-            plt.pause(0.01)
+            if pause:
+                plt.pause(0.01)
 
 
-class PlotLoss(PlotCallback):
+class Loss(_PlotCallbackBase):
 
     def __init__(self, yscale: str = 'symlog', ylim: Optional[Tuple[float, float]] = None):
         """Plots the loss resulting from each iterations policy training.
@@ -290,15 +293,17 @@ class PlotLoss(PlotCallback):
         xvalues = list(tc.loss.keys())
         self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes',
                        ylim=self.ylim, ylabel='loss', yscale=self.yscale)
-        self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(tc.loss.values()), color='indigo')
         if isinstance(tc, core.ActorCriticTrainContext):
             acc: core.ActorCriticTrainContext = tc
-            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g')
+            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.loss.values()), color='indigo', pause=False)
+            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g', pause=False)
             self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.critic_loss.values()), color='b')
             self.axes.legend(('total', 'actor', 'critic'))
+        else:
+            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(tc.loss.values()), color='indigo')
 
 
-class PlotRewards(PlotCallback):
+class Rewards(_PlotCallbackBase):
 
     def __init__(self, yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
         """Plots the sum of rewards observed during policy evaluation.
@@ -326,7 +331,7 @@ class PlotRewards(PlotCallback):
                               xvalues=xvalues, yvalues=yvalues, ylabel='sum of rewards')
 
 
-class PlotState(PlotCallback):
+class State(_PlotCallbackBase):
     """Renders the gym state as a plot to the pyplot figure using gym.render('rgb_array').
 
         During training only the last state of the last game evaluation is plotted.
@@ -397,7 +402,7 @@ class PlotState(PlotCallback):
             self._plot_text(f'gym.Env.render(mode="{self._render_mode}") failed:\n')
 
 
-class PlotSteps(PlotCallback):
+class Steps(_PlotCallbackBase):
 
     def __init__(self, yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
         """Plots the step counts observed during policy evaluation.

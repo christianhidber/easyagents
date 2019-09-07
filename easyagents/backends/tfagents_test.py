@@ -3,8 +3,8 @@ import unittest
 from easyagents import core
 from easyagents.backends import tfagents
 import easyagents.env
-from easyagents.callbacks.duration import SingleEpisode,Fast
-from easyagents.callbacks.log import LogStep, LogAgent, LogCallbacks, LogIteration
+from easyagents.callbacks.duration import _SingleEpisode,Fast
+from easyagents.callbacks.log import Step, Agent, _Callbacks, Iteration
 
 
 class TfPpoAgentTest(unittest.TestCase):
@@ -16,7 +16,7 @@ class TfPpoAgentTest(unittest.TestCase):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.ActorCriticTrainContext()
         ppoAgent = tfagents.TfPpoAgent(model_config=model_config)
-        ppoAgent.train(train_context=tc, callbacks=[Fast(),LogIteration()])
+        ppoAgent.train(train_context=tc, callbacks=[Fast(), Iteration()])
 
 
 if __name__ == '__main__':

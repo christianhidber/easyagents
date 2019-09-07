@@ -24,7 +24,7 @@ class BackendAgentTest(unittest.TestCase):
 
     def test_play_playcontext(self):
         agent = BackendAgentTest.DebugAgent()
-        count = easyagents.callbacks.log.CountCallbacks()
+        count = easyagents.callbacks.log._CallbackCounts()
         agent.play(play_context=self.pc,callbacks=[count])
         assert self.pc.play_done == True
         assert self.pc.episodes_done == self.pc.num_episodes
@@ -49,7 +49,7 @@ class BackendAgentTest(unittest.TestCase):
 
     def test_train_traincontext(self):
         agent = BackendAgentTest.DebugAgent()
-        count = easyagents.callbacks.log.CountCallbacks()
+        count = easyagents.callbacks.log._CallbackCounts()
         tc = self.tc
         tc.num_iterations = 3
         tc.num_episodes_per_iteration=2
