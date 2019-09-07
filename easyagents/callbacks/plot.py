@@ -444,25 +444,10 @@ class ToMovie(core._PostProcessCallback):
         self._is_filepath_set = filepath is not None
         self.filepath = filepath
         if not self._is_filepath_set:
-             self.filepath = self._get_temp_path()
-        self._video = imageio.get_writer(self.filepath,fps=fps) if fps else imageio.get_writer(self.filepath)
+            self.filepath = self._get_temp_path()
+        self._video = imageio.get_writer(self.filepath, fps=fps) if fps else imageio.get_writer(self.filepath)
 
-    def _get_temp_path(self):
-        result = os.path.join(tempfile.gettempdir(), tempfile.gettempprefix())
-        n = datetime.datetime.now()
-        result = result + \
-                 f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-{n.microsecond:06}.mp4'
-        return result
-
-    def _get_rgb_array(self, agent_context: core.AgentContext) -> np.ndarray:
-        """Yields an rgb array representing the current content of the subplots."""
-        pyc = agent_context.pyplot
-        pyc.figure.canvas.draw()
-        result = np.frombuffer(pyc.figure.canvas.tostring_rgb(), dtype='uint8')
-        result = result.reshape(pyc.figure.canvas.get_width_height()[::-1] + (3,))
-        return result
-
-    def _close(self,agent_context: core.AgentContext):
+    def _close(self, agent_context: core.AgentContext):
         """closes the mp4 file and displays it in jupyter cell (if in a jupyter notebook)"""
         self._video.close()
         self._video = None
@@ -483,17 +468,43 @@ class ToMovie(core._PostProcessCallback):
             # noinspection PyTypeChecker
             display(result)
 
+    def _get_rgb_array(self, agent_context: core.AgentContext) -> np.ndarray:
+        """Yields an rgb array representing the current content of the subplots."""
+        pyc = agent_context.pyplot
+        pyc.figure.canvas.draw()
+        result = np.frombuffer(pyc.figure.canvas.tostring_rgb(), dtype='uint8')
+        result = result.reshape(pyc.figure.canvas.get_width_height()[::-1] + (3,))
+        return result
+
+    def _get_temp_path(self):
+        result = os.path.join(tempfile.gettempdir(), tempfile.gettempprefix())
+        n = datetime.datetime.now()
+        result = result + \
+                 f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-{n.microsecond:06}.mp4'
+        return result
+
+    def _write_figure_to_video(self, agent_context: core.AgentContext):
+        """Appends the current pyplot figure to the video.
+
+        if an exception occures no frame is added.
+        """
+        try:
+            rgb_array = self._get_rgb_array(agent_context)
+            self._video.append_data(rgb_array)
+        except:
+            pass
+
     def on_play_episode_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.PLAY_EPISODE) or agent_context.is_plot(core.PlotType.TRAIN_EVAL):
-            self._video.append_data(self._get_rgb_array(agent_context))
+            self._write_figure_to_video(agent_context)
 
     def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         if agent_context.is_plot(core.PlotType.PLAY_STEP):
-            self._video.append_data(self._get_rgb_array(agent_context))
+            self._write_figure_to_video(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.TRAIN_ITERATION):
-            self._video.append_data(self._get_rgb_array(agent_context))
+            self._write_figure_to_video(agent_context)
 
     def on_play_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.PLAY_EPISODE):
