@@ -24,7 +24,7 @@ setup(
         "Programming Language :: Python :: 3.7",
     ],
     packages=["easyagents"],
-    install_requires=["gym==0.10.11", "imageio==2.4.0", "imageio-ffmpeg==0.3.0", "matplotlib==3.1.1",
+    install_requires=["gast==0.2.2", "gym==0.10.11", "imageio==2.4.0", "imageio-ffmpeg==0.3.0", "matplotlib==3.1.1",
                       "numpy==1.17.0", "PILLOW==6.1.0", "pyglet==1.3.2", "tf-agents-nightly", "tf-nightly"],
     include_package_data=True,
     entry_points={
