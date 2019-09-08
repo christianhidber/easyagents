@@ -1,10 +1,13 @@
 import unittest
+import tempfile
+import os
+
 import easyagents
 
 from easyagents.callbacks import duration, plot
 
 
-class PlotLossTest(unittest.TestCase):
+class PlotTest(unittest.TestCase):
 
     def test_play_plotstate(self):
         agent = easyagents.PpoAgent("CartPole-v0")
@@ -39,6 +42,19 @@ class PlotLossTest(unittest.TestCase):
     def test_train_tomovie(self):
         agent = easyagents.PpoAgent("CartPole-v0")
         agent.train([duration._SingleIteration(), plot.Rewards(), plot.ToMovie()])
+
+    def test_train_tomovie_with_filename(self):
+        f = tempfile.NamedTemporaryFile(delete=False)
+        filepath = f.name
+        f.close()
+        os.remove(filepath)
+        assert not os.path.isfile(filepath)
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([duration._SingleIteration(), plot.Rewards(), plot.ToMovie(filepath=filepath, fps=10)])
+        assert not os.path.isfile(filepath)
+        assert os.path.isfile(filepath + '.mp4')
+        os.remove(filepath + '.mp4')
+
 
 
 if __name__ == '__main__':

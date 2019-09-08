@@ -450,6 +450,8 @@ class ToMovie(core._PostProcessCallback):
         self.filepath = filepath
         if not self._is_filepath_set:
             self.filepath = self._get_temp_path()
+        if not self.filepath.lower().endswith('.mp4'):
+            self.filepath = self.filepath + '.mp4'
         self._video = imageio.get_writer(self.filepath, fps=fps) if fps else imageio.get_writer(self.filepath)
 
     def _close(self, agent_context: core.AgentContext):
@@ -485,7 +487,7 @@ class ToMovie(core._PostProcessCallback):
         result = os.path.join(tempfile.gettempdir(), tempfile.gettempprefix())
         n = datetime.datetime.now()
         result = result + \
-                 f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-{n.microsecond:06}.mp4'
+                 f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-{n.microsecond:06}'
         return result
 
     def _write_figure_to_video(self, agent_context: core.AgentContext):
