@@ -1,4 +1,4 @@
-### Reinforcement Learning for Practitioners (v1-alpha)
+### Reinforcement Learning for Practitioners (v1)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=v1)
 
 Status: under active development, breaking changes may occur
@@ -48,7 +48,7 @@ ppoAgent.train(learning_rate=0.0001,
                num_iterations = 500, max_steps_per_episode = 50,
                default_callbacks=False )
 ````
-![Scenario_Detailed](images/Scenario_detailed.png)
+![Scenario_Detailed](images/Scenario_detailed.mp4)
 
 ## Guiding Principles
 * **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
