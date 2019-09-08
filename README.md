@@ -48,7 +48,15 @@ ppoAgent.train(learning_rate=0.0001,
                num_iterations = 500, max_steps_per_episode = 50,
                default_callbacks=False )
 ````
-![Scenario_Detailed](images/Scenario_detailed.mp4)
+
+<!-- blank line -->
+<figure class="video_container">
+  <video controls="true" allowfullscreen="true" poster="images/Scenario_simple.png">
+    <source src="images/Scenario_detailed.mp4" type="video/mp4">
+  </video>
+</figure>
+<!-- blank line -->
+
 
 ## Guiding Principles
 * **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
