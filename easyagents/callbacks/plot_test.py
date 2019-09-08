@@ -52,7 +52,6 @@ class PlotTest(unittest.TestCase):
         agent = easyagents.PpoAgent("CartPole-v0")
         m = plot.ToMovie(filepath=filepath, fps=10)
         agent.train([duration._SingleIteration(), plot.Rewards(), m])
-        assert os.path.isfile(m.filepath)
         os.remove(m.filepath)
 
 
