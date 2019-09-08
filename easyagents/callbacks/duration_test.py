@@ -1,14 +1,14 @@
 import unittest
 import easyagents
-from easyagents.callbacks.duration import SingleEpisode
-from easyagents.callbacks.log import CountCallbacks, LogCallbacks
+from easyagents.callbacks.duration import _SingleEpisode
+from easyagents.callbacks.log import _CallbackCounts, _Callbacks
 
 
 class DurationTest(unittest.TestCase):
     def test_single_episode(self):
         agent = easyagents.PpoAgent("CartPole-v0")
-        count=CountCallbacks()
-        agent.train([SingleEpisode(), LogCallbacks(), count])
+        count=_CallbackCounts()
+        agent.train([_SingleEpisode(), _Callbacks(), count])
         assert count.train_iteration_begin_count == 1
 
 

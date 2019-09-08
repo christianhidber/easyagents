@@ -1,31 +1,61 @@
 import unittest
+import tempfile
+import os
+
 import easyagents
-from easyagents.callbacks.duration import Fast
-from easyagents.callbacks.plot import PlotLoss, PlotRewards, PlotSteps
+
+from easyagents.callbacks import duration, plot
 
 
-class PlotLossTest(unittest.TestCase):
+class PlotTest(unittest.TestCase):
 
-    def test_plotloss(self):
+    def test_play_plotstate(self):
         agent = easyagents.PpoAgent("CartPole-v0")
-        agent.train([Fast(), PlotLoss()])
+        agent.train([duration._SingleEpisode()])
+        agent.play([plot.State()])
 
-    def test_plotrewards(self):
+    def test_play_plotrewards(self):
         agent = easyagents.PpoAgent("CartPole-v0")
-        agent.train([Fast(), PlotRewards()])
+        agent.train([duration._SingleIteration()])
+        agent.play([plot.Rewards()])
 
-    def test_multiple_subplots(self):
+    def test_train_plotloss(self):
         agent = easyagents.PpoAgent("CartPole-v0")
-        agent.train([Fast(), PlotRewards(), PlotLoss(), PlotSteps()])
+        agent.train([duration._SingleIteration(), plot.Loss()])
 
-"""
-    def test(self):
-        ppoAgent = easyagents.PpoAgent(gym_env_name='CartPole-v0', fc_layers=(500, 500, 500))
-        ppoAgent.train([PlotLoss(ylim=(0.01, 100)), PlotSteps(), PlotRewards()],
-                       learning_rate=0.0001,
-                       num_iterations=2500, num_epochs_per_iteration=5, max_steps_per_episode=50,
-                       num_iterations_between_eval=10, num_episodes_per_eval=10)
-"""
+    def test_train_plotrewards(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([duration._SingleIteration(), plot.Rewards()])
+
+    def test_train_plotstate(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([duration._SingleIteration(), plot.State()])
+
+    def test_train_plotsteps(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([duration._SingleIteration(), plot.Steps()])
+
+    def test_train_multiple_subplots(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([duration._SingleIteration(), plot.State(), plot.Rewards(), plot.Loss(), plot.Steps()])
+
+    def test_train_tomovie(self):
+        agent = easyagents.PpoAgent("CartPole-v0")
+        agent.train([duration._SingleIteration(), plot.Rewards(), plot.ToMovie()])
+
+    def test_train_tomovie_with_filename(self):
+        f = tempfile.NamedTemporaryFile(delete=False)
+        filepath = f.name
+        f.close()
+        os.remove(filepath)
+        assert not os.path.isfile(filepath)
+        agent = easyagents.PpoAgent("CartPole-v0")
+        m = plot.ToMovie(filepath=filepath, fps=10)
+        agent.train([duration._SingleIteration(), plot.Rewards(), m])
+        assert os.path.isfile(m.filepath)
+        os.remove(m.filepath)
+
+
 
 if __name__ == '__main__':
     unittest.main()

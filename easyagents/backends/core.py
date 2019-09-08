@@ -21,7 +21,7 @@ class _BackendEvalCallback(core.AgentCallback):
 
         self._train_contex = train_context
 
-    def on_play_end(self, agent_context: core.AgentContext):
+    def on_play_episode_end(self, agent_context: core.AgentContext):
         pc = agent_context.play
         tc = self._train_contex
         sum_of_r = pc.sum_of_rewards.values()
@@ -42,12 +42,12 @@ class _BackendAgent(ABC):
 
         self.model_config = model_config
         self._agent_context: core.AgentContext = core.AgentContext(self.model_config)
-        self._agent_context.api._totals = monitor._register_gym_monitor(self.model_config.original_env_name)
-        self.model_config.gym_env_name = self._agent_context.api._totals.gym_env_name
+        self._agent_context.gym._totals = monitor._register_gym_monitor(self.model_config.original_env_name)
+        self.model_config.gym_env_name = self._agent_context.gym._totals.gym_env_name
 
-        self._preprocess_callbacks: List[core.AgentCallback] = [plot._PlotPreProcess()]
-        self._callbacks: Optional[List[core.AgentCallback]] = []
-        self._postprocess_callbacks: List[core.AgentCallback] = [plot._PlotPostProcess()]
+        self._preprocess_callbacks: List[core._PreProcessCallback] = [plot._PreProcess()]
+        self._callbacks: List[core.AgentCallback] = []
+        self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
 
@@ -60,12 +60,12 @@ class _BackendAgent(ABC):
         assert tc, "train_context not set"
 
         if tc.num_episodes_per_eval and tc.num_iterations_between_eval:
-            self.play(play_context=core.PlayContext(self._agent_context.train),
-                      callbacks=[_BackendEvalCallback(self._agent_context.train)])
+            callbacks = [_BackendEvalCallback(self._agent_context.train)] + self._callbacks
+            self.play(play_context=core.PlayContext(self._agent_context.train), callbacks=callbacks)
 
     def log_api(self, api_target: str, log_msg: Optional[str] = None):
         """Logs a call to api_target with additional log_msg."""
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
         if api_target is None:
             api_target = ''
         if log_msg is None:
@@ -75,7 +75,7 @@ class _BackendAgent(ABC):
 
     def log(self, log_msg: str):
         """Logs msg."""
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
         if log_msg is None:
             log_msg = ''
         for c in self._callbacks:
@@ -86,10 +86,10 @@ class _BackendAgent(ABC):
 
         Hint:
             the total instances count is not incremented yet."""
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
         for c in self._callbacks:
             c.on_gym_init_begin(self._agent_context)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_init_end(self, env: monitor._MonitorEnv):
         """called when the monitored environment completed the instantiation of a new gym environment.
@@ -98,32 +98,32 @@ class _BackendAgent(ABC):
             o the total instances count is incremented by now
             o the new env is seeded with the api_context's seed
         """
-        self._agent_context.api.gym_env = env.env
+        self._agent_context.gym.gym_env = env.env
         if self._agent_context.model.seed is not None:
-            self._agent_context.api.gym_env.seed(self._agent_context.model.seed)
+            self._agent_context.gym.gym_env.seed(self._agent_context.model.seed)
         for c in self._callbacks:
             c.on_gym_init_end(self._agent_context)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_reset_begin(self, env: monitor._MonitorEnv, **kwargs):
         """called when the monitored environment begins a reset.
 
         Hint:
             the total reset count is not incremented yet."""
-        self._agent_context.api.gym_env = env.env
+        self._agent_context.gym.gym_env = env.env
         for c in self._callbacks:
             c.on_gym_reset_begin(self._agent_context, **kwargs)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_reset_end(self, env: monitor._MonitorEnv, reset_result: Tuple, **kwargs):
         """called when the monitored environment completed a reset.
 
         Hint:
             the total episode count is incremented by now (if a step was performed before the last reset)."""
-        self._agent_context.api.gym_env = env.env
+        self._agent_context.gym.gym_env = env.env
         for c in self._callbacks:
             c.on_gym_reset_end(self._agent_context, reset_result, **kwargs)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_step_begin(self, env: monitor._MonitorEnv, action):
         """called when the monitored environment begins a step.
@@ -132,20 +132,18 @@ class _BackendAgent(ABC):
             o sets env.max_steps_per_episode if we are in train / play. Thus the episode is ended
               by the MonitorEnv if the step limit is exceeded
         """
-        self._agent_context.api.gym_env = env.env
+        ac = self._agent_context
+        ac.gym.gym_env = env.env
         env.max_steps_per_episode = None
-        pc = self._agent_context.play
-        if pc:
-            env.max_steps_per_episode = pc.max_steps_per_episode
+        if ac.is_play or ac.is_eval:
+            env.max_steps_per_episode = ac.play.max_steps_per_episode
             self._on_play_step_begin(action)
-        else:
-            tc = self._agent_context.train
-            if tc:
-                env.max_steps_per_episode = tc.max_steps_per_episode
-                self._on_train_step_begin(action)
+        if ac.is_train:
+            env.max_steps_per_episode = ac.train.max_steps_per_episode
+            self._on_train_step_begin(action)
         for c in self._callbacks:
             c.on_gym_step_begin(self._agent_context, action)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
 
     def _on_gym_step_end(self, env: monitor._MonitorEnv, action, step_result: Tuple):
         """called when the monitored environment completed a step.
@@ -154,17 +152,15 @@ class _BackendAgent(ABC):
             env: the gym_env the last step was done on
             step_result: the result (state, reward, done, info) of the last step call
         """
-        self._agent_context.api.gym_env = env.env
-        pc = self._agent_context.play
-        if pc:
+        ac = self._agent_context
+        ac.gym.gym_env = env.env
+        if ac.is_play or ac.is_eval:
             self._on_play_step_end(action, step_result)
-        else:
-            tc = self._agent_context.train
-            if tc:
-                self._on_train_step_end(action, step_result)
+        if ac.is_train:
+            self._on_train_step_end(action, step_result)
         for c in self._callbacks:
             c.on_gym_step_end(self._agent_context, action, step_result)
-        self._agent_context.api.gym_env = None
+        self._agent_context.gym.gym_env = None
         env.max_steps_per_episode = None
 
     def _on_play_begin(self):
@@ -188,9 +184,9 @@ class _BackendAgent(ABC):
         pc = self._agent_context.play
         pc.gym_env = env
         pc.steps_done_in_episode = 0
-        pc.actions[pc.episodes_done] = []
-        pc.rewards[pc.episodes_done] = []
-        pc.sum_of_rewards[pc.episodes_done] = 0
+        pc.actions[pc.episodes_done+1] = []
+        pc.rewards[pc.episodes_done+1] = []
+        pc.sum_of_rewards[pc.episodes_done+1] = 0
 
         for c in self._callbacks:
             c.on_play_episode_begin(self._agent_context)
@@ -226,9 +222,9 @@ class _BackendAgent(ABC):
         pc = self._agent_context.play
         pc.steps_done_in_episode += 1
         pc.steps_done += 1
-        pc.actions[pc.episodes_done].append(action)
-        pc.rewards[pc.episodes_done].append(reward)
-        pc.sum_of_rewards[pc.episodes_done] += reward
+        pc.actions[pc.episodes_done+1].append(action)
+        pc.rewards[pc.episodes_done+1].append(reward)
+        pc.sum_of_rewards[pc.episodes_done+1] += reward
         for c in self._callbacks:
             c.on_play_step_end(self._agent_context, action, step_result)
 
@@ -240,7 +236,7 @@ class _BackendAgent(ABC):
     def _on_train_end(self):
         """Must NOT be called by train_implementation"""
         tc = self._agent_context.train
-        if not tc.episodes_done_in_training in tc.eval_rewards:
+        if tc.episodes_done_in_training not in tc.eval_rewards:
             self._eval_current_policy()
 
         for c in self._callbacks:
@@ -253,7 +249,7 @@ class _BackendAgent(ABC):
         tc.steps_done_in_iteration = 0
         if tc.iterations_done_in_training == 0:
             self._eval_current_policy()
-        self._train_total_episodes_on_iteration_begin = self._agent_context.api._totals.episodes_done
+        self._train_total_episodes_on_iteration_begin = self._agent_context.gym._totals.episodes_done
 
         for c in self._callbacks:
             c.on_train_iteration_begin(self._agent_context)
@@ -271,7 +267,7 @@ class _BackendAgent(ABC):
                         the dict[episodes_done_in_training] is set to the arg.
         """
         tc = self._agent_context.train
-        totals = self._agent_context.api._totals
+        totals = self._agent_context.gym._totals
         tc.episodes_done_in_iteration = (totals.episodes_done - self._train_total_episodes_on_iteration_begin)
         tc.episodes_done_in_training += tc.episodes_done_in_iteration
         tc.loss[tc.episodes_done_in_training] = loss
@@ -327,7 +323,7 @@ class _BackendAgent(ABC):
         play_context._validate()
         self._agent_context.play = play_context
         old_callbacks = self._callbacks
-        self._callbacks = self._preprocess_callbacks + callbacks + self._postprocess_callbacks
+        self._callbacks = callbacks
         try:
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_play_begin()
@@ -359,7 +355,7 @@ class _BackendAgent(ABC):
         train_context._validate()
         self._agent_context.train = train_context
         self._agent_context.play = None
-        self._callbacks = self._preprocess_callbacks + callbacks + self._postprocess_callbacks
+        self._callbacks = callbacks
 
         try:
             monitor._MonitorEnv._register_backend_agent(self)
