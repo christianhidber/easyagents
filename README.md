@@ -49,13 +49,7 @@ ppoAgent.train(learning_rate=0.0001,
                default_callbacks=False )
 ````
 
-<!-- blank line -->
-<figure class="video_container">
-  <video controls="true" allowfullscreen="true" poster="images/Scenario_simple.png">
-    <source src="images/Scenario_detailed.mp4" type="video/mp4">
-  </video>
-</figure>
-<!-- blank line -->
+[![Scenario_Detailed](images/Scenario_detailed.png)](https://raw.githubusercontent.com/christianhidber/easyagents/v1-chh/images/Scenario_detailed.mp4)
 
 
 ## Guiding Principles
