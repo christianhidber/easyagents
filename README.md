@@ -12,9 +12,9 @@ and [huskarl](https://github.com/danaugrs/huskarl).
 
 ### Use EasyAgents if
 * you have implemented your own environment and want to experiment with it
-* you are looking for an easy and simple way to get started with reinforcement learning
 * you want try out different libraries and algorithms, but don't want to learn
   the details of each implementation
+* you are looking for an easy and simple way to get started with reinforcement learning  
 
 Try it on colab:
 * [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_cartpole.ipynb)
@@ -26,15 +26,7 @@ Try it on colab:
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
-### Guiding Principles
-* **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
-* **simple & consistent** over "flexible & powerful"
-* **inspired by keras**: 
-    * same api across all algorithms
-    * support different implementations of the same algorithm
-
-### Scenarios
-* simple (quick test env, plot state)
+### Scenario: simple (quick test env, plot state)
 ````
 from easyagents.agents import PpoAgent
 from easyagents.callbacks import plot, duration
@@ -44,7 +36,7 @@ ppoAgent.train([plot.State(), duration.Fast()])
 ````
 ![Scenario_Simple](images/Scenario_simple.png)
 
-* more detailed (custom training, network, movie)
+### Scenario: more detailed (custom training, network, movie)
 ````
 from easyagents.agents import PpoAgent
 from easyagents.callbacks import plot, duration
@@ -58,15 +50,21 @@ ppoAgent.train(learning_rate=0.0001,
 ````
 ![Scenario_Detailed](images/Scenario_detailed.png)
 
+## Guiding Principles
+* **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
+* **simple & consistent** over "flexible & powerful"
+* **inspired by keras**: 
+    * same api across all algorithms
+    * support different implementations of the same algorithm
     
-### Design ideas
+#### Design ideas
 * separate "public api" from concrete implementation using a frontend / backend architecture 
   (inspired by scikit learn, matplotlib, keras)
 * pluggable backends
 * extensible through callbacks (inspired by keras). separate callback types for training, evaluation and monitoring
 * pre-configurable, algorithm specific train & play loops 
 
-### Installation
+## Installation
 Install from pypi using pip:
 
 ```python
