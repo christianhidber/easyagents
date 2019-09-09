@@ -1,7 +1,7 @@
 import pytest
 import unittest
 
-from easyagents.core import ModelConfig, AgentCallback, AgentContext, TrainContext, PlayContext
+from easyagents.core import ModelConfig, AgentCallback, AgentContext, ActorCriticTrainContext, PlayContext
 from easyagents.callbacks.duration import _SingleEpisode, Fast
 import easyagents.backends.debug
 
@@ -46,7 +46,7 @@ class AgentContextTest(unittest.TestCase):
         b = easyagents.backends.debug.BackendAgentFactory()
         a = b.create_ppo_agent(ModelConfig(_env_name))
         c = AgentContextTest.TrainCallback()
-        a.train(callbacks=[Fast(), c], train_context=TrainContext())
+        a.train(callbacks=[Fast(), c], train_context=ActorCriticTrainContext())
         assert c.train_called
         assert c.play_called
 

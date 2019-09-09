@@ -19,8 +19,13 @@ from tf_agents.networks import value_network
 from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
 from tf_agents.utils import common
 
+from tf_agents.agents.dqn import dqn_agent
+from tf_agents.networks import q_network
+from tf_agents.policies import tf_policy, random_tf_policy
+from tf_agents.trajectories import trajectory
 
-# noinspection PyUnresolvedReferences
+
+# noinspection PyUnresolvedReferences,PyAbstractClass
 class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
     """Reinforcement learning agents based on googles tf_agent implementations
 
@@ -93,6 +98,84 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
 
 
 # noinspection PyUnresolvedReferences
+class TfDqnAgent(TfAgent):
+    """ creates a new agent based on the DQN algorithm using the tfagents implementation.
+
+        Args:
+            model_config: the model configuration including the name of the target gym environment
+                as well as the neural network architecture.
+    """
+
+    def __init__(self, model_config: core.ModelConfig):
+        super().__init__(model_config=model_config)
+
+    def collect_step(self, env: tf_py_environment.TFPyEnvironment, policy: tf_policy.Base,
+                     replay_buffer: TFUniformReplayBuffer):
+        time_step = env.current_time_step()
+        action_step = policy.action(time_step)
+        next_time_step = env.step(action_step.action)
+        traj = trajectory.from_transition(time_step, action_step, next_time_step)
+        replay_buffer.add_batch(traj)
+
+    # noinspection DuplicatedCode
+    def train_implementation(self, train_context: core.TrainContext):
+        """Tf-Agents Ppo Implementation of the train loop.
+
+        The implementation follows
+        https://colab.research.google.com/github/tensorflow/agents/blob/master/tf_agents/colabs/1_dqn_tutorial.ipynb
+        """
+        assert isinstance(train_context, core.DqnTrainContext)
+        dc: core.DqnTrainContext = train_context
+
+        self.log('Creating environment...')
+        train_env = self._create_tfagent_env(discount=dc.reward_discount_gamma)
+        observation_spec = train_env.observation_spec()
+        action_spec = train_env.action_spec()
+        timestep_spec = train_env.time_step_spec()
+
+        # SetUp Optimizer, Networks and DqnAgent
+        self.log_api('AdamOptimizer', 'create')
+        optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=dc.learning_rate)
+        self.log_api('QNetwork', 'create')
+        q_net = q_network.QNetwork(observation_spec, action_spec, fc_layer_params=self.model_config.fc_layers)
+        self.log_api('DqnAgent', 'create')
+        tf_agent = dqn_agent.DqnAgent(timestep_spec, action_spec,
+                                      q_network=q_net, optimizer=optimizer,
+                                      td_errors_loss_fn=common.element_wise_squared_loss)
+
+        self.log_api('tf_agent.initialize()')
+        tf_agent.initialize()
+        self._trained_policy = tf_agent.policy
+
+        # SetUp Data collection & Buffering
+        self.log_api('TFUniformReplayBuffer', 'create')
+        replay_buffer = TFUniformReplayBuffer(data_spec=tf_agent.collect_data_spec,
+                                              batch_size=train_env.batch_size,
+                                              max_length=dc.max_steps_in_buffer)
+        self.log_api('RandomTFPolicy', 'create')
+        self.log("Preloading replay buffer...")
+        random_policy = random_tf_policy.RandomTFPolicy(timestep_spec, action_spec)
+        for _ in range(dc.num_steps_buffer_preload):
+            self.collect_step(env=train_env, policy=random_policy, replay_buffer=replay_buffer)
+
+        # Train
+        tf_agent.train = common.function(tf_agent.train, autograph=False)
+        self.log_api('replay_buffer.as_dataset', 'create')
+        dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=dc.num_steps_sampled_from_buffer,
+                                           num_steps=2).prefetch(3)
+        iter_dataset = iter(dataset)
+        self.log("Training...")
+        for iteration in range(1, dc.num_iterations):
+            self.on_train_iteration_begin()
+            for _ in range(dc.num_steps_per_iteration):
+                self.collect_step(env=train_env, policy=tf_agent.collect_policy, replay_buffer=replay_buffer)
+            trajectories, _ = next(iter_dataset)
+            tf_loss_info = tf_agent.train(experience=trajectories)
+            self.on_train_iteration_end(tf_loss_info.loss)
+        return
+
+
+# noinspection PyUnresolvedReferences
 class TfPpoAgent(TfAgent):
     """ creates a new agent based on the PPO algorithm using the tfagents implementation.
         PPO is an actor-critic algorithm using 2 neural networks. The actor network
@@ -101,21 +184,8 @@ class TfPpoAgent(TfAgent):
         sum of future rewards when following the current actor network).
 
         Args:
-        gym_env_name    :   name of an OpenAI gym environment to be used for training and evaluation
-        fc_layers       :   defines the neural network to be used, a sequence of fully connected
-                            layers of the given size. Eg (75,40) yields a neural network consisting
-                            out of 2 hidden layers, the first one containing 75 and the second layer
-                            containing 40 neurons.
-        training                : instance of config.Training to configure the #episodes used for training.
-        num_training_steps_in_replay_buffer : defines the size of the replay buffer in terms of game steps.
-        learning_rate           : value in (0,1]. Factor by which the impact on the policy update is reduced
-                                  for each training step. The same learning rate is used for the value and
-                                  the policy network.
-        reward_discount_gamma   : value in (0,1]. Factor by which a future reward is discounted for each step.
-        logging                 : instance of config.Logging to define the logging behaviour
-        num_training_steps_in_replay_buffer : size of the replay buffer
-
-        see also: https://spinningup.openai.com/en/latest/algorithms/ppo.html
+            model_config: the model configuration including the name of the target gym environment
+                as well as the neural network architecture.
     """
 
     def __init__(self, model_config: core.ModelConfig):
@@ -123,18 +193,19 @@ class TfPpoAgent(TfAgent):
 
     # noinspection DuplicatedCode
     def train_implementation(self, train_context: core.TrainContext):
-        assert isinstance(train_context, core.ActorCriticTrainContext)
-
         """Tf-Agents Ppo Implementation of the train loop."""
+
+        assert isinstance(train_context, core.ActorCriticTrainContext)
+        tc: core.ActorCriticTrainContext = train_context
         self.log('Creating environment...')
-        train_env = self._create_tfagent_env(discount=train_context.reward_discount_gamma)
+        train_env = self._create_tfagent_env(discount=tc.reward_discount_gamma)
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
 
         # SetUp Optimizer, Networks and PpoAgent
         self.log_api('AdamOptimizer', 'create')
-        optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=train_context.learning_rate)
+        optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=tc.learning_rate)
 
         self.log_api('ActorDistributionNetwork', 'create')
         actor_net = actor_distribution_network.ActorDistributionNetwork(observation_spec, action_spec,
@@ -145,7 +216,7 @@ class TfPpoAgent(TfAgent):
         self.log_api('PpoAgent', 'create')
         tf_agent = ppo_agent.PPOAgent(timestep_spec, action_spec, optimizer,
                                       actor_net=actor_net, value_net=value_net,
-                                      num_epochs=train_context.num_epochs_per_iteration)
+                                      num_epochs=tc.num_epochs_per_iteration)
         self.log_api('tf_agent.initialize()')
         tf_agent.initialize()
         self._trained_policy = tf_agent.policy
@@ -154,12 +225,12 @@ class TfPpoAgent(TfAgent):
         collect_data_spec = tf_agent.collect_data_spec
         self.log_api('TFUniformReplayBuffer', 'create')
         replay_buffer = TFUniformReplayBuffer(collect_data_spec,
-                                              batch_size=1, max_length=train_context.max_steps_in_buffer)
+                                              batch_size=1, max_length=tc.max_steps_in_buffer)
 
         collect_policy = tf_agent.collect_policy
         self.log_api('DynamicEpisodeDriver', 'create')
         collect_driver = DynamicEpisodeDriver(train_env, collect_policy, observers=[replay_buffer.add_batch],
-                                              num_episodes=train_context.num_episodes_per_iteration)
+                                              num_episodes=tc.num_episodes_per_iteration)
 
         # Train
         collect_driver.run = common.function(collect_driver.run, autograph=False)
@@ -168,7 +239,7 @@ class TfPpoAgent(TfAgent):
         self.log('Starting training...')
         while True:
             self.on_train_iteration_begin()
-            msg = f'iteration {train_context.iterations_done_in_training:4} of {train_context.num_iterations:<4}'
+            msg = f'iteration {tc.iterations_done_in_training:4} of {tc.num_iterations:<4}'
             self.log_api('collect_driver.run', msg)
             collect_driver.run()
 
@@ -186,7 +257,7 @@ class TfPpoAgent(TfAgent):
             replay_buffer.clear()
 
             self.on_train_iteration_end(loss=total_loss, actor_loss=actor_loss, critic_loss=critic_loss)
-            if train_context.training_done:
+            if tc.training_done:
                 break
         return
 
@@ -199,9 +270,10 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 
     name = 'tfagents'
 
-    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        """Create an instance of PpoAgent wrapping this backends implementation.
+    def create_dqn_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
+        """Create an instance of DqnAgent wrapping this backends implementation."""
+        return TfDqnAgent(model_config=model_config)
 
-            If this backend does not implement PpoAgent then throw a NotImplementedError exception.
-        """
+    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
+        """Create an instance of PpoAgent wrapping this backends implementation."""
         return TfPpoAgent(model_config=model_config)

@@ -1,55 +1,55 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="EasyAgents_Design.PlayContext">
-    <Position X="22" Y="3.25" Width="2" />
+    <Position X="27" Y="3.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAEAgAAAAAAAACAAAAAAAAEAAACgAQAAAABAAAAAIAE=</HashCode>
       <FileName>core\PlayContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents_Design.AgentCriticTrainContext">
-    <Position X="19.25" Y="7.5" Width="2.25" />
+    <Position X="23" Y="9.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAIAAAAAA=</HashCode>
       <FileName>core\AgentCriticTrainContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents.core.GymContext">
-    <Position X="17.25" Y="3.25" Width="1.5" />
+    <Position X="22.25" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>core\GymContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents.core.PyPlotContext">
-    <Position X="24.5" Y="3.25" Width="1.5" />
+    <Position X="29.5" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAQBAAAAAAAAA=</HashCode>
       <FileName>core\PyPlotContext.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="EasyAgents.core.TrainContext">
-    <Position X="19.25" Y="3.25" Width="2.25" />
+  <Class Name="EasyAgents.core.DqnTrainContext">
+    <Position X="25.75" Y="7.75" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAIAEAAUBEAAAAAAAAAAJAACQJAAAABEAAAAABAA=</HashCode>
-      <FileName>core\TrainContext.cs</FileName>
+      <HashCode>AAAACAAAAAAAAABAAAAAAAABAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>core\DqnTrainContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents.core.AgentContext">
-    <Position X="21" Y="0.75" Width="1.5" />
+    <Position X="26" Y="0.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAIAEIAAAAgAAECAAAAACAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>core\AgentContext.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
-      <Field Name="train" />
       <Field Name="gym" />
       <Field Name="pyplot" />
       <Field Name="play" />
+      <Field Name="train" />
     </ShowAsAssociation>
   </Class>
   <Class Name="EasyAgents_Design.ModelConfig">
-    <Position X="12" Y="0.75" Width="2.5" />
+    <Position X="15.75" Y="0.75" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
       <FileName>core\ModelConfig.cs</FileName>
@@ -119,7 +119,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents_Design.EasyAgent">
-    <Position X="10.75" Y="3.25" Width="2" />
+    <Position X="14.5" Y="3.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAgAAAIAAAAAAAAAAAAAAAAACAAAAAAAABAAAAABA=</HashCode>
       <FileName>EasyAgent.cs</FileName>
@@ -127,24 +127,26 @@
     <ShowAsAssociation>
       <Field Name="_model_config" />
       <Field Name="_backend_agent" />
+      <Field Name="_backend_agent_factory" />
     </ShowAsAssociation>
   </Class>
-  <Class Name="EasyAgents_Design.PpoAgent" Collapsed="true">
-    <Position X="10.75" Y="7.75" Width="2" />
+  <Class Name="EasyAgents_Design.DqnAgent" Collapsed="true">
+    <Position X="13.75" Y="5.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>PpoAgent.cs</FileName>
+      <FileName>DqnAgent.cs</FileName>
+      <NewMemberFileName>PpoAgent.cs</NewMemberFileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents_Design.BackendAgentFactory">
-    <Position X="12.25" Y="9" Width="2" />
+    <Position X="10.75" Y="3.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAQAA=</HashCode>
       <FileName>backend\core\BackendAgentFactory.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents_Design.BackendAgent">
-    <Position X="14" Y="3.25" Width="2.25" />
+    <Position X="17.75" Y="3.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAEACIAAAAAAAAAAACQAAAAGEBAgAAAACAAAAAAA=</HashCode>
       <FileName>backend\core\BackendAgent.cs</FileName>
@@ -154,31 +156,32 @@
     </ShowAsAssociation>
   </Class>
   <Class Name="EasyAgents_Design.DefaultBackendAgentFactory" Collapsed="true">
-    <Position X="13.5" Y="10.75" Width="2.5" />
+    <Position X="12" Y="6.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>backend\default\DefaultBackendAgentFactory.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents_Design.TfAgentsBackendAgentFactory" Collapsed="true">
-    <Position X="10.5" Y="10.75" Width="2.5" />
+    <Position X="10" Y="6.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>backend\tfagents\TfAgentsBackendAgentFactory.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents_Design.TfAgent" Collapsed="true">
-    <Position X="14" Y="6.5" Width="2.25" />
+    <Position X="17.75" Y="6.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>backend\tfagents\TfAgent.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="EasyAgents_Design.TfPpoAgent" Collapsed="true">
-    <Position X="14" Y="7.75" Width="2.25" />
+  <Class Name="EasyAgents_Design.TfDqnAgent" Collapsed="true">
+    <Position X="17.25" Y="7.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>backend\tfagents\TfPpoAgent.cs</FileName>
+      <FileName>backend\tfagents\TfDqnAgent.cs</FileName>
+      <NewMemberFileName>backend\tfagents\TfPpoAgent.cs</NewMemberFileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EasyAgents_Design.PlotCallback">
@@ -186,6 +189,34 @@
     <TypeIdentifier>
       <HashCode>AAAAAAARAAAAEAQAAAEAgAAAAAAAAACAAAAAAAAAAAA=</HashCode>
       <FileName>callbacks\plot\PlotCallback.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyAgents_Design.TfPpoAgent" Collapsed="true">
+    <Position X="19" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>backend\tfagents\TfPpoAgent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyAgents_Design.PpoAgent" Collapsed="true">
+    <Position X="15.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>PpoAgent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyAgents.core.TrainContext">
+    <Position X="24.25" Y="3.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAEAAEBEAAAAAAAAAAJAACQJAAACBEAAAAABAA=</HashCode>
+      <FileName>core\TrainContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EasyAgents.core.EpisodesTrainContext">
+    <Position X="23" Y="7.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>core\EpisodesTrainContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />

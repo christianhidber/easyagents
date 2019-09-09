@@ -433,6 +433,18 @@ class BackendAgentFactory(ABC):
     """
 
     @abstractmethod
+    def create_dqn_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
+        """Create an instance of DqnAgent wrapping this backends implementation.
+
+            If this backend does not implement DqbAgent then throw a NotImplementedError exception.
+
+        Args:
+            model_config: the agents configuration containing in patricular the name of the gym environment
+                to be used and the nn architecture.
+        """
+        pass
+
+    @abstractmethod
     def create_ppo_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation.
 

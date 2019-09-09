@@ -10,5 +10,8 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
     def __init__(self):
         self._tfagents = tfagents.BackendAgentFactory()
 
+    def create_dqn_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
+        return self._tfagents.create_dqn_agent(model_config)
+
     def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         return self._tfagents.create_ppo_agent(model_config)
