@@ -18,15 +18,16 @@ and [huskarl](https://github.com/danaugrs/huskarl).
 
 Try it on colab:
 * [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_cartpole.ipynb)
-  (introduction. the classic reinforcement learning example balancing a stick on a cart)
+  introduction: training, plotting & switching algorithms. based on the classic reinforcement learning example 
+   balancing a stick on a cart.
 * [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_berater.ipynb)
-  (example of a custom environment & training. gym environment based on a routing problem)
+  example of a custom environment & training. gym environment based on a routing problem.
 * [LineWorld on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_line.ipynb)
-  (implement your own environment, workshop example)
+  implement your own environment, workshop example [work in progress]
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
-### Scenario: simple (quick test env, plot state)
+### Scenario: simple (quick test, plot state)
 ````
 from easyagents.agents import PpoAgent
 from easyagents.callbacks import plot, duration

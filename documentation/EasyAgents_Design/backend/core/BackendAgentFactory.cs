@@ -9,5 +9,9 @@ namespace EasyAgents_Design
         void create_ppo_agent()
         {
         }
+
+        void create_dqn_agent()
+        {
+        }
     }
 }

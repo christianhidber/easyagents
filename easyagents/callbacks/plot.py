@@ -101,7 +101,7 @@ class _PostProcess(core._PostProcessCallback):
 
 
 # noinspection DuplicatedCode
-class _PlotCallbackBase(core.AgentCallback):
+class _PlotCallback(core.AgentCallback):
     """Base class of plyplot callbacks generating a plot after a trained iteration or an episode played.
 
         Attributes:
@@ -146,6 +146,8 @@ class _PlotCallbackBase(core.AgentCallback):
         """Yields true if noth agent_context and this instance are active for plot_type."""
         result = agent_context.is_plot(plot_type)
         result = result and ((self._plot_type & plot_type) != core.PlotType.NONE)
+        if (plot_type == core.PlotType.TRAIN_ITERATION):
+            result = result and agent_context.train._is_iteration_log()
         return result
 
     def on_play_begin(self, agent_context: core.AgentContext):
@@ -270,7 +272,7 @@ class _PlotCallbackBase(core.AgentCallback):
                 plt.pause(0.01)
 
 
-class Loss(_PlotCallbackBase):
+class Loss(_PlotCallback):
 
     def __init__(self, yscale: str = 'symlog', ylim: Optional[Tuple[float, float]] = None):
         """Plots the loss resulting from each iterations policy training.
@@ -303,7 +305,7 @@ class Loss(_PlotCallbackBase):
             self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(tc.loss.values()), color='indigo')
 
 
-class Rewards(_PlotCallbackBase):
+class Rewards(_PlotCallback):
 
     def __init__(self, yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
         """Plots the sum of rewards observed during policy evaluation.
@@ -331,7 +333,7 @@ class Rewards(_PlotCallbackBase):
                               xvalues=xvalues, yvalues=yvalues, ylabel='sum of rewards')
 
 
-class State(_PlotCallbackBase):
+class State(_PlotCallback):
     """Renders the gym state as a plot to the pyplot figure using gym.render('rgb_array').
 
         During training only the last state of the last game evaluation is plotted.
@@ -402,7 +404,7 @@ class State(_PlotCallbackBase):
             self._plot_text(f'gym.Env.render(mode="{self._render_mode}") failed:\n')
 
 
-class Steps(_PlotCallbackBase):
+class Steps(_PlotCallback):
 
     def __init__(self, yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
         """Plots the step counts observed during policy evaluation.

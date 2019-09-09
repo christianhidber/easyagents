@@ -1,9 +1,12 @@
 import easyagents
 
-from easyagents.callbacks.duration import Fast
-from easyagents.callbacks.plot import Loss, Rewards, Steps, State, ToMovie
+from easyagents.agents import DqnAgent, PpoAgent
+from easyagents.callbacks import duration, plot, log
 
-agent = easyagents.PpoAgent("CartPole-v0")
-agent.train([Fast(), Rewards(), Loss(), State()])
+dqnAgent = DqnAgent('CartPole-v0', fc_layers=(100, ))
+dqnAgent.train([log.Iteration(num_iterations_between_log=200)],
+               num_iterations=20000,
+               num_iterations_between_eval=1000,
+               default_callbacks=False)
 
 input('press enter')
