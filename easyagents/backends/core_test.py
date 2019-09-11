@@ -11,7 +11,7 @@ class BackendAgentTest(unittest.TestCase):
     env_name = easyagents.env._StepCountEnv.register_with_gym()
 
     def setUp(self):
-        self.tc = core.TrainContext()
+        self.tc = core.EpisodesTrainContext()
         self.tc.num_episodes_per_iteration = 1
         self.tc.num_iterations = 1
         self.tc.num_episodes_per_eval=2

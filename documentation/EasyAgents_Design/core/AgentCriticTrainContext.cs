@@ -5,7 +5,7 @@ using EasyAgents.core;
 
 namespace EasyAgents_Design
 {
-    public class AgentCriticTrainContext : TrainContext
+    public class AgentCriticTrainContext : EpisodesTrainContext
     {
 
         int actor_loss;

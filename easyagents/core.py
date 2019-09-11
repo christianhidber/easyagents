@@ -119,33 +119,16 @@ class ModelConfig(object):
 
 
 class TrainContext(object):
-    """Contains the current configuration of an agents train method like the number of iterations or the learning rate
-        along with data gathered sofar during the training.
-
-        The train loop proceeds roughly as follows:
-            for i in num_iterations
-                for e in num_episodes_per_iterations
-                    play episode and record steps (while steps_in_episode < max_steps_per_episode and)
-                train policy for num_epochs_per_iteration epochs
-                if current_episode % num_iterations_between_eval == 0:
-                    evaluate policy
-                if training_done
-                    break
+    """Contains the configuration of an agents train method like the number of iterations or the learning rate
+        along with data gathered sofar during the training which is identical for all implementations.
 
         Hints:
         o TrainContext contains all the parameters needed to control the train loop.
-        o TrainCallbacks get passed an instance of TrainContext and may modify its parameters, making a TrainCallback
-            which dynamically adjust the learning rate possible.
         o Subclasses of TrainContext may contain additional Agent (but not backend) specific parameters.
-        o TrainCallbacks may for example access training data gathered sofar for visualizations during training
-        o see EasyAgent.train() for an outline of the train loop.
 
         Attributes:
             num_iterations: number of times the training is repeated (with additional data), unlimited if None
-            num_episodes_per_iteration: number of episodes played per training iteration
             max_steps_per_episode: maximum number of steps per episode
-            num_epochs_per_iteration: number of times the data collected for the current iteration
-                is used to retrain the current policy
             learning_rate: the learning rate used in the next iteration's policy training (0,1]
             reward_discount_gamma: the factor by which a reward is discounted for each step (0,1]
             max_steps_in_buffer: size of the agents buffer in steps
@@ -158,7 +141,7 @@ class TrainContext(object):
             steps_done_in_training: the number of steps taken over all iterations so far
             steps_done_in_iteration: the number of steps taken in the current iteration
 
-            loss: dict containing the loss for each iteration training. The dict is indexed by the current_episode.
+            num_iterations_between_log: number of training iterations before an iteration based log / plot is updated.
             num_iterations_between_eval: number of training iterations before the current policy is evaluated.
                 if 0 no evaluation is performed.
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
@@ -168,13 +151,13 @@ class TrainContext(object):
             eval_steps: dict containg the steps statistics for each policy evaluation.
                 Each entry contains the tuple (min, average, max) over the number of step over all episodes
                 played for the current evaluation. The dict is indexed by the current_episode.
+            loss: dict containing the loss for each iteration training. The dict is indexed by the current_episode.
     """
 
     def __init__(self):
         self.num_iterations: Optional[int] = None
-        self.num_episodes_per_iteration: int = 10
         self.max_steps_per_episode: Optional = 1000
-        self.num_epochs_per_iteration: int = 10
+        self.num_iterations_between_log: int = 1
         self.num_iterations_between_eval: int = 50
         self.num_episodes_per_eval: int = 10
         self.learning_rate: float = 0.001
@@ -198,25 +181,17 @@ class TrainContext(object):
                f'#episodes_done_in_iteration={self.episodes_done_in_iteration} ' + \
                f'#steps_done_in_iteration={self.steps_done_in_iteration} ' + \
                f'#iterations={self.num_iterations} ' + \
-               f'#episodes_per_iteration={self.num_episodes_per_iteration} ' + \
                f'#max_steps_per_episode={self.max_steps_per_episode} ' + \
-               f'#epochs_per_iteration={self.num_epochs_per_iteration} ' + \
+               f'#iterations_between_log={self.num_iterations_between_log} ' + \
                f'#iterations_between_eval={self.num_iterations_between_eval} ' + \
                f'#episodes_per_eval={self.num_episodes_per_eval} ' + \
                f'#learning_rate={self.learning_rate} ' + \
                f'#reward_discount_gamma={self.reward_discount_gamma} ' + \
                f'#max_steps_in_buffer={self.max_steps_in_buffer} '
 
-    def _validate(self):
-        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
-        assert self.num_iterations is None or self.num_iterations > 0, "num_iterations not admissible"
-        assert self.num_episodes_per_iteration > 0, "num_episodes_per_iteration not admissible"
-        assert self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
-        assert self.num_epochs_per_iteration > 0, "num_epochs_per_iteration not admissible"
-        assert self.num_iterations_between_eval > 0, "num_iterations_between_eval not admissible"
-        assert self.num_episodes_per_eval > 0, "num_episodes_per_eval not admissible"
-        assert 0 < self.learning_rate <= 1, "learning_rate not in interval (0,1]"
-        assert 0 < self.reward_discount_gamma <= 1, "reward_discount_gamma not in interval (0,1]"
+    def _is_iteration_log(self):
+        """Yields true if iteration logs / plots should be updated."""
+        return (self.iterations_done_in_training % self.num_iterations_between_log) == 0
 
     def _reset(self):
         """Clears all values modified during a train() call."""
@@ -230,8 +205,54 @@ class TrainContext(object):
         self.eval_rewards = dict()
         self.eval_steps = dict()
 
+    def _validate(self):
+        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
+        assert self.num_iterations is None or self.num_iterations > 0, "num_iterations not admissible"
+        assert self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
+        assert self.num_iterations_between_log > 0, "num_iterations_between_log not admissible"
+        assert self.num_iterations_between_eval > 0, "num_iterations_between_eval not admissible"
+        assert self.num_episodes_per_eval > 0, "num_episodes_per_eval not admissible"
+        assert 0 < self.learning_rate <= 1, "learning_rate not in interval (0,1]"
+        assert 0 < self.reward_discount_gamma <= 1, "reward_discount_gamma not in interval (0,1]"
 
-class ActorCriticTrainContext(TrainContext):
+
+class EpisodesTrainContext(TrainContext):
+    """Base class for all agent which evaluate a number of episodes during each iteration:
+
+        The train loop proceeds roughly as follows:
+            for i in num_iterations
+                for e in num_episodes_per_iterations
+                    play episode and record steps
+                train policy for num_epochs_per_iteration epochs
+                if current_episode % num_iterations_between_eval == 0:
+                    evaluate policy
+                if training_done
+                    break
+
+        Attributes:
+            num_episodes_per_iteration: number of episodes played per training iteration
+            num_epochs_per_iteration: number of times the data collected for the current iteration
+                is used to retrain the current policy
+    """
+
+    def __init__(self):
+        self.num_episodes_per_iteration: int = 10
+        self.num_epochs_per_iteration: int = 10
+        super().__init__()
+
+    def __str__(self):
+        return super().__str__() + \
+               f'#episodes_per_iteration={self.num_episodes_per_iteration} ' + \
+               f'#epochs_per_iteration={self.num_epochs_per_iteration} '
+
+    def _validate(self):
+        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
+        super()._validate()
+        assert self.num_episodes_per_iteration > 0, "num_episodes_per_iteration not admissible"
+        assert self.num_epochs_per_iteration > 0, "num_epochs_per_iteration not admissible"
+
+
+class ActorCriticTrainContext(EpisodesTrainContext):
     """TrainContext for Actor-Critic type agents like Ppo or Sac.
 
     Attributes:
@@ -248,6 +269,46 @@ class ActorCriticTrainContext(TrainContext):
         self.actor_loss = dict()
         self.critic_loss = dict()
         super()._reset()
+
+
+class DqnTrainContext(TrainContext):
+    """Base class for all agent which evaluate a number of steps during each iteration:
+
+        The train loop proceeds roughly as follows:
+            for i in num_iterations
+                for s in num_steps_per_iterations
+                    play episodes and record steps
+                train policy for num_epochs_per_iteration epochs
+                if current_episode % num_iterations_between_eval == 0:
+                    evaluate policy
+                if training_done
+                    break
+
+        Attributes:
+            num_steps_per_iteration: number of steps played for each iteration
+            num_steps_buffer_preload: number of initial collect steps to preload the buffer
+            num_steps_sampled_from_buffer: the number of steps sampled from buffer for each iteration training
+
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.num_iterations = 20000
+        self.num_steps_per_iteration: int = 1
+        self.num_steps_buffer_preload = 1000
+        self.num_steps_sampled_from_buffer = 64
+        self.max_steps_in_buffer = 100000
+
+    def __str__(self):
+        return super().__str__() + \
+               f'#steps_per_iteration={self.num_steps_per_iteration} ' + \
+               f'#steps_buffer_preload={self.num_steps_buffer_preload} ' + \
+               f'#steps_sampled_from_buffer={self.num_steps_sampled_from_buffer} '
+
+    def _validate(self):
+        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
+        super()._validate()
+        assert self.num_steps_per_iteration > 0, "num_steps_per_iteration not admissible"
 
 
 class PlayContext(object):
@@ -383,7 +444,9 @@ class AgentContext(object):
             result = result and self.pyplot.is_active(PlotType.TRAIN_EVAL)
             result = result and (self.play.episodes_done == self.train.num_episodes_per_eval)
         if plot_type == PlotType.TRAIN_ITERATION:
-            result = self.is_train and self.pyplot.is_active(PlotType.TRAIN_ITERATION)
+            result = self.is_train and \
+                     self.pyplot.is_active(PlotType.TRAIN_ITERATION) and \
+                     self.train._is_iteration_log()
         return result
 
     @property
@@ -492,8 +555,10 @@ class AgentCallback(ABC):
     def on_train_iteration_end(self, agent_context: AgentContext):
         """Called once after the current iteration is completed"""
 
+
 class _PostProcessCallback(AgentCallback):
     pass
+
 
 class _PreProcessCallback(AgentCallback):
     pass

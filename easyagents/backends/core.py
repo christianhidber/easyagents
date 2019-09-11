@@ -184,9 +184,9 @@ class _BackendAgent(ABC):
         pc = self._agent_context.play
         pc.gym_env = env
         pc.steps_done_in_episode = 0
-        pc.actions[pc.episodes_done+1] = []
-        pc.rewards[pc.episodes_done+1] = []
-        pc.sum_of_rewards[pc.episodes_done+1] = 0
+        pc.actions[pc.episodes_done + 1] = []
+        pc.rewards[pc.episodes_done + 1] = []
+        pc.sum_of_rewards[pc.episodes_done + 1] = 0
 
         for c in self._callbacks:
             c.on_play_episode_begin(self._agent_context)
@@ -222,9 +222,9 @@ class _BackendAgent(ABC):
         pc = self._agent_context.play
         pc.steps_done_in_episode += 1
         pc.steps_done += 1
-        pc.actions[pc.episodes_done+1].append(action)
-        pc.rewards[pc.episodes_done+1].append(reward)
-        pc.sum_of_rewards[pc.episodes_done+1] += reward
+        pc.actions[pc.episodes_done + 1].append(action)
+        pc.rewards[pc.episodes_done + 1].append(reward)
+        pc.sum_of_rewards[pc.episodes_done + 1] += reward
         for c in self._callbacks:
             c.on_play_step_end(self._agent_context, action, step_result)
 
@@ -432,6 +432,20 @@ class BackendAgentFactory(ABC):
     """Backend agent factory defining the currently available agents (algorithms).
     """
 
+    name: str = 'abstract_BackendAgentFactory'
+
+    @abstractmethod
+    def create_dqn_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
+        """Create an instance of DqnAgent wrapping this backends implementation.
+
+            If this backend does not implement DqbAgent then throw a NotImplementedError exception.
+
+        Args:
+            model_config: the agents configuration containing in patricular the name of the gym environment
+                to be used and the nn architecture.
+        """
+        raise NotImplementedError(f'DqnAgent not implemented by backend "{self.name}"')
+
     @abstractmethod
     def create_ppo_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation.
@@ -442,4 +456,22 @@ class BackendAgentFactory(ABC):
             model_config: the agents configuration containing in patricular the name of the gym environment
                 to be used and the nn architecture.
         """
-        pass
+        raise NotImplementedError(f'PpoAgent not implemented by backend "{self.name}"')
+
+    @abstractmethod
+    def create_random_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
+        """Create an instance of RandomAgent wrapping this backends implementation.
+
+            If this backend does not implement RandomAgent then throw a NotImplementedError exception.
+
+        Args:
+            model_config: the agents configuration containing in patricular the name of the gym environment
+                to be used and the nn architecture.
+
+        Hints:
+            o play() should be callable without a prior call to train()
+            o train() should evaluate in each iteration 1 episode, guaranteeing that the results of each
+              iteration evaluation (train_context.eval_rewards, train_context.eval_steps) is stored in a
+              seperate episode dictionary entry
+        """
+        raise NotImplementedError(f'RandomAgent not implemented by backend "{self.name}"')

@@ -1,4 +1,4 @@
-"""This module contains the backend for a  / constant action agent implementation.
+"""This module contains the backend for a constant action agent implementation.
 
     All agents created by the debug backend execute a "no operations" train loop,
     without an underlying model / neural network.
@@ -8,11 +8,17 @@ from easyagents import core
 from easyagents.backends import core as bcore
 import gym
 
-class BackendAgentFactory(bcore.BackendAgentFactory):
 
-    name='debug'
+class BackendAgentFactory(bcore.BackendAgentFactory):
+    name : str  = 'debug'
+
+    def create_dqn_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
+        return BackendAgent(model_config=model_config)
 
     def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
+        return BackendAgent(model_config=model_config)
+
+    def create_random_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         return BackendAgent(model_config=model_config)
 
 
@@ -42,18 +48,18 @@ class BackendAgent(bcore._BackendAgent):
                 break
 
     def train_implementation(self, train_context: core.TrainContext):
+        assert isinstance(train_context, core.EpisodesTrainContext)
+        tc: core.EpisodesTrainContext = train_context
+
         env = gym.make(self.model_config.gym_env_name)
-        for i in range(train_context.num_iterations):
+        for i in range(tc.num_iterations):
             self.on_train_iteration_begin()
-            for e in range(train_context.num_episodes_per_iteration):
+            for e in range(tc.num_episodes_per_iteration):
                 env.reset()
                 if self.action is not None:
                     done = False
                     while not done:
                         (observation, reward, done, info) = env.step(self.action)
             self.on_train_iteration_end(0)
-            if train_context.training_done:
+            if tc.training_done:
                 break
-
-
-

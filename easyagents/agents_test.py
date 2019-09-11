@@ -48,6 +48,21 @@ class BackendRegistrationTest(unittest.TestCase):
             agents.register_backend(backend_name="testBackend", backend=None)
 
 
+class TfAgentsDqnAgentTest(unittest.TestCase):
+
+    def test_train(self):
+        dqnAgent = agents.DqnAgent('CartPole-v0', fc_layers=(100,))
+        tc: core.TrainContext = dqnAgent.train([log.Duration(), log.Iteration()],
+                                               num_iterations=10000,
+                                               num_iterations_between_log=200,
+                                               num_iterations_between_eval=1000,
+                                               max_steps_per_episode=200,
+                                               default_callbacks=False)
+        (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
+        assert avg_steps >= 150
+        assert max_steps == 200
+
+
 # noinspection PyTypeChecker
 class TfAgentsPpoAgentTest(unittest.TestCase):
 
