@@ -9,7 +9,7 @@ import threading
 
 import gym.core
 import gym.envs
-import easyagents.backends.core as bcore
+import easyagents.backends
 
 
 class _MonitorTotalCounts(object):
@@ -122,7 +122,7 @@ class _MonitorEnv(gym.Wrapper):
         self.max_steps_per_episode: Optional[int] = None
         self.is_episode_done: bool = False
         self.instance_id = self.total.instances_created
-        self._backend_agent: Optional[bcore._BackendAgent] = _MonitorEnv._backend_agent
+        self._backend_agent: Optional[easyagents.backends.core._BackendAgent] = _MonitorEnv._backend_agent
 
         if self._backend_agent:
             self._backend_agent._on_gym_init_begin()
@@ -213,17 +213,17 @@ def _register_gym_monitor(gym_env_name: str) -> _MonitorTotalCounts:
         if gym_env_name not in _MonitorEnv._monitor_total_counts:
             result = _MonitorTotalCounts(gym_env_name)
 
-            gym_spec : Optional[gym.envs.registration.EnvSpec] = None
+            gym_spec: Optional[gym.envs.registration.EnvSpec] = None
             try:
                 gym_spec = gym.envs.registration.spec(gym_env_name)
-            except:
+            except Exception:
                 pass
             assert gym_spec, f'no registration found for gym environment {gym_env_name}'
 
             # max_episode_steps = None results in a tfagents gym_suit.load crash
             gym.envs.registration.register(id=result.gym_env_name,
                                            entry_point=_MonitorEnv,
-                                           max_episode_steps = gym_spec.max_episode_steps,
+                                           max_episode_steps=gym_spec.max_episode_steps,
                                            kwargs={_MonitorEnv._KWARG_GYM_ENV_NAME: gym_env_name})
             _MonitorEnv._monitor_total_counts[gym_env_name] = result
         else:

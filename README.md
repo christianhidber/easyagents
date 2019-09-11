@@ -17,12 +17,12 @@ and [huskarl](https://github.com/danaugrs/huskarl).
 * you are looking for an easy and simple way to get started with reinforcement learning  
 
 Try it on colab:
-* [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_cartpole.ipynb)
+* [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
   introduction: training, plotting & switching algorithms. based on the classic reinforcement learning example 
    balancing a stick on a cart.
-* [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_berater.ipynb)
+* [Berater on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_berater.ipynb)
   example of a custom environment & training. gym environment based on a routing problem.
-* [LineWorld on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/v1/jupyter_notebooks/easyagents_line.ipynb)
+* [LineWorld on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb)
   implement your own environment, workshop example [work in progress]
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
@@ -50,7 +50,7 @@ ppoAgent.train(learning_rate=0.0001,
                default_callbacks=False )
 ````
 
-[![Scenario_Detailed](images/Scenario_detailed.png)](https://raw.githubusercontent.com/christianhidber/easyagents/v1-chh/images/Scenario_detailed.mp4)
+[![Scenario_Detailed](images/Scenario_detailed.png)](https://raw.githubusercontent.com/christianhidber/easyagents/master-v1/images/Scenario_detailed.mp4)
 
 
 ## Guiding Principles
@@ -71,7 +71,7 @@ ppoAgent.train(learning_rate=0.0001,
 Install from pypi using pip:
 
 ```python
-pip install easyagents-v1
+pip install easyagents
 ```
 
 ## Vocabulary
