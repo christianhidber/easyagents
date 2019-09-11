@@ -40,15 +40,15 @@ class TfRandomAgentTest(unittest.TestCase):
         randomAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
         assert tc.episodes_done_in_iteration == 1
 
-"""
     def test_play(self):
         model_config = core.ModelConfig("CartPole-v0")
         randomAgent = tfagents.TfRandomAgent(model_config=model_config)
         pc=core.PlayContext()
         pc.max_steps_per_episode=10
+        pc.num_episodes=1
         randomAgent.play(play_context=pc,callbacks=[])
         assert pc.num_episodes == 1
-        """
+
 
 
 if __name__ == '__main__':
