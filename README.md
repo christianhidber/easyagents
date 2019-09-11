@@ -1,5 +1,5 @@
-### Reinforcement Learning for Practitioners (v1)
-![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=v1)
+### Reinforcement Learning for Practitioners (v1.0)
+![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 
 Status: under active development, breaking changes may occur
 
@@ -37,17 +37,13 @@ ppoAgent.train([plot.State(), duration.Fast()])
 ````
 ![Scenario_Simple](images/Scenario_simple.png)
 
-### Scenario: more detailed (custom training, network, movie)
+### Scenario: more detailed (custom network & training)
 ````
 from easyagents.agents import PpoAgent
 from easyagents.callbacks import plot, duration
 
 ppoAgent = PpoAgent( 'Orso-v1', fc_layers=(500,500,500))
-
-ppoAgent.train(learning_rate=0.0001,
-               [plot.State(), plot.Rewards(), plot.Loss(), plot.Steps(), plot.ToMovie()], 
-               num_iterations = 500, max_steps_per_episode = 50,
-               default_callbacks=False )
+ppoAgent.train(learning_rate=0.0001, [plot.State()], num_iterations = 500, max_steps_per_episode = 50)
 ````
 
 [![Scenario_Detailed](images/Scenario_detailed.png)](https://raw.githubusercontent.com/christianhidber/easyagents/master-v1/images/Scenario_detailed.mp4)
@@ -77,7 +73,7 @@ pip install easyagents
 ## Vocabulary
 [some terms explained](vocabulary.md)
 
-## Don't use EasyAgents if
+## EasyAgents may not be ideal if
 
 * you would like to leverage implementation specific advantages of an algorithm
 * you want to do distributed or in parallel reinforcement learning
