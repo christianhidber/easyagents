@@ -10,12 +10,15 @@ import gym
 
 
 class BackendAgentFactory(bcore.BackendAgentFactory):
-    name = 'debug'
+    name : str  = 'debug'
 
     def create_dqn_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         return BackendAgent(model_config=model_config)
 
     def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
+        return BackendAgent(model_config=model_config)
+
+    def create_random_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         return BackendAgent(model_config=model_config)
 
 

@@ -118,7 +118,7 @@ class ModelConfig(object):
         return f'fc_layers={self.fc_layers} seed={self.seed} gym_env_name={self.gym_env_name}'
 
 
-class TrainContext(ABC):
+class TrainContext(object):
     """Contains the configuration of an agents train method like the number of iterations or the learning rate
         along with data gathered sofar during the training which is identical for all implementations.
 

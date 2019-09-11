@@ -1,34 +1,44 @@
 import unittest
 
-from easyagents import core
+from easyagents import core, env
 from easyagents.backends import tfagents
-import easyagents.env
-from easyagents.callbacks.duration import _SingleEpisode, Fast
-from easyagents.callbacks.log import Step, Agent, _Callbacks, Iteration
+from easyagents.callbacks import duration, log
 
 
 class TfDqnAgentTest(unittest.TestCase):
 
     def setUp(self):
-        self.env_name = easyagents.env._StepCountEnv.register_with_gym()
+        self.env_name = env._StepCountEnv.register_with_gym()
 
     def test_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.DqnTrainContext()
         dqnAgent = tfagents.TfDqnAgent(model_config=model_config)
-        dqnAgent.train(train_context=tc, callbacks=[_SingleEpisode(), Iteration()])
+        dqnAgent.train(train_context=tc, callbacks=[duration._SingleEpisode(), log.Iteration()])
 
 
 class TfPpoAgentTest(unittest.TestCase):
 
     def setUp(self):
-        self.env_name = easyagents.env._StepCountEnv.register_with_gym()
+        self.env_name = env._StepCountEnv.register_with_gym()
 
     def test_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.ActorCriticTrainContext()
         ppoAgent = tfagents.TfPpoAgent(model_config=model_config)
-        ppoAgent.train(train_context=tc, callbacks=[Fast(), Iteration()])
+        ppoAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
+
+class TfRandomAgentTest(unittest.TestCase):
+
+    def setUp(self):
+        self.env_name = env._StepCountEnv.register_with_gym()
+
+    def test_train(self):
+        model_config = core.ModelConfig("CartPole-v0")
+        tc = core.TrainContext()
+        randomAgent = tfagents.TfRandomAgent(model_config=model_config)
+        randomAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
+        assert tc.episodes_done_in_iteration == 1
 
 
 if __name__ == '__main__':

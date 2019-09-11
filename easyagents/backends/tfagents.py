@@ -81,7 +81,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
                 play_context: play configuration to be used
         """
         assert play_context, "play_context not set."
-        assert self._trained_policy, "trained_policy not set."
+        assert self._trained_policy, "trained_policy not set. call train() first."
 
         if self._eval_env is None:
             self._eval_env = self._create_tfagent_env()
@@ -165,13 +165,15 @@ class TfDqnAgent(TfAgent):
                                            num_steps=2).prefetch(3)
         iter_dataset = iter(dataset)
         self.log("Training...")
-        for iteration in range(1, dc.num_iterations):
+        while True:
             self.on_train_iteration_begin()
             for _ in range(dc.num_steps_per_iteration):
                 self.collect_step(env=train_env, policy=tf_agent.collect_policy, replay_buffer=replay_buffer)
             trajectories, _ = next(iter_dataset)
             tf_loss_info = tf_agent.train(experience=trajectories)
             self.on_train_iteration_end(tf_loss_info.loss)
+            if train_context.training_done:
+                break
         return
 
 
@@ -262,13 +264,52 @@ class TfPpoAgent(TfAgent):
         return
 
 
+# noinspection PyUnresolvedReferences
+class TfRandomAgent(TfAgent):
+    """ creates a new random agent based on uniform random actions.
+
+        Args:
+            model_config: the model configuration including the name of the target gym environment
+                as well as the neural network architecture.
+    """
+
+    def __init__(self, model_config: core.ModelConfig):
+        super().__init__(model_config=model_config)
+
+    def _set_trained_policy(self):
+        """Tf-Agents Random Implementation of the train loop."""
+        self.log('Creating environment...')
+        train_env = self._create_tfagent_env()
+        action_spec = train_env.action_spec()
+        timestep_spec = train_env.time_step_spec()
+
+        # SetUp Data collection & Buffering
+        self.log_api('RandomTFPolicy', 'create')
+        self._trained_policy = random_tf_policy.RandomTFPolicy(timestep_spec, action_spec)
+
+    # noinspection DuplicatedCode
+    def train_implementation(self, train_context: core.TrainContext):
+        self.log("Training...")
+        while True:
+            self.on_train_iteration_begin()
+            # ensure that 1 episode is played during the iteration
+            time_step = train_env.reset()
+            while not time_step.is_last():
+                action_step = self._trained_policy.action(time_step)
+                time_step = train_env.step(action_step.action)
+            self.on_train_iteration_end(0)
+            if train_context.training_done:
+                break
+        return
+
+
 class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend for TfAgents.
 
         Serves as a factory to create algorithm specific wrappers for the TfAgents implementations.
     """
 
-    name = 'tfagents'
+    name: str = 'tfagents'
 
     def create_dqn_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         """Create an instance of DqnAgent wrapping this backends implementation."""
@@ -277,3 +318,7 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
     def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation."""
         return TfPpoAgent(model_config=model_config)
+
+    def create_random_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
+        """Create an instance of RandomAgent wrapping this backends implementation."""
+        return TfRandomAgent(model_config=model_config)
