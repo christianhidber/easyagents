@@ -1,7 +1,7 @@
 ### Reinforcement Learning for Practitioners (v1.0)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 
-Status: under active development, breaking changes may occur
+Status: under active development, breaking changes may occur. [Release notes](documentation/README.md).
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
@@ -11,7 +11,7 @@ EasyAgents is a high level reinforcement learning api, written in Python and run
 and [huskarl](https://github.com/danaugrs/huskarl).
 
 ### Use EasyAgents if
-* you have implemented your own environment and want to experiment with it
+* you have a gym environment and want to experiment with it
 * you want try out different libraries and algorithms, but don't want to learn
   the details of each implementation
 * you are looking for an easy and simple way to get started with reinforcement learning  
@@ -49,36 +49,30 @@ ppoAgent.train(learning_rate=0.0001, [plot.State()], num_iterations = 500, max_s
 [![Scenario_Detailed](images/Scenario_detailed.png)](https://raw.githubusercontent.com/christianhidber/easyagents/master-v1/images/Scenario_detailed.mp4)
 
 
-## Guiding Principles
+### Guiding Principles
 * **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
 * **simple & consistent** over "flexible & powerful"
 * **inspired by keras**: 
     * same api across all algorithms
-    * support different implementations of the same algorithm
-    
-#### Design ideas
-* separate "public api" from concrete implementation using a frontend / backend architecture 
-  (inspired by scikit learn, matplotlib, keras)
-* pluggable backends
-* extensible through callbacks (inspired by keras). separate callback types for training, evaluation and monitoring
-* pre-configurable, algorithm specific train & play loops 
+    * support different implementations of the same algorithm 
+    * extensible (pluggable backends, plots & training schemes)   
 
-## Installation
+### Installation
 Install from pypi using pip:
 
 ```python
 pip install easyagents
 ```
 
-## Vocabulary
-[some terms explained](vocabulary.md)
+### Documentation
+[release notes, glossary, class diagrams](documentation/README.md)
 
-## EasyAgents may not be ideal if
+### EasyAgents may not be ideal if
 
 * you would like to leverage implementation specific advantages of an algorithm
 * you want to do distributed or in parallel reinforcement learning
 
-## Note
+### Note
 
 * This repository is under active development and in an early stage. 
   Thus any- and everything may (and probably should) change.

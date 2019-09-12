@@ -87,6 +87,9 @@ class EasyAgent(ABC):
             play_context: specifies the num of episodes to play
             callbacks: list of callbacks called during the play of the episodes
             default_callbacks: if set addes a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+
+        Returns:
+            play_context containg the actions taken and the rewards received during training
         """
         assert play_context, "play_context not set."
         if callbacks is None:
@@ -98,6 +101,7 @@ class EasyAgent(ABC):
             callbacks = callbacks + [plot.Steps(), plot.Rewards()]
         callbacks = self._prepare_callbacks(callbacks)
         self._backend_agent.play(play_context=play_context, callbacks=callbacks)
+        return play_context
 
     def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback], default_callbacks: bool):
         """Trains a new model using the gym environment passed during instantiation.
@@ -169,12 +173,16 @@ class DqnAgent(EasyAgent):
             max_steps_per_episode: max steps per episode
             play_context: play configuration to be used. If set override all other play context arguments
             default_callbacks: if set addes a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+
+        Returns:
+            play_context containg the actions taken and the rewards received during training
         """
         if play_context is None:
             play_context = core.PlayContext()
             play_context.max_steps_per_episode = max_steps_per_episode
             play_context.num_episodes = num_episodes
         super().play(play_context=play_context, callbacks=callbacks, default_callbacks=default_callbacks)
+        return play_context
 
     def train(self,
               callbacks: List[core.AgentCallback] = None,
@@ -269,12 +277,16 @@ class PpoAgent(EasyAgent):
             max_steps_per_episode: max steps per episode
             play_context: play configuration to be used. If set override all other play context arguments
             default_callbacks: if set addes a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+
+        Returns:
+            play_context containg the actions taken and the rewards received during training
         """
         if play_context is None:
             play_context = core.PlayContext()
             play_context.max_steps_per_episode = max_steps_per_episode
             play_context.num_episodes = num_episodes
         super().play(play_context=play_context, callbacks=callbacks, default_callbacks=default_callbacks)
+        return play_context
 
     def train(self,
               callbacks: List[core.AgentCallback] = None,
@@ -328,6 +340,9 @@ class RandomAgent(EasyAgent):
             gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
             backend=the backend to be used (eg 'tfagents'), if None a default implementation is used.
                 call get_backends() to get a list of the available backends.
+
+        Returns:
+            play_context containg the actions taken and the rewards received during training
     """
 
     def __init__(self, gym_env_name: str, backend: str = None):
@@ -355,6 +370,7 @@ class RandomAgent(EasyAgent):
             play_context.max_steps_per_episode = max_steps_per_episode
             play_context.num_episodes = num_episodes
         super().play(play_context=play_context, callbacks=callbacks, default_callbacks=default_callbacks)
+        return play_context
 
     def train(self,
               callbacks: List[core.AgentCallback] = None,
