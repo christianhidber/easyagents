@@ -176,7 +176,7 @@ class _PlotCallback(core.AgentCallback):
             self._create_subplot(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
-        self._refresh_subplot(agent_context,core.PlotType.TRAIN_ITERATION)
+        self._refresh_subplot(agent_context, core.PlotType.TRAIN_ITERATION)
 
     def plot(self, agent_context: core.AgentContext, plot_type: core.PlotType):
         """Plots a graph on the self.axes object.
@@ -213,6 +213,19 @@ class _PlotCallback(core.AgentCallback):
         if ylim is not None:
             self.axes.set_ylim(ylim)
         self.axes.set_yscale(yscale)
+
+    def plot_text(self, text: str):
+        if text:
+            ax = self.axes
+            ax.text(0.5, 0.5, text, horizontalalignment='center', verticalalignment='center',
+                    color='blue', wrap=True)
+            ax.set_xlabel('')
+            ax.get_xaxis().set_ticks([])
+            ax.get_yaxis().set_ticks([])
+            axes_color = self.axes_color
+            for spin in ax.spines:
+                ax.spines[spin].set_visible(True)
+                ax.spines[spin].set_color(axes_color)
 
     def plot_subplot(self, agent_context: core.AgentContext,
                      xvalues: List[int], yvalues: List[Union[float, Tuple[float, float, float]]], ylabel: str,
@@ -294,6 +307,43 @@ class _PlotCallback(core.AgentCallback):
             plt.plot(xvalues, yvalues, color=color, marker=marker)
             if pause:
                 plt.pause(0.01)
+
+
+class Actions(_PlotCallback):
+
+    def __init__(self, num_steps_between_plot=100):
+        """Plots a histogram of the actions taken during play or during the last evaluation period.
+
+        Args:
+            num_steps_between_plot: num of steps to play before plot is updated.
+        """
+        super().__init__(plot_type=core.PlotType.PLAY_EPISODE | core.PlotType.TRAIN_EVAL)
+        assert num_steps_between_plot > 0
+        self._actions: List[float] = []
+        self._num_steps_between_plot = num_steps_between_plot
+
+    def _reset(self):
+        self._actions: List[float] = []
+
+    def on_play_begin(self, agent_context: core.AgentContext):
+        super().on_play_begin(agent_context)
+        self._reset()
+
+    def on_play_end(self, agent_context: core.AgentContext):
+        super().on_play_end(agent_context)
+        self._reset()
+
+    def plot(self, agent_context: core.AgentContext, plot_type: core.PlotType):
+        try:
+            pc = agent_context.play
+            if plot_type & core.PlotType.PLAY_EPISODE != core.PlotType.NONE:
+                self.clear_plot(agent_context)
+                actions = []
+                for a in pc.actions.values():
+                    actions.append(a)
+                self.axes.hist(actions)
+        except Exception as e:
+            self.plot_text(f'Failed to create the actions histogram.\n')
 
 
 class Loss(_PlotCallback):
@@ -393,19 +443,6 @@ class State(_PlotCallback):
             ax.spines[spin].set_visible(True)
             ax.spines[spin].set_color(axes_color)
 
-    def _plot_text(self, text: str):
-        if text:
-            ax = self.axes
-            ax.text(0.5, 0.5, text, horizontalalignment='center', verticalalignment='center',
-                    color='blue', wrap=True)
-            ax.set_xlabel('')
-            ax.get_xaxis().set_ticks([])
-            ax.get_yaxis().set_ticks([])
-            axes_color = self.axes_color
-            for spin in ax.spines:
-                ax.spines[spin].set_visible(True)
-                ax.spines[spin].set_color(axes_color)
-
     # noinspection PyArgumentList,DuplicatedCode
     def _render_to_rgb_array(self, gym_env: gym.Env, mode: str) -> np.ndarray:
         """ calls gym_env.render(mode) and validates the return value to be a numpy rgb array
@@ -431,7 +468,7 @@ class State(_PlotCallback):
             rgb_array: np.ndarray = self._render_to_rgb_array(agent_context.play.gym_env, self._render_mode)
             self._plot_rgb_array(agent_context, rgb_array)
         except Exception as e:
-            self._plot_text(f'gym.Env.render(mode="{self._render_mode}") failed:\n')
+            self.plot_text(f'gym.Env.render(mode="{self._render_mode}") failed:\n')
 
 
 class Steps(_PlotCallback):
