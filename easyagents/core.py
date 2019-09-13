@@ -38,7 +38,7 @@ class PlotType(Flag):
     PLAY_STEP: Called after each play step. The gym environment is still
         accessible through agent_context.play-gym_env.
     TRAIN_EVAL: Called after the last step of the last evaluation episode during training.
-        The gym environment is accessible through agent_context.play-gym_env.
+        The gym environment is accessible through agent_context.play.gym_env.
     TRAIN_ITERATION: Called after each train iteration. No gym environment is available.
     """
     NONE = 0
@@ -146,7 +146,7 @@ class TrainContext(object):
                 if 0 no evaluation is performed.
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
             eval_rewards: dict containg the rewards statistics for each policy evaluation.
-                Each entry contains the tuple (min, average, max) over the sum of rewardsover all episodes
+                Each entry contains the tuple (min, average, max) over the sum of rewards over all episodes
                 played for the current evaluation. The dict is indexed by the current_episode.
             eval_steps: dict containg the steps statistics for each policy evaluation.
                 Each entry contains the tuple (min, average, max) over the number of step over all episodes

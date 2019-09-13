@@ -24,7 +24,7 @@ class BackendRegistrationTest(unittest.TestCase):
     def test_prepare_callbacks(self):
         agent = agents.PpoAgent("CartPole-v0")
         c = [plot.ToMovie(), plot.Rewards()]
-        d = agent._prepare_callbacks(c)
+        d = agent._prepare_callbacks(c,default_plots=None,default_plot_callbacks=[])
         assert isinstance(d[0], plot._PreProcess)
         assert isinstance(d[1], plot.Rewards)
         assert isinstance(d[-2], plot._PostProcess)
@@ -57,7 +57,7 @@ class TfAgentsDqnAgentTest(unittest.TestCase):
                                                num_iterations_between_log=200,
                                                num_iterations_between_eval=1000,
                                                max_steps_per_episode=200,
-                                               default_callbacks=False)
+                                               default_plots=False)
         (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
         assert avg_steps >= 150
         assert max_steps == 200

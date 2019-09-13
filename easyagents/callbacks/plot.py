@@ -1,4 +1,4 @@
-from typing import Optional, List, Tuple, Union
+from typing import Optional, List, Tuple, Union, Dict
 
 import easyagents.core as core
 import base64
@@ -119,6 +119,7 @@ class _PlotCallback(core.AgentCallback):
         self._plot_type = plot_type
 
     def _clear_axes(self, agent_context: core.AgentContext):
+        self._create_subplot(agent_context)
         pyc = agent_context.pyplot
         if pyc.is_jupyter_active:
             self.axes.cla()
@@ -146,7 +147,7 @@ class _PlotCallback(core.AgentCallback):
         """Yields true if noth agent_context and this instance are active for plot_type."""
         result = agent_context.is_plot(plot_type)
         result = result and ((self._plot_type & plot_type) != core.PlotType.NONE)
-        if (plot_type == core.PlotType.TRAIN_ITERATION):
+        if plot_type == core.PlotType.TRAIN_ITERATION:
             result = result and agent_context.train._is_iteration_log()
         return result
 
@@ -234,21 +235,21 @@ class _PlotCallback(core.AgentCallback):
 
     def plot_values(self, agent_context: core.AgentContext,
                     xvalues: List[int], yvalues: List[Union[float, Tuple[float, float, float]]],
-                    color: str = 'blue', pause:bool=True):
+                    color: Optional[str] = 'blue', pause: bool = True):
         """Draws the graph given by xvalues, yvalues.
 
         Attributes:
             agent_context: context containing the figure to plot to
             xvalues: the graphs x-values (must have same length as y-values)
             yvalues: the graphs y-values or (min,y,max)-tuples (must have same length as x-values)
-            color: the graphs color (must be the name of a matplotlib color)
+            color: the graphs color (must be the name of a matplotlib color) or None
             pause: pause to redraw the plot.
         """
         assert xvalues is not None
         assert yvalues is not None
         assert len(xvalues) == len(yvalues), "xvalues do not match yvalues"
 
-        pyc = agent_context.pyplot
+        pyc: core.PyPlotContext = agent_context.pyplot
 
         # extract min / max and y values if yvalues is of the form [(min,y,max),...)
         yminvalues = None
@@ -297,8 +298,10 @@ class Loss(_PlotCallback):
                        ylim=self.ylim, ylabel='loss', yscale=self.yscale)
         if isinstance(tc, core.ActorCriticTrainContext):
             acc: core.ActorCriticTrainContext = tc
-            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.loss.values()), color='indigo', pause=False)
-            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g', pause=False)
+            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.loss.values()), color='indigo',
+                             pause=False)
+            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g',
+                             pause=False)
             self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.critic_loss.values()), color='b')
             self.axes.legend(('total', 'actor', 'critic'))
         else:
@@ -431,6 +434,65 @@ class Steps(_PlotCallback):
                           xvalues=xvalues, yvalues=yvalues, ylabel='steps')
 
 
+class StepRewards(_PlotCallback):
+
+    def __init__(self, steps_between_plot=100):
+        """Plots the sum of rewards up to the current step during play or at the end of an
+            evaluation period.
+
+        Args:
+            steps_between_plot: num of steps to play before plot is updated.
+        """
+        super().__init__(core.PlotType.PLAY_STEP | core.PlotType.TRAIN_EVAL)
+        assert steps_between_plot > 0
+        self._xy_values: Dict[int, Tuple[List[int], List[float]]] = dict()
+        self._xmax: int = 0
+        self.steps_between_plot = steps_between_plot
+
+    def _replot(self, agent_context: core.AgentContext):
+        if self._xmax >= 1:
+            self.plot_axes(xlim=(1, self._xmax), ylabel='sum of rewards', xlabel='steps')
+            for xvalues, yvalues in self._xy_values.values():
+                self.plot_values(agent_context=agent_context, xvalues=xvalues, yvalues=yvalues, color=None)
+
+    def _reset(self):
+        self._xy_values = dict()
+        self._xmax = 0
+
+    def on_play_begin(self, agent_context: core.AgentContext):
+        self._reset()
+
+    def on_play_end(self, agent_context: core.AgentContext):
+        self._replot(agent_context)
+        self._reset()
+
+    def plot(self, agent_context: core.AgentContext):
+        pc = agent_context.play
+        if agent_context.is_play:
+            episode = pc.episodes_done + 1
+            if not episode in self._xy_values:
+                self._xy_values[episode] = ([], [])
+            xvalues, yvalues = self._xy_values[episode]
+            xvalues.append(pc.steps_done_in_episode)
+            yvalues.append(pc.sum_of_rewards[episode])
+            if pc.steps_done_in_episode > self._xmax:
+                self._xmax = pc.steps_done_in_episode
+            if pc.steps_done == 1 or  pc.steps_done % self.steps_between_plot == 0:
+                self._replot(agent_context)
+
+        if agent_context.is_eval:
+            self._xmax = max([len(step_rewards) for step_rewards in pc.rewards.values()])
+            for episode in pc.rewards.keys():
+                step_rewards = pc.rewards[episode]
+                xvalues = list(range(1, len(step_rewards) + 1))
+                yvalues = []
+                for reward in step_rewards:
+                    old_sum = yvalues[-1] if len(yvalues) > 0 else 0
+                    yvalues.append(old_sum + reward)
+                self._xy_values[episode]=(xvalues,yvalues)
+            self._replot(agent_context)
+
+
 class ToMovie(core._PostProcessCallback):
     """Plots the pyplot figure to an mp4 file
 
@@ -488,8 +550,8 @@ class ToMovie(core._PostProcessCallback):
     def _get_temp_path(self):
         result = os.path.join(tempfile.gettempdir(), tempfile.gettempprefix())
         n = datetime.datetime.now()
-        result = result + \
-                 f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-{n.microsecond:06}'
+        result = result + f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-' + \
+                 f'{n.microsecond:06}'
         return result
 
     def _write_figure_to_video(self, agent_context: core.AgentContext):
