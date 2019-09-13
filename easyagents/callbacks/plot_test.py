@@ -18,6 +18,10 @@ class PlotTest(unittest.TestCase):
         agent.train([duration._SingleIteration()])
         agent.play([plot.Rewards()])
 
+    def test_train_plotsteprewards(self):
+        rndAgent = agents.RandomAgent('CartPole-v0')
+        rndAgent.play([plot.StepRewards()] )
+
     def test_default_plots_False_nocallback(self):
         agent = agents.PpoAgent("CartPole-v0")
         p = plot.Loss()
@@ -52,9 +56,9 @@ class PlotTest(unittest.TestCase):
         assert p in c
         assert r in c
 
-    def test_X(self):
-        ppoAgent = agents.PpoAgent('CartPole-v0', fc_layers=(100, 50, 25))
-        ppoAgent.train([plot.State()], num_iterations=10, num_iterations_between_eval=3)
+    def test_train_plotsteprewards(self):
+        ppoAgent = agents.PpoAgent('CartPole-v0')
+        ppoAgent.train([plot.StepRewards(), duration.Fast()] )
 
     def test_train_plotloss(self):
         agent = agents.PpoAgent("CartPole-v0")
