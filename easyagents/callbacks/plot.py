@@ -339,6 +339,14 @@ class Actions(_PlotCallback):
             if plot_type & core.PlotType.PLAY_EPISODE != core.PlotType.NONE:
                 self.clear_plot(agent_context)
                 actions = []
+                axes_color = self.axes_color
+                self.axes.set_xlabel('action taken')
+                self.axes.set_ylabel('frequency')
+                self.axes.spines['top'].set_visible(False)
+                self.axes.spines['right'].set_visible(False)
+                self.axes.spines['bottom'].set_color(axes_color)
+                self.axes.spines['left'].set_color(axes_color)
+                self.axes.grid(color=axes_color, linestyle='-', linewidth=0.25, alpha=0.5)
                 for a in pc.actions.values():
                     actions.append(a)
                 self.axes.hist(actions)
