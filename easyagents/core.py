@@ -435,18 +435,20 @@ class AgentContext(object):
     def is_plot(self, plot_type: PlotType) -> bool:
         """Yields true if plot_type is ready to be plotted."""
         result = False
-        if plot_type == PlotType.PLAY_EPISODE:
-            result = self.is_play and self.pyplot.is_active(PlotType.PLAY_EPISODE)
-        if plot_type == PlotType.PLAY_STEP:
-            result = self.is_play and self.pyplot.is_active(PlotType.PLAY_STEP)
-        if plot_type == PlotType.TRAIN_EVAL:
-            result = self.is_eval
-            result = result and self.pyplot.is_active(PlotType.TRAIN_EVAL)
-            result = result and (self.play.episodes_done == self.train.num_episodes_per_eval)
+        if (plot_type & PlotType.PLAY_EPISODE) != PlotType.NONE:
+            result = result | (self.is_play and self.pyplot.is_active(PlotType.PLAY_EPISODE))
+        if (plot_type & PlotType.PLAY_STEP) != PlotType.NONE:
+            result = result | (self.is_play and self.pyplot.is_active(PlotType.PLAY_STEP))
+        if (plot_type & PlotType.TRAIN_EVAL) != PlotType.NONE:
+            train_result = self.is_eval
+            train_result = train_result and self.pyplot.is_active(PlotType.TRAIN_EVAL)
+            train_result = train_result and (self.play.episodes_done == self.train.num_episodes_per_eval)
+            result = result | train_result
         if plot_type == PlotType.TRAIN_ITERATION:
-            result = self.is_train and \
-                     self.pyplot.is_active(PlotType.TRAIN_ITERATION) and \
-                     self.train._is_iteration_log()
+            train_result = self.is_train
+            train_result = train_result and self.pyplot.is_active(PlotType.TRAIN_ITERATION)
+            train_result = train_result and self.train._is_iteration_log()
+            result = result | train_result
         return result
 
     @property
