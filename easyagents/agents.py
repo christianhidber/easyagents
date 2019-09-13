@@ -60,12 +60,29 @@ class EasyAgent(ABC):
         self._backend_agent: Optional[bcore._BackendAgent] = None
         return
 
-    def _prepare_callbacks(self, callbacks: List[core.AgentCallback]) -> List[core.AgentCallback]:
+    def _prepare_callbacks(self, callbacks: List[core.AgentCallback],
+                           default_plots: Optional[bool],
+                           default_plot_callbacks: List[plot._PlotCallback],
+                           ) -> List[core.AgentCallback]:
         """Adds the default callbacks and sorts all callbacks in the order
-        _PreProcessCallbacks, AgentCallbacks, _PostProcessCallbacks."""
+            _PreProcessCallbacks, AgentCallbacks, _PostProcessCallbacks.
+
+        Args:
+            callbacks: existing callbacks to prepare
+            default_plots: if set or if None and callbacks does not contain plots then the default plots are added
+            default_plot_callbacks: plot callbacks to add.
+        """
         preProcess = [plot._PreProcess()]
         agent = []
         postProcess = [plot._PostProcess()]
+
+        if default_plots is None:
+            default_plots = True
+            for c in callbacks:
+                default_plots = default_plots and (not isinstance(c, plot._PlotCallback))
+        if default_plots:
+            agent = default_plot_callbacks
+
         for c in callbacks:
             if isinstance(c, core._PreProcessCallback):
                 preProcess.append(c)
@@ -77,7 +94,8 @@ class EasyAgent(ABC):
         result = preProcess + agent + postProcess
         return result
 
-    def play(self, play_context: core.PlayContext, callbacks: List[core.AgentCallback], default_callbacks: bool):
+    def play(self, play_context: core.PlayContext, callbacks: List[core.AgentCallback],
+             default_plots: Optional[bool]):
         """Plays episodes with the current policy according to play_context.
 
         Hints:
@@ -86,7 +104,8 @@ class EasyAgent(ABC):
         Args:
             play_context: specifies the num of episodes to play
             callbacks: list of callbacks called during the play of the episodes
-            default_callbacks: if set addes a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...).
+                if None default callbacks are only added if the callbacks list is empty
 
         Returns:
             play_context containg the actions taken and the rewards received during training
@@ -97,19 +116,19 @@ class EasyAgent(ABC):
         if not isinstance(callbacks, list):
             assert isinstance(callbacks, core.AgentCallback), "callback not an AgentCallback or a list thereof."
             callbacks = [callbacks]
-        if default_callbacks:
-            callbacks = callbacks + [plot.Steps(), plot.Rewards()]
-        callbacks = self._prepare_callbacks(callbacks)
+        callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Steps(), plot.Rewards()])
         self._backend_agent.play(play_context=play_context, callbacks=callbacks)
         return play_context
 
-    def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback], default_callbacks: bool):
+    def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback],
+              default_plots: Optional[bool]):
         """Trains a new model using the gym environment passed during instantiation.
 
         Args:
             callbacks: list of callbacks called during the training and evaluation
             train_context: training configuration to be used (num_iterations,num_episodes_per_iteration,...)
-            default_callbacks: if set addes a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...).
+                if None default callbacks are only added if the callbacks list is empty
         """
         assert train_context, "train_context not set."
         if callbacks is None:
@@ -117,9 +136,7 @@ class EasyAgent(ABC):
         if not isinstance(callbacks, list):
             assert isinstance(callbacks, core.AgentCallback), "callback not a AgentCallback or a list thereof."
             callbacks = [callbacks]
-        if default_callbacks:
-            callbacks = callbacks + [plot.Loss(), plot.Steps(), plot.Rewards()]
-        callbacks = self._prepare_callbacks(callbacks)
+        callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Loss(), plot.Steps(), plot.Rewards()])
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
 
@@ -164,7 +181,7 @@ class DqnAgent(EasyAgent):
              num_episodes: int = 1,
              max_steps_per_episode: int = 1000,
              play_context: core.PlayContext = None,
-             default_callbacks: bool = True):
+             default_plots: bool = None):
         """Plays num_episodes with the current policy.
 
         Args:
@@ -172,7 +189,7 @@ class DqnAgent(EasyAgent):
             num_episodes: number of episodes to play
             max_steps_per_episode: max steps per episode
             play_context: play configuration to be used. If set override all other play context arguments
-            default_callbacks: if set addes a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+            default_plots: if set addes a set of default callbacks (plot.State, plot.Rewards, ...)
 
         Returns:
             play_context containg the actions taken and the rewards received during training
@@ -181,7 +198,7 @@ class DqnAgent(EasyAgent):
             play_context = core.PlayContext()
             play_context.max_steps_per_episode = max_steps_per_episode
             play_context.num_episodes = num_episodes
-        super().play(play_context=play_context, callbacks=callbacks, default_callbacks=default_callbacks)
+        super().play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
         return play_context
 
     def train(self,
@@ -196,7 +213,7 @@ class DqnAgent(EasyAgent):
               num_episodes_per_eval: int = 10,
               learning_rate: float = 0.001,
               train_context: core.DqnTrainContext = None,
-              default_callbacks: bool = True):
+              default_plots: bool = None):
         """Trains a new model using the gym environment passed during instantiation.
 
         Args:
@@ -212,7 +229,8 @@ class DqnAgent(EasyAgent):
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
             learning_rate: the learning rate used in the next iteration's policy training (0,1]
             train_context: training configuration to be used. if set overrides all other training context arguments.
-            default_callbacks: if set addes a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...).
+                if None default callbacks are only added if the callbacks list is empty
 
         Returns:
             train_context: the training configuration containing the loss and sum of rewards encountered
@@ -230,7 +248,7 @@ class DqnAgent(EasyAgent):
             train_context.num_episodes_per_eval = num_episodes_per_eval
             train_context.learning_rate = learning_rate
 
-        super().train(train_context=train_context, callbacks=callbacks, default_callbacks=default_callbacks)
+        super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
         return train_context
 
 
@@ -268,7 +286,7 @@ class PpoAgent(EasyAgent):
              num_episodes: int = 1,
              max_steps_per_episode: int = 1000,
              play_context: core.PlayContext = None,
-             default_callbacks: bool = True):
+             default_plots: bool = None):
         """Plays num_episodes with the current policy.
 
         Args:
@@ -276,7 +294,8 @@ class PpoAgent(EasyAgent):
             num_episodes: number of episodes to play
             max_steps_per_episode: max steps per episode
             play_context: play configuration to be used. If set override all other play context arguments
-            default_callbacks: if set addes a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, ...).
+                if None default callbacks are only added if the callbacks list is empty
 
         Returns:
             play_context containg the actions taken and the rewards received during training
@@ -285,7 +304,7 @@ class PpoAgent(EasyAgent):
             play_context = core.PlayContext()
             play_context.max_steps_per_episode = max_steps_per_episode
             play_context.num_episodes = num_episodes
-        super().play(play_context=play_context, callbacks=callbacks, default_callbacks=default_callbacks)
+        super().play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
         return play_context
 
     def train(self,
@@ -298,7 +317,7 @@ class PpoAgent(EasyAgent):
               num_episodes_per_eval: int = 10,
               learning_rate: float = 0.001,
               train_context: core.ActorCriticTrainContext = None,
-              default_callbacks: bool = True):
+              default_plots: bool = None):
         """Trains a new model using the gym environment passed during instantiation.
 
         Args:
@@ -313,7 +332,8 @@ class PpoAgent(EasyAgent):
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
             learning_rate: the learning rate used in the next iteration's policy training (0,1]
             train_context: training configuration to be used. if set overrides all other training context arguments.
-            default_callbacks: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...).
+                if None default callbacks are only added if the callbacks list is empty
 
         Returns:
             train_context: the training configuration containing the loss and sum of rewards encountered
@@ -329,7 +349,7 @@ class PpoAgent(EasyAgent):
             train_context.num_episodes_per_eval = num_episodes_per_eval
             train_context.learning_rate = learning_rate
 
-        super().train(train_context=train_context, callbacks=callbacks, default_callbacks=default_callbacks)
+        super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
         return train_context
 
 
@@ -355,7 +375,7 @@ class RandomAgent(EasyAgent):
              num_episodes: int = 1,
              max_steps_per_episode: int = 1000,
              play_context: core.PlayContext = None,
-             default_callbacks: bool = True):
+             default_plots: bool = None):
         """Plays num_episodes with the current policy.
 
         Args:
@@ -363,13 +383,14 @@ class RandomAgent(EasyAgent):
             num_episodes: number of episodes to play
             max_steps_per_episode: max steps per episode
             play_context: play configuration to be used. If set override all other play context arguments
-            default_callbacks: if set addes a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, ...).
+                if None default callbacks are only added if the callbacks list is empty
         """
         if play_context is None:
             play_context = core.PlayContext()
             play_context.max_steps_per_episode = max_steps_per_episode
             play_context.num_episodes = num_episodes
-        super().play(play_context=play_context, callbacks=callbacks, default_callbacks=default_callbacks)
+        super().play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
         return play_context
 
     def train(self,
@@ -378,7 +399,7 @@ class RandomAgent(EasyAgent):
               max_steps_per_episode: int = 1000,
               num_episodes_per_eval: int = 10,
               train_context: core.ActorCriticTrainContext = None,
-              default_callbacks: bool = True):
+              default_plots: bool = None):
         """Evaluates the environment using a uniform random policy.
 
         The evaluation is performed in batches of num_episodes_per_eval episodes.
@@ -389,7 +410,7 @@ class RandomAgent(EasyAgent):
             max_steps_per_episode: maximum number of steps per episode
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
             train_context: training configuration to be used. if set overrides all other training context arguments.
-            default_callbacks: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...)
 
         Returns:
             train_context: the training configuration containing the loss and sum of rewards encountered
@@ -405,5 +426,5 @@ class RandomAgent(EasyAgent):
             train_context.num_episodes_per_eval = num_episodes_per_eval
             train_context.learning_rate = 1
 
-        super().train(train_context=train_context, callbacks=callbacks, default_callbacks=default_callbacks)
+        super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
         return train_context

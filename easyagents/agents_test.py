@@ -57,7 +57,7 @@ class TfAgentsDqnAgentTest(unittest.TestCase):
                                                num_iterations_between_log=200,
                                                num_iterations_between_eval=1000,
                                                max_steps_per_episode=200,
-                                               default_callbacks=False)
+                                               default_plots=False)
         (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
         assert avg_steps >= 150
         assert max_steps == 200
