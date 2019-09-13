@@ -206,7 +206,7 @@ class _PlotCallback(core.AgentCallback):
 
     def plot_subplot(self, agent_context: core.AgentContext,
                      xvalues: List[int], yvalues: List[Union[float, Tuple[float, float, float]]], ylabel: str,
-                     xlabel: str = 'episodes', xlim: Optional[Tuple[float, float]] = None,
+                     xlabel: str = None, xlim: Optional[Tuple[float, float]] = None,
                      yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None,
                      color: str = 'blue'):
         """Draws the graph given by xvalues, yvalues (including x- & y-axes) .
@@ -226,10 +226,18 @@ class _PlotCallback(core.AgentCallback):
             xmin = 0
             xmax = 1
             if agent_context.is_play:
+                xmin = 1
                 xmax = agent_context.play.episodes_done
             if agent_context.is_train or agent_context.is_eval:
+                xmin = 0
                 xmax = agent_context.train.episodes_done_in_training
             xlim = (xmin, xmax)
+        if xlabel is None:
+            xlabel = 'episodes'
+            if agent_context.is_play:
+                xlabel = 'episodes played'
+            if agent_context.is_eval or agent_context.is_train:
+                xlabel = 'episodes trained'
         self.plot_axes(xlim=xlim, ylabel=ylabel, xlabel=xlabel, yscale=yscale, ylim=ylim)
         self.plot_values(agent_context=agent_context, xvalues=xvalues, yvalues=yvalues, color=color)
 
@@ -260,15 +268,18 @@ class _PlotCallback(core.AgentCallback):
             yvalues = [t[1] for t in yvalues]
 
         # plot values
+        marker = None
+        if len(xvalues) < 10:
+            marker = 'o'
         fill_alpha = 0.1
         if pyc.is_jupyter_active:
             if yminvalues is not None:
                 self.axes.fill_between(xvalues, yminvalues, ymaxvalues, color=color, alpha=fill_alpha)
-            self.axes.plot(xvalues, yvalues, color=color)
+            self.axes.plot(xvalues, yvalues, color=color, marker=marker)
         else:
             if yminvalues is not None:
                 plt.fill_between(xvalues, yminvalues, ymaxvalues, color=color, alpha=fill_alpha)
-            plt.plot(xvalues, yvalues, color=color)
+            plt.plot(xvalues, yvalues, color=color, marker=marker)
             if pause:
                 plt.pause(0.01)
 
@@ -294,7 +305,7 @@ class Loss(_PlotCallback):
         ac = agent_context
         tc = ac.train
         xvalues = list(tc.loss.keys())
-        self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes',
+        self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes trained',
                        ylim=self.ylim, ylabel='loss', yscale=self.yscale)
         if isinstance(tc, core.ActorCriticTrainContext):
             acc: core.ActorCriticTrainContext = tc
@@ -323,17 +334,19 @@ class Rewards(_PlotCallback):
 
     def plot(self, agent_context: core.AgentContext):
         xvalues = yvalues = []
+        ylabel = 'sum of rewards'
         if agent_context.is_train or agent_context.is_eval:
             tc = agent_context.train
             xvalues = list(tc.eval_rewards.keys())
             yvalues = list(tc.eval_rewards.values())
+            ylabel = 'Ø sum of rewards'
         if agent_context.is_play:
             pc = agent_context.play
             xvalues = list(pc.sum_of_rewards.keys())
             yvalues = list(pc.sum_of_rewards.values())
         if xvalues:
             self.plot_subplot(agent_context, color='green', ylim=self.ylim, yscale=self.yscale,
-                              xvalues=xvalues, yvalues=yvalues, ylabel='sum of rewards')
+                              xvalues=xvalues, yvalues=yvalues, ylabel=ylabel)
 
 
 class State(_PlotCallback):
@@ -422,16 +435,18 @@ class Steps(_PlotCallback):
 
     def plot(self, agent_context: core.AgentContext):
         xvalues = yvalues = []
+        ylabel = 'steps'
         if agent_context.is_train or agent_context.is_eval:
             tc = agent_context.train
             xvalues = list(tc.eval_steps.keys())
             yvalues = list(tc.eval_steps.values())
+            ylabel = 'Ø steps'
         if agent_context.is_play:
             pc = agent_context.play
             xvalues = list(pc.actions.keys())
             yvalues = [len(pc.actions[episode]) for episode in pc.actions.keys()]
         self.plot_subplot(agent_context, color='blue', ylim=self.ylim, yscale=self.yscale,
-                          xvalues=xvalues, yvalues=yvalues, ylabel='steps')
+                          xvalues=xvalues, yvalues=yvalues, ylabel=ylabel)
 
 
 class StepRewards(_PlotCallback):

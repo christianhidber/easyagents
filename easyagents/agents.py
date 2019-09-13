@@ -6,7 +6,7 @@
 """
 
 from abc import ABC
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Union
 from easyagents import core
 from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
@@ -72,9 +72,9 @@ class EasyAgent(ABC):
             default_plots: if set or if None and callbacks does not contain plots then the default plots are added
             default_plot_callbacks: plot callbacks to add.
         """
-        preProcess = [plot._PreProcess()]
-        agent = []
-        postProcess = [plot._PostProcess()]
+        pre_process: List[core.AgentCallback] = [plot._PreProcess()]
+        agent: List[core.AgentCallback] = []
+        post_process: List[core.AgentCallback] = [plot._PostProcess()]
 
         if default_plots is None:
             default_plots = True
@@ -85,16 +85,17 @@ class EasyAgent(ABC):
 
         for c in callbacks:
             if isinstance(c, core._PreProcessCallback):
-                preProcess.append(c)
+                pre_process.append(c)
             else:
                 if isinstance(c, core._PostProcessCallback):
-                    postProcess.append(c)
+                    post_process.append(c)
                 else:
                     agent.append(c)
-        result = preProcess + agent + postProcess
+        result: List[core.AgentCallback] = pre_process + agent + post_process
         return result
 
-    def play(self, play_context: core.PlayContext, callbacks: List[core.AgentCallback],
+    def play(self, play_context: core.PlayContext,
+             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
              default_plots: Optional[bool]):
         """Plays episodes with the current policy according to play_context.
 
@@ -120,7 +121,8 @@ class EasyAgent(ABC):
         self._backend_agent.play(play_context=play_context, callbacks=callbacks)
         return play_context
 
-    def train(self, train_context: core.TrainContext, callbacks: List[core.AgentCallback],
+    def train(self, train_context: core.TrainContext,
+              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
               default_plots: Optional[bool]):
         """Trains a new model using the gym environment passed during instantiation.
 
@@ -177,7 +179,7 @@ class DqnAgent(EasyAgent):
         return
 
     def play(self,
-             callbacks: List[core.AgentCallback] = None,
+             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
              num_episodes: int = 1,
              max_steps_per_episode: int = 1000,
              play_context: core.PlayContext = None,
@@ -202,7 +204,7 @@ class DqnAgent(EasyAgent):
         return play_context
 
     def train(self,
-              callbacks: List[core.AgentCallback] = None,
+              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
               num_iterations: int = 20000,
               max_steps_per_episode: int = 500,
               num_steps_per_iteration: int = 1,
@@ -282,7 +284,7 @@ class PpoAgent(EasyAgent):
         return
 
     def play(self,
-             callbacks: List[core.AgentCallback] = None,
+             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
              num_episodes: int = 1,
              max_steps_per_episode: int = 1000,
              play_context: core.PlayContext = None,
@@ -308,7 +310,7 @@ class PpoAgent(EasyAgent):
         return play_context
 
     def train(self,
-              callbacks: List[core.AgentCallback] = None,
+              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
               num_iterations: int = 100,
               num_episodes_per_iteration: int = 10,
               max_steps_per_episode: int = 500,
@@ -371,7 +373,7 @@ class RandomAgent(EasyAgent):
         return
 
     def play(self,
-             callbacks: List[core.AgentCallback] = None,
+             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
              num_episodes: int = 1,
              max_steps_per_episode: int = 1000,
              play_context: core.PlayContext = None,
@@ -394,7 +396,7 @@ class RandomAgent(EasyAgent):
         return play_context
 
     def train(self,
-              callbacks: List[core.AgentCallback] = None,
+              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
               num_iterations: int = 10,
               max_steps_per_episode: int = 1000,
               num_episodes_per_eval: int = 10,
