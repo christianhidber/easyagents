@@ -90,6 +90,10 @@ class _PostProcess(core._PostProcessCallback):
         if agent_context.is_plot(core.PlotType.PLAY_STEP):
             self._display(agent_context)
 
+    def on_play_end(self, agent_context: core.AgentContext):
+        if agent_context.is_plot(core.PlotType.TRAIN_EVAL) or agent_context.is_plot(core.PlotType.PLAY_EPISODE):
+            self._display(agent_context)
+
     def on_train_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.TRAIN_ITERATION) or \
                 agent_context.is_plot(core.PlotType.TRAIN_EVAL):
@@ -118,17 +122,6 @@ class _PlotCallback(core.AgentCallback):
         self.axes_color = 'grey'
         self._plot_type = plot_type
 
-    def _clear_axes(self, agent_context: core.AgentContext):
-        self._create_subplot(agent_context)
-        pyc = agent_context.pyplot
-        if pyc.is_jupyter_active:
-            self.axes.cla()
-        else:
-            plt.figure(pyc.figure.number)
-            if plt.gcf() is pyc.figure:
-                plt.sca(self.axes)
-            plt.cla()
-
     def _create_subplot(self, agent_context: core.AgentContext):
         if self.axes is None:
             pyc = agent_context.pyplot
@@ -140,7 +133,15 @@ class _PlotCallback(core.AgentCallback):
             self.plot_axes(xlim=(0, 1), ylabel='')
 
     def _refresh_subplot(self, agent_context: core.AgentContext):
-        self._clear_axes(agent_context)
+        assert self.axes is not None
+        pyc = agent_context.pyplot
+        if pyc.is_jupyter_active:
+            self.axes.cla()
+        else:
+            plt.figure(pyc.figure.number)
+            if plt.gcf() is pyc.figure:
+                plt.sca(self.axes)
+            plt.cla()
         self.plot(agent_context)
 
     def _is_plot(self, agent_context: core.AgentContext, plot_type: core.PlotType) -> bool:
