@@ -1,4 +1,4 @@
-### Reinforcement Learning for Practitioners (v1.0)
+### Reinforcement Learning for Practitioners (v1.1, 19Q3)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 
 Status: under active development, breaking changes may occur. [Release notes](documentation/README.md).
@@ -27,13 +27,13 @@ Try it on colab:
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
-### Scenario: simple (quick test, plot state)
+### Scenario: simple
 ````
 from easyagents.agents import PpoAgent
-from easyagents.callbacks import plot, duration
+from easyagents.callbacks import log, plot, duration
 
 ppoAgent = PpoAgent('CartPole-v0')
-ppoAgent.train([plot.State(), duration.Fast()])
+ppoAgent.train([plot.State(), plot.Loss(), plot.Actions(), plot.Rewards()])
 ````
 ![Scenario_Simple](images/Scenario_simple.png)
 
@@ -42,11 +42,13 @@ ppoAgent.train([plot.State(), duration.Fast()])
 from easyagents.agents import PpoAgent
 from easyagents.callbacks import plot, duration
 
-ppoAgent = PpoAgent( 'Orso-v1', fc_layers=(500,500,500))
-ppoAgent.train(learning_rate=0.0001, [plot.State()], num_iterations = 500, max_steps_per_episode = 50)
+ppoAgent = PpoAgent( 'Orso-v1',fc_layers=(500,500,500))
+ppoAgent.train([plot.State(),   plot.Loss(),        plot.Rewards(), 
+                plot.Actions(), plot.StepRewards(), plot.Steps(), plot.ToMovie()], 
+                learning_rate = 0.0001, num_iterations = 500,     max_steps_per_episode=50 )
 ````
 
-[![Scenario_Detailed](images/Scenario_detailed.png)](https://raw.githubusercontent.com/christianhidber/easyagents/master-v1/images/Scenario_detailed.mp4)
+[![Scenario_Detailed](images/Scenario_detailed.png)](https://raw.githubusercontent.com/christianhidber/easyagents/master/images/Scenario_detailed.mp4)
 
 
 ### Guiding Principles

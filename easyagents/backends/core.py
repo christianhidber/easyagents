@@ -172,6 +172,7 @@ class _BackendAgent(ABC):
         """Must NOT be called by play_implementation"""
         for c in self._callbacks:
             c.on_play_end(self._agent_context)
+        self._agent_context.play.gym_env = None
 
     def on_play_episode_begin(self, env: gym.core.Env):
         """Must be called by play_implementation at the beginning of a new episode
@@ -200,8 +201,6 @@ class _BackendAgent(ABC):
 
         for c in self._callbacks:
             c.on_play_episode_end(self._agent_context)
-
-        pc.gym_env = None
 
     def _on_play_step_begin(self, action):
         """Called before each call to gym.step on the current play env (agent_context.play.gym_env)

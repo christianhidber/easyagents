@@ -10,6 +10,7 @@ import gym
 import tempfile
 import os.path
 import datetime
+import time
 
 # download mp4 rendering
 imageio.plugins.ffmpeg.download()
@@ -44,7 +45,6 @@ class _PreProcess(core._PreProcessCallback):
         # create figure / remove all existing axes from previous calls to train/play
         pyc = agent_context.pyplot
         pyc.is_jupyter_active = _is_jupyter_active
-        pyc._call_jupyter_display = False
 
         if pyc.figure is None:
             pyc.figure = plt.figure("_EasyAgents", figsize=pyc.figsize)
@@ -61,9 +61,22 @@ class _PreProcess(core._PreProcessCallback):
 
 
 class _PostProcess(core._PostProcessCallback):
-    """Plots the matplotlib agent_context.figure"""
+    """Redraws the plots int the matplotlib agent_context.figure.
 
-    def _display(self, agent_context: core.AgentContext):
+        In jupyter the plots are only refreshed once per second.
+    """
+
+    def __init__(self):
+        self._last_jupyter_display: float = 0
+        self._jupyter_display_delay: float = 1.0
+        self._call_jupyter_display: bool = False
+
+    def _reset(self):
+        self._last_jupyter_display = 0
+        self._jupyter_display_delay = 1.0
+        self._call_jupyter_display = False
+
+    def _display(self, agent_context: core.AgentContext, delayed = False):
         """Fixes the layout of multiple subplots and refreshs the display."""
         pyc = agent_context.pyplot
         count = len(pyc.figure.axes)
@@ -75,12 +88,15 @@ class _PostProcess(core._PostProcessCallback):
             pyc.figure.tight_layout()
 
             if pyc.is_jupyter_active:
-                clear_output(wait=True)
-                if pyc._call_jupyter_display:
-                    # noinspection PyTypeChecker
-                    display(pyc.figure)
-            plt.pause(0.01)
-            pyc._call_jupyter_display = True
+                if not delayed or (self._last_jupyter_display + self._jupyter_display_delay) > time.time():
+                    clear_output(wait=True)
+                    if self._call_jupyter_display:
+                        # noinspection PyTypeChecker
+                        display(pyc.figure)
+                    self._last_jupyter_display = time.time()
+                    self._call_jupyter_display = True
+            else:
+                plt.pause(0.01)
 
     def on_play_episode_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.TRAIN_EVAL | core.PlotType.PLAY_EPISODE):
@@ -88,15 +104,19 @@ class _PostProcess(core._PostProcessCallback):
 
     def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         if agent_context.is_plot(core.PlotType.PLAY_STEP):
-            self._display(agent_context)
+            self._display(agent_context, delayed=True)
 
     def on_play_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.TRAIN_EVAL | core.PlotType.PLAY_EPISODE):
+            self._reset()
             self._display(agent_context)
+
 
     def on_train_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.TRAIN_ITERATION | core.PlotType.TRAIN_EVAL):
+            self._reset()
             self._display(agent_context)
+
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.TRAIN_ITERATION):
@@ -129,7 +149,7 @@ class _PlotCallback(core.AgentCallback):
             rows = math.ceil(count / pyc.max_columns)
             columns = math.ceil(count / rows)
             self.axes = pyc.figure.add_subplot(rows, columns, count)
-            self.plot_axes(xlim=(0, 1), ylabel='')
+            self.plot_axes(xlim=(0, 1), ylabel='', xlabel='')
 
     def _refresh_subplot(self, agent_context: core.AgentContext, plot_type: core.PlotType):
         """Sets this axes active and calls plot if this plot callback is registered on at least 1 plot
@@ -165,8 +185,11 @@ class _PlotCallback(core.AgentCallback):
         if (self._plot_type & (core.PlotType.PLAY_EPISODE | core.PlotType.PLAY_STEP)) != core.PlotType.NONE:
             self._create_subplot(agent_context)
 
+    def on_play_end(self, agent_context: core.AgentContext):
+        self._refresh_subplot(agent_context, core.PlotType.TRAIN_EVAL)
+
     def on_play_episode_end(self, agent_context: core.AgentContext):
-        self._refresh_subplot(agent_context, core.PlotType.PLAY_EPISODE | core.PlotType.TRAIN_EVAL)
+        self._refresh_subplot(agent_context, core.PlotType.PLAY_EPISODE)
 
     def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         self._refresh_subplot(agent_context, core.PlotType.PLAY_STEP)
@@ -176,43 +199,60 @@ class _PlotCallback(core.AgentCallback):
             self._create_subplot(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
-        self._refresh_subplot(agent_context,core.PlotType.TRAIN_ITERATION)
+        self._refresh_subplot(agent_context, core.PlotType.TRAIN_ITERATION)
 
     def plot(self, agent_context: core.AgentContext, plot_type: core.PlotType):
         """Plots a graph on the self.axes object.
 
         Args:
+            agent_context: the context containing the data to plot
             plot_type: the PlotType requesting this plot call.
         """
         pass
 
-    def plot_axes(self, xlim: Tuple[float, float], ylabel: str,
-                  xlabel: str = 'episodes', yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
+    def plot_axes(self, xlabel: str, ylabel: str, xlim: Tuple[float, float] = None,
+                  yscale: str = 'linear', ylim: Optional[Tuple[float, float]] = None):
         """Draws the x- and y-axes.
 
         Attributes:
-            xlim: (min,max) for the x-axes
+            xlim: None or (min,max) for the x-axes
             xlabel: label of the x-axes
-            ylim: (min,max) for the y-axes (or None)
+            ylim: None or (min,max) for the y-axes (or None)
             ylabel: label of the y-axes
             yscale: scale of the y-axes ('linear', 'log', ...)
         """
-        assert xlim and xlim[0] <= xlim[1]
+        assert xlim is None or xlim[0] <= xlim[1]
+        assert ylim is None or ylim[0] <= ylim[1]
+        assert xlabel is not None
         assert ylabel is not None
 
         # setup subplot (axes, labels, colors)
         axes_color = self.axes_color
         self.axes.set_xlabel(xlabel)
         self.axes.set_ylabel(ylabel)
-        self.axes.set_xlim(xlim)
         self.axes.spines['top'].set_visible(False)
         self.axes.spines['right'].set_visible(False)
         self.axes.spines['bottom'].set_color(axes_color)
         self.axes.spines['left'].set_color(axes_color)
         self.axes.grid(color=axes_color, linestyle='-', linewidth=0.25, alpha=0.5)
+        if xlim is not None:
+            self.axes.set_xlim(xlim)
         if ylim is not None:
             self.axes.set_ylim(ylim)
         self.axes.set_yscale(yscale)
+
+    def plot_text(self, text: str):
+        if text:
+            ax = self.axes
+            ax.text(0.5, 0.5, text, horizontalalignment='center', verticalalignment='center',
+                    color='blue', wrap=True)
+            ax.set_xlabel('')
+            ax.get_xaxis().set_ticks([])
+            ax.get_yaxis().set_ticks([])
+            axes_color = self.axes_color
+            for spin in ax.spines:
+                ax.spines[spin].set_visible(True)
+                ax.spines[spin].set_color(axes_color)
 
     def plot_subplot(self, agent_context: core.AgentContext,
                      xvalues: List[int], yvalues: List[Union[float, Tuple[float, float, float]]], ylabel: str,
@@ -249,7 +289,7 @@ class _PlotCallback(core.AgentCallback):
             if agent_context.is_eval or agent_context.is_train:
                 xlabel = 'episodes trained'
         self.clear_plot(agent_context)
-        self.plot_axes(xlim=xlim, ylabel=ylabel, xlabel=xlabel, yscale=yscale, ylim=ylim)
+        self.plot_axes(xlim=xlim, xlabel=xlabel, ylabel=ylabel, yscale=yscale, ylim=ylim)
         self.plot_values(agent_context=agent_context, xvalues=xvalues, yvalues=yvalues, color=color)
 
     def plot_values(self, agent_context: core.AgentContext,
@@ -294,6 +334,48 @@ class _PlotCallback(core.AgentCallback):
             plt.plot(xvalues, yvalues, color=color, marker=marker)
             if pause:
                 plt.pause(0.01)
+
+
+# noinspection DuplicatedCode
+class Actions(_PlotCallback):
+
+    def __init__(self, num_steps_between_plot=100):
+        """Plots a histogram of the actions taken during play or during the last evaluation period.
+
+        Args:
+            num_steps_between_plot: num of steps to play before plot is updated.
+        """
+        super().__init__(plot_type=core.PlotType.PLAY_STEP| core.PlotType.PLAY_EPISODE | core.PlotType.TRAIN_EVAL )
+        assert num_steps_between_plot > 0
+        self._actions: List[float] = []
+        self._num_steps_between_plot = num_steps_between_plot
+
+    def _reset(self):
+        self._actions: List[float] = []
+
+    def on_play_begin(self, agent_context: core.AgentContext):
+        super().on_play_begin(agent_context)
+        self._reset()
+
+    def on_play_end(self, agent_context: core.AgentContext):
+        super().on_play_end(agent_context)
+        self._reset()
+
+    def plot(self, agent_context: core.AgentContext, plot_type: core.PlotType):
+        try:
+            pc = agent_context.play
+            is_plot = True
+            xlabel = 'actions'
+            if plot_type & core.PlotType.TRAIN_EVAL != core.PlotType.NONE:
+                xlabel = 'actions taken during last evaluation period'
+            if plot_type & core.PlotType.PLAY_STEP != core.PlotType.NONE:
+                is_plot = (pc.steps_done_in_episode % self._num_steps_between_plot == 0)
+            if is_plot:
+                self.clear_plot(agent_context)
+                self.plot_axes(xlabel=xlabel, ylabel='count')
+                self.axes.hist(pc.actions.values())
+        except:
+            self.plot_text(f'Failed to create the actions histogram.\n')
 
 
 class Loss(_PlotCallback):
@@ -393,19 +475,6 @@ class State(_PlotCallback):
             ax.spines[spin].set_visible(True)
             ax.spines[spin].set_color(axes_color)
 
-    def _plot_text(self, text: str):
-        if text:
-            ax = self.axes
-            ax.text(0.5, 0.5, text, horizontalalignment='center', verticalalignment='center',
-                    color='blue', wrap=True)
-            ax.set_xlabel('')
-            ax.get_xaxis().set_ticks([])
-            ax.get_yaxis().set_ticks([])
-            axes_color = self.axes_color
-            for spin in ax.spines:
-                ax.spines[spin].set_visible(True)
-                ax.spines[spin].set_color(axes_color)
-
     # noinspection PyArgumentList,DuplicatedCode
     def _render_to_rgb_array(self, gym_env: gym.Env, mode: str) -> np.ndarray:
         """ calls gym_env.render(mode) and validates the return value to be a numpy rgb array
@@ -430,8 +499,8 @@ class State(_PlotCallback):
         try:
             rgb_array: np.ndarray = self._render_to_rgb_array(agent_context.play.gym_env, self._render_mode)
             self._plot_rgb_array(agent_context, rgb_array)
-        except Exception as e:
-            self._plot_text(f'gym.Env.render(mode="{self._render_mode}") failed:\n')
+        except:
+            self.plot_text(f'gym.Env.render(mode="{self._render_mode}") failed:\n')
 
 
 class Steps(_PlotCallback):
@@ -483,12 +552,12 @@ class StepRewards(_PlotCallback):
             self.clear_plot(agent_context)
             xlabel = 'steps played'
             if agent_context.is_eval:
-                xlabel = 'steps in last evaluation period'
+                xlabel = 'steps taken during last evaluation period'
             self.plot_axes(xlim=(1, self._xmax), ylabel='sum of rewards', xlabel=xlabel)
             xy_values = list(self._xy_values.values())
             xlast, _ = xy_values[-1]
             for xvalues, yvalues in xy_values:
-                pause = xvalues == xlast
+                pause = (xvalues == xlast)
                 self.plot_values(agent_context=agent_context, xvalues=xvalues, yvalues=yvalues,
                                  color=None, marker='', pause=pause)
 
@@ -508,7 +577,7 @@ class StepRewards(_PlotCallback):
         pc = agent_context.play
         if plot_type & core.PlotType.PLAY_STEP != core.PlotType.NONE:
             episode = pc.episodes_done + 1
-            if not episode in self._xy_values:
+            if episode not in self._xy_values:
                 self._xy_values[episode] = ([], [])
             xvalues, yvalues = self._xy_values[episode]
             xvalues.append(pc.steps_done_in_episode)

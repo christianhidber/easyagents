@@ -1,4 +1,7 @@
 ## Release notes
+* v1.1 [19Q3]
+    * plot.StepRewards, plot.Actions
+    * default_plots parameter (instead of default_callbacks)
 * v1.0 [19Q3]
     * api based on pluggable backends and callbacks (for plotting, logging, training durations)
     * backend: tf-agents, default

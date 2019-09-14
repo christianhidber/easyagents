@@ -31,6 +31,9 @@ class BackendAgentTest(unittest.TestCase):
         assert self.pc.steps_done == self.pc.num_episodes * self.pc.max_steps_per_episode == 10
         assert self.pc.steps_done_in_episode == self.pc.max_steps_per_episode == 5
 
+    def test_play_callbackinvariants(self):
+        agent = BackendAgentTest.DebugAgent()
+        agent.play(play_context=self.pc,callbacks=[debug.InvariantCallback()])
 
     def test_train_emptyArgs(self):
         agent = BackendAgentTest.DebugAgent()

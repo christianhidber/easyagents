@@ -4,6 +4,7 @@
     without an underlying model / neural network.
 """
 
+from typing import Tuple
 from easyagents import core
 from easyagents.backends import core as bcore
 import gym
@@ -63,3 +64,24 @@ class BackendAgent(bcore._BackendAgent):
             self.on_train_iteration_end(0)
             if tc.training_done:
                 break
+
+class InvariantCallback(core.AgentCallback):
+    """Validates the callback invariants"""
+
+    def on_play_begin(self, agent_context: core.AgentContext):
+        assert agent_context.play.gym_env is None
+
+    def on_play_end(self, agent_context: core.AgentContext):
+        assert agent_context.play.gym_env is not None
+
+    def on_play_episode_begin(self, agent_context: core.AgentContext):
+        assert agent_context.play.gym_env is not None
+
+    def on_play_episode_end(self, agent_context: core.AgentContext):
+        assert agent_context.play.gym_env is not None
+
+    def on_play_step_begin(self, agent_context: core.AgentContext, action):
+        assert agent_context.play.gym_env is not None
+
+    def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
+        assert agent_context.play.gym_env is not None
