@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="easyagents",
-    version="1.1.8",
+    version="1.1.9",
     description="reinforcement learning for practitioners.",
     long_description=README,
     long_description_content_type="text/markdown",
