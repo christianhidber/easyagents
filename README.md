@@ -48,7 +48,7 @@ ppoAgent.train([plot.State(),   plot.Loss(),        plot.Rewards(),
                 learning_rate = 0.0001, num_iterations = 500,     max_steps_per_episode=50 )
 ````
 
-[![Scenario_Detailed](images/Scenario_detailed.png)](https://raw.githubusercontent.com/christianhidber/easyagents/master-v1/images/Scenario_detailed.mp4)
+[![Scenario_Detailed](images/Scenario_detailed.png)](https://raw.githubusercontent.com/christianhidber/easyagents/master/images/Scenario_detailed.mp4)
 
 
 ### Guiding Principles
