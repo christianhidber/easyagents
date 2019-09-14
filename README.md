@@ -1,4 +1,4 @@
-### Reinforcement Learning for Practitioners (v1.0)
+### Reinforcement Learning for Practitioners (v1.1, 19Q3)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 
 Status: under active development, breaking changes may occur. [Release notes](documentation/README.md).
