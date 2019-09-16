@@ -1,7 +1,7 @@
 import pytest
 import unittest
 
-from agents import ReinforceAgent, DqnAgent
+from easyagents.agents import ReinforceAgent, DqnAgent
 from easyagents import env, core, agents
 from easyagents.callbacks import duration, log, plot
 from easyagents.backends import default
