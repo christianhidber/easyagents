@@ -9,4 +9,4 @@ import easyagents.callbacks.plot
 import easyagents.env
 
 # Version of the easy_agents package
-__version__ = "1.1.10"
+__version__ = "1.1.11"
