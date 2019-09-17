@@ -24,6 +24,7 @@ from tf_agents.agents.dqn import dqn_agent
 from tf_agents.networks import q_network
 from tf_agents.policies import tf_policy, random_tf_policy
 from tf_agents.trajectories import trajectory
+from tf_agents.agents.reinforce import reinforce_agent
 
 import gym
 
