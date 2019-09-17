@@ -13,6 +13,7 @@ from tf_agents.agents.ppo import ppo_agent
 from tf_agents.drivers.dynamic_episode_driver import DynamicEpisodeDriver
 from tf_agents.environments import py_environment
 from tf_agents.environments import suite_gym
+from tf_agents.environments import gym_wrapper
 from tf_agents.environments import tf_py_environment
 from tf_agents.networks import actor_distribution_network
 from tf_agents.networks import value_network
@@ -23,6 +24,8 @@ from tf_agents.agents.dqn import dqn_agent
 from tf_agents.networks import q_network
 from tf_agents.policies import tf_policy, random_tf_policy
 from tf_agents.trajectories import trajectory
+
+import gym
 
 
 # noinspection PyUnresolvedReferences,PyAbstractClass
@@ -49,6 +52,18 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
             tf.compat.v1.set_random_seed(self.model_config.seed)
         return
 
+    def load_workaround(self, discount):
+        gym_spec = gym.spec(self.model_config.gym_env_name)
+        gym_env = gym_spec.make()
+
+        # simplify_box_bounds: Whether to replace bounds of Box space that are arrays
+        #  with identical values with one number and rely on broadcasting.
+        env = gym_wrapper.GymWrapper(
+            gym_env,
+            discount=discount,
+            simplify_box_bounds=False) # important, default (True) crashes environments with boundaries with identical values 
+        return env
+
     def _create_tfagent_env(self, discount: float = 1) -> tf_py_environment.TFPyEnvironment:
         """ creates a new instance of the gym environment and wraps it in a tfagent TFPyEnvironment
 
@@ -58,7 +73,10 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
         assert 0 < discount <= 1, "discount not admissible"
 
         self.log_api(f'creating TFPyEnvironment( suite_gym.load( ... ) )')
-        py_env = suite_gym.load(self.model_config.gym_env_name, discount=discount)
+        # suit_gym.load crashes our environment 
+        # py_env = suite_gym.load(self.model_config.gym_env_name, discount=discount)
+        py_env = self.load_workaround(discount)
+
         result = tf_py_environment.TFPyEnvironment(py_env)
         return result
 
