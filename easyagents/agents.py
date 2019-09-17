@@ -430,3 +430,102 @@ class RandomAgent(EasyAgent):
 
         super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
         return train_context
+
+
+
+class ReinforceAgent(EasyAgent):
+    """creates a new agent based on the Reinforce algorithm.
+
+        Reinforce is a vanilla policy gradient algorithm using a single actor network.
+
+        see also: www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf
+
+        Args:
+            gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
+            fc_layers: defines the neural network to be used, a sequence of fully connected
+                layers of the given size. Eg (75,40) yields a neural network consisting
+                out of 2 hidden layers, the first one containing 75 and the second layer
+                containing 40 neurons.
+            backend=the backend to be used (eg 'tfagents'), if None a default implementation is used.
+                call get_backends() to get a list of the available backends.
+    """
+
+    def __init__(self,
+                 gym_env_name: str,
+                 fc_layers: Optional[Tuple[int, ...]] = None,
+
+                 backend: str = None):
+        super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
+        self._backend_agent = self._backend_agent_factory.create_reinforce_agent(self._model_config)
+        return
+
+    def play(self,
+             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
+             num_episodes: int = 1,
+             max_steps_per_episode: int = 1000,
+             play_context: core.PlayContext = None,
+             default_plots: bool = None):
+        """Plays num_episodes with the current policy.
+
+        Args:
+            callbacks: list of callbacks called during each episode play
+            num_episodes: number of episodes to play
+            max_steps_per_episode: max steps per episode
+            play_context: play configuration to be used. If set override all other play context arguments
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, ...).
+                if None default callbacks are only added if the callbacks list is empty
+
+        Returns:
+            play_context containg the actions taken and the rewards received during training
+        """
+        if play_context is None:
+            play_context = core.PlayContext()
+            play_context.max_steps_per_episode = max_steps_per_episode
+            play_context.num_episodes = num_episodes
+        super().play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
+        return play_context
+
+    def train(self,
+              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
+              num_iterations: int = 100,
+              num_episodes_per_iteration: int = 10,
+              max_steps_per_episode: int = 500,
+              num_epochs_per_iteration: int = 10,
+              num_iterations_between_eval: int = 5,
+              num_episodes_per_eval: int = 10,
+              learning_rate: float = 0.001,
+              train_context: core.EpisodesTrainContext = None,
+              default_plots: bool = None):
+        """Trains a new model using the gym environment passed during instantiation.
+
+        Args:
+            callbacks: list of callbacks called during training and evaluation
+            num_iterations: number of times the training is repeated (with additional data)
+            num_episodes_per_iteration: number of episodes played per training iteration
+            max_steps_per_episode: maximum number of steps per episode
+            num_epochs_per_iteration: number of times the data collected for the current iteration
+                is used to retrain the current policy
+            num_iterations_between_eval: number of training iterations before the current policy is evaluated.
+                if 0 no evaluation is performed.
+            num_episodes_per_eval: number of episodes played to estimate the average return and steps
+            learning_rate: the learning rate used in the next iteration's policy training (0,1]
+            train_context: training configuration to be used. if set overrides all other training context arguments.
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...).
+                if None default callbacks are only added if the callbacks list is empty
+
+        Returns:
+            train_context: the training configuration containing the loss and sum of rewards encountered
+                during training
+        """
+        if train_context is None:
+            train_context = core.EpisodesTrainContext()
+            train_context.num_iterations = num_iterations
+            train_context.num_episodes_per_iteration = num_episodes_per_iteration
+            train_context.max_steps_per_episode = max_steps_per_episode
+            train_context.num_epochs_per_iteration = num_epochs_per_iteration
+            train_context.num_iterations_between_eval = num_iterations_between_eval
+            train_context.num_episodes_per_eval = num_episodes_per_eval
+            train_context.learning_rate = learning_rate
+
+        super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
+        return train_context

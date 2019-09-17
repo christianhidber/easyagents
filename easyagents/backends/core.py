@@ -474,3 +474,15 @@ class BackendAgentFactory(ABC):
               seperate episode dictionary entry
         """
         raise NotImplementedError(f'RandomAgent not implemented by backend "{self.name}"')
+
+    @abstractmethod
+    def create_reinforce_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
+        """Create an instance of ReinforceAgent wrapping this backends implementation.
+
+            If this backend does not implement PpoAgent then throw a NotImplementedError exception.
+
+        Args:
+            model_config: the agents configuration containing in patricular the name of the gym environment
+                to be used and the nn architecture.
+        """
+        raise NotImplementedError(f'ReinforceAgent not implemented by backend "{self.name}"')

@@ -50,6 +50,20 @@ class TfRandomAgentTest(unittest.TestCase):
         assert pc.num_episodes == 1
 
 
+class TfReinforceAgentTest(unittest.TestCase):
+
+    def setUp(self):
+        self.env_name = env._StepCountEnv.register_with_gym()
+
+    def test_train(self):
+        model_config = core.ModelConfig("CartPole-v0")
+        tc = core.EpisodesTrainContext()
+        reinforceAgent = tfagents.TfReinforceAgent(model_config=model_config)
+        reinforceAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
+        assert tc.episodes_done_in_iteration == tc.num_episodes_per_iteration > 0
+        assert tc.iterations_done_in_training == tc.num_iterations > 0
+        rmin, ravg, rmax = tc.eval_rewards[tc.episodes_done_in_training]
+        assert rmax == tc.max_steps_per_episode
 
 if __name__ == '__main__':
     unittest.main()
