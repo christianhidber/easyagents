@@ -22,6 +22,9 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
     def create_random_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         return BackendAgent(model_config=model_config)
 
+    def create_reinforce_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
+        return BackendAgent(model_config=model_config)
+
 
 class BackendAgent(bcore._BackendAgent):
 

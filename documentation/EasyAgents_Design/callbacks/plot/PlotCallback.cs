@@ -12,6 +12,10 @@ namespace EasyAgents_Design
         {
         }
 
+        void plot_text()
+        {
+        }
+
         void plot_subplot()
         {
         }

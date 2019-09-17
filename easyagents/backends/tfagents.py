@@ -323,6 +323,85 @@ class TfRandomAgent(TfAgent):
         return
 
 
+# noinspection PyUnresolvedReferences
+class TfReinforceAgent(TfAgent):
+    """ creates a new agent based on the Reinforce algorithm using the tfagents implementation.
+        Reinforce is a vanilla policy gradient algorithm using a single neural networks to predict
+        the actions.
+
+        Args:
+            model_config: the model configuration including the name of the target gym environment
+                as well as the neural network architecture.
+    """
+
+    def __init__(self, model_config: core.ModelConfig):
+        super().__init__(model_config=model_config)
+
+    # noinspection DuplicatedCode
+    def train_implementation(self, train_context: core.TrainContext):
+        """Tf-Agents Reinforce Implementation of the train loop."""
+
+        assert isinstance(train_context, core.EpisodesTrainContext)
+        tc: core.EpisodesTrainContext = train_context
+        self.log('Creating environment...')
+        train_env = self._create_tfagent_env(discount=tc.reward_discount_gamma)
+        observation_spec = train_env.observation_spec()
+        action_spec = train_env.action_spec()
+        timestep_spec = train_env.time_step_spec()
+
+        # SetUp Optimizer, Networks and PpoAgent
+        self.log_api('AdamOptimizer', 'create')
+        optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=tc.learning_rate)
+
+        self.log_api('ActorDistributionNetwork', 'create')
+        actor_net = actor_distribution_network.ActorDistributionNetwork(observation_spec, action_spec,
+                                                                        fc_layer_params=self.model_config.fc_layers)
+
+        self.log_api('ReinforceAgent', 'create')
+        tf_agent = reinforce_agent.ReinforceAgent(timestep_spec, action_spec, actor_network=actor_net,
+                                                  optimizer=optimizer)
+
+        self.log_api('tf_agent.initialize()')
+        tf_agent.initialize()
+        self._trained_policy = tf_agent.policy
+
+        # SetUp Data collection & Buffering
+        collect_data_spec = tf_agent.collect_data_spec
+        self.log_api('TFUniformReplayBuffer', 'create')
+        replay_buffer = TFUniformReplayBuffer(collect_data_spec, batch_size=1, max_length=tc.max_steps_in_buffer)
+        self.log_api('DynamicEpisodeDriver', 'create')
+        collect_driver = DynamicEpisodeDriver(train_env, tf_agent.collect_policy,
+                                              observers=[replay_buffer.add_batch],
+                                              num_episodes=tc.num_episodes_per_iteration)
+
+        # Train
+        collect_driver.run = common.function(collect_driver.run, autograph=False)
+        tf_agent.train = common.function(tf_agent.train, autograph=False)
+
+        self.log('Starting training...')
+        while True:
+            self.on_train_iteration_begin()
+            msg = f'iteration {tc.iterations_done_in_training:4} of {tc.num_iterations:<4}'
+            self.log_api('collect_driver.run', msg)
+            collect_driver.run()
+
+            self.log_api('replay_buffer.gather_all', msg)
+            trajectories = replay_buffer.gather_all()
+
+            self.log_api('tf_agent.train', msg)
+            loss_info = tf_agent.train(experience=trajectories)
+            total_loss = loss_info.loss.numpy()
+            self.log_api('', f'loss={total_loss:<7.1f}')
+
+            self.log_api('replay_buffer.clear', msg)
+            replay_buffer.clear()
+
+            self.on_train_iteration_end(loss=total_loss)
+            if tc.training_done:
+                break
+        return
+
+
 class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend for TfAgents.
 
@@ -342,3 +421,7 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
     def create_random_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         """Create an instance of RandomAgent wrapping this backends implementation."""
         return TfRandomAgent(model_config=model_config)
+
+    def create_reinforce_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
+        """Create an instance of ReinforceAgent wrapping this backends implementation."""
+        return TfReinforceAgent(model_config=model_config)

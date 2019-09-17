@@ -13,5 +13,13 @@ namespace EasyAgents_Design
         void create_dqn_agent()
         {
         }
+
+        void create_random_agent()
+        {
+        }
+
+        void create_reinforce_agent()
+        {
+        }
     }
 }
