@@ -115,3 +115,5 @@ images/private/
 /documentation/EasyAgents_Design/bin/
 /env_master/
 /env_huskarl/
+/env_setup/
+/env_setup_clean/
