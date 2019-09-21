@@ -113,3 +113,4 @@ venv.bak/
 images/private/
 /documentation/EasyAgents_Design/obj/
 /documentation/EasyAgents_Design/bin/
+/env_master/
