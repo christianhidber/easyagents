@@ -6,6 +6,7 @@ import easyagents.callbacks
 import easyagents.callbacks.duration
 import easyagents.callbacks.log
 import easyagents.callbacks.plot
+import easyagents.core
 import easyagents.env
 
 # Version of the easy_agents package
