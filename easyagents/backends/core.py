@@ -261,7 +261,7 @@ class _BackendAgent(ABC):
             on_train_iteration(loss=123,actor_loss=456,critic_loss=789)
 
         Args:
-            loss: loss after the training of the model in this iteration
+            loss: loss after the training of the model in this iteration or math.nan if the loss is not available
             **kwargs: if a keyword matches a dict property of the TrainContext instance, then
                         the dict[episodes_done_in_training] is set to the arg.
         """

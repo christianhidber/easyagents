@@ -3,6 +3,7 @@
     see https://github.com/danaugrs/huskarl
 """
 from abc import ABCMeta
+import math
 
 import gym
 import gym.core
@@ -39,7 +40,9 @@ class HuskarlAgentWrapper(huskarl.core.Agent):
 
     def train(self, step):
         result = self._hk_agent.train(step)
-        self._backend_agent.on_train_iteration_end(0)
+        " currently (19Q3) we don't know how to access to the loss => return nan. results in a text message in"
+        " the plot.Loss plot."
+        self._backend_agent.on_train_iteration_end(math.nan)
         self._backend_agent.on_train_iteration_begin()
         return result
 
