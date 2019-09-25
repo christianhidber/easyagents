@@ -38,20 +38,8 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
 
     def __init__(self, model_config: core.ModelConfig):
         super().__init__(model_config=model_config)
-        self._initialize()
         self._trained_policy = None
         self._eval_env = None
-
-    def _initialize(self):
-        """ initializes TensorFlow behaviour and random seeds."""
-        self.log_api('v1.enable_v2_behavior')
-        tf.compat.v1.enable_v2_behavior()
-        self.log_api('v1.enable_eager_execution')
-        tf.compat.v1.enable_eager_execution()
-        if self.model_config.seed:
-            self.log_api(f'v1.set_random_seed({self.model_config.seed})')
-            tf.compat.v1.set_random_seed(self.model_config.seed)
-        return
 
     def load_workaround(self, discount):
         gym_spec = gym.spec(self.model_config.gym_env_name)

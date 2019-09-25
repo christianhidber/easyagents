@@ -6,6 +6,9 @@
 from abc import ABC, ABCMeta, abstractmethod
 from typing import List, Optional, Tuple
 import gym
+import tensorflow
+import numpy
+import random
 
 from easyagents import core
 from easyagents.backends import monitor
@@ -50,6 +53,20 @@ class _BackendAgent(ABC):
         self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
+
+    def _initialize(self):
+        """ initializes TensorFlow behaviour and random seeds."""
+        self.log_api('v1.enable_v2_behavior')
+        tensorflow.compat.v1.enable_v2_behavior()
+        self.log_api('v1.enable_eager_execution')
+        tensorflow.compat.v1.enable_eager_execution()
+        if self.model_config.seed:
+            seed = self.model_config.seed
+            self.log_api(f'v1.set_random_seed({seed})')
+            tensorflow.compat.v1.set_random_seed(seed)
+            numpy.random.seed(seed)
+            random.seed(seed)
+        return
 
     def _eval_current_policy(self):
         """Evaluates the current policy using play and updates the train_context
@@ -96,11 +113,14 @@ class _BackendAgent(ABC):
 
         Hint:
             o the total instances count is incremented by now
-            o the new env is seeded with the api_context's seed
+            o the new env (and its action space) is seeded with the api_context's seed
         """
         self._agent_context.gym._monitor_env = env
         if self._agent_context.model.seed is not None:
-            self._agent_context.gym.gym_env.seed(self._agent_context.model.seed)
+            env = self._agent_context.gym.gym_env
+            seed = self._agent_context.model.seed
+            env.seed(seed)
+            env.action_space.seed(seed)
         for c in self._callbacks:
             c.on_gym_init_end(self._agent_context)
         self._agent_context.gym._monitor_env = None
