@@ -1,5 +1,6 @@
 """This module contains the backend implementation for tf Agents (see https://github.com/tensorflow/agents)"""
 from abc import ABCMeta
+from typing import Dict, Type
 
 # noinspection PyUnresolvedReferences
 import easyagents.agents
@@ -390,6 +391,7 @@ class TfReinforceAgent(TfAgent):
         return
 
 
+
 class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend for TfAgents.
 
@@ -397,6 +399,10 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
     """
 
     name: str = 'tfagents'
+
+    def get_algorithms(self) -> Dict[Type[easyagents.agents.EasyAgent], Type[TfAgent]]:
+        """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
+        return {easyagents.agents.DqnAgent: TfDqnAgent}
 
     def create_dqn_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
         """Create an instance of DqnAgent wrapping this backends implementation."""
