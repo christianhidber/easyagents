@@ -65,7 +65,7 @@ class _BackendAgent(ABC):
 
     def log_api(self, api_target: str, log_msg: Optional[str] = None):
         """Logs a call to api_target with additional log_msg."""
-        self._agent_context.gym.gym_env = None
+        self._agent_context.gym._monitor_env = None
         if api_target is None:
             api_target = ''
         if log_msg is None:
@@ -75,7 +75,7 @@ class _BackendAgent(ABC):
 
     def log(self, log_msg: str):
         """Logs msg."""
-        self._agent_context.gym.gym_env = None
+        self._agent_context.gym._monitor_env = None
         if log_msg is None:
             log_msg = ''
         for c in self._callbacks:
@@ -86,10 +86,10 @@ class _BackendAgent(ABC):
 
         Hint:
             the total instances count is not incremented yet."""
-        self._agent_context.gym.gym_env = None
+        self._agent_context.gym._monitor_env = None
         for c in self._callbacks:
             c.on_gym_init_begin(self._agent_context)
-        self._agent_context.gym.gym_env = None
+        self._agent_context.gym._monitor_env = None
 
     def _on_gym_init_end(self, env: monitor._MonitorEnv):
         """called when the monitored environment completed the instantiation of a new gym environment.
@@ -98,32 +98,32 @@ class _BackendAgent(ABC):
             o the total instances count is incremented by now
             o the new env is seeded with the api_context's seed
         """
-        self._agent_context.gym.gym_env = env.env
+        self._agent_context.gym._monitor_env = env
         if self._agent_context.model.seed is not None:
             self._agent_context.gym.gym_env.seed(self._agent_context.model.seed)
         for c in self._callbacks:
             c.on_gym_init_end(self._agent_context)
-        self._agent_context.gym.gym_env = None
+        self._agent_context.gym._monitor_env = None
 
     def _on_gym_reset_begin(self, env: monitor._MonitorEnv, **kwargs):
         """called when the monitored environment begins a reset.
 
         Hint:
             the total reset count is not incremented yet."""
-        self._agent_context.gym.gym_env = env.env
+        self._agent_context.gym._monitor_env = env
         for c in self._callbacks:
             c.on_gym_reset_begin(self._agent_context, **kwargs)
-        self._agent_context.gym.gym_env = None
+        self._agent_context.gym._monitor_env = None
 
     def _on_gym_reset_end(self, env: monitor._MonitorEnv, reset_result: Tuple, **kwargs):
         """called when the monitored environment completed a reset.
 
         Hint:
             the total episode count is incremented by now (if a step was performed before the last reset)."""
-        self._agent_context.gym.gym_env = env.env
+        self._agent_context.gym._monitor_env = env
         for c in self._callbacks:
             c.on_gym_reset_end(self._agent_context, reset_result, **kwargs)
-        self._agent_context.gym.gym_env = None
+        self._agent_context.gym._monitor_env = None
 
     def _on_gym_step_begin(self, env: monitor._MonitorEnv, action):
         """called when the monitored environment begins a step.
@@ -133,7 +133,7 @@ class _BackendAgent(ABC):
               by the MonitorEnv if the step limit is exceeded
         """
         ac = self._agent_context
-        ac.gym.gym_env = env.env
+        ac.gym._monitor_env = env
         env.max_steps_per_episode = None
         if ac.is_play or ac.is_eval:
             env.max_steps_per_episode = ac.play.max_steps_per_episode
@@ -143,7 +143,7 @@ class _BackendAgent(ABC):
             self._on_train_step_begin(action)
         for c in self._callbacks:
             c.on_gym_step_begin(self._agent_context, action)
-        self._agent_context.gym.gym_env = None
+        self._agent_context.gym._monitor_env = None
 
     def _on_gym_step_end(self, env: monitor._MonitorEnv, action, step_result: Tuple):
         """called when the monitored environment completed a step.
@@ -153,14 +153,14 @@ class _BackendAgent(ABC):
             step_result: the result (state, reward, done, info) of the last step call
         """
         ac = self._agent_context
-        ac.gym.gym_env = env.env
+        ac.gym._monitor_env = env
         if ac.is_play or ac.is_eval:
             self._on_play_step_end(action, step_result)
         if ac.is_train:
             self._on_train_step_end(action, step_result)
         for c in self._callbacks:
             c.on_gym_step_end(self._agent_context, action, step_result)
-        self._agent_context.gym.gym_env = None
+        self._agent_context.gym._monitor_env = None
         env.max_steps_per_episode = None
 
     def _on_play_begin(self):
@@ -261,7 +261,7 @@ class _BackendAgent(ABC):
             on_train_iteration(loss=123,actor_loss=456,critic_loss=789)
 
         Args:
-            loss: loss after the training of the model in this iteration
+            loss: loss after the training of the model in this iteration or math.nan if the loss is not available
             **kwargs: if a keyword matches a dict property of the TrainContext instance, then
                         the dict[episodes_done_in_training] is set to the arg.
         """
@@ -433,7 +433,6 @@ class BackendAgentFactory(ABC):
 
     name: str = 'abstract_BackendAgentFactory'
 
-    @abstractmethod
     def create_dqn_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
         """Create an instance of DqnAgent wrapping this backends implementation.
 
@@ -445,7 +444,6 @@ class BackendAgentFactory(ABC):
         """
         raise NotImplementedError(f'DqnAgent not implemented by backend "{self.name}"')
 
-    @abstractmethod
     def create_ppo_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation.
 
@@ -457,7 +455,6 @@ class BackendAgentFactory(ABC):
         """
         raise NotImplementedError(f'PpoAgent not implemented by backend "{self.name}"')
 
-    @abstractmethod
     def create_random_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
         """Create an instance of RandomAgent wrapping this backends implementation.
 
@@ -475,7 +472,6 @@ class BackendAgentFactory(ABC):
         """
         raise NotImplementedError(f'RandomAgent not implemented by backend "{self.name}"')
 
-    @abstractmethod
     def create_reinforce_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
         """Create an instance of ReinforceAgent wrapping this backends implementation.
 

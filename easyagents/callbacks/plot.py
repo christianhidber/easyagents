@@ -76,7 +76,7 @@ class _PostProcess(core._PostProcessCallback):
         self._jupyter_display_delay = 1.0
         self._call_jupyter_display = False
 
-    def _display(self, agent_context: core.AgentContext, delayed = False):
+    def _display(self, agent_context: core.AgentContext, delayed=False):
         """Fixes the layout of multiple subplots and refreshs the display."""
         pyc = agent_context.pyplot
         count = len(pyc.figure.axes)
@@ -111,12 +111,10 @@ class _PostProcess(core._PostProcessCallback):
             self._reset()
             self._display(agent_context)
 
-
     def on_train_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.TRAIN_ITERATION | core.PlotType.TRAIN_EVAL):
             self._reset()
             self._display(agent_context)
-
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
         if agent_context.is_plot(core.PlotType.TRAIN_ITERATION):
@@ -131,15 +129,15 @@ class _PlotCallback(core.AgentCallback):
             axes: the subplot to plot onto
     """
 
-    def __init__(self, plot_type):
+    def __init__(self, plot_type: core.PlotType):
         """Base class of plyplot callbacks generating a plot after a trained iteration or an episode played.
 
             Args:
                 plot_type: point in time when the plot is updated
         """
         self.axes = None
-        self.axes_color = 'grey'
-        self._plot_type = plot_type
+        self.axes_color: str = 'grey'
+        self._plot_type: core.PlotType = plot_type
 
     def _create_subplot(self, agent_context: core.AgentContext):
         if self.axes is None:
@@ -163,6 +161,16 @@ class _PlotCallback(core.AgentCallback):
                 if plt.gcf() is pyc.figure:
                     plt.sca(self.axes)
             self.plot(agent_context, plot_type)
+
+    def _is_nan(self, values: Optional[List[float]]):
+        """yields true if all values are equal to nan. yields fals if values is None or empty."""
+        result = False
+        if values:
+            s = set(values)
+            if len(s) == 1:
+                value = s.pop()
+                result = math.isnan(value)
+        return result
 
     def _is_plot(self, agent_context: core.AgentContext, plot_type: core.PlotType) -> bool:
         """Yields true if noth agent_context and this instance are active for plot_type."""
@@ -345,7 +353,7 @@ class Actions(_PlotCallback):
         Args:
             num_steps_between_plot: num of steps to play before plot is updated.
         """
-        super().__init__(plot_type=core.PlotType.PLAY_STEP| core.PlotType.PLAY_EPISODE | core.PlotType.TRAIN_EVAL )
+        super().__init__(plot_type=core.PlotType.PLAY_STEP | core.PlotType.PLAY_EPISODE | core.PlotType.TRAIN_EVAL)
         assert num_steps_between_plot > 0
         self._actions: List[float] = []
         self._num_steps_between_plot = num_steps_between_plot
@@ -400,18 +408,21 @@ class Loss(_PlotCallback):
         tc = ac.train
         xvalues = list(tc.loss.keys())
         self.clear_plot(agent_context)
-        self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes trained',
-                       ylim=self.ylim, ylabel='loss', yscale=self.yscale)
-        if isinstance(tc, core.ActorCriticTrainContext):
-            acc: core.ActorCriticTrainContext = tc
-            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.loss.values()), color='indigo',
-                             pause=False)
-            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g',
-                             pause=False)
-            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.critic_loss.values()), color='b')
-            self.axes.legend(('total', 'actor', 'critic'))
+        lossvalues = list(tc.loss.values())
+        if self._is_nan(lossvalues):
+            self.plot_text('plot not available for this backend.')
         else:
-            self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(tc.loss.values()), color='indigo')
+            self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes trained',
+                           ylim=self.ylim, ylabel='loss', yscale=self.yscale)
+            if isinstance(tc, core.ActorCriticTrainContext):
+                acc: core.ActorCriticTrainContext = tc
+                self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=lossvalues, color='indigo', pause=False)
+                self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g',
+                                 pause=False)
+                self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.critic_loss.values()), color='b')
+                self.axes.legend(('total', 'actor', 'critic'))
+            else:
+                self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=lossvalues, color='indigo')
 
 
 class Rewards(_PlotCallback):

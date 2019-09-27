@@ -14,7 +14,7 @@ class TfDqnAgentTest(unittest.TestCase):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.DqnTrainContext()
         dqnAgent = tfagents.TfDqnAgent(model_config=model_config)
-        dqnAgent.train(train_context=tc, callbacks=[duration._SingleEpisode(), log.Iteration()])
+        dqnAgent.train(train_context=tc, callbacks=[duration._SingleEpisode(), log.Step(), log.Iteration()])
 
 
 class TfPpoAgentTest(unittest.TestCase):

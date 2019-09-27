@@ -1,12 +1,23 @@
 import unittest
 import tempfile
 import os
+import math
 
-from easyagents import agents
+from easyagents import agents, core
 from easyagents.callbacks import duration, plot
 
 
 class PlotTest(unittest.TestCase):
+
+    def test_is_nan(self):
+        p = plot._PlotCallback(core.PlotType.PLAY_STEP)
+        assert not p._is_nan([])
+        assert not p._is_nan(None)
+        assert not p._is_nan([1])
+        assert not p._is_nan([1,2])
+        assert not p._is_nan([math.nan,1])
+        assert p._is_nan([math.nan])
+        assert p._is_nan([math.nan,math.nan])
 
     def test_play_plotstate(self):
         agent = agents.PpoAgent("CartPole-v0")

@@ -7,6 +7,7 @@ from typing import Optional, Dict, Tuple, List
 from enum import Flag, auto
 
 import easyagents.env
+import easyagents.backends.monitor
 import gym.core
 import matplotlib.pyplot as plt
 
@@ -22,11 +23,17 @@ class GymContext(object):
     """
 
     def __init__(self):
-        self.gym_env: Optional[gym.core.Env] = None
+        self._monitor_env: Optional[easyagents.backends.monitor._MonitorEnv] = None
         self._totals = None
 
     def __str__(self):
-        return f'{self._totals}'
+        return f'MonitorEnv={self._monitor_env} Totals={self._totals}'
+
+    @property
+    def gym_env(self) -> Optional[gym.core.Env]:
+        result = None
+        if self._monitor_env: result = self._monitor_env.env
+        return result
 
 
 class PlotType(Flag):
@@ -67,8 +74,13 @@ class PyPlotContext(object):
         self.max_columns = 3
 
     def __str__(self):
+        figure_number=None
+        figure_axes_len = 0
+        if self.figure:
+            figure_number=self.figure.number
+            if self.figure.axes: figure_axes_len = len(self.figure.axes)
         return f'is_jupyter_active={self.is_jupyter_active} max_columns={self.max_columns} ' + \
-               f'_plot_type={self._plot_type} figure={self.figure.number} axes={len(self.figure.axes)} '
+               f'_plot_type={self._plot_type} figure={figure_number} axes={figure_axes_len} '
 
     def is_active(self, plot_type: PlotType):
         """Yields true if the plot_type flag is set."""

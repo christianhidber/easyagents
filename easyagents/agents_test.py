@@ -121,7 +121,7 @@ class ReinforceAgentTest(unittest.TestCase):
                                                       max_steps_per_episode=200,
                                                       default_plots=False)
         (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
-        assert avg_steps >= 20
+        assert avg_steps >= 10
 
 
 if __name__ == '__main__':

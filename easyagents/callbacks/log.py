@@ -237,12 +237,16 @@ class Step(_LogCallbackBase):
 
     def on_gym_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         prefix = ''
+        monitor = agent_context.gym._monitor_env
+        if monitor:
+            prefix = f'[{monitor.gym_env_name} {monitor.instance_id}:{monitor.episodes_done:<3}:' + \
+                     f'{monitor.steps_done_in_episode:<3}] '
         tc: core.TrainContext = agent_context.train
         if tc:
-            prefix = f'train iteration={tc.iterations_done_in_training:<2} step={tc.steps_done_in_iteration:<4}'
+            prefix += f'train iteration={tc.iterations_done_in_training:<2} step={tc.steps_done_in_iteration:<4}'
         pc: core.PlayContext = agent_context.play
         if pc:
-            prefix = f'play  episode={pc.episodes_done:<2} step={pc.steps_done_in_episode:<5} ' + \
+            prefix += f'play  episode={pc.episodes_done:<2} step={pc.steps_done_in_episode:<5} ' + \
                      f'sum_of_rewards={pc.sum_of_rewards[pc.episodes_done+1]:<7.1f}'
         (observation, reward, done, info) = step_result
         msg = ''
