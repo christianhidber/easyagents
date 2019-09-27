@@ -12,7 +12,6 @@ import tensorflow as tf
 from tf_agents.agents.ppo import ppo_agent
 from tf_agents.drivers.dynamic_episode_driver import DynamicEpisodeDriver
 from tf_agents.environments import py_environment
-from tf_agents.environments import suite_gym
 from tf_agents.environments import gym_wrapper
 from tf_agents.environments import tf_py_environment
 from tf_agents.networks import actor_distribution_network

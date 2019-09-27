@@ -3,18 +3,14 @@
     see https://github.com/tensorforce/tensorforce
 """
 from abc import ABCMeta
-from typing import List, Dict
+from typing import List, Dict, Optional
 import math
+import os
+import tempfile
+import datetime
 
 import gym
-import gym.core
-import gym.spaces
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.optimizers import Adam
 
-# noinspection PyUnresolvedReferences
-import easyagents
 import easyagents.backends.core
 
 from tensorforce.agents import Agent
@@ -22,7 +18,7 @@ from tensorforce.environments import Environment
 from tensorforce.execution import Runner
 
 
-class TensorforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
+class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
     """ Agent based on the PPO algorithm using the tensorforce implementation."""
 
     def __init__(self, model_config: easyagents.core.ModelConfig):
@@ -32,6 +28,8 @@ class TensorforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMe
                 as well as the neural network architecture.
         """
         super().__init__(model_config=model_config)
+        self._agent : Optional[Agent] = None
+        self._play_env : Optional[Environment] = None
 
     def _create_env(self) -> Environment:
         """Creates a tensorforce Environment encapsulating the underlying gym environment given in self.model_config"""
@@ -46,6 +44,13 @@ class TensorforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMe
             result.append(dict(type='dense', size=layer_size, activation='relu'))
         return result
 
+    def _get_temp_path(self):
+        result = os.path.join(tempfile.gettempdir(), tempfile.gettempprefix())
+        n = datetime.datetime.now()
+        result = result + f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-' + \
+                 f'{n.microsecond:06}'
+        return result
+
     def play_implementation(self, play_context: easyagents.core.PlayContext):
         """Agent specific implementation of playing a single episode with the current policy.
 
@@ -53,17 +58,23 @@ class TensorforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMe
                 play_context: play configuration to be used
         """
         assert play_context, "play_context not set."
+        assert self._agent, "agent not set. call train first."
 
-        return
         if self._play_env is None:
             self._play_env = self._create_env()
         while True:
-            self.on_play_episode_begin(env=self._play_env)
+            # noinspection PyUnresolvedReferences
+            gym_env : gym.Env = self._play_env.environment
+            self.on_play_episode_begin(env=gym_env)
             state = self._play_env.reset()
             done = False
             while not done:
-                action = None
-                state, reward, done, _ = self._play_env.step(action)
+                action = self._agent.act(state,evaluation=True)
+                state, terminal, reward = self._play_env.execute(actions=action)
+                if isinstance(terminal,bool):
+                    done = terminal
+                else:
+                    done = terminal > 0
             self.on_play_episode_end()
             if play_context.play_done:
                 break
@@ -82,31 +93,53 @@ class TensorforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMe
         network = self._create_network_specification()
 
         self.log_api('Agent.create', "(agent='ppo',environment=...,network=...)")
-        ppoAgent = Agent.create(
+        tempdir = self._get_temp_path()
+        self._agent  = Agent.create(
             agent='ppo',
             environment=train_env,
             network=network,
             learning_rate=tc.learning_rate,
+            batch_size=tc.num_episodes_per_iteration,
             optimization_steps=tc.num_epochs_per_iteration,
             discount=tc.reward_discount_gamma,
-            seed=self.model_config.seed
+            seed=self.model_config.seed,
+            summarizer=dict(directory=tempdir,
+                              labels=['configuration',
+                                      'gradients_scalar',
+                                      'regularization',
+                                      'inputs',
+                                      'losses',
+                                      'variables']
+                              ),
         )
 
         def callback(runner: Runner) -> bool:
+            s = runner.agent.get_available_summaries()
+            self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
+            if not train_context.training_done:
+                self.on_train_iteration_begin()
             return True
 
         # Initialize the runner
-        runner = Runner(agent=ppoAgent, environment=train_env)
+        self.log_api('Runner.create',"(agent=..., environment=...)")
+        runner = Runner(agent=self._agent , environment=train_env)
 
         # Start the runner
+        num_episodes=tc.num_iterations * tc.num_episodes_per_iteration
+        self.log_api('runner.run', f'(num_episodes={num_episodes}, max_episode_timesteps={tc.max_steps_per_episode})')
+        self.on_train_iteration_begin()
         runner.run(num_episodes=tc.num_iterations * tc.num_episodes_per_iteration,
                    max_episode_timesteps=tc.max_steps_per_episode,
                    use_tqdm=False,
                    callback=callback
                    )
-        # self.on_train_iteration_begin()
-        # self.on_train_iteration_end(0)
+        if not train_context.training_done:
+            self.on_train_iteration_end(0)
         runner.close()
+        try:
+            os.remove(tempdir)
+        except:
+            pass
 
 
 class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
@@ -117,6 +150,6 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
 
     name: str = 'tensorforce'
 
-    def create_dqn_agent(self, model_config: easyagents.core.ModelConfig) -> easyagents.backends.core._BackendAgent:
+    def create_ppo_agent(self, model_config: easyagents.core.ModelConfig) -> easyagents.backends.core._BackendAgent:
         """Create an instance of PpoAgent wrapping this backends implementation."""
-        return TensorforcePpoAgent(model_config=model_config)
+        return TforcePpoAgent(model_config=model_config)

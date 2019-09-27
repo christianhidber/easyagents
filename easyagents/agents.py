@@ -13,12 +13,13 @@ from easyagents.backends import core as bcore
 import easyagents.backends.default
 import easyagents.backends.tfagents
 import easyagents.backends.hk
+import easyagents.backends.tforce
 
 _backends: Dict[str, bcore.BackendAgentFactory] = {
     easyagents.backends.default.BackendAgentFactory.name: easyagents.backends.default.BackendAgentFactory(),
     easyagents.backends.tfagents.BackendAgentFactory.name: easyagents.backends.tfagents.BackendAgentFactory(),
     easyagents.backends.hk.BackendAgentFactory.name: easyagents.backends.hk.BackendAgentFactory(),
-    easyagents.backends.tensorforce.BackendAgentFactory.name: easyagents.backends.tensorforce.BackendAgentFactory()
+    easyagents.backends.tforce.BackendAgentFactory.name: easyagents.backends.tforce.BackendAgentFactory()
 }
 
 

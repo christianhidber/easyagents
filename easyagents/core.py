@@ -173,7 +173,7 @@ class TrainContext(object):
         self.num_iterations_between_eval: int = 50
         self.num_episodes_per_eval: int = 10
         self.learning_rate: float = 0.001
-        self.reward_discount_gamma: float = 1
+        self.reward_discount_gamma: float = 1.0
         self.max_steps_in_buffer: int = 100000
 
         self.training_done: bool
