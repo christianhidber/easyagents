@@ -120,3 +120,4 @@ images/private/
 /env_tensorforce/
 /env_coach/
 /env_baselines/
+/env_coach/
