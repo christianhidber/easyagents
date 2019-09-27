@@ -93,7 +93,9 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         self.log('Creating network specification...')
         network = self._create_network_specification()
 
-        self.log_api('Agent.create', "(agent='ppo',environment=...,network=...)")
+        self.log_api('Agent.create', f'(agent="ppo", learning_rate={tc.learning_rate},' + \
+                f'batch_size={tc.num_episodes_per_iteration}, optimization_steps={tc.num_epochs_per_iteration},'+\
+                f'discount={tc.reward_discount_gamma},seed={self.model_config.seed})')
         tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='ppo',
@@ -107,11 +109,9 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
             summarizer=dict(directory=tempdir, labels=['losses']),
         )
 
-
-        def callback(runner: Runner) -> bool:
+        def train_callback(runner: Runner) -> bool:
             result = not train_context.training_done
             return result
-
 
         def eval_callback(runner: Runner) -> bool:
             result = not train_context.training_done
@@ -133,7 +133,7 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         runner.run(num_episodes=num_episodes,
                    max_episode_timesteps=tc.max_steps_per_episode,
                    use_tqdm=False,
-                   callback=callback,
+                   callback=train_callback,
                    evaluation_callback=eval_callback,
                    evaluation_frequency=None,
                    evaluation=False,
