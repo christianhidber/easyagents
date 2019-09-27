@@ -16,6 +16,12 @@ network_spec = [
   dict(type='dense', size=32, activation='relu')
 ]
 
+
+def callback(runner: Runner) -> bool:
+  if runner.episode_updated:
+    pass
+  return True
+
 # Create a PPO agent
 agent = Agent.create(
     agent='ppo',
@@ -38,5 +44,5 @@ agent = Agent.create(
 runner = Runner(agent=agent, environment=environment)
 
 # Start the runner
-runner.run(num_episodes=300)
+runner.run(num_episodes=300,evaluation_callback=callback,evaluation_frequency=None,evaluation=False,num_evaluation_iterations=0)
 runner.close()

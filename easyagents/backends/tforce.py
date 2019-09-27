@@ -16,6 +16,7 @@ import easyagents.backends.core
 from tensorforce.agents import Agent
 from tensorforce.environments import Environment
 from tensorforce.execution import Runner
+from tensorforce.core.models import PolicyModel
 
 
 class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
@@ -28,8 +29,8 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
                 as well as the neural network architecture.
         """
         super().__init__(model_config=model_config)
-        self._agent : Optional[Agent] = None
-        self._play_env : Optional[Environment] = None
+        self._agent: Optional[Agent] = None
+        self._play_env: Optional[Environment] = None
 
     def _create_env(self) -> Environment:
         """Creates a tensorforce Environment encapsulating the underlying gym environment given in self.model_config"""
@@ -64,14 +65,14 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
             self._play_env = self._create_env()
         while True:
             # noinspection PyUnresolvedReferences
-            gym_env : gym.Env = self._play_env.environment
+            gym_env: gym.Env = self._play_env.environment
             self.on_play_episode_begin(env=gym_env)
             state = self._play_env.reset()
             done = False
             while not done:
-                action = self._agent.act(state,evaluation=True)
+                action = self._agent.act(state, evaluation=True)
                 state, terminal, reward = self._play_env.execute(actions=action)
-                if isinstance(terminal,bool):
+                if isinstance(terminal, bool):
                     done = terminal
                 else:
                     done = terminal > 0
@@ -94,7 +95,7 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
 
         self.log_api('Agent.create', "(agent='ppo',environment=...,network=...)")
         tempdir = self._get_temp_path()
-        self._agent  = Agent.create(
+        self._agent = Agent.create(
             agent='ppo',
             environment=train_env,
             network=network,
@@ -103,38 +104,43 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
             optimization_steps=tc.num_epochs_per_iteration,
             discount=tc.reward_discount_gamma,
             seed=self.model_config.seed,
-            summarizer=dict(directory=tempdir,
-                              labels=['configuration',
-                                      'gradients_scalar',
-                                      'regularization',
-                                      'inputs',
-                                      'losses',
-                                      'variables']
-                              ),
+            summarizer=dict(directory=tempdir, labels=['losses']),
         )
 
+
         def callback(runner: Runner) -> bool:
-            s = runner.agent.get_available_summaries()
-            self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
-            if not train_context.training_done:
-                self.on_train_iteration_begin()
-            return True
+            result = not train_context.training_done
+            return result
+
+
+        def eval_callback(runner: Runner) -> bool:
+            result = not train_context.training_done
+            if result:
+                self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
+                result = not train_context.training_done
+                if result:
+                    self.on_train_iteration_begin()
+            return result
 
         # Initialize the runner
-        self.log_api('Runner.create',"(agent=..., environment=...)")
-        runner = Runner(agent=self._agent , environment=train_env)
+        self.log_api('Runner.create', "(agent=..., environment=...)")
+        runner = Runner(agent=self._agent, environment=train_env)
 
         # Start the runner
-        num_episodes=tc.num_iterations * tc.num_episodes_per_iteration
+        num_episodes = None
         self.log_api('runner.run', f'(num_episodes={num_episodes}, max_episode_timesteps={tc.max_steps_per_episode})')
         self.on_train_iteration_begin()
-        runner.run(num_episodes=tc.num_iterations * tc.num_episodes_per_iteration,
+        runner.run(num_episodes=num_episodes,
                    max_episode_timesteps=tc.max_steps_per_episode,
                    use_tqdm=False,
-                   callback=callback
+                   callback=callback,
+                   evaluation_callback=eval_callback,
+                   evaluation_frequency=None,
+                   evaluation=False,
+                   num_evaluation_iterations=0
                    )
         if not train_context.training_done:
-            self.on_train_iteration_end(0)
+            self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
         runner.close()
         try:
             os.remove(tempdir)
