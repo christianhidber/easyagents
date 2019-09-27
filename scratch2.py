@@ -1,14 +1,25 @@
-import easyagents
-from easyagents.agents import DqnAgent, PpoAgent
-from easyagents.callbacks import plot, duration, log
+from tensorforce.agents import PPOAgent
+from tensorforce.execution import Runner
+from tensorforce.agents import Agent
+from tensorforce.environments import Environment
+from tensorforce.execution import Runner
 
-#print(easyagents.agents.get_backends())
-# dqn_agent = DqnAgent('CartPole-v0')
-#dqn_agent = DqnAgent('CartPole-v0', backend='huskarl')
-#dqn_agent.train([plot.Actions(),plot.Rewards(),plot.State(), plot.Loss()])
-
-ppoAgent = PpoAgent('CartPole-v0')
-ppoAgent.train([duration.Fast()])
-pc = ppoAgent.play(num_episodes=10)
-
-
+# Create an OpenAIgym environment.
+environment = Environment.create(environment='gym', level='CartPole-v1')
+network_spec = [
+  dict(type='dense', size=32, activation='relu'),
+  dict(type='dense', size=32, activation='relu')
+]
+agent = PPOAgent(
+  states=environment.states,
+  actions=environment.actions,
+  network=network_spec,
+  saver=dict(directory='./saver/', basename='PPO_model.ckpt', load=False, seconds=600),
+  summarizer=dict(directory='./record/', labels=["losses", "entropy"], seconds=600),
+  max_episode_timesteps=100
+)
+# Create the runner
+runner = Runner(agent=agent, environment=environment)
+# Start learning
+runner.run(episodes=600, max_episode_timesteps=200)
+runner.close()
