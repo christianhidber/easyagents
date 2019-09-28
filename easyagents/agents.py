@@ -12,7 +12,6 @@ from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
 import easyagents.backends.default
 import easyagents.backends.tfagents
-import easyagents.backends.hk
 import easyagents.backends.tforce
 
 _backends: [bcore.BackendAgentFactory] = []
@@ -32,7 +31,6 @@ def register_backend(backend: bcore.BackendAgentFactory):
 # register all backends deployed with easyagents
 register_backend(easyagents.backends.default.BackendAgentFactory())
 register_backend(easyagents.backends.tfagents.BackendAgentFactory())
-register_backend(easyagents.backends.hk.BackendAgentFactory())
 register_backend(easyagents.backends.tforce.BackendAgentFactory())
 
 
