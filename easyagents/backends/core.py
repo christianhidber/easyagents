@@ -54,6 +54,7 @@ class _BackendAgent(ABC):
         self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
+        self._initialize()
 
     def _initialize(self):
         """ initializes TensorFlow behaviour and random seeds."""
