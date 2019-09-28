@@ -1,9 +1,12 @@
 import pytest
 import unittest
 
+import easyagents.backends.core
+
 from easyagents.core import ModelConfig, AgentCallback, AgentContext, ActorCriticTrainContext, PlayContext
-from easyagents.callbacks.duration import _SingleEpisode, Fast
+from easyagents.callbacks.duration import Fast
 import easyagents.backends.debug
+from easyagents.agents import DqnAgent,PpoAgent,ReinforceAgent,RandomAgent
 
 _env_name = easyagents.env._StepCountEnv.register_with_gym()
 
@@ -44,7 +47,7 @@ class AgentContextTest(unittest.TestCase):
 
     def test_agentcontext_train(self):
         b = easyagents.backends.debug.BackendAgentFactory()
-        a = b.create_ppo_agent(ModelConfig(_env_name))
+        a = b.create_agent( PpoAgent, ModelConfig(_env_name))
         c = AgentContextTest.TrainCallback()
         a.train(callbacks=[Fast(), c], train_context=ActorCriticTrainContext())
         assert c.train_called
@@ -52,7 +55,7 @@ class AgentContextTest(unittest.TestCase):
 
     def test_agentcontext_play(self):
         b = easyagents.backends.debug.BackendAgentFactory()
-        a = b.create_ppo_agent(ModelConfig(_env_name))
+        a = b.create_agent( PpoAgent, ModelConfig(_env_name))
         c = AgentContextTest.PlayCallback()
         pc =PlayContext()
         pc.num_episodes=10
