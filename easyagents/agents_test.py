@@ -4,13 +4,16 @@ import unittest
 from easyagents.agents import ReinforceAgent, DqnAgent
 from easyagents import env, core, agents
 from easyagents.callbacks import duration, log, plot
-from easyagents.backends import default
+import easyagents.backends.core
 
 _env_name = env._StepCountEnv.register_with_gym()
 
 
 # noinspection PyTypeChecker
 class BackendRegistrationTest(unittest.TestCase):
+
+    class MyBackend(easyagents.backends.core.BackendAgentFactory):
+        name = "MyBackend"
 
     def setUp(self):
         self._oldbackends = agents._backends.copy()
@@ -32,21 +35,23 @@ class BackendRegistrationTest(unittest.TestCase):
         assert isinstance(d[-1], plot.ToMovie)
 
     def test_register(self):
-        assert "MyBackend" not in agents.get_backends()
-        agents.register_backend("MyBackend", default.BackendAgentFactory())
-        assert "MyBackend" in agents.get_backends()
+        old_len = len(easyagents.agents.get_backends())
+        agents.register_backend(BackendRegistrationTest.MyBackend())
+        b = easyagents.agents.get_backends()
+        assert (old_len + 1) == len(b)
+        assert BackendRegistrationTest.MyBackend.name in b
 
-    def test_register_backend_empty(self):
-        with pytest.raises(AssertionError):
-            agents.register_backend(backend_name="", backend=default.BackendAgentFactory())
+    def test_register_backend_twice(self):
+        b2 = easyagents.backends.default.BackendAgentFactory()
+        old_length = len(easyagents.agents.get_backends())
+        assert b2 not in agents._backends
+        agents.register_backend(backend=b2)
+        assert old_length == len(easyagents.agents.get_backends())
+        assert b2 in agents._backends
 
-    def test_register_backend_nameNone_exception(self):
+    def test_register_backend_None_exception(self):
         with pytest.raises(AssertionError):
-            agents.register_backend(backend_name=None, backend=default.BackendAgentFactory())
-
-    def test_register_backend_backendNone_exception(self):
-        with pytest.raises(AssertionError):
-            agents.register_backend(backend_name="testBackend", backend=None)
+            agents.register_backend(backend=None)
 
 
 class DqnAgentTest(unittest.TestCase):

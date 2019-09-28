@@ -400,22 +400,10 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 
     name: str = 'tfagents'
 
-    def get_algorithms(self) -> Dict[Type, Type[TfAgent]]:
+    def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
-        return {easyagents.agents.DqnAgent: TfDqnAgent}
+        return {easyagents.agents.DqnAgent : TfDqnAgent,
+                easyagents.agents.PpoAgent : TfPpoAgent,
+                easyagents.agents.RandomAgent : TfRandomAgent,
+                easyagents.agents.ReinforceAgent: TfReinforceAgent}
 
-    def create_dqn_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        """Create an instance of DqnAgent wrapping this backends implementation."""
-        return TfDqnAgent(model_config=model_config)
-
-    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        """Create an instance of PpoAgent wrapping this backends implementation."""
-        return TfPpoAgent(model_config=model_config)
-
-    def create_random_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        """Create an instance of RandomAgent wrapping this backends implementation."""
-        return TfRandomAgent(model_config=model_config)
-
-    def create_reinforce_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        """Create an instance of ReinforceAgent wrapping this backends implementation."""
-        return TfReinforceAgent(model_config=model_config)

@@ -3,6 +3,7 @@
     see https://github.com/danaugrs/huskarl
 """
 from abc import ABCMeta
+from typing import Type, Dict
 import math
 
 import gym
@@ -144,6 +145,6 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
 
     name: str = 'huskarl'
 
-    def create_dqn_agent(self, model_config: easyagents.core.ModelConfig) -> easyagents.backends.core._BackendAgent:
-        """Create an instance of DqnAgent wrapping this backends implementation."""
-        return HuskarlDqnAgent(model_config=model_config)
+    def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
+        """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
+        return {easyagents.agents.DqnAgent: HuskarlDqnAgent}

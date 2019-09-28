@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from typing import Dict, Optional, Type
 
 import easyagents
@@ -105,3 +106,17 @@ class BackendAgentFactoryTest(unittest.TestCase):
         mc = core.ModelConfig(gym_env_name= "CartPole-v0")
         a = f.create_agent(easyagent_type=easyagents.agents.DqnAgent, model_config=mc)
         assert a is not None
+
+    def test_create_agent_not_implemented(self):
+        f = BackendAgentFactoryTest.DebugAgentFactory()
+        mc = core.ModelConfig(gym_env_name= "CartPole-v0")
+        a = f.create_agent(easyagent_type=easyagents.agents.ReinforceAgent, model_config=mc)
+        assert a is None
+
+    def test_get_backend(self):
+        b = easyagents.agents._get_backend('tfagents')
+        assert b
+
+    def test_get_backend_invalid_name(self):
+        assert easyagents.agents._get_backend('noname') is None
+

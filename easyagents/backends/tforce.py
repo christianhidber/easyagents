@@ -3,7 +3,7 @@
     see https://github.com/tensorforce/tensorforce
 """
 from abc import ABCMeta
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Type
 import math
 import os
 import tempfile
@@ -156,6 +156,6 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
 
     name: str = 'tensorforce'
 
-    def create_ppo_agent(self, model_config: easyagents.core.ModelConfig) -> easyagents.backends.core._BackendAgent:
-        """Create an instance of PpoAgent wrapping this backends implementation."""
-        return TforcePpoAgent(model_config=model_config)
+    def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
+        """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
+        return {easyagents.agents.DqnAgent : TforcePpoAgent}
