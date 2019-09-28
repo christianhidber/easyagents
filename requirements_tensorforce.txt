@@ -8,7 +8,6 @@ cloudpickle==1.2.2
 colorama==0.4.1
 cycler==0.10.0
 decorator==4.4.0
-easyagents==1.1.13
 future==0.17.1
 gast==0.2.2
 gin-config==0.1.3

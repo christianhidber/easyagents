@@ -17,6 +17,24 @@ import easyagents.backends.tforce
 
 _backends: [bcore.BackendAgentFactory] = []
 
+def register_backend(backend: bcore.BackendAgentFactory):
+    """registers a backend as a factory for agent implementations.
+
+    If another backend with the same name is already registered, the old backend is replaced by backend.
+    """
+    assert backend
+    old_backends = [b for b in _backends if b.name == backend.name]
+    for old_backend in old_backends:
+        _backends.remove(old_backend)
+    _backends.append(backend)
+
+
+# register all backends deployed with easyagents
+register_backend(easyagents.backends.default.BackendAgentFactory())
+register_backend(easyagents.backends.tfagents.BackendAgentFactory())
+register_backend(easyagents.backends.hk.BackendAgentFactory())
+register_backend(easyagents.backends.tforce.BackendAgentFactory())
+
 
 def get_backends():
     """returns a list of all registered backend identifiers."""
@@ -35,25 +53,6 @@ def _get_backend(backend_name: str):
     if backends:
         result = backends[0]
     return result
-
-
-def register_backend(backend: bcore.BackendAgentFactory):
-    """registers a backend as a factory for agent implementations.
-
-    If another backend with the same name is already registered, the old backend is replaced by backend.
-    """
-    assert backend
-    old_backends = [b for b in _backends if b.name == backend.name]
-    for old_backend in old_backends:
-        _backends.remove(old_backend)
-    _backends.append(backend)
-
-
-# register all backends deployed with easyagents
-register_backend(easyagents.backends.default.BackendAgentFactory())
-register_backend(easyagents.backends.tfagents.BackendAgentFactory())
-register_backend(easyagents.backends.hk.BackendAgentFactory())
-register_backend(easyagents.backends.tforce.BackendAgentFactory())
 
 
 class EasyAgent(ABC):
