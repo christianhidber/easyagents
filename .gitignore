@@ -121,3 +121,5 @@ images/private/
 /env_coach/
 /env_baselines/
 /env_coach/
+/env_clean/
+/env/
