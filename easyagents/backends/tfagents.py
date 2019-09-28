@@ -400,7 +400,7 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 
     name: str = 'tfagents'
 
-    def get_algorithms(self) -> Dict[Type[easyagents.agents.EasyAgent], Type[TfAgent]]:
+    def get_algorithms(self) -> Dict[Type, Type[TfAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
         return {easyagents.agents.DqnAgent: TfDqnAgent}
 

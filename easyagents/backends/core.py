@@ -10,7 +10,7 @@ import tensorflow
 import numpy
 import random
 
-import easyagents
+
 from easyagents import core
 from easyagents.backends import monitor
 from easyagents.callbacks import plot
@@ -454,27 +454,26 @@ class BackendAgentFactory(ABC):
 
     name: str = 'abstract_BackendAgentFactory'
 
-    def create_agent(self, agent_type : Type[easyagents.agents.EasyAgent], model_config: core.ModelConfig) \
-        -> Optional[_BackendAgent]:
+    def create_agent(self, easyagent_type: Type, model_config: core.ModelConfig) \
+            -> Optional[_BackendAgent]:
         """Creates a backend agent instance implementing the algorithm given by agent_type.
 
         Args:
-            agent_type: the EasyAgent derived type for which an implementing backend instance will be created
+            easyagent_type: the EasyAgent derived type for which an implementing backend instance will be created
             model_config: the model_config passed to the constructor of the backend instance.
 
         Returns:
             instance of the agent or None if not implemented by this backend.
         """
-        result : Optional[_BackendAgent] = None
+        result: Optional[_BackendAgent] = None
         algorithms = self.get_algorithms()
-        if agent_type in algorithms:
-            result=algorithms[agent_type](model_config=model_config)
+        if easyagent_type in algorithms:
+            result = algorithms[easyagent_type](model_config=model_config)
         return result
 
-    def get_algorithms(self) -> Dict[Type[easyagents.agents.EasyAgent], Type[_BackendAgent]]:
+    def get_algorithms(self) -> Dict[Type, Type[_BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
-        raise NotImplementedError(f'DqnAgent not implemented by backend "{self.name}"')
-
+        return {}
 
     def create_dqn_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
         """Create an instance of DqnAgent wrapping this backends implementation.
