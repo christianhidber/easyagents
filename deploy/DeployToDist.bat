@@ -13,5 +13,3 @@ pip install pytest
 
 cd dist
 pip install easy_agents*
-
-
