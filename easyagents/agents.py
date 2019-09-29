@@ -421,7 +421,7 @@ class RandomAgent(EasyAgent):
               num_iterations: int = 10,
               max_steps_per_episode: int = 1000,
               num_episodes_per_eval: int = 10,
-              train_context: core.ActorCriticTrainContext = None,
+              train_context: core.TrainContext = None,
               default_plots: bool = None):
         """Evaluates the environment using a uniform random policy.
 
@@ -444,7 +444,6 @@ class RandomAgent(EasyAgent):
             train_context.num_iterations = num_iterations
             train_context.max_steps_per_episode = max_steps_per_episode
             train_context.num_epochs_per_iteration = 0
-            train_context.num_episodes_per_iteration = 1
             train_context.num_iterations_between_eval = 1
             train_context.num_episodes_per_eval = num_episodes_per_eval
             train_context.learning_rate = 1

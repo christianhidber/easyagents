@@ -18,13 +18,13 @@ class TensorforceAgentTest(unittest.TestCase):
         ppoAgent = tforce.TforcePpoAgent(model_config=model_config)
         ppoAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent()])
 
-    def test_ppo_train(self):
+    def test_random_train(self):
         model_config = core.ModelConfig("CartPole-v0")
-        tc = core.ActorCriticTrainContext()
+        tc = core.TrainContext()
         tc.num_iterations=11
         tc.num_episodes_per_iteration=5
-        ppoAgent = tforce.TforcePpoAgent(model_config=model_config)
-        ppoAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent()])
+        randomAgent = tforce.TforceRandomAgent(model_config=model_config)
+        randomAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent(), log.Step()])
 
 
 if __name__ == '__main__':

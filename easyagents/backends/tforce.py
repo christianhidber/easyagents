@@ -166,6 +166,39 @@ class TforcePpoAgent(TforceAgent):
         self._train_with_tensorforce_runner(train_env, tc)
 
 
+class TforceRandomAgent(TforceAgent):
+    """ Agent based on the random algorithm using the tensorforce implementation."""
+
+    def __init__(self, model_config: easyagents.core.ModelConfig):
+        """
+        Args:
+            model_config: the model configuration including the name of the target gym environment
+                as well as the neural network architecture.
+        """
+        super().__init__(model_config=model_config)
+
+    def train_implementation(self, train_context: easyagents.core.TrainContext):
+        """Tensorforce Ppo Implementation of the train loop.
+
+            The implementation follows https://github.com/tensorforce/tensorforce/blob/master/examples/quickstart.py
+        """
+        self.log('Creating Environment...')
+        train_env = self._create_env()
+
+        self.log_api('Agent.create', f'(agent="random",...')
+        self._agent = Agent.create(
+            agent='random',
+            environment=train_env,
+            seed=self.model_config.seed,
+        )
+        while True:
+            self.on_train_iteration_begin()
+            self.on_train_iteration_end(math.nan)
+            if train_context.training_done:
+                break
+        return
+
+
 class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
     """Backend for Tensorforce.
 
@@ -176,4 +209,5 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
 
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
-        return {easyagents.agents.PpoAgent: TforcePpoAgent}
+        return {easyagents.agents.PpoAgent: TforcePpoAgent,
+                easyagents.agents.RandomAgent: TforceRandomAgent}
