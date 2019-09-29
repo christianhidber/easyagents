@@ -18,12 +18,12 @@ class TensorforceAgentTest(unittest.TestCase):
         ppoAgent = tforce.TforcePpoAgent(model_config=model_config)
         ppoAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent()])
 
-    def test_random_train(self):
+    def test_reinforce_train(self):
         model_config = core.ModelConfig("CartPole-v0")
-        tc = core.TrainContext()
+        tc = core.EpisodesTrainContext()
         tc.num_iterations=11
         tc.num_episodes_per_iteration=5
-        randomAgent = tforce.TforceRandomAgent(model_config=model_config)
+        randomAgent = tforce.TforceReinforceAgent(model_config=model_config)
         randomAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent(), log.Step()])
 
 

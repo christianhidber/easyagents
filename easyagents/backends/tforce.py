@@ -6,6 +6,7 @@ from abc import ABCMeta
 from typing import List, Dict, Optional, Type
 import math
 import os
+import shutil
 import tempfile
 import datetime
 
@@ -164,10 +165,11 @@ class TforcePpoAgent(TforceAgent):
             summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_tensorforce_runner(train_env, tc)
+        shutil.rmtree(tempdir,ignore_errors=True)
 
 
-class TforceRandomAgent(TforceAgent):
-    """ Agent based on the random algorithm using the tensorforce implementation."""
+class TforceReinforceAgent(TforceAgent):
+    """ Agent based on the REINFORCE algorithm using the tensorforce implementation."""
 
     def __init__(self, model_config: easyagents.core.ModelConfig):
         """
@@ -177,26 +179,37 @@ class TforceRandomAgent(TforceAgent):
         """
         super().__init__(model_config=model_config)
 
-    def train_implementation(self, train_context: easyagents.core.TrainContext):
-        """Tensorforce Ppo Implementation of the train loop.
+    def train_implementation(self, train_context: easyagents.core.EpisodesTrainContext):
+        """Tensorforce REINFORCE Implementation of the train loop.
 
             The implementation follows https://github.com/tensorforce/tensorforce/blob/master/examples/quickstart.py
         """
+        assert isinstance(train_context,easyagents.core.EpisodesTrainContext)
+        tc = train_context
         self.log('Creating Environment...')
         train_env = self._create_env()
 
-        self.log_api('Agent.create', f'(agent="random",...')
+        self.log('Creating network specification...')
+        network = self._create_network_specification()
+
+        self.log_api('Agent.create', f'(agent="vpg", learning_rate={tc.learning_rate}, ' +
+                     f'batch_size={tc.num_episodes_per_iteration}, ' +
+                     f'optimization_steps={tc.num_epochs_per_iteration}, ' +
+                     f'discount={tc.reward_discount_gamma},seed={self.model_config.seed})')
+        tempdir = self._get_temp_path()
         self._agent = Agent.create(
-            agent='random',
+            agent='vpg',
             environment=train_env,
+            network=network,
+            learning_rate=tc.learning_rate,
+            batch_size=tc.num_episodes_per_iteration,
+            discount=tc.reward_discount_gamma,
             seed=self.model_config.seed,
+            summarizer=dict(directory=tempdir, labels=['losses']),
         )
-        while True:
-            self.on_train_iteration_begin()
-            self.on_train_iteration_end(math.nan)
-            if train_context.training_done:
-                break
-        return
+        self._train_with_tensorforce_runner(train_env, tc)
+        shutil.rmtree(tempdir,ignore_errors=True)
+
 
 
 class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
@@ -210,4 +223,4 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
         return {easyagents.agents.PpoAgent: TforcePpoAgent,
-                easyagents.agents.RandomAgent: TforceRandomAgent}
+                easyagents.agents.ReinforceAgent: TforceReinforceAgent}
