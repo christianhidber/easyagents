@@ -10,17 +10,15 @@ import tempfile
 import datetime
 
 import gym
-
 import easyagents.backends.core
 
 from tensorforce.agents import Agent
 from tensorforce.environments import Environment
 from tensorforce.execution import Runner
-from tensorforce.core.models import PolicyModel
 
 
-class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
-    """ Agent based on the PPO algorithm using the tensorforce implementation."""
+class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
+    """ Base class for agents based on the tensorforce implementation."""
 
     def __init__(self, model_config: easyagents.core.ModelConfig):
         """
@@ -52,6 +50,50 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
                  f'{n.microsecond:06}'
         return result
 
+    def _train_with_tensorforce_runner(self, train_env: Environment, train_context: easyagents.core.TrainContext):
+        """Trains the self._agent using a tensorforce runner.
+
+        Args:
+            train_env: the tensorforce environment to use for the training
+            train_context: context containing the training parameters
+        """
+        assert train_context
+        assert train_env
+        assert self._agent
+
+        def train_callback(_: Runner) -> bool:
+            result = not train_context.training_done
+            return result
+
+        def eval_callback(_: Runner) -> bool:
+            result = not train_context.training_done
+            if result:
+                self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
+                result = not train_context.training_done
+                if result:
+                    self.on_train_iteration_begin()
+            return result
+
+        # Initialize the runner
+        self.log_api('Runner.create', "(agent=..., environment=...)")
+        runner = Runner(agent=self._agent, environment=train_env)
+
+        # Start the runner
+        self.log_api('runner.run', f'(num_episodes=None, max_episode_timesteps={train_context.max_steps_per_episode})')
+        self.on_train_iteration_begin()
+        runner.run(num_episodes=None,
+                   max_episode_timesteps=train_context.max_steps_per_episode,
+                   use_tqdm=False,
+                   callback=train_callback,
+                   evaluation_callback=eval_callback,
+                   evaluation_frequency=None,
+                   evaluation=False,
+                   num_evaluation_iterations=0
+                   )
+        if not train_context.training_done:
+            self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
+        runner.close()
+
     def play_implementation(self, play_context: easyagents.core.PlayContext):
         """Agent specific implementation of playing a single episode with the current policy.
 
@@ -81,6 +123,18 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
                 break
         return
 
+
+class TforcePpoAgent(TforceAgent):
+    """ Agent based on the PPO algorithm using the tensorforce implementation."""
+
+    def __init__(self, model_config: easyagents.core.ModelConfig):
+        """
+        Args:
+            model_config: the model configuration including the name of the target gym environment
+                as well as the neural network architecture.
+        """
+        super().__init__(model_config=model_config)
+
     def train_implementation(self, train_context: easyagents.core.ActorCriticTrainContext):
         """Tensorforce Ppo Implementation of the train loop.
 
@@ -93,9 +147,10 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         self.log('Creating network specification...')
         network = self._create_network_specification()
 
-        self.log_api('Agent.create', f'(agent="ppo", learning_rate={tc.learning_rate},' + \
-                f'batch_size={tc.num_episodes_per_iteration}, optimization_steps={tc.num_epochs_per_iteration},'+\
-                f'discount={tc.reward_discount_gamma},seed={self.model_config.seed})')
+        self.log_api('Agent.create', f'(agent="ppo", learning_rate={tc.learning_rate}, ' +
+                     f'batch_size={tc.num_episodes_per_iteration}, ' +
+                     f'optimization_steps={tc.num_epochs_per_iteration}, ' +
+                     f'discount={tc.reward_discount_gamma},seed={self.model_config.seed})')
         tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='ppo',
@@ -108,44 +163,7 @@ class TforcePpoAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
             seed=self.model_config.seed,
             summarizer=dict(directory=tempdir, labels=['losses']),
         )
-
-        def train_callback(runner: Runner) -> bool:
-            result = not train_context.training_done
-            return result
-
-        def eval_callback(runner: Runner) -> bool:
-            result = not train_context.training_done
-            if result:
-                self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
-                result = not train_context.training_done
-                if result:
-                    self.on_train_iteration_begin()
-            return result
-
-        # Initialize the runner
-        self.log_api('Runner.create', "(agent=..., environment=...)")
-        runner = Runner(agent=self._agent, environment=train_env)
-
-        # Start the runner
-        num_episodes = None
-        self.log_api('runner.run', f'(num_episodes={num_episodes}, max_episode_timesteps={tc.max_steps_per_episode})')
-        self.on_train_iteration_begin()
-        runner.run(num_episodes=num_episodes,
-                   max_episode_timesteps=tc.max_steps_per_episode,
-                   use_tqdm=False,
-                   callback=train_callback,
-                   evaluation_callback=eval_callback,
-                   evaluation_frequency=None,
-                   evaluation=False,
-                   num_evaluation_iterations=0
-                   )
-        if not train_context.training_done:
-            self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
-        runner.close()
-        try:
-            os.remove(tempdir)
-        except:
-            pass
+        self._train_with_tensorforce_runner(train_env, tc)
 
 
 class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
@@ -158,4 +176,4 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
 
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
-        return {easyagents.agents.DqnAgent : TforcePpoAgent}
+        return {easyagents.agents.PpoAgent: TforcePpoAgent}

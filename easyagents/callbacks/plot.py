@@ -163,13 +163,10 @@ class _PlotCallback(core.AgentCallback):
             self.plot(agent_context, plot_type)
 
     def _is_nan(self, values: Optional[List[float]]):
-        """yields true if all values are equal to nan. yields fals if values is None or empty."""
+        """yields true if all values are equal to nan. yields false if values is None or empty."""
         result = False
-        if values:
-            s = set(values)
-            if len(s) == 1:
-                value = s.pop()
-                result = math.isnan(value)
+        if values and all(isinstance(v,float) for v in values):
+            result = all(math.isnan(v) for v in values)
         return result
 
     def _is_plot(self, agent_context: core.AgentContext, plot_type: core.PlotType) -> bool:

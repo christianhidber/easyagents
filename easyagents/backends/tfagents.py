@@ -306,7 +306,7 @@ class TfRandomAgent(TfAgent):
             while not time_step.is_last():
                 action_step = self._trained_policy.action(time_step)
                 time_step = train_env.step(action_step.action)
-            self.on_train_iteration_end(0)
+            self.on_train_iteration_end(math.nan)
             if train_context.training_done:
                 break
         return
