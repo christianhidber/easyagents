@@ -6,37 +6,57 @@
 """
 
 from abc import ABC
-from typing import Dict, List, Tuple, Optional, Union
+from typing import List, Tuple, Optional, Union
 from easyagents import core
 from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
 import easyagents.backends.default
 import easyagents.backends.tfagents
-import easyagents.backends.hk
+import easyagents.backends.tforce
 
-_backends: Dict[str, bcore.BackendAgentFactory] = {
-    easyagents.backends.default.BackendAgentFactory.name: easyagents.backends.default.BackendAgentFactory(),
-    easyagents.backends.tfagents.BackendAgentFactory.name: easyagents.backends.tfagents.BackendAgentFactory(),
-    easyagents.backends.hk.BackendAgentFactory.name: easyagents.backends.hk.BackendAgentFactory()
-}
+_backends: [bcore.BackendAgentFactory] = []
+
+def register_backend(backend: bcore.BackendAgentFactory):
+    """registers a backend as a factory for agent implementations.
+
+    If another backend with the same name is already registered, the old backend is replaced by backend.
+    """
+    assert backend
+    old_backends = [b for b in _backends if b.name == backend.name]
+    for old_backend in old_backends:
+        _backends.remove(old_backend)
+    _backends.append(backend)
+
+
+# register all backends deployed with easyagents
+register_backend(easyagents.backends.default.BackendAgentFactory())
+register_backend(easyagents.backends.tfagents.BackendAgentFactory())
+register_backend(easyagents.backends.tforce.BackendAgentFactory())
 
 
 def get_backends():
     """returns a list of all registered backend identifiers."""
-    return _backends.keys()
+    result = [b.name for b in _backends]
+    return result
 
 
-def register_backend(backend_name: str, backend: bcore.BackendAgentFactory):
-    assert backend_name is not None, "backend_name not set"
-    assert backend_name, "backend_name is empty"
-    assert backend is not None, "backend not set"
-    _backends[backend_name] = backend
+def _get_backend(backend_name: str):
+    """Yields the backend with the given name.
+
+    If no backend is foubd None is returned."""
+    assert backend_name
+    backends = [b for b in _backends if b.name == backend_name]
+    assert len(backends) <= 1, f'no backend found with name "{backend_name}". Available backends = {get_backends()}'
+    result = None
+    if backends:
+        result = backends[0]
+    return result
 
 
 class EasyAgent(ABC):
     """Abstract base class for all easy reinforcment learning agents.
 
-        Implementations must set _backend_agent and _agent_config.
+        Implementations must set _agent_config.
 
         Args:
             backend_name: the backend (implementation) to be used, if None the a default implementation is used
@@ -52,14 +72,16 @@ class EasyAgent(ABC):
             model_config = core.ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
         if backend_name is None:
             backend_name = easyagents.backends.default.BackendAgentFactory.name
+        backend: bcore.BackendAgentFactory = _get_backend(backend_name)
 
         assert model_config is not None, "model_config not set."
-        assert backend_name in get_backends(), \
-            f'{backend_name} is not admissible. The registered backends are {get_backends()}.'
+        assert backend, f'Backend "{backend_name}" not found. The registered backends are {get_backends()}.'
 
         self._model_config: core.ModelConfig = model_config
-        self._backend_agent_factory: bcore.BackendAgentFactory = _backends[backend_name]
-        self._backend_agent: Optional[bcore._BackendAgent] = None
+        backend_agent = backend.create_agent(easyagent_type=type(self), model_config=model_config)
+        assert backend_agent, f'Backend "{backend_name}" does not implement "{type(self).__name__}". ' + \
+                              'Choose another backend.'
+        self._backend_agent: Optional[bcore._BackendAgent] = backend_agent
         return
 
     def _prepare_callbacks(self, callbacks: List[core.AgentCallback],
@@ -177,7 +199,6 @@ class DqnAgent(EasyAgent):
                  fc_layers: Optional[Tuple[int, ...]] = None,
                  backend: str = None):
         super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
-        self._backend_agent = self._backend_agent_factory.create_dqn_agent(self._model_config)
         return
 
     def play(self,
@@ -282,7 +303,6 @@ class PpoAgent(EasyAgent):
 
                  backend: str = None):
         super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
-        self._backend_agent = self._backend_agent_factory.create_ppo_agent(self._model_config)
         return
 
     def play(self,
@@ -371,7 +391,6 @@ class RandomAgent(EasyAgent):
 
     def __init__(self, gym_env_name: str, backend: str = None):
         super().__init__(gym_env_name=gym_env_name, fc_layers=None, backend_name=backend)
-        self._backend_agent = self._backend_agent_factory.create_random_agent(self._model_config)
         return
 
     def play(self,
@@ -434,7 +453,6 @@ class RandomAgent(EasyAgent):
         return train_context
 
 
-
 class ReinforceAgent(EasyAgent):
     """creates a new agent based on the Reinforce algorithm.
 
@@ -458,7 +476,6 @@ class ReinforceAgent(EasyAgent):
 
                  backend: str = None):
         super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
-        self._backend_agent = self._backend_agent_factory.create_reinforce_agent(self._model_config)
         return
 
     def play(self,

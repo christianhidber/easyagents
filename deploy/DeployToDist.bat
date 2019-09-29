@@ -9,7 +9,7 @@ for /f %%i in ('dir /a:d /s /b env_setup\Lib\site-packages\easyagents*') do rmdi
 pip install twine
 python setup.py sdist --formats=zip
 
-pip install dist/easy_agents*
-pip install jupyter
 pip install pytest
 
+cd dist
+pip install easy_agents*

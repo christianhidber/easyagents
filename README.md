@@ -1,20 +1,26 @@
 ### Reinforcement Learning for Practitioners (v1.1, 19Q3)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
+![License](https://img.shields.io/github/license/christianhidber/easyagents)
 
 Status: under active development, breaking changes may occur. [Release notes](documentation/README.md).
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
-EasyAgents is a high level reinforcement learning api, written in Python and running on top of
-[OpenAI gym](https://github.com/openai/gym) using algorithms implemented in 
-[tf-Agents](https://github.com/tensorflow/agents), [OpenAI baselines](https://github.com/openai/baselines)
-and [huskarl](https://github.com/danaugrs/huskarl).
+EasyAgents is a high level reinforcement learning api focusing on ease of use and simplicity.
+Written in Python and running on top of different reinforcement learning libraries like
+[tf-Agents](https://github.com/tensorflow/agents), 
+[tensorforce](https://github.com/tensorforce/tensorforce) or 
+[huskarl](https://github.com/danaugrs/huskarl).
+Additional backends are easily integrated. 
+Environments are implemented in [OpenAI gym](https://github.com/openai/gym). 
+
 
 ### Use EasyAgents if
-* you have a gym environment and want to experiment with it
-* you want try out different libraries and algorithms, but don't want to learn
-  the details of each implementation
-* you are looking for an easy and simple way to get started with reinforcement learning  
+* you want to compare different algorithms and implementations, easily switch between the implementations,
+  without having to learn the details first
+* you like easily interpretable plots, consistent across all algorithms and backends
+* you have a gym environment and want to experiment with it (inside or outside of a jupyter notebook)
+* you are looking for a simple 2 lines of code api to run and evaluate algorithms against your environment  
 
 Try it on colab:
 * [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
