@@ -14,9 +14,11 @@ class TensorforceAgentTest(unittest.TestCase):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.DqnTrainContext()
         tc.num_iterations=10
-        tc.num_steps_buffer_preload = 0
+        tc.num_steps_buffer_preload = 5
+        tc.num_iterations_between_eval=6
+        tc.num_iterations_between_log=1
         dqnAgent = tforce.TforceDqnAgent(model_config=model_config)
-        dqnAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent(), log.Step()])
+        dqnAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent()])
 
     def test_ppo_train(self):
         model_config = core.ModelConfig("CartPole-v0")

@@ -306,6 +306,8 @@ class DqnTrainContext(TrainContext):
     def __init__(self):
         super().__init__()
         self.num_iterations = 20000
+        self.num_iterations_between_eval = 1000
+        self.num_iterations_between_log = 500
         self.num_steps_per_iteration: int = 1
         self.num_steps_buffer_preload = 1000
         self.num_steps_sampled_from_buffer = 64
