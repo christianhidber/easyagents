@@ -10,6 +10,14 @@ class TensorforceAgentTest(unittest.TestCase):
     def setUp(self):
         self.env_name = env._StepCountEnv.register_with_gym()
 
+    def test_dqn_train(self):
+        model_config = core.ModelConfig("CartPole-v0")
+        tc = core.DqnTrainContext()
+        tc.num_iterations=10
+        tc.num_steps_buffer_preload = 0
+        dqnAgent = tforce.TforceDqnAgent(model_config=model_config)
+        dqnAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent(), log.Step()])
+
     def test_ppo_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.ActorCriticTrainContext()
