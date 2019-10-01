@@ -13,28 +13,20 @@ class TensorforceAgentTest(unittest.TestCase):
     def test_dqn_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.DqnTrainContext()
-        tc.num_iterations=10
-        tc.num_steps_buffer_preload = 5
-        tc.num_iterations_between_eval=6
-        tc.num_iterations_between_log=1
         dqnAgent = tforce.TforceDqnAgent(model_config=model_config)
-        dqnAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent()])
+        dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration(), log.Agent()])
 
     def test_ppo_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.ActorCriticTrainContext()
-        tc.num_iterations=11
-        tc.num_episodes_per_iteration=5
         ppoAgent = tforce.TforcePpoAgent(model_config=model_config)
-        ppoAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent()])
+        ppoAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration(), log.Agent()])
 
     def test_reinforce_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.EpisodesTrainContext()
-        tc.num_iterations=11
-        tc.num_episodes_per_iteration=5
         randomAgent = tforce.TforceReinforceAgent(model_config=model_config)
-        randomAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent(), log.Step()])
+        randomAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration(), log.Agent()])
 
 
 if __name__ == '__main__':
