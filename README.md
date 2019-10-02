@@ -29,7 +29,7 @@ Try it on colab:
 * [Orso on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb)
   example of a custom environment & training. gym environment based on a routing problem.
 * [LineWorld on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb)
-  implement your own environment, workshop example [work in progress]
+  implement your own environment, workshop example.
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
