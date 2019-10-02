@@ -166,8 +166,7 @@ class TforceDqnAgent(TforceAgent):
                      f'learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_steps_sampled_from_buffer}, ' +
                      f'update_frequeny={tc.num_steps_per_iteration}, ' +
-                     f'discount={tc.reward_discount_gamma}, ' +
-                     f'seed={self.model_config.seed})')
+                     f'discount={tc.reward_discount_gamma})')
         tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='dqn',
@@ -179,7 +178,6 @@ class TforceDqnAgent(TforceAgent):
             batch_size=tc.num_steps_sampled_from_buffer,
             update_frequency=tc.num_steps_per_iteration,
             discount=tc.reward_discount_gamma,
-            seed=self.model_config.seed,
             summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_runner(train_env, tc)
@@ -212,7 +210,7 @@ class TforcePpoAgent(TforceAgent):
         self.log_api('Agent.create', f'(agent="ppo", learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_episodes_per_iteration}, ' +
                      f'optimization_steps={tc.num_epochs_per_iteration}, ' +
-                     f'discount={tc.reward_discount_gamma},seed={self.model_config.seed})')
+                     f'discount={tc.reward_discount_gamma})')
         tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='ppo',
@@ -254,7 +252,7 @@ class TforceReinforceAgent(TforceAgent):
 
         self.log_api('Agent.create', f'(agent="vpg", learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_episodes_per_iteration}, ' +
-                     f'discount={tc.reward_discount_gamma},seed={self.model_config.seed})')
+                     f'discount={tc.reward_discount_gamma})')
         tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='vpg',
@@ -263,7 +261,6 @@ class TforceReinforceAgent(TforceAgent):
             learning_rate=tc.learning_rate,
             batch_size=tc.num_episodes_per_iteration,
             discount=tc.reward_discount_gamma,
-            seed=self.model_config.seed,
             summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_runner(train_env, tc)
