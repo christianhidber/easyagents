@@ -14,19 +14,19 @@ class TensorforceAgentTest(unittest.TestCase):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.DqnTrainContext()
         dqnAgent = tforce.TforceDqnAgent(model_config=model_config)
-        dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration(), log.Agent()])
+        dqnAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent()])
 
     def test_ppo_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.ActorCriticTrainContext()
         ppoAgent = tforce.TforcePpoAgent(model_config=model_config)
-        ppoAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration(), log.Agent()])
+        ppoAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent()])
 
     def test_reinforce_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.EpisodesTrainContext()
         randomAgent = tforce.TforceReinforceAgent(model_config=model_config)
-        randomAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration(), log.Agent()])
+        randomAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent()])
 
 
 if __name__ == '__main__':

@@ -74,9 +74,10 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
                         self.on_train_iteration_begin()
             return result
 
-        def eval_callback(_: Runner) -> bool:
-            result = not train_context.training_done
-            if result and not isinstance(train_context,easyagents.core.DqnTrainContext):
+        def eval_callback(runner: Runner) -> bool:
+            if isinstance(train_context,easyagents.core.DqnTrainContext):
+                result = step_callback(runner)
+            else:
                 self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
                 result = not train_context.training_done
                 if result:
