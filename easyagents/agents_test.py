@@ -71,6 +71,7 @@ class BackendRegistrationTest(unittest.TestCase):
 class DqnAgentTest(unittest.TestCase):
 
     def test_train(self):
+        core.seed = 0
         for backend in get_backends(DqnAgent):
             dqn_agent: DqnAgent = agents.DqnAgent('CartPole-v0', fc_layers=(100,), backend=backend)
             tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration()],
@@ -111,7 +112,8 @@ class PpoAgentTest(unittest.TestCase):
             count = log._CallbackCounts()
             ppo.train([log.Agent(), count, duration._SingleEpisode()])
             assert count.gym_init_begin_count == count.gym_init_end_count == 1
-            assert count.gym_step_begin_count == count.gym_step_end_count <= 10
+            assert count.gym_step_begin_count == count.gym_step_end_count
+            assert count.gym_step_begin_count < 10 + count.gym_reset_begin_count
 
     def test_play_single_episode(self):
         for backend in get_backends(PpoAgent):

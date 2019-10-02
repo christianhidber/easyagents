@@ -122,7 +122,6 @@ class _BackendAgent(ABC):
             env = self._agent_context.gym.gym_env
             seed = self._agent_context.model.seed
             env.seed(seed)
-            env.action_space.seed(seed)
         for c in self._callbacks:
             c.on_gym_init_end(self._agent_context)
         self._agent_context.gym._monitor_env = None
