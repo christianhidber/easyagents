@@ -7,7 +7,7 @@ from easyagents.callbacks import duration, log, plot
 import easyagents.backends.core
 
 _env_name = env._StepCountEnv.register_with_gym()
-
+core.seed = 0
 
 # noinspection PyTypeChecker
 class BackendRegistrationTest(unittest.TestCase):
@@ -71,7 +71,6 @@ class BackendRegistrationTest(unittest.TestCase):
 class DqnAgentTest(unittest.TestCase):
 
     def test_train(self):
-        core.seed = 0
         for backend in get_backends(DqnAgent):
             dqn_agent: DqnAgent = agents.DqnAgent('CartPole-v0', fc_layers=(100,), backend=backend)
             tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration()],

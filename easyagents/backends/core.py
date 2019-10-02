@@ -7,6 +7,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from typing import List, Optional, Tuple, Type, Dict
 import gym
 import tensorflow
+
 import numpy
 import random
 
@@ -54,18 +55,20 @@ class _BackendAgent(ABC):
         self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
-        self._initialize()
+        self._initialize_tensorflow_and_seeds()
 
-    def _initialize(self):
+    def _initialize_tensorflow_and_seeds(self):
         """ initializes TensorFlow behaviour and random seeds."""
-        self.log_api('v1.enable_v2_behavior')
+        self.log_api('tf.compat.v1.enable_v2_behavior')
         tensorflow.compat.v1.enable_v2_behavior()
-        self.log_api('v1.enable_eager_execution')
+        self.log_api('tf.compat.v1.enable_eager_execution')
         tensorflow.compat.v1.enable_eager_execution()
         if self.model_config.seed:
             seed = self.model_config.seed
-            self.log_api(f'v1.set_random_seed({seed})')
+            self.log_api(f'tf.compat.v1.set_random_seed({seed})')
             tensorflow.compat.v1.set_random_seed(seed)
+            self.log_api(f'tf.random.set_random_seed({seed})')
+            tensorflow.random.set_random_seed(seed=seed)
             numpy.random.seed(seed)
             random.seed(seed)
         return
