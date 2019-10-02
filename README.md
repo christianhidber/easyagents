@@ -10,7 +10,7 @@ EasyAgents is a high level reinforcement learning api focusing on ease of use an
 Written in Python and running on top of different reinforcement learning libraries like
 [tf-Agents](https://github.com/tensorflow/agents), 
 [tensorforce](https://github.com/tensorforce/tensorforce) or 
-[huskarl](https://github.com/danaugrs/huskarl).
+[keras-rl (work in progress)](https://github.com/keras-rl/keras-rl).
 Additional backends are easily integrated. 
 Environments are implemented in [OpenAI gym](https://github.com/openai/gym). 
 
