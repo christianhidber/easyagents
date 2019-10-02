@@ -222,7 +222,6 @@ class TforcePpoAgent(TforceAgent):
             batch_size=tc.num_episodes_per_iteration,
             optimization_steps=tc.num_epochs_per_iteration,
             discount=tc.reward_discount_gamma,
-            seed=self.model_config.seed,
             summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_runner(train_env, tc)
