@@ -88,9 +88,9 @@ class _StepCountEnv(gym.core.Env):
 
     metadata = {'render.modes': ['ansi']}
     reward_range = (0, 1)
-    max = 10 ^ 10
-    action_space = gym.spaces.Box(low=-max, high=max, shape=(1,))
-    observation_space = gym.spaces.Box(low=--max, high=max, shape=(1,))
+    max = 10 ** 7
+    action_space = gym.spaces.discrete.Discrete(2)
+    observation_space = gym.spaces.Box(low=0, high=max, shape=(1,))
 
     step_count: int = 0
     reset_count: int = 0
@@ -113,10 +113,11 @@ class _StepCountEnv(gym.core.Env):
     def step(self, action):
         _StepCountEnv.step_count += 1
         # noinspection PyRedundantParentheses
-        return (_StepCountEnv.step_count, 1, False, None)
+        return [_StepCountEnv.step_count], 1, False, None
 
     def reset(self):
         _StepCountEnv.reset_count += 1
+        return [_StepCountEnv.step_count]
 
     def render(self, mode='ansi'):
         return str(self)
