@@ -110,22 +110,9 @@ venv.bak/
 
 \.idea/
 
-images/private/
 /documentation/EasyAgents_Design/obj/
 /documentation/EasyAgents_Design/bin/
 /env_master/
-/env_huskarl/
 /env_setup/
-/env_setup_clean/
-/env_tensorforce/
 /env_coach/
-/env_baselines/
-/env_coach/
-/env_clean/
 /env/
-/env_ea.1.1.11/
-/env_tf/
-/env_tf_hk/
-/env_tf_estimator/
-/env_tf_clean/
-/jupyter_notebooks/backend.ipynb
