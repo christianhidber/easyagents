@@ -6,7 +6,7 @@
 """
 
 from abc import ABC
-from typing import List, Tuple, Optional, Union
+from typing import List, Tuple, Optional, Union, Type
 from easyagents import core
 from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
@@ -32,25 +32,6 @@ def register_backend(backend: bcore.BackendAgentFactory):
 register_backend(easyagents.backends.default.BackendAgentFactory())
 register_backend(easyagents.backends.tfagents.BackendAgentFactory())
 register_backend(easyagents.backends.tforce.BackendAgentFactory())
-
-
-def get_backends():
-    """returns a list of all registered backend identifiers."""
-    result = [b.name for b in _backends]
-    return result
-
-
-def _get_backend(backend_name: str):
-    """Yields the backend with the given name.
-
-    If no backend is foubd None is returned."""
-    assert backend_name
-    backends = [b for b in _backends if b.name == backend_name]
-    assert len(backends) <= 1, f'no backend found with name "{backend_name}". Available backends = {get_backends()}'
-    result = None
-    if backends:
-        result = backends[0]
-    return result
 
 
 class EasyAgent(ABC):
@@ -165,6 +146,35 @@ class EasyAgent(ABC):
         callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Loss(), plot.Steps(), plot.Rewards()])
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
+
+def get_backends(agent: Optional[Type[EasyAgent]] = None):
+    """returns a list of all registered backends containing an implementation for the EasyAgent type agent.
+
+    Args:
+        agent: type deriving from EasyAgent for which the backend identifiers are returned.
+
+    Returns:
+        a list of admissible values for the 'backend' argument of EazyAgents constructors or a list of all
+        available backends if agent is None.
+    """
+    result = [b.name for b in _backends]
+    if agent:
+        result = [b.name for b in _backends if agent in b.get_algorithms()]
+    return result
+
+
+def _get_backend(backend_name: str):
+    """Yields the backend with the given name.
+
+    Returns:
+        the backend instance or None if no backend is found."""
+    assert backend_name
+    backends = [b for b in _backends if b.name == backend_name]
+    assert len(backends) <= 1, f'no backend found with name "{backend_name}". Available backends = {get_backends()}'
+    result = None
+    if backends:
+        result = backends[0]
+    return result
 
 class DqnAgent(EasyAgent):
     """creates a new agent based on the Dqn algorithm.
