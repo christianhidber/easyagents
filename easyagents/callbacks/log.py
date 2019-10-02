@@ -1,5 +1,6 @@
 from typing import Tuple
 import logging
+import math
 
 from easyagents import core
 
@@ -27,7 +28,6 @@ class _LogCallbackBase(core.AgentCallback):
             if arg is not None:
                 msg += str(arg) + ' '
         self._logger.warning(msg)
-
 
 
 class _Callbacks(_LogCallbackBase):
@@ -109,6 +109,7 @@ class _AgentContext(_LogCallbackBase):
     def on_train_iteration_end(self, agent_context: core.AgentContext):
         self.log(str(agent_context))
 
+
 class _CallbackCounts(core.AgentCallback):
 
     def __init__(self):
@@ -173,6 +174,7 @@ class _CallbackCounts(core.AgentCallback):
         """Called once after the current iteration is completed"""
         self.train_iteration_end_count += 1
 
+
 class Agent(_LogCallbackBase):
     """Logs agent activities to a python logger."""
 
@@ -189,8 +191,8 @@ class Duration(_LogCallbackBase):
     def log_duration(self, agent_context: core.AgentContext):
         tc = agent_context.train
         msg = f'#iterations={tc.num_iterations} '
-        if isinstance(tc,core.EpisodesTrainContext):
-            ec:core.EpisodesTrainContext = tc
+        if isinstance(tc, core.EpisodesTrainContext):
+            ec: core.EpisodesTrainContext = tc
             msg = msg + f'#episodes_per_iteration={ec.num_episodes_per_iteration} '
         msg = msg + f'#max_steps_per_episode={tc.max_steps_per_episode} '
         msg = msg + f'#iterations_between_log={tc.num_iterations_between_log} '
@@ -201,6 +203,7 @@ class Duration(_LogCallbackBase):
     def on_train_begin(self, agent_context: core.AgentContext):
         self.log_duration(agent_context)
 
+
 class Iteration(_LogCallbackBase):
     """Logs training iteration summaries to a python logger."""
 
@@ -209,7 +212,9 @@ class Iteration(_LogCallbackBase):
         e = tc.episodes_done_in_training
         msg = f'episodes_done={e:<3} '
         if e in tc.loss:
-            msg = msg + f'loss={tc.loss[e]:<7.1f} '
+            loss = tc.loss[e]
+            if not (isinstance(loss, float) and math.isnan(loss)):
+                msg = msg + f'loss={tc.loss[e]:<7.1f} '
             if isinstance(tc, core.ActorCriticTrainContext):
                 msg = msg + f'[actor={tc.actor_loss[e]:<7.1f} '
                 msg = msg + f'critic={tc.critic_loss[e]:<7.1f}] '
@@ -247,7 +252,7 @@ class Step(_LogCallbackBase):
         pc: core.PlayContext = agent_context.play
         if pc:
             prefix += f'play  episode={pc.episodes_done:<2} step={pc.steps_done_in_episode:<5} ' + \
-                     f'sum_of_rewards={pc.sum_of_rewards[pc.episodes_done+1]:<7.1f}'
+                      f'sum_of_rewards={pc.sum_of_rewards[pc.episodes_done + 1]:<7.1f}'
         (observation, reward, done, info) = step_result
         msg = ''
         if info:

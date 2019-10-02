@@ -1,5 +1,7 @@
 """This module contains the backend implementation for tf Agents (see https://github.com/tensorflow/agents)"""
 from abc import ABCMeta
+from typing import Dict, Type
+import math
 
 # noinspection PyUnresolvedReferences
 import easyagents.agents
@@ -12,7 +14,6 @@ import tensorflow as tf
 from tf_agents.agents.ppo import ppo_agent
 from tf_agents.drivers.dynamic_episode_driver import DynamicEpisodeDriver
 from tf_agents.environments import py_environment
-from tf_agents.environments import suite_gym
 from tf_agents.environments import gym_wrapper
 from tf_agents.environments import tf_py_environment
 from tf_agents.networks import actor_distribution_network
@@ -38,20 +39,8 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
 
     def __init__(self, model_config: core.ModelConfig):
         super().__init__(model_config=model_config)
-        self._initialize()
         self._trained_policy = None
         self._eval_env = None
-
-    def _initialize(self):
-        """ initializes TensorFlow behaviour and random seeds."""
-        self.log_api('v1.enable_v2_behavior')
-        tf.compat.v1.enable_v2_behavior()
-        self.log_api('v1.enable_eager_execution')
-        tf.compat.v1.enable_eager_execution()
-        if self.model_config.seed:
-            self.log_api(f'v1.set_random_seed({self.model_config.seed})')
-            tf.compat.v1.set_random_seed(self.model_config.seed)
-        return
 
     def load_workaround(self, discount):
         gym_spec = gym.spec(self.model_config.gym_env_name)
@@ -318,7 +307,7 @@ class TfRandomAgent(TfAgent):
             while not time_step.is_last():
                 action_step = self._trained_policy.action(time_step)
                 time_step = train_env.step(action_step.action)
-            self.on_train_iteration_end(0)
+            self.on_train_iteration_end(math.nan)
             if train_context.training_done:
                 break
         return
@@ -403,6 +392,7 @@ class TfReinforceAgent(TfAgent):
         return
 
 
+
 class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend for TfAgents.
 
@@ -411,18 +401,10 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 
     name: str = 'tfagents'
 
-    def create_dqn_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        """Create an instance of DqnAgent wrapping this backends implementation."""
-        return TfDqnAgent(model_config=model_config)
+    def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
+        """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
+        return {easyagents.agents.DqnAgent : TfDqnAgent,
+                easyagents.agents.PpoAgent : TfPpoAgent,
+                easyagents.agents.RandomAgent : TfRandomAgent,
+                easyagents.agents.ReinforceAgent: TfReinforceAgent}
 
-    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        """Create an instance of PpoAgent wrapping this backends implementation."""
-        return TfPpoAgent(model_config=model_config)
-
-    def create_random_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        """Create an instance of RandomAgent wrapping this backends implementation."""
-        return TfRandomAgent(model_config=model_config)
-
-    def create_reinforce_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        """Create an instance of ReinforceAgent wrapping this backends implementation."""
-        return TfReinforceAgent(model_config=model_config)

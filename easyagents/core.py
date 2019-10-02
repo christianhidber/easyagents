@@ -170,10 +170,10 @@ class TrainContext(object):
         self.num_iterations: Optional[int] = None
         self.max_steps_per_episode: Optional = 1000
         self.num_iterations_between_log: int = 1
-        self.num_iterations_between_eval: int = 50
+        self.num_iterations_between_eval: int = 10
         self.num_episodes_per_eval: int = 10
         self.learning_rate: float = 0.001
-        self.reward_discount_gamma: float = 1
+        self.reward_discount_gamma: float = 1.0
         self.max_steps_in_buffer: int = 100000
 
         self.training_done: bool
@@ -306,6 +306,8 @@ class DqnTrainContext(TrainContext):
     def __init__(self):
         super().__init__()
         self.num_iterations = 20000
+        self.num_iterations_between_eval = 1000
+        self.num_iterations_between_log = 500
         self.num_steps_per_iteration: int = 1
         self.num_steps_buffer_preload = 1000
         self.num_steps_sampled_from_buffer = 64

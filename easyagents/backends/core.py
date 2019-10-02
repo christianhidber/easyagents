@@ -4,8 +4,13 @@
 """
 
 from abc import ABC, ABCMeta, abstractmethod
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Type, Dict
 import gym
+import tensorflow
+
+import numpy
+import random
+
 
 from easyagents import core
 from easyagents.backends import monitor
@@ -50,6 +55,23 @@ class _BackendAgent(ABC):
         self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
+        self._initialize_tensorflow_and_seeds()
+
+    def _initialize_tensorflow_and_seeds(self):
+        """ initializes TensorFlow behaviour and random seeds."""
+        self.log_api('tf.compat.v1.enable_v2_behavior')
+        tensorflow.compat.v1.enable_v2_behavior()
+        self.log_api('tf.compat.v1.enable_eager_execution')
+        tensorflow.compat.v1.enable_eager_execution()
+        if self.model_config.seed:
+            seed = self.model_config.seed
+            self.log_api(f'tf.compat.v1.set_random_seed({seed})')
+            tensorflow.compat.v1.set_random_seed(seed)
+            self.log_api(f'tf.random.set_random_seed({seed})')
+            tensorflow.random.set_random_seed(seed=seed)
+            numpy.random.seed(seed)
+            random.seed(seed)
+        return
 
     def _eval_current_policy(self):
         """Evaluates the current policy using play and updates the train_context
@@ -96,11 +118,13 @@ class _BackendAgent(ABC):
 
         Hint:
             o the total instances count is incremented by now
-            o the new env is seeded with the api_context's seed
+            o the new env (and its action space) is seeded with the api_context's seed
         """
         self._agent_context.gym._monitor_env = env
         if self._agent_context.model.seed is not None:
-            self._agent_context.gym.gym_env.seed(self._agent_context.model.seed)
+            env = self._agent_context.gym.gym_env
+            seed = self._agent_context.model.seed
+            env.seed(seed)
         for c in self._callbacks:
             c.on_gym_init_end(self._agent_context)
         self._agent_context.gym._monitor_env = None
@@ -433,52 +457,23 @@ class BackendAgentFactory(ABC):
 
     name: str = 'abstract_BackendAgentFactory'
 
-    def create_dqn_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
-        """Create an instance of DqnAgent wrapping this backends implementation.
-
-            If this backend does not implement DqbAgent then throw a NotImplementedError exception.
-
-        Args:
-            model_config: the agents configuration containing in patricular the name of the gym environment
-                to be used and the nn architecture.
-        """
-        raise NotImplementedError(f'DqnAgent not implemented by backend "{self.name}"')
-
-    def create_ppo_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
-        """Create an instance of PpoAgent wrapping this backends implementation.
-
-            If this backend does not implement PpoAgent then throw a NotImplementedError exception.
+    def create_agent(self, easyagent_type: Type, model_config: core.ModelConfig) \
+            -> Optional[_BackendAgent]:
+        """Creates a backend agent instance implementing the algorithm given by agent_type.
 
         Args:
-            model_config: the agents configuration containing in patricular the name of the gym environment
-                to be used and the nn architecture.
+            easyagent_type: the EasyAgent derived type for which an implementing backend instance will be created
+            model_config: the model_config passed to the constructor of the backend instance.
+
+        Returns:
+            instance of the agent or None if not implemented by this backend.
         """
-        raise NotImplementedError(f'PpoAgent not implemented by backend "{self.name}"')
+        result: Optional[_BackendAgent] = None
+        algorithms = self.get_algorithms()
+        if easyagent_type in algorithms:
+            result = algorithms[easyagent_type](model_config=model_config)
+        return result
 
-    def create_random_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
-        """Create an instance of RandomAgent wrapping this backends implementation.
-
-            If this backend does not implement RandomAgent then throw a NotImplementedError exception.
-
-        Args:
-            model_config: the agents configuration containing in patricular the name of the gym environment
-                to be used and the nn architecture.
-
-        Hints:
-            o play() should be callable without a prior call to train()
-            o train() should evaluate in each iteration 1 episode, guaranteeing that the results of each
-              iteration evaluation (train_context.eval_rewards, train_context.eval_steps) is stored in a
-              seperate episode dictionary entry
-        """
-        raise NotImplementedError(f'RandomAgent not implemented by backend "{self.name}"')
-
-    def create_reinforce_agent(self, model_config: core.ModelConfig) -> _BackendAgent:
-        """Create an instance of ReinforceAgent wrapping this backends implementation.
-
-            If this backend does not implement PpoAgent then throw a NotImplementedError exception.
-
-        Args:
-            model_config: the agents configuration containing in patricular the name of the gym environment
-                to be used and the nn architecture.
-        """
-        raise NotImplementedError(f'ReinforceAgent not implemented by backend "{self.name}"')
+    def get_algorithms(self) -> Dict[Type, Type[_BackendAgent]]:
+        """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
+        return {}

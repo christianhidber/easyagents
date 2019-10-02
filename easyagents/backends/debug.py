@@ -4,26 +4,22 @@
     without an underlying model / neural network.
 """
 
-from typing import Tuple
+from typing import Tuple, Dict, Type
 from easyagents import core
 from easyagents.backends import core as bcore
+import easyagents.agents
 import gym
 
 
 class BackendAgentFactory(bcore.BackendAgentFactory):
     name : str  = 'debug'
 
-    def create_dqn_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        return BackendAgent(model_config=model_config)
-
-    def create_ppo_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        return BackendAgent(model_config=model_config)
-
-    def create_random_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        return BackendAgent(model_config=model_config)
-
-    def create_reinforce_agent(self, model_config: core.ModelConfig) -> bcore._BackendAgent:
-        return BackendAgent(model_config=model_config)
+    def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
+        """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
+        return {easyagents.agents.DqnAgent : BackendAgent,
+                easyagents.agents.PpoAgent : BackendAgent,
+                easyagents.agents.RandomAgent : BackendAgent,
+                easyagents.agents.ReinforceAgent: BackendAgent}
 
 
 class BackendAgent(bcore._BackendAgent):
