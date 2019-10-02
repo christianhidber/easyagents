@@ -3,7 +3,7 @@
     see https://github.com/tensorforce/tensorforce
 """
 from abc import ABCMeta
-from typing import List, Dict, Optional, Type, Callable
+from typing import List, Dict, Optional, Type
 import math
 import os
 import shutil
@@ -62,22 +62,13 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         assert train_env
         assert self._agent
 
-        def step_callback(_: Runner) -> bool:
+        def train_callback(_: Runner) -> bool:
             result = not train_context.training_done
-            if isinstance(train_context,easyagents.core.DqnTrainContext):
-                dc : easyagents.core.DqnTrainContext = train_context
-                while result and \
-                        dc.steps_done_in_training > dc.iterations_done_in_training * dc.num_steps_per_iteration:
-                    self.on_train_iteration_end(loss=math.nan)
-                    result = not train_context.training_done
-                    if result:
-                        self.on_train_iteration_begin()
             return result
 
-        def eval_callback(runner: Runner) -> bool:
-            if isinstance(train_context,easyagents.core.DqnTrainContext):
-                result = step_callback(runner)
-            else:
+        def eval_callback(_: Runner) -> bool:
+            result = not train_context.training_done
+            if result:
                 self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
                 result = not train_context.training_done
                 if result:
@@ -96,8 +87,7 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         runner.run(num_episodes=None,
                    max_episode_timesteps=train_context.max_steps_per_episode,
                    use_tqdm=False,
-                   callback=step_callback,
-                   callback_timestep_frequency=1,
+                   callback=train_callback,
                    evaluation_callback=eval_callback,
                    evaluation_frequency=None,
                    evaluation=False,
@@ -281,6 +271,7 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
 
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
-        return {easyagents.agents.DqnAgent: TforceDqnAgent,
+        return {
+                # easyagents.agents.DqnAgent: TforceDqnAgent,
                 easyagents.agents.PpoAgent: TforcePpoAgent,
                 easyagents.agents.ReinforceAgent: TforceReinforceAgent}

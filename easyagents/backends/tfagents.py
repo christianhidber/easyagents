@@ -1,6 +1,7 @@
 """This module contains the backend implementation for tf Agents (see https://github.com/tensorflow/agents)"""
 from abc import ABCMeta
 from typing import Dict, Type
+import math
 
 # noinspection PyUnresolvedReferences
 import easyagents.agents
