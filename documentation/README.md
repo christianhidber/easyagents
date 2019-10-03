@@ -1,8 +1,9 @@
 ## Release notes
-* v1.1 [19Q3]
+* v1.1.18 [19Q3]
     * plot.StepRewards, plot.Actions
     * default_plots parameter (instead of default_callbacks)
-* v1.0 [19Q3]
+    * tensorforce backend
+* v1.0.1 [19Q3]
     * api based on pluggable backends and callbacks (for plotting, logging, training durations)
     * backend: tf-agents, default
     * algorithms: dqn, ppo, random
@@ -13,6 +14,17 @@
     * hard-wired support for Ppo, Reinforce, Dqn on tf-agents
     * hard-wired plots for loss, sum-of-rewards, steps and state rendering 
     * hard-wired mp4 rendering
+    
+## Design guidelines
+* separate "public api" from concrete implementation using a frontend / backend architecture 
+  (inspired by scikit learn, matplotlib, keras)
+* pluggable backends
+* extensible through callbacks (inspired by keras). separate callback types for training, evaluation and monitoring
+* pre-configurable, algorithm specific train & play loops 
+    
+## Class diagram
+![ClassDiagram](ClassDiagram.png)
+    
     
 ## Glossary
 Here's a list of terms in the reinforcement learning space, explained in a colloquial way. The explanations are typically inprecise and just try to convey the general idea (if you find they are wrong or a term is missing: please let me know,
@@ -30,15 +42,4 @@ moreover the list only contains terms that are actually used for this project)
 | optimal policy                | A policy that 'always' reaches the maximum number of points. Finding good policies for a game about which we know (almost) nothing else is the goal of reinforcement learning. Real-life algorithms typically don't find an optimal policy, striving for a local optimum.           |
 | policy (aka gaming strategy)  | The 'stuff' we want to learn. A policy maps the current game state to an action. Policies can be very dump like one that randomly chooses an arbitrary action, independent of the current game state. Or they can be clever, like an that maximizes the reward over the whole game.      |
 | training example              | a state together with the desired output of the neural network. For an actor network thats (state, action), for a value network (state, value). |
-    
-## Design guidelines
-* separate "public api" from concrete implementation using a frontend / backend architecture 
-  (inspired by scikit learn, matplotlib, keras)
-* pluggable backends
-* extensible through callbacks (inspired by keras). separate callback types for training, evaluation and monitoring
-* pre-configurable, algorithm specific train & play loops 
-    
-## Class diagram
-![ClassDiagram](ClassDiagram.png)
-    
-    
+ 

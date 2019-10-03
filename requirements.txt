@@ -1,7 +1,7 @@
 absl-py==0.8.0
 astor==0.8.0
 atomicwrites==1.3.0
-attrs==19.1.0
+attrs==19.2.0
 bleach==3.1.0
 certifi==2019.9.11
 chardet==3.0.4
@@ -28,7 +28,7 @@ Markdown==3.1.1
 matplotlib==3.1.1
 more-itertools==7.2.0
 numpy==1.17.0
-opt-einsum==3.0.1
+opt-einsum==3.1.0
 packaging==19.2
 Pillow==6.1.0
 pkginfo==1.5.0.1
@@ -38,7 +38,7 @@ py==1.8.0
 pyglet==1.3.2
 Pygments==2.4.2
 pyparsing==2.4.2
-pytest==5.1.3
+pytest==5.2.0
 python-dateutil==2.8.0
 readme-renderer==24.0
 requests==2.22.0
@@ -51,9 +51,9 @@ tensorflow-probability==0.7.0
 Tensorforce==0.5.1
 termcolor==1.1.0
 tf-agents-nightly==0.2.0.dev20190928
-tf-estimator-nightly==2.0.0.dev2019092801
+tf-estimator-nightly==2.0.0.dev2019100201
 tf-nightly==1.15.0.dev20190821
-tfp-nightly==0.9.0.dev20190928
+tfp-nightly==0.9.0.dev20191002
 tqdm==4.36.1
 twine==2.0.0
 urllib3==1.25.6

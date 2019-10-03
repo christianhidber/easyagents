@@ -6,19 +6,11 @@ namespace EasyAgents_Design
 {
     public class BackendAgentFactory
     {
-        void create_ppo_agent()
+        void create_agent()
         {
         }
 
-        void create_dqn_agent()
-        {
-        }
-
-        void create_random_agent()
-        {
-        }
-
-        void create_reinforce_agent()
+        void get_algorithms()
         {
         }
     }
