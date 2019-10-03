@@ -26,8 +26,8 @@ Try it on colab:
 * [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
   introduction: training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
    balancing a stick on a cart.
-* [Orso on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb)
-  switching backends, custom training & logging. gym environment based on a routing problem.
+* [Orso on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb):
+  custom training, creating a movie, switching backends & logging. gym environment based on a routing problem.
 * [LineWorld on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb)
   implement your own environment, workshop example.
 
