@@ -5,6 +5,7 @@
 from abc import ABC
 from typing import Optional, Dict, Tuple, List
 from enum import Flag, auto
+import math
 
 import easyagents.env
 import easyagents.backends.monitor
@@ -66,7 +67,7 @@ class PyPlotContext(object):
     """
 
     def __init__(self):
-        self._plot_type = PlotType.NONE
+        self._created_subplots = PlotType.NONE
         self.figure: Optional[plt.Figure] = None
         self.figsize: (float, float) = (17, 6)
         self._call_jupyter_display = False
@@ -80,11 +81,11 @@ class PyPlotContext(object):
             figure_number=self.figure.number
             if self.figure.axes: figure_axes_len = len(self.figure.axes)
         return f'is_jupyter_active={self.is_jupyter_active} max_columns={self.max_columns} ' + \
-               f'_plot_type={self._plot_type} figure={figure_number} axes={figure_axes_len} '
+               f'_created_subplots={self._created_subplots} figure={figure_number} axes={figure_axes_len} '
 
-    def is_active(self, plot_type: PlotType):
-        """Yields true if the plot_type flag is set."""
-        result = (self._plot_type & plot_type) == plot_type
+    def _is_subplot_created(self, plot_type: PlotType):
+        """Yields true if a subplot of type plot_type was created by a plot callback."""
+        result = (self._created_subplots & plot_type) == plot_type
         return result
 
 
@@ -153,9 +154,8 @@ class TrainContext(object):
             steps_done_in_training: the number of steps taken over all iterations so far
             steps_done_in_iteration: the number of steps taken in the current iteration
 
-            num_iterations_between_log: number of training iterations before an iteration based log / plot is updated.
+            num_iterations_between_plot: number of training iterations before plots is updated.
             num_iterations_between_eval: number of training iterations before the current policy is evaluated.
-                if 0 no evaluation is performed.
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
             eval_rewards: dict containg the rewards statistics for each policy evaluation.
                 Each entry contains the tuple (min, average, max) over the sum of rewards over all episodes
@@ -169,7 +169,6 @@ class TrainContext(object):
     def __init__(self):
         self.num_iterations: Optional[int] = None
         self.max_steps_per_episode: Optional = 1000
-        self.num_iterations_between_log: int = 1
         self.num_iterations_between_eval: int = 10
         self.num_episodes_per_eval: int = 10
         self.learning_rate: float = 0.001
@@ -194,16 +193,12 @@ class TrainContext(object):
                f'#steps_done_in_iteration={self.steps_done_in_iteration} ' + \
                f'#iterations={self.num_iterations} ' + \
                f'#max_steps_per_episode={self.max_steps_per_episode} ' + \
-               f'#iterations_between_log={self.num_iterations_between_log} ' + \
+               f'#iterations_between_plot={self.num_iterations_between_plot} ' + \
                f'#iterations_between_eval={self.num_iterations_between_eval} ' + \
                f'#episodes_per_eval={self.num_episodes_per_eval} ' + \
                f'#learning_rate={self.learning_rate} ' + \
                f'#reward_discount_gamma={self.reward_discount_gamma} ' + \
                f'#max_steps_in_buffer={self.max_steps_in_buffer} '
-
-    def _is_iteration_log(self):
-        """Yields true if iteration logs / plots should be updated."""
-        return (self.iterations_done_in_training % self.num_iterations_between_log) == 0
 
     def _reset(self):
         """Clears all values modified during a train() call."""
@@ -221,11 +216,23 @@ class TrainContext(object):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
         assert self.num_iterations is None or self.num_iterations > 0, "num_iterations not admissible"
         assert self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
-        assert self.num_iterations_between_log > 0, "num_iterations_between_log not admissible"
+        assert self.num_iterations_between_plot > 0, "num_iterations_between_log not admissible"
         assert self.num_iterations_between_eval > 0, "num_iterations_between_eval not admissible"
         assert self.num_episodes_per_eval > 0, "num_episodes_per_eval not admissible"
         assert 0 < self.learning_rate <= 1, "learning_rate not in interval (0,1]"
         assert 0 < self.reward_discount_gamma <= 1, "reward_discount_gamma not in interval (0,1]"
+
+    @property
+    def num_iterations_between_plot(self):
+        """number of iterations between 2 plot updates during training.
+
+        Returns:
+            number of iterations or 0 if no plot updates should take place.
+            """
+        result = 0
+        if self.num_iterations_between_eval:
+            result = math.ceil(self.num_iterations_between_eval / 3)
+        return result
 
 
 class EpisodesTrainContext(TrainContext):
@@ -446,22 +453,29 @@ class AgentContext(object):
         """Yields true if an agent.play(...) call is in progress, but not a policy evaluation"""
         return (self.play is not None) and (self.train is None)
 
-    def is_plot(self, plot_type: PlotType) -> bool:
-        """Yields true if plot_type is ready to be plotted."""
+    def _is_plot_ready(self, plot_type: PlotType) -> bool:
+        """Yields true if any of the plots in plot_type is ready to be plotted.
+
+        A plot_type is ready if a plot callback was registered for this type (like TRAIN_EVAL),
+        the agent is in runtime state corresponding to the plot type (like in training and at the end of
+        an evaluation period) and any frequency condition is met (like num_episodes_between_plot)
+        """
         result = False
         if (plot_type & PlotType.PLAY_EPISODE) != PlotType.NONE:
-            result = result | (self.is_play and self.pyplot.is_active(PlotType.PLAY_EPISODE))
+            result = result | (self.is_play and self.pyplot._is_subplot_created(PlotType.PLAY_EPISODE))
         if (plot_type & PlotType.PLAY_STEP) != PlotType.NONE:
-            result = result | (self.is_play and self.pyplot.is_active(PlotType.PLAY_STEP))
+            result = result | (self.is_play and self.pyplot._is_subplot_created(PlotType.PLAY_STEP))
         if (plot_type & PlotType.TRAIN_EVAL) != PlotType.NONE:
             train_result = self.is_eval
-            train_result = train_result and self.pyplot.is_active(PlotType.TRAIN_EVAL)
+            train_result = train_result and self.pyplot._is_subplot_created(PlotType.TRAIN_EVAL)
             train_result = train_result and (self.play.episodes_done == self.train.num_episodes_per_eval)
             result = result | train_result
-        if plot_type == PlotType.TRAIN_ITERATION:
+        if (plot_type & PlotType.TRAIN_ITERATION) != PlotType.NONE:
             train_result = self.is_train
-            train_result = train_result and self.pyplot.is_active(PlotType.TRAIN_ITERATION)
-            train_result = train_result and self.train._is_iteration_log()
+            train_result = train_result and self.pyplot._is_subplot_created(PlotType.TRAIN_ITERATION)
+            train_result = train_result and \
+                           self.train.num_iterations_between_plot > 0 and \
+                           ((self.train.iterations_done_in_training % self.train.num_iterations_between_plot) == 0)
             result = result | train_result
         return result
 
