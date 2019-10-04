@@ -105,6 +105,7 @@ class PlotTest(unittest.TestCase):
         f.close()
         os.remove(filepath)
         assert not os.path.isfile(filepath)
+        filepath += '.gif'
         agent = agents.PpoAgent("CartPole-v0")
         m = plot.ToMovie(filepath=filepath, fps=10)
         agent.train([duration._SingleIteration(), plot.Rewards(), m])
@@ -112,7 +113,6 @@ class PlotTest(unittest.TestCase):
             os.remove(m.filepath)
         except:
             pass
-
 
 if __name__ == '__main__':
     unittest.main()

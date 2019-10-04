@@ -628,13 +628,13 @@ class ToMovie(core._PostProcessCallback):
     """
 
     def __init__(self, fps: Optional[int] = None, filepath: str = None):
-        """Writes the ploted graphs and images to the mp4 file given by filepath.
+        """Writes the ploted graphs and images to the mp4 / gif file given by filepath.
 
         if filepath ends in '.gif' an animated gif is created.
 
         Args:
             fps: frames per second
-            filepath: the filepath of the mp4 file. If None the file is written to a temp file
+            filepath: the filepath of the mp4 or gif file file. If None the file is written to a temp file.
         """
         super().__init__()
         self.fps = fps
@@ -642,7 +642,7 @@ class ToMovie(core._PostProcessCallback):
         self.filepath = filepath
         if not self._is_filepath_set:
             self.filepath = self._get_temp_path()
-        if not self.filepath.lower().endswith('.mp4') and not self.filepath.lower().endswith('.gif'):
+        if (not self._is_animated_gif()) and (not self.filepath.lower().endswith('.mp4')):
             self.filepath = self.filepath + '.mp4'
         self._video = imageio.get_writer(self.filepath, fps=fps) if fps else imageio.get_writer(self.filepath)
 
@@ -656,11 +656,18 @@ class ToMovie(core._PostProcessCallback):
                 b64 = base64.b64encode(video)
             if not self._is_filepath_set:
                 os.remove(self.filepath)
-            result = '''
-            <video width="{0}" height="{1}" controls>
-                <source src="data:video/mp4;base64,{2}" type="video/mp4">
-            Your browser does not support the video tag.
-            </video>'''.format(640, 480, b64.decode())
+            width = 640
+            height = 480
+            if self._is_animated_gif():
+                result = '''
+                <img src="data:image/gif;base64,{2}" alt="easyagents.plot" width={0}/>
+                '''.format(width, height, b64.decode())
+            else:
+                result = '''
+                <video width="{0}" height="{1}" controls>
+                    <source src="data:video/mp4;base64,{2}" type="video/mp4">
+                Your browser does not support the video tag.
+                </video>'''.format(width, height, b64.decode())
             result = HTML(result)
             # noinspection PyTypeChecker
             clear_output(wait=True)
@@ -681,6 +688,9 @@ class ToMovie(core._PostProcessCallback):
         result = result + f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-' + \
                  f'{n.microsecond:06}'
         return result
+
+    def _is_animated_gif(self):
+        return self.filepath.lower().endswith('.gif')
 
     def _write_figure_to_video(self, agent_context: core.AgentContext):
         """Appends the current pyplot figure to the video.

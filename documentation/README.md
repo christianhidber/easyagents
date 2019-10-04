@@ -1,6 +1,8 @@
 ## Release notes
 * v1.1 [19Q4]
-    * 1.1.19: jupyter plotting performance improved 
+    * 1.1.19: 
+        * jupyter plotting performance improved
+        * plot.ToMovie with support for animated gifs 
     * 1.1.18: tensorforce backend (ppo, reinforce)
     * 1.1.11:
         * plot.StepRewards, plot.Actions
