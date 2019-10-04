@@ -170,7 +170,6 @@ class TrainContext(object):
         self.num_iterations: Optional[int] = None
         self.max_steps_per_episode: Optional = 1000
         self.num_iterations_between_eval: int = 10
-        self.num_iterations_between_plot: int = math.ceil(self.num_iterations_between_eval/4)
         self.num_episodes_per_eval: int = 10
         self.learning_rate: float = 0.001
         self.reward_discount_gamma: float = 1.0
@@ -222,6 +221,12 @@ class TrainContext(object):
         assert self.num_episodes_per_eval > 0, "num_episodes_per_eval not admissible"
         assert 0 < self.learning_rate <= 1, "learning_rate not in interval (0,1]"
         assert 0 < self.reward_discount_gamma <= 1, "reward_discount_gamma not in interval (0,1]"
+
+    @property
+    def num_iterations_between_plot(self):
+        """number of iterations between 2 plot updates during training."""
+        result = math.ceil(self.num_iterations_between_eval / 3)
+        return result
 
 
 class EpisodesTrainContext(TrainContext):

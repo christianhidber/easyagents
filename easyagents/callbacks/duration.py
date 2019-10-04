@@ -30,7 +30,6 @@ class Fast(core.AgentCallback):
             dc.num_steps_buffer_preload = math.ceil(self._num_iterations / 10)
         tc.num_iterations = self._num_iterations
         tc.num_iterations_between_eval = math.ceil(tc.num_iterations/3)
-        tc.num_iterations_between_plot = math.ceil(tc.num_iterations_between_eval/4)
         tc.num_episodes_per_eval = self._num_episodes_per_iteration
         tc.max_steps_per_episode = self._max_steps_per_episode
 

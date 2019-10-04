@@ -119,6 +119,12 @@ class _PostProcess(core._PostProcessCallback):
         self._reset()
         self._display(agent_context)
 
+    def on_train_iteration_begin(self, agent_context: core.AgentContext):
+        # display initial evaluation before training starts.
+        if agent_context.train.iterations_done_in_training == 0 and \
+            agent_context._is_plot_ready(core.PlotType.TRAIN_EVAL):
+            self._display(agent_context, wait=False)
+
     def on_train_iteration_end(self, agent_context: core.AgentContext):
         if agent_context._is_plot_ready(core.PlotType.TRAIN_ITERATION):
             self._display(agent_context, wait=False)
