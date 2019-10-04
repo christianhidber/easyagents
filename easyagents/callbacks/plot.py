@@ -70,10 +70,12 @@ class _PostProcess(core._PostProcessCallback):
         self._call_jupyter_display: bool
         self._reset()
 
-    def _reset(self):
-        self._call_jupyter_display = False
+    def _clear_jupyter_output(self, agent_context: core.AgentContext):
+        """Clears the content in the current jupyter output cell. NoOp if not in jupyter."""
+        if agent_context.pyplot.is_jupyter_active:
+            clear_output(wait=True)
 
-    def _display(self, agent_context: core.AgentContext, wait=True):
+    def _display(self, agent_context: core.AgentContext):
         """Fixes the layout of multiple subplots and refreshs the display."""
         pyc = agent_context.pyplot
         count = len(pyc.figure.axes)
@@ -85,13 +87,16 @@ class _PostProcess(core._PostProcessCallback):
             pyc.figure.tight_layout()
 
             if pyc.is_jupyter_active:
-                clear_output(wait=True)
+                self._clear_jupyter_output(agent_context)
                 if self._call_jupyter_display:
                     # noinspection PyTypeChecker
                     display(pyc.figure)
                 self._call_jupyter_display = True
             else:
                 plt.pause(0.01)
+
+    def _reset(self):
+        self._call_jupyter_display = False
 
     def on_play_begin(self, agent_context: core.AgentContext):
         if agent_context.is_play:
@@ -102,32 +107,34 @@ class _PostProcess(core._PostProcessCallback):
 
     def on_play_episode_end(self, agent_context: core.AgentContext):
         if agent_context._is_plot_ready(core.PlotType.PLAY_EPISODE):
-            self._display(agent_context, wait=False)
+            self._display(agent_context)
 
     def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
         if agent_context._is_plot_ready(core.PlotType.PLAY_STEP):
-            self._display(agent_context, wait=False)
+            self._display(agent_context)
 
     def on_play_end(self, agent_context: core.AgentContext):
         if agent_context._is_plot_ready(core.PlotType.TRAIN_EVAL):
-            self._display(agent_context, wait=False)
+            self._display(agent_context)
         if agent_context.is_play:
             self._display(agent_context)
+            # avoid "double rendering" of the final jupyter output
+            self._clear_jupyter_output(agent_context)
 
     def on_train_end(self, agent_context: core.AgentContext):
         self._display(agent_context)
-        self._reset()
-        self._display(agent_context)
+        # avoid "double rendering" of the final jupyter output
+        self._clear_jupyter_output(agent_context)
 
     def on_train_iteration_begin(self, agent_context: core.AgentContext):
         # display initial evaluation before training starts.
         if agent_context.train.iterations_done_in_training == 0 and \
             agent_context._is_plot_ready(core.PlotType.TRAIN_EVAL):
-            self._display(agent_context, wait=False)
+            self._display(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
         if agent_context._is_plot_ready(core.PlotType.TRAIN_ITERATION):
-            self._display(agent_context, wait=False)
+            self._display(agent_context)
 
 
 # noinspection DuplicatedCode
