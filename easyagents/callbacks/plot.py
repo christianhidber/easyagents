@@ -158,6 +158,13 @@ class _PlotCallback(core.AgentCallback):
             self.axes = pyc.figure.add_subplot(rows, columns, count)
             self.plot_axes(xlim=(0, 1), ylabel='', xlabel='')
 
+    def _is_nan(self, values: Optional[List[float]]):
+        """yields true if all values are equal to nan. yields false if values is None or empty."""
+        result = False
+        if values and all(isinstance(v,float) for v in values):
+            result = all(math.isnan(v) for v in values)
+        return result
+
     def _refresh_subplot(self, agent_context: core.AgentContext, plot_type: core.PlotType):
         """Sets this axes active and calls plot if this plot callback is registered on at least 1 plot
             out of plot_type."""
@@ -170,13 +177,6 @@ class _PlotCallback(core.AgentCallback):
                 if plt.gcf() is pyc.figure:
                     plt.sca(self.axes)
             self.plot(agent_context, plot_type)
-
-    def _is_nan(self, values: Optional[List[float]]):
-        """yields true if all values are equal to nan. yields false if values is None or empty."""
-        result = False
-        if values and all(isinstance(v,float) for v in values):
-            result = all(math.isnan(v) for v in values)
-        return result
 
     def clear_plot(self, agent_context: core.AgentContext):
         """Clears the axes for this plot. Should be called by self.plot before replotting an axes."""
@@ -595,6 +595,7 @@ class StepRewards(_PlotCallback):
                 self._xmax = pc.steps_done_in_episode
             if (episode == 1 and pc.steps_done == 1) or (pc.steps_done % self._num_steps_between_plot) == 0:
                 self._replot(agent_context)
+
         if plot_type & core.PlotType.PLAY_EPISODE != core.PlotType.NONE:
             self._replot(agent_context)
 
