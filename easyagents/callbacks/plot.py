@@ -630,6 +630,8 @@ class ToMovie(core._PostProcessCallback):
     def __init__(self, fps: Optional[int] = None, filepath: str = None):
         """Writes the ploted graphs and images to the mp4 file given by filepath.
 
+        if filepath ends in '.gif' an animated gif is created.
+
         Args:
             fps: frames per second
             filepath: the filepath of the mp4 file. If None the file is written to a temp file
@@ -640,7 +642,7 @@ class ToMovie(core._PostProcessCallback):
         self.filepath = filepath
         if not self._is_filepath_set:
             self.filepath = self._get_temp_path()
-        if not self.filepath.lower().endswith('.mp4'):
+        if not self.filepath.lower().endswith('.mp4') and not self.filepath.lower().endswith('.gif'):
             self.filepath = self.filepath + '.mp4'
         self._video = imageio.get_writer(self.filepath, fps=fps) if fps else imageio.get_writer(self.filepath)
 
