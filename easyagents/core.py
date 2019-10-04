@@ -224,8 +224,14 @@ class TrainContext(object):
 
     @property
     def num_iterations_between_plot(self):
-        """number of iterations between 2 plot updates during training."""
-        result = math.ceil(self.num_iterations_between_eval / 3)
+        """number of iterations between 2 plot updates during training.
+
+        Returns:
+            number of iterations or 0 if no plot updates should take place.
+            """
+        result = 0
+        if self.num_iterations_between_eval:
+            result = math.ceil(self.num_iterations_between_eval / 3)
         return result
 
 
@@ -468,6 +474,7 @@ class AgentContext(object):
             train_result = self.is_train
             train_result = train_result and self.pyplot._is_subplot_created(PlotType.TRAIN_ITERATION)
             train_result = train_result and \
+                           self.train.num_iterations_between_plot > 0 and \
                            ((self.train.iterations_done_in_training % self.train.num_iterations_between_plot) == 0)
             result = result | train_result
         return result
