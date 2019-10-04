@@ -61,7 +61,7 @@ class EasyAgent(ABC):
         self._model_config: core.ModelConfig = model_config
         backend_agent = backend.create_agent(easyagent_type=type(self), model_config=model_config)
         assert backend_agent, f'Backend "{backend_name}" does not implement "{type(self).__name__}". ' + \
-                              'Choose another backend.'
+                              f'Choose one of the following backend {get_backends(type(self))}.'
         self._backend_agent: Optional[bcore._BackendAgent] = backend_agent
         return
 

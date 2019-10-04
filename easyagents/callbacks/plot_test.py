@@ -83,6 +83,10 @@ class PlotTest(unittest.TestCase):
         agent = agents.PpoAgent("CartPole-v0")
         agent.train([duration._SingleIteration(), plot.State()])
 
+    def test_train_plotstate_tensorforce(self):
+        agent = agents.PpoAgent("CartPole-v0", backend='tensorforce')
+        agent.train([duration.Fast(), plot.State()])
+
     def test_train_plotsteps(self):
         agent = agents.PpoAgent("CartPole-v0")
         agent.train([duration._SingleIteration(), plot.Steps()])
