@@ -42,7 +42,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
         self._trained_policy = None
         self._eval_env = None
 
-    def load_workaround(self, discount):
+    def _create_gym_with_wrapper(self, discount):
         gym_spec = gym.spec(self.model_config.gym_env_name)
         gym_env = gym_spec.make()
 
@@ -65,7 +65,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
         self.log_api(f'creating TFPyEnvironment( suite_gym.load( ... ) )')
         # suit_gym.load crashes our environment 
         # py_env = suite_gym.load(self.model_config.gym_env_name, discount=discount)
-        py_env = self.load_workaround(discount)
+        py_env = self._create_gym_with_wrapper(discount)
 
         result = tf_py_environment.TFPyEnvironment(py_env)
         return result
