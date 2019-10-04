@@ -67,16 +67,13 @@ class _PostProcess(core._PostProcessCallback):
     """
 
     def __init__(self):
-        self._last_jupyter_display: float = 0
-        self._jupyter_display_delay: float = 1.0
-        self._call_jupyter_display: bool = False
+        self._call_jupyter_display: bool
+        self._reset()
 
     def _reset(self):
-        self._last_jupyter_display = 0
-        self._jupyter_display_delay = 1.0
         self._call_jupyter_display = False
 
-    def _display(self, agent_context: core.AgentContext, delayed=False):
+    def _display(self, agent_context: core.AgentContext, wait=True):
         """Fixes the layout of multiple subplots and refreshs the display."""
         pyc = agent_context.pyplot
         count = len(pyc.figure.axes)
@@ -88,37 +85,43 @@ class _PostProcess(core._PostProcessCallback):
             pyc.figure.tight_layout()
 
             if pyc.is_jupyter_active:
-                if not delayed or (self._last_jupyter_display + self._jupyter_display_delay) > time.time():
-                    clear_output(wait=True)
-                    if self._call_jupyter_display:
-                        # noinspection PyTypeChecker
-                        display(pyc.figure)
-                    self._last_jupyter_display = time.time()
-                    self._call_jupyter_display = True
+                clear_output(wait=True)
+                if self._call_jupyter_display:
+                    # noinspection PyTypeChecker
+                    display(pyc.figure)
+                self._call_jupyter_display = True
             else:
                 plt.pause(0.01)
 
+    def on_play_begin(self, agent_context: core.AgentContext):
+        if agent_context.is_play:
+            self._reset()
+
+    def on_train_begin(self, agent_context: core.AgentContext):
+        self._reset()
+
     def on_play_episode_end(self, agent_context: core.AgentContext):
-        if agent_context.is_plot(core.PlotType.TRAIN_EVAL | core.PlotType.PLAY_EPISODE):
-            self._display(agent_context)
+        if agent_context._is_plot_ready(core.PlotType.PLAY_EPISODE):
+            self._display(agent_context, wait=False)
 
     def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
-        if agent_context.is_plot(core.PlotType.PLAY_STEP):
-            self._display(agent_context, delayed=True)
+        if agent_context._is_plot_ready(core.PlotType.PLAY_STEP):
+            self._display(agent_context, wait=False)
 
     def on_play_end(self, agent_context: core.AgentContext):
-        if agent_context.is_plot(core.PlotType.TRAIN_EVAL | core.PlotType.PLAY_EPISODE):
-            self._reset()
+        if agent_context._is_plot_ready(core.PlotType.TRAIN_EVAL):
+            self._display(agent_context, wait=False)
+        if agent_context.is_play:
             self._display(agent_context)
 
     def on_train_end(self, agent_context: core.AgentContext):
-        if agent_context.is_plot(core.PlotType.TRAIN_ITERATION | core.PlotType.TRAIN_EVAL):
-            self._reset()
-            self._display(agent_context)
+        self._display(agent_context)
+        self._reset()
+        self._display(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
-        if agent_context.is_plot(core.PlotType.TRAIN_ITERATION):
-            self._display(agent_context)
+        if agent_context._is_plot_ready(core.PlotType.TRAIN_ITERATION):
+            self._display(agent_context, wait=False)
 
 
 # noinspection DuplicatedCode
@@ -142,7 +145,7 @@ class _PlotCallback(core.AgentCallback):
     def _create_subplot(self, agent_context: core.AgentContext):
         if self.axes is None:
             pyc = agent_context.pyplot
-            pyc._plot_type = pyc._plot_type | self._plot_type
+            pyc._created_subplots = pyc._created_subplots | self._plot_type
             count = len(pyc.figure.axes) + 1
             rows = math.ceil(count / pyc.max_columns)
             columns = math.ceil(count / rows)
@@ -154,7 +157,7 @@ class _PlotCallback(core.AgentCallback):
             out of plot_type."""
         assert self.axes is not None
         plot_type = plot_type & self._plot_type
-        if self._is_plot(agent_context, plot_type):
+        if agent_context._is_plot_ready(plot_type):
             pyc = agent_context.pyplot
             if not pyc.is_jupyter_active:
                 plt.figure(pyc.figure.number)
@@ -167,14 +170,6 @@ class _PlotCallback(core.AgentCallback):
         result = False
         if values and all(isinstance(v,float) for v in values):
             result = all(math.isnan(v) for v in values)
-        return result
-
-    def _is_plot(self, agent_context: core.AgentContext, plot_type: core.PlotType) -> bool:
-        """Yields true if noth agent_context and this instance are active for plot_type."""
-        result = agent_context.is_plot(plot_type)
-        result = result and ((self._plot_type & plot_type) != core.PlotType.NONE)
-        if plot_type == core.PlotType.TRAIN_ITERATION:
-            result = result and agent_context.train._is_iteration_log()
         return result
 
     def clear_plot(self, agent_context: core.AgentContext):
@@ -683,19 +678,19 @@ class ToMovie(core._PostProcessCallback):
             pass
 
     def on_play_episode_end(self, agent_context: core.AgentContext):
-        if agent_context.is_plot(core.PlotType.PLAY_EPISODE | core.PlotType.TRAIN_EVAL):
+        if agent_context._is_plot_ready(core.PlotType.PLAY_EPISODE | core.PlotType.TRAIN_EVAL):
             self._write_figure_to_video(agent_context)
 
     def on_play_step_end(self, agent_context: core.AgentContext, action, step_result: Tuple):
-        if agent_context.is_plot(core.PlotType.PLAY_STEP):
+        if agent_context._is_plot_ready(core.PlotType.PLAY_STEP):
             self._write_figure_to_video(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
-        if agent_context.is_plot(core.PlotType.TRAIN_ITERATION):
+        if agent_context._is_plot_ready(core.PlotType.TRAIN_ITERATION):
             self._write_figure_to_video(agent_context)
 
     def on_play_end(self, agent_context: core.AgentContext):
-        if agent_context.is_plot(core.PlotType.PLAY_EPISODE):
+        if agent_context._is_plot_ready(core.PlotType.PLAY_EPISODE):
             self._close(agent_context)
 
     def on_train_end(self, agent_context: core.AgentContext):

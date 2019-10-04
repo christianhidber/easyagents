@@ -195,7 +195,7 @@ class Duration(_LogCallbackBase):
             ec: core.EpisodesTrainContext = tc
             msg = msg + f'#episodes_per_iteration={ec.num_episodes_per_iteration} '
         msg = msg + f'#max_steps_per_episode={tc.max_steps_per_episode} '
-        msg = msg + f'#iterations_between_log={tc.num_iterations_between_log} '
+        msg = msg + f'#iterations_between_log={tc.num_iterations_between_plot} '
         msg = msg + f'#iterations_between_eval={tc.num_iterations_between_eval} '
         msg = msg + f'#episodes_per_eval={tc.num_episodes_per_eval} '
         self.log(f'{"duration":<25}{msg}')
@@ -229,12 +229,14 @@ class Iteration(_LogCallbackBase):
 
     def on_train_iteration_begin(self, agent_context: core.AgentContext):
         tc: core.TrainContext = agent_context.train
-        if (0 in tc.eval_rewards) and (tc.episodes_done_in_training == 0) and (tc.iterations_done_in_training == 0):
+        # log the results of a pre-train evaluation (if existing)
+        if (0 in tc.eval_rewards) and \
+            (tc.episodes_done_in_training == 0) and \
+            (tc.iterations_done_in_training == 0):
             self.log_iteration(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
-        if agent_context.train._is_iteration_log():
-            self.log_iteration(agent_context)
+        self.log_iteration(agent_context)
 
 
 class Step(_LogCallbackBase):
