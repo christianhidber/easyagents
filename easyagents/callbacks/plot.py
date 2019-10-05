@@ -116,15 +116,18 @@ class _PostProcess(core._PostProcessCallback):
     def on_play_end(self, agent_context: core.AgentContext):
         if agent_context._is_plot_ready(core.PlotType.TRAIN_EVAL):
             self._display(agent_context)
-        if agent_context.is_play:
+        # don't clear the jupyter output if no plot is present, may clear the log output otherwise
+        if agent_context.pyplot._is_subplot_created(core.PlotType.PLAY_STEP | core.PlotType.PLAY_EPISODE):
             self._display(agent_context)
             # avoid "double rendering" of the final jupyter output
             self._clear_jupyter_output(agent_context)
 
     def on_train_end(self, agent_context: core.AgentContext):
-        self._display(agent_context)
-        # avoid "double rendering" of the final jupyter output
-        self._clear_jupyter_output(agent_context)
+        # don't clear the jupyter output if o plot is present, may clear the log output otherwise
+        if agent_context.pyplot._is_subplot_created(core.PlotType.TRAIN_EVAL | core.PlotType.TRAIN_ITERATION):
+            self._display(agent_context)
+            # avoid "double rendering" of the final jupyter output
+            self._clear_jupyter_output(agent_context)
 
     def on_train_iteration_begin(self, agent_context: core.AgentContext):
         # display initial evaluation before training starts.

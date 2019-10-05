@@ -36,22 +36,22 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
 ### Scenario: simple
 ````
 from easyagents.agents import PpoAgent
-from easyagents.callbacks import log, plot, duration
+from easyagents.callbacks import plot
 
 ppoAgent = PpoAgent('CartPole-v0')
-ppoAgent.train([plot.State(), plot.Loss(), plot.Actions(), plot.Rewards()])
+ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards()])
 ````
 ![Scenario_Simple](images/Scenario_simple.png)
 
 ### Scenario: more detailed (custom network & training)
 ````
 from easyagents.agents import PpoAgent
-from easyagents.callbacks import plot, duration
+from easyagents.callbacks import plot
 
 ppoAgent = PpoAgent( 'Orso-v1',fc_layers=(500,500,500))
-ppoAgent.train([plot.State(),   plot.Loss(),        plot.Rewards(), 
-                plot.Actions(), plot.StepRewards(), plot.Steps(), plot.ToMovie()], 
-                learning_rate = 0.0001, num_iterations = 500,     max_steps_per_episode=50 )
+ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(), 
+                plot.StepRewards(), plot.Steps(), plot.ToMovie()], 
+                learning_rate = 0.0001, num_iterations = 500, max_steps_per_episode=50 )
 ````
 
 ![Scenario_Detailed](images/Scenario_detailed.gif)
@@ -73,7 +73,7 @@ pip install easyagents
 ```
 
 ### Documentation
-[release notes, glossary, class diagrams](documentation/README.md)
+[release notes, class diagrams](documentation/README.md)
 
 ### EasyAgents may not be ideal if
 
