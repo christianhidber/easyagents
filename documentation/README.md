@@ -1,5 +1,6 @@
 ## Release notes
 * v1.1 [19Q4]
+    * 1.1.20: #54 logging in jupyter notebook solved, doc updates
     * 1.1.19: 
         * jupyter plotting performance improved
         * plot.ToMovie with support for animated gifs 
