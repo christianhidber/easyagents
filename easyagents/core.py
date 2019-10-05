@@ -85,7 +85,7 @@ class PyPlotContext(object):
 
     def _is_subplot_created(self, plot_type: PlotType):
         """Yields true if a subplot of type plot_type was created by a plot callback."""
-        result = (self._created_subplots & plot_type) == plot_type
+        result = ((self._created_subplots & plot_type) != PlotType.NONE)
         return result
 
 
