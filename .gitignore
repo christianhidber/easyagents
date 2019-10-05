@@ -116,3 +116,5 @@ venv.bak/
 /env_setup/
 /env_coach/
 /env/
+
+*.h5f

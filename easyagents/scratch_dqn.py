@@ -5,7 +5,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten
 from keras.optimizers import Adam
 
-from rl.agents.dqn import DQNAgent
+from rl.agents.dqn import DQNAgent, AbstractDQNAgent
 from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
 
@@ -45,6 +45,45 @@ print(model.summary())
 memory = SequentialMemory(limit=50000, window_length=1)
 policy = BoltzmannQPolicy()
 
+import rl.callbacks
+
+class MyCallback(rl.callbacks.Callback):
+
+    def on_batch_begin(self, batch, logs=None):
+        print('on_batch_begin')
+
+    def on_epoch_begin(self, epoch, logs=None):
+        print('on_batch_begin')
+
+    def on_train_batch_begin(self, batch, logs=None):
+        print('on_train_batch_begin')
+
+    def on_train_begin(self, logs=None):
+        print('on_train_begin')
+
+    def on_test_batch_begin(self, batch, logs=None):
+        print('on_test_batch_begin')
+
+    def on_predict_batch_begin(self, batch, logs=None):
+        print('on_predict_batch_begin')
+
+    def on_predict_begin(self, logs=None):
+        print('on_predict_begin')
+
+    def on_action_begin(self, action, logs=None):
+        if logs is None:
+            logs = {}
+        #print('on_action_begin')
+
+    def on_episode_begin(self, episode, logs=None):
+        if logs is None:
+            logs = {}
+        print('on_episode_begin')
+
+    def on_step_begin(self, step, logs=None):
+        if logs is None:
+            logs = {}
+        #print('on_step_begin')
 
 # An implementation of the DQN agent as described in Mnih (2013) and Mnih (2015).
 # http://arxiv.org/pdf/1312.5602.pdf
@@ -69,9 +108,6 @@ class EasyDQNAgent(DQNAgent):
         super(DQNAgent, self).__init__(*args, **kwargs)
 
         # Validate (important) input.
-        if hasattr(model.output, '__len__') and len(model.output) > 1:
-            raise ValueError(
-                'Model "{}" has more than one output. DQN expects a model that has a single output.'.format(model))
         if model.output._keras_shape != (None, self.nb_actions):
             raise ValueError(
                 'Model output "{}" has invalid shape. DQN expects a model that has one dimension for each action, in this case {}.'.format(
@@ -128,7 +164,8 @@ dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 # Okay, now it's time to learn something! We visualize the training here for show, but this
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
-dqn.fit(env, nb_steps=50000, visualize=True, verbose=2)
+mycallback=MyCallback()
+dqn.fit(env, nb_steps=1000, visualize=False, verbose=0, log_interval=100, callbacks=[mycallback])
 
 # After training is done, we save the final weights.
 dqn.save_weights('dqn_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
