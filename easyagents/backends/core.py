@@ -368,7 +368,6 @@ class _BackendAgent(ABC):
         old_callbacks = self._callbacks
         self._callbacks = callbacks
         try:
-            self._set_tensorflow_and_seed()
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_play_begin()
             self.play_implementation(self._agent_context.play)

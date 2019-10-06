@@ -76,6 +76,26 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
         result.add(Activation('linear'))
         return result
 
+    def play_episode(self, env: gym.core.Env):
+        self.training = False
+        self.step = 0
+
+        self.reset_states()
+        observation = deepcopy(env.reset())
+        done = False
+        while not done:
+            action = self.forward(observation)
+            if self.processor is not None:
+                action = self.processor.process_action(action)
+
+                observation, r, d, info = env.step(action)
+                observation = deepcopy(observation)
+                if self.processor is not None:
+                    observation, r, d, info = self.processor.process_step(observation, r, d, info)
+                if d:
+                    done = True
+                    break
+
     def play_implementation(self, play_context: core.PlayContext):
         """Agent specific implementation of playing a single episodes with the current policy.
 
@@ -89,9 +109,11 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
             self._play_env = self._create_env()
         while True:
             self.on_play_episode_begin(env=self._play_env)
-            self.log_api('agent.test', f'(env=..., nb_episodes=1, nb_max_start_steps=0, start_step_policy=None)')
-            self._agent.test(env=self._play_env, nb_episodes=1, visualize=False, nb_max_episode_steps=None,
-                             nb_max_start_steps=0, start_step_policy=None, verbose=0)
+            observation = self._play_env.reset()
+            done = False
+            while not done:
+                action = self._agent.forward(observation)
+                observation, reward, done, info = self._play_env.step(action)
             self.on_play_episode_end()
             if play_context.play_done:
                 break

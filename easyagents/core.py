@@ -212,7 +212,6 @@ class TrainContext(object):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
         assert self.num_iterations is None or self.num_iterations > 0, "num_iterations not admissible"
         assert self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
-        assert self.num_iterations_between_plot > 0, "num_iterations_between_log not admissible"
         assert self.num_iterations_between_eval > 0, "num_iterations_between_eval not admissible"
         assert self.num_episodes_per_eval > 0, "num_episodes_per_eval not admissible"
         assert 0 < self.learning_rate <= 1, "learning_rate not in interval (0,1]"
@@ -310,7 +309,6 @@ class DqnTrainContext(TrainContext):
         super().__init__()
         self.num_iterations = 20000
         self.num_iterations_between_eval = 1000
-        self.num_iterations_between_log = 500
         self.num_steps_per_iteration: int = 1
         self.num_steps_buffer_preload = 1000
         self.num_steps_sampled_from_buffer = 64

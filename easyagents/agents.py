@@ -254,7 +254,6 @@ class DqnAgent(EasyAgent):
               num_steps_per_iteration: int = 1,
               num_steps_buffer_preload=1000,
               num_steps_sampled_from_buffer=64,
-              num_iterations_between_log=200,
               num_iterations_between_eval: int = 1000,
               num_episodes_per_eval: int = 10,
               learning_rate: float = 0.001,
@@ -269,7 +268,6 @@ class DqnAgent(EasyAgent):
             num_steps_per_iteration: number of steps played per training iteration
             num_steps_buffer_preload: number of initial collect steps to preload the buffer
             num_steps_sampled_from_buffer: the number of steps sampled from buffer for each iteration training
-            num_iterations_between_log: number of training iterations before an iteration based log / plot is updated.
             num_iterations_between_eval: number of training iterations before the current policy is evaluated.
                 if 0 no evaluation is performed.
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
@@ -289,7 +287,6 @@ class DqnAgent(EasyAgent):
             train_context.num_steps_per_iteration = num_steps_per_iteration
             train_context.num_steps_buffer_preload = num_steps_buffer_preload
             train_context.num_steps_sampled_from_buffer = num_steps_sampled_from_buffer
-            train_context.num_iterations_between_log = num_iterations_between_log
             train_context.num_iterations_between_eval = num_iterations_between_eval
             train_context.num_episodes_per_eval = num_episodes_per_eval
             train_context.learning_rate = learning_rate

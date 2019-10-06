@@ -9,12 +9,12 @@ class _LogCallbackBase(core.AgentCallback):
     """Base class for Callback loggers"""
 
     def __init__(self, logger: logging.Logger = None, prefix: str = None):
-        """Writes all calls to a callback function to logger with the given prefix.
+        """Writes all calls to logger with the given prefix.
 
-        Args:
-            logger: the logger to log (if None a new logger with level debug is created)
-            prefix: a string written in front of each log msg
-            """
+            Args:
+                logger: the logger to log (if None a new logger with level debug is created)
+                prefix: a string written in front of each log msg
+        """
         self._logger = logger
         if self._logger is None:
             self._logger = logging.getLogger()
@@ -195,7 +195,7 @@ class Duration(_LogCallbackBase):
             ec: core.EpisodesTrainContext = tc
             msg = msg + f'#episodes_per_iteration={ec.num_episodes_per_iteration} '
         msg = msg + f'#max_steps_per_episode={tc.max_steps_per_episode} '
-        msg = msg + f'#iterations_between_log={tc.num_iterations_between_plot} '
+        msg = msg + f'#iterations_between_plot={tc.num_iterations_between_plot} '
         msg = msg + f'#iterations_between_eval={tc.num_iterations_between_eval} '
         msg = msg + f'#episodes_per_eval={tc.num_episodes_per_eval} '
         self.log(f'{"duration":<25}{msg}')
@@ -207,25 +207,38 @@ class Duration(_LogCallbackBase):
 class Iteration(_LogCallbackBase):
     """Logs training iteration summaries to a python logger."""
 
+    def __init__(self, eval_only:bool=False, logger: logging.Logger = None, prefix: str = None):
+        """Logs the completeion of each training iteration. On iteration with policy evaluation the
+            current average reward/episode and steps/episode is logged as well.
+
+            Args:
+                eval_only: if set a log is only created if the policy was re-evaluated in the current iteration.
+                logger: the logger to log (if None a new logger with level debug is created)
+                prefix: a string written in front of each log msg
+        """
+        self._eval_only:bool=eval_only
+        super().__init__(logger=logger,prefix=prefix)
+
     def log_iteration(self, agent_context: core.AgentContext):
         tc = agent_context.train
         e = tc.episodes_done_in_training
-        msg = f'episodes_done={e:<3} '
-        if e in tc.loss:
-            loss = tc.loss[e]
-            if not (isinstance(loss, float) and math.isnan(loss)):
-                msg = msg + f'loss={tc.loss[e]:<7.1f} '
-            if isinstance(tc, core.ActorCriticTrainContext):
-                msg = msg + f'[actor={tc.actor_loss[e]:<7.1f} '
-                msg = msg + f'critic={tc.critic_loss[e]:<7.1f}] '
-        if e in tc.eval_rewards:
-            r = tc.eval_rewards[e]
-            msg = msg + f'rewards=({r[0]:.1f},{r[1]:.1f},{r[2]:.1f}) '
-        if e in tc.eval_steps:
-            s = tc.eval_steps[e]
-            msg = msg + f'steps=({s[0]:.1f},{s[1]:.1f},{s[2]:.1f}) '
-        prefix = f'iteration {tc.iterations_done_in_training:<2} of {tc.num_iterations} '
-        self.log(f'{prefix:<25}{msg}')
+        if not self._eval_only or (tc.iterations_done_in_training % tc.num_iterations_between_eval == 0):
+            msg = f'episodes_done={e:<3} '
+            if e in tc.loss:
+                loss = tc.loss[e]
+                if not (isinstance(loss, float) and math.isnan(loss)):
+                    msg = msg + f'loss={tc.loss[e]:<7.1f} '
+                if isinstance(tc, core.ActorCriticTrainContext):
+                    msg = msg + f'[actor={tc.actor_loss[e]:<7.1f} '
+                    msg = msg + f'critic={tc.critic_loss[e]:<7.1f}] '
+            if e in tc.eval_rewards:
+                r = tc.eval_rewards[e]
+                msg = msg + f'rewards=({r[0]:.1f},{r[1]:.1f},{r[2]:.1f}) '
+            if e in tc.eval_steps:
+                s = tc.eval_steps[e]
+                msg = msg + f'steps=({s[0]:.1f},{s[1]:.1f},{s[2]:.1f}) '
+            prefix = f'iteration {tc.iterations_done_in_training:<2} of {tc.num_iterations} '
+            self.log(f'{prefix:<25}{msg}')
 
     def on_train_iteration_begin(self, agent_context: core.AgentContext):
         tc: core.TrainContext = agent_context.train
