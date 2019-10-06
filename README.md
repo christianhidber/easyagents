@@ -10,8 +10,7 @@ EasyAgents is a high level reinforcement learning api focusing on ease of use an
 Written in Python and running on top of different reinforcement learning libraries like
 [tf-Agents](https://github.com/tensorflow/agents), 
 [tensorforce](https://github.com/tensorforce/tensorforce) or 
-[keras-rl (work in progress)](https://github.com/keras-rl/keras-rl).
-Additional backends are easily integrated. 
+[keras-rl](https://github.com/keras-rl/keras-rl).
 Environments are implemented in [OpenAI gym](https://github.com/openai/gym). 
 
 
@@ -43,7 +42,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards()])
 ````
 ![Scenario_Simple](images/Scenario_simple.png)
 
-### Scenario: more detailed (custom network & training)
+### Scenario: more detailed
 ````
 from easyagents.agents import PpoAgent
 from easyagents.callbacks import plot
@@ -55,6 +54,18 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 ````
 
 ![Scenario_Detailed](images/Scenario_detailed.gif)
+
+### algorithms and backends
+
+|algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl](https://github.com/keras-rl/keras-rl) |
+|----------|:---------:|:-----------:|:--------:|
+|Dqn        |`yes`       |`open`         |`yes`|
+|Ppo        |`yes`       |`yes`          |`not available`|
+|Random     |`yes`       |`open`         |`open`|
+|REINFORCE  |`yes`       |`yes`          |`open`|
+|SAC        |`open`      |`not available`|`not available`|
+
+[october 2019]
 
 
 ### Guiding Principles
