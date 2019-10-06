@@ -62,6 +62,13 @@ class _BackendAgent(ABC):
 
         self._train_total_episodes_on_iteration_begin: int = 0
 
+    def _assert_tensorflow_configuration(self, backend_name:str = ''):
+        if not self._tensorflow_v2_eager:
+            assert not _tensorflow_v2_eager_enabled, \
+                "v2 behavior and eager execution were activated by another backend. " + \
+                f'This is not compatible with the current backend "{backend_name}". ' + \
+                "To avoid the conflict, do not combine both backends in the same python / jupyter kernel instance. "
+
     def _set_tensorflow_and_seed(self):
         """ sets the random seeds for all dependent packages and tensorflow to v2 behavior with
             eager execution.
@@ -73,12 +80,7 @@ class _BackendAgent(ABC):
             tensorflow.compat.v1.enable_v2_behavior()
             self.log_api('tf.compat.v1.enable_eager_execution')
             tensorflow.compat.v1.enable_eager_execution()
-        if not self._tensorflow_v2_eager:
-            assert not _tensorflow_v2_eager_enabled, \
-                "v2 behavior and eager execution were activated by another backend, " + \
-                "but not supported by this backend. " + \
-                "To avoid the conflict do not use this backend in the same python / jupyter kernel instance " + \
-                "with another backend."
+        self._assert_tensorflow_configuration()
         if not self.model_config.seed is None:
             seed = self.model_config.seed
             self.log_api(f'tf.compat.v1.set_random_seed', f'({seed})')
@@ -476,6 +478,8 @@ class BackendAgentFactory(ABC):
     """
 
     name: str = 'abstract_BackendAgentFactory'
+
+    tensorflow_v2_eager_compatible : bool = True
 
     def create_agent(self, easyagent_type: Type, model_config: core.ModelConfig) \
             -> Optional[_BackendAgent]:

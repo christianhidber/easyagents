@@ -1,6 +1,6 @@
 """This module contains the backend implementation for keras-rl (see https://github.com/keras-rl/keras-rl)"""
 from abc import ABCMeta
-from typing import Optional
+from typing import Optional, Dict, Type
 import math
 
 # noinspection PyUnresolvedReferences
@@ -202,7 +202,7 @@ class KerasRlDqnAgent(KerasRlAgent):
         self.log_api(f'agent.fit', f'(train_env, nb_steps={num_steps})')
         rl_agent.fit(train_env, nb_steps=num_steps, visualize=False, verbose=0, callbacks=[dqn_callback])
         if not dc.training_done:
-            self.on_train_iteration_end(0)
+            self.on_train_iteration_end(math.nan)
 
 
 class CemKerasRlAgent(KerasRlAgent):
@@ -234,3 +234,17 @@ class CemKerasRlAgent(KerasRlAgent):
                        elite_frac=0.05)
         cem.compile()
         """
+
+class BackendAgentFactory(bcore.BackendAgentFactory):
+    """Backend for TfAgents.
+
+        Serves as a factory to create algorithm specific wrappers for the keras-rl implementations.
+    """
+
+    name: str = 'kerasrl'
+
+    tensorflow_v2_eager_compatible: bool = False
+
+    def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
+        """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
+        return {easyagents.agents.DqnAgent : KerasRlDqnAgent}

@@ -10,7 +10,9 @@ from typing import List, Tuple, Optional, Union, Type
 from easyagents import core
 from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
+
 import easyagents.backends.default
+import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
 import easyagents.backends.tforce
 
@@ -18,6 +20,7 @@ _backends: [bcore.BackendAgentFactory] = []
 
 """The seed used for all agents and gym environments. If None no seed is set (default)."""
 seed: Optional[int] = None
+
 
 def register_backend(backend: bcore.BackendAgentFactory):
     """registers a backend as a factory for agent implementations.
@@ -35,6 +38,7 @@ def register_backend(backend: bcore.BackendAgentFactory):
 register_backend(easyagents.backends.default.BackendAgentFactory())
 register_backend(easyagents.backends.tfagents.BackendAgentFactory())
 register_backend(easyagents.backends.tforce.BackendAgentFactory())
+register_backend(easyagents.backends.kerasrl.BackendAgentFactory())
 
 
 class EasyAgent(ABC):
@@ -65,6 +69,7 @@ class EasyAgent(ABC):
         backend_agent = backend.create_agent(easyagent_type=type(self), model_config=model_config)
         assert backend_agent, f'Backend "{backend_name}" does not implement "{type(self).__name__}". ' + \
                               f'Choose one of the following backend {get_backends(type(self))}.'
+        backend_agent._assert_tensorflow_configuration(backend_name=backend_name)
         self._backend_agent: Optional[bcore._BackendAgent] = backend_agent
         return
 
@@ -149,20 +154,22 @@ class EasyAgent(ABC):
         callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Loss(), plot.Steps(), plot.Rewards()])
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
-
-def get_backends(agent: Optional[Type[EasyAgent]] = None):
+def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False):
     """returns a list of all registered backends containing an implementation for the EasyAgent type agent.
 
     Args:
         agent: type deriving from EasyAgent for which the backend identifiers are returned.
+        skip_v1: if set only backends compatible with tensorflow v2 compatibility mode and eager execution
+            are returned.
 
     Returns:
         a list of admissible values for the 'backend' argument of EazyAgents constructors or a list of all
         available backends if agent is None.
     """
-    result = [b.name for b in _backends]
+    backends = [ b for b in _backends if (not skip_v1) or b.tensorflow_v2_eager_compatible]
+    result = [b.name for b in backends]
     if agent:
-        result = [b.name for b in _backends if agent in b.get_algorithms()]
+        result = [b.name for b in backends if agent in b.get_algorithms()]
     return result
 
 
@@ -178,6 +185,7 @@ def _get_backend(backend_name: str):
     if backends:
         result = backends[0]
     return result
+
 
 class DqnAgent(EasyAgent):
     """creates a new agent based on the Dqn algorithm.

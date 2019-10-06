@@ -1,3 +1,4 @@
+from typing import List
 import pytest
 import unittest
 
@@ -70,8 +71,24 @@ class BackendRegistrationTest(unittest.TestCase):
 
 class DqnAgentTest(unittest.TestCase):
 
-    def test_train(self):
-        for backend in get_backends(DqnAgent):
+    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled)
+    def test_train_v1(self):
+        v2_backends = get_backends(DqnAgent, skip_v1=True)
+        backends = [b for b in get_backends(DqnAgent) if not b in v2_backends]
+        for backend in backends:
+            dqn_agent: DqnAgent = agents.DqnAgent('CartPole-v0', fc_layers=(100,), backend=backend)
+            tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration(), plot.Loss()],
+                                                    num_iterations=2000,
+                                                    num_iterations_between_log=200,
+                                                    num_iterations_between_eval=1000,
+                                                    max_steps_per_episode=200,
+                                                    default_plots=False)
+            (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
+            assert avg_steps >= 100
+
+
+    def test_train_v2(self):
+        for backend in get_backends(DqnAgent, skip_v1=True):
             dqn_agent: DqnAgent = agents.DqnAgent('CartPole-v0', fc_layers=(100,), backend=backend)
             tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration()],
                                                     num_iterations=10000,
@@ -81,7 +98,6 @@ class DqnAgentTest(unittest.TestCase):
                                                     default_plots=False)
             (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
             assert avg_steps >= 100
-
 
 # noinspection PyTypeChecker
 class PpoAgentTest(unittest.TestCase):
