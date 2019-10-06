@@ -21,5 +21,7 @@ matrix:
 install:
   - pip install -r requirements.txt
 
-script: pytest -r a -v
+script:
+  - pytest -r a -v
+  - pytest -r a -v -m tfv1
 
