@@ -1,5 +1,6 @@
 ## Release notes
 * v1.1 [19Q4]
+    * 1.1.22: DuelingDqnAgent, DoubleDqnAgent with keras-rl backend
     * 1.1.21: keras-rl backend (dqn)
     * 1.1.20: #54 logging in jupyter notebook solved, doc updates
     * 1.1.19: 
