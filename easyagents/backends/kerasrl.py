@@ -20,7 +20,7 @@ import keras.backend as K
 from keras.models import Model
 from keras.layers import Lambda, Dense
 
-import rl
+import rl.core
 from rl.policy import EpsGreedyQPolicy, GreedyQPolicy
 from rl.callbacks import Callback
 
@@ -37,6 +37,8 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
 
     def __init__(self, model_config: core.ModelConfig):
         super().__init__(model_config=model_config, tensorflow_v2_eager=False)
+        self._agent: Optional[rl.core.Agent] = None
+        self._play_env: Optional[gym.Env] = None
 
     def _create_env(self) -> gym.Env:
         """Creates a new gym instance."""
@@ -75,7 +77,24 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
         return result
 
     def play_implementation(self, play_context: core.PlayContext):
-        pass
+        """Agent specific implementation of playing a single episodes with the current policy.
+
+            Args:
+                play_context: play configuration to be used
+        """
+        assert play_context, "play_context not set."
+        assert self._agent, "_agent not set. call train() first."
+
+        if self._play_env is None:
+            self._play_env = self._create_env()
+        while True:
+            self.on_play_episode_begin(env=self._play_env)
+            self.log_api('agent.test', f'(env=..., nb_episodes=1, nb_max_start_steps=0, start_step_policy=None)')
+            self._agent.test(env=self._play_env, nb_episodes=1, visualize=False, nb_max_episode_steps=None,
+                             nb_max_start_steps=0, start_step_policy=None, verbose=0)
+            self.on_play_episode_end()
+            if play_context.play_done:
+                break
 
 
 class KerasRlDqnAgent(KerasRlAgent):
@@ -180,7 +199,7 @@ class KerasRlDqnAgent(KerasRlAgent):
                      f'nb_steps_warmup={dc.num_steps_buffer_preload}, target_model_update=1e-2,' +
                      f'gamma={dc.reward_discount_gamma}, batch_size={dc.num_steps_sampled_from_buffer}, ' +
                      f'train_interval={dc.num_steps_per_iteration}, model=..., memory=..., policy=...)')
-        rl_agent = KerasRlDqnAgent.DQNAgentWrapper(
+        self._agent = KerasRlDqnAgent.DQNAgentWrapper(
             model=keras_model,
             nb_actions=num_actions,
             memory=memory,
@@ -191,16 +210,16 @@ class KerasRlDqnAgent(KerasRlAgent):
             train_interval=dc.num_steps_per_iteration,
             policy=policy)
         self.log_api(f'agent.compile', f'(Adam(lr=1e-3), metrics=["mae"]')
-        rl_agent.compile(Adam(lr=1e-3), metrics=['mae'])
+        self._agent.compile(Adam(lr=1e-3), metrics=['mae'])
         num_steps = dc.num_iterations * dc.num_steps_per_iteration
 
         loss_metric_idx = None
-        if 'loss' in rl_agent.metrics_names:
-            loss_metric_idx = rl_agent.metrics_names.index("loss")
+        if 'loss' in self._agent.metrics_names:
+            loss_metric_idx = self._agent.metrics_names.index("loss")
         dqn_callback = KerasRlDqnAgent.DqnCallback(self, dc, loss_metric_idx)
         self.on_train_iteration_begin()
         self.log_api(f'agent.fit', f'(train_env, nb_steps={num_steps})')
-        rl_agent.fit(train_env, nb_steps=num_steps, visualize=False, verbose=0, callbacks=[dqn_callback])
+        self._agent.fit(train_env, nb_steps=num_steps, visualize=False, verbose=0, callbacks=[dqn_callback])
         if not dc.training_done:
             self.on_train_iteration_end(math.nan)
 
@@ -235,6 +254,7 @@ class CemKerasRlAgent(KerasRlAgent):
         cem.compile()
         """
 
+
 class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend for TfAgents.
 
@@ -247,4 +267,4 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
-        return {easyagents.agents.DqnAgent : KerasRlDqnAgent}
+        return {easyagents.agents.DqnAgent: KerasRlDqnAgent}

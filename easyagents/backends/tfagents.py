@@ -40,7 +40,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
     def __init__(self, model_config: core.ModelConfig):
         super().__init__(model_config=model_config)
         self._trained_policy = None
-        self._eval_env = None
+        self._play_env : Optional[gym.Env] = None
 
     def _create_gym_with_wrapper(self, discount):
         gym_spec = gym.spec(self.model_config.gym_env_name)
@@ -54,7 +54,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
             simplify_box_bounds=False) # important, default (True) crashes environments with boundaries with identical values 
         return env
 
-    def _create_tfagent_env(self, discount: float = 1) -> tf_py_environment.TFPyEnvironment:
+    def _create_env(self, discount: float = 1) -> tf_py_environment.TFPyEnvironment:
         """ creates a new instance of the gym environment and wraps it in a tfagent TFPyEnvironment
 
             Args:
@@ -83,7 +83,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
         return result
 
     def play_implementation(self, play_context: core.PlayContext):
-        """Agent specific implementation of playing a single episode with the current policy.
+        """Agent specific implementation of playing a single episodes with the current policy.
 
             Args:
                 play_context: play configuration to be used
@@ -91,15 +91,15 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
         assert play_context, "play_context not set."
         assert self._trained_policy, "trained_policy not set. call train() first."
 
-        if self._eval_env is None:
-            self._eval_env = self._create_tfagent_env()
-        gym_env = self._get_gym_env(self._eval_env)
+        if self._play_env is None:
+            self._play_env = self._create_env()
+        gym_env = self._get_gym_env(self._play_env)
         while True:
             self.on_play_episode_begin(env=gym_env)
-            time_step = self._eval_env.reset()
+            time_step = self._play_env.reset()
             while not time_step.is_last():
                 action_step = self._trained_policy.action(time_step)
-                time_step = self._eval_env.step(action_step.action)
+                time_step = self._play_env.step(action_step.action)
             self.on_play_episode_end()
             if play_context.play_done:
                 break
@@ -136,7 +136,7 @@ class TfDqnAgent(TfAgent):
         dc: core.DqnTrainContext = train_context
 
         self.log('Creating environment...')
-        train_env = self._create_tfagent_env(discount=dc.reward_discount_gamma)
+        train_env = self._create_env(discount=dc.reward_discount_gamma)
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
@@ -208,7 +208,7 @@ class TfPpoAgent(TfAgent):
         assert isinstance(train_context, core.ActorCriticTrainContext)
         tc: core.ActorCriticTrainContext = train_context
         self.log('Creating environment...')
-        train_env = self._create_tfagent_env(discount=tc.reward_discount_gamma)
+        train_env = self._create_env(discount=tc.reward_discount_gamma)
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
@@ -288,7 +288,7 @@ class TfRandomAgent(TfAgent):
     def _set_trained_policy(self):
         """Tf-Agents Random Implementation of the train loop."""
         self.log('Creating environment...')
-        train_env = self._create_tfagent_env()
+        train_env = self._create_env()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
 
@@ -299,7 +299,7 @@ class TfRandomAgent(TfAgent):
     # noinspection DuplicatedCode
     def train_implementation(self, train_context: core.TrainContext):
         self.log("Training...")
-        train_env = self._create_tfagent_env()
+        train_env = self._create_env()
         while True:
             self.on_train_iteration_begin()
             # ensure that 1 episode is played during the iteration
@@ -334,7 +334,7 @@ class TfReinforceAgent(TfAgent):
         assert isinstance(train_context, core.EpisodesTrainContext)
         tc: core.EpisodesTrainContext = train_context
         self.log('Creating environment...')
-        train_env = self._create_tfagent_env(discount=tc.reward_discount_gamma)
+        train_env = self._create_env(discount=tc.reward_discount_gamma)
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
