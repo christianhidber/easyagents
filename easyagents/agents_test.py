@@ -113,26 +113,6 @@ class DqnAgentsTest(unittest.TestCase):
     def test_dueling_dqn_v2(self):
         self.train_and_assert(DuelingDqnAgent, False)
 
-
-class DoubleDqnAgentTest(unittest.TestCase):
-
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
-    @pytest.mark.tfv1
-    def test_train_v1(self):
-        v2_backends = get_backends(DqnAgent, skip_v1=True)
-        backends = [b for b in get_backends(DqnAgent) if not b in v2_backends]
-        for backend in backends:
-            dqn_agent: DqnAgent = agents.DqnAgent('CartPole-v0', fc_layers=(100,), backend=backend)
-            tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
-                                                    num_iterations=10000,
-                                                    num_steps_buffer_preload=1000,
-                                                    num_iterations_between_eval=500,
-                                                    max_steps_per_episode=200,
-                                                    default_plots=False)
-            (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
-            assert avg_steps >= 100
-
-
 # noinspection PyTypeChecker
 class PpoAgentTest(unittest.TestCase):
 
