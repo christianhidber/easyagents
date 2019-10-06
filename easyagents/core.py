@@ -12,10 +12,6 @@ import easyagents.backends.monitor
 import gym.core
 import matplotlib.pyplot as plt
 
-"""The seed used for all agents and gym environments. If None no seed is set (default)."""
-seed: Optional[int] = None
-
-
 class GymContext(object):
     """Contains the context for gym api call
 
@@ -125,7 +121,7 @@ class ModelConfig(object):
         self.original_env_name = gym_env_name
         self.gym_env_name = None
         self.fc_layers = fc_layers
-        self.seed = seed
+        self.seed = easyagents.agents.seed
 
     def __str__(self):
         return f'fc_layers={self.fc_layers} seed={self.seed} gym_env_name={self.gym_env_name}'

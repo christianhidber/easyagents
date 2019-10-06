@@ -7,7 +7,7 @@ from easyagents.callbacks import duration, log, plot
 import easyagents.backends.core
 
 _env_name = env._StepCountEnv.register_with_gym()
-core.seed = 0
+easyagents.agents.seed = 0
 
 # noinspection PyTypeChecker
 class BackendRegistrationTest(unittest.TestCase):

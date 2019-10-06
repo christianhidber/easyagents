@@ -16,6 +16,9 @@ import easyagents.backends.tforce
 
 _backends: [bcore.BackendAgentFactory] = []
 
+"""The seed used for all agents and gym environments. If None no seed is set (default)."""
+seed: Optional[int] = None
+
 def register_backend(backend: bcore.BackendAgentFactory):
     """registers a backend as a factory for agent implementations.
 

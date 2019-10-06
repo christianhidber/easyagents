@@ -79,7 +79,7 @@ class _BackendAgent(ABC):
                 "but not supported by this backend. " + \
                 "To avoid the conflict do not use this backend in the same python / jupyter kernel instance " + \
                 "with another backend."
-        if self.model_config.seed:
+        if not self.model_config.seed is None:
             seed = self.model_config.seed
             self.log_api(f'tf.compat.v1.set_random_seed', f'({seed})')
             tensorflow.compat.v1.set_random_seed(seed)
