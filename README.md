@@ -70,6 +70,10 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 
 [october 2019]
 
+restriction: keras-rl is not compatible with tensorflow eager execution mode.
+Thus keras-rl based agents should run in a different python / jupyter notebook instance 
+than  tf-agents or tensorforce based agents.
+
 
 ### Guiding Principles
 * **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
