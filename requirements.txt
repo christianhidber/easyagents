@@ -21,8 +21,10 @@ idna==2.8
 imageio==2.4.0
 imageio-ffmpeg==0.3.0
 importlib-metadata==0.23
+Keras==2.3.0
 Keras-Applications==1.0.8
 Keras-Preprocessing==1.1.0
+keras-rl==0.4.2
 kiwisolver==1.1.0
 Markdown==3.1.1
 matplotlib==3.1.1
