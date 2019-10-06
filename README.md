@@ -55,11 +55,12 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 
 ![Scenario_Detailed](images/Scenario_detailed.gif)
 
-### algorithms and backends
+### Available Algorithms and Backends
 
 |algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl](https://github.com/keras-rl/keras-rl) | easyagents class name |
 |----------|:---------:|:-----------:|:--------:| :---: | 
 |[Dqn](https://arxiv.org/abs/1312.5602)                 |`yes`       |`open`  |`yes`            | DqnAgent | 
+|[Double Dqn](https://arxiv.org/abs/1509.06461)        |`not available`      |`open`  |`open`           |`open`|
 |[Dueling Dqn](https://arxiv.org/abs/1511.06581)        |`open`      |`open`  |`open`           |`open`|
 |[Ppo](https://arxiv.org/abs/1707.06347)                |`yes`       |`yes`   |`not available`  | PpoAgent |
 |Random                                                 |`yes`       |`open`  |`open`           | RandomAgent |
