@@ -10,10 +10,12 @@ import gym
 import tempfile
 import os.path
 import datetime
-import time
 
 # download mp4 rendering
 imageio.plugins.ffmpeg.download()
+
+on_play_end_clear_jupyter_display: bool = False
+on_train_end_clear_jupyter_display: bool = True
 
 # check if we are running in Jupyter, if so interactive plotting must be handled differently
 # (in order to get plot updates during training)
@@ -70,10 +72,14 @@ class _PostProcess(core._PostProcessCallback):
         self._call_jupyter_display: bool
         self._reset()
 
-    def _clear_jupyter_output(self, agent_context: core.AgentContext):
-        """Clears the content in the current jupyter output cell. NoOp if not in jupyter."""
+    def _clear_jupyter_output(self, agent_context: core.AgentContext, wait=True):
+        """Clears the content in the current jupyter output cell. NoOp if not in jupyter.
+
+        Args:
+            wait: Wait to clear the output until new output is available to replace it.
+        """
         if agent_context.pyplot.is_jupyter_active:
-            clear_output(wait=True)
+            clear_output(wait=wait)
 
     def _display(self, agent_context: core.AgentContext):
         """Fixes the layout of multiple subplots and refreshs the display."""
@@ -119,20 +125,20 @@ class _PostProcess(core._PostProcessCallback):
         # don't clear the jupyter output if no plot is present, may clear the log output otherwise
         if agent_context.pyplot._is_subplot_created(core.PlotType.PLAY_STEP | core.PlotType.PLAY_EPISODE):
             self._display(agent_context)
-            # avoid "double rendering" of the final jupyter output
-            self._clear_jupyter_output(agent_context)
+            if on_play_end_clear_jupyter_display:
+                # avoid "double rendering" of the final jupyter output
+                self._clear_jupyter_output(agent_context, wait=False)
 
     def on_train_end(self, agent_context: core.AgentContext):
-        # don't clear the jupyter output if o plot is present, may clear the log output otherwise
-        if agent_context.pyplot._is_subplot_created(core.PlotType.TRAIN_EVAL | core.PlotType.TRAIN_ITERATION):
-            self._display(agent_context)
+        self._display(agent_context)
+        if on_train_end_clear_jupyter_display:
             # avoid "double rendering" of the final jupyter output
-            self._clear_jupyter_output(agent_context)
+            self._clear_jupyter_output(agent_context, wait=False)
 
     def on_train_iteration_begin(self, agent_context: core.AgentContext):
         # display initial evaluation before training starts.
         if agent_context.train.iterations_done_in_training == 0 and \
-            agent_context._is_plot_ready(core.PlotType.TRAIN_EVAL):
+                agent_context._is_plot_ready(core.PlotType.TRAIN_EVAL):
             self._display(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):
@@ -171,7 +177,7 @@ class _PlotCallback(core.AgentCallback):
     def _is_nan(self, values: Optional[List[float]]):
         """yields true if all values are equal to nan. yields false if values is None or empty."""
         result = False
-        if values and all(isinstance(v,float) for v in values):
+        if values and all(isinstance(v, float) for v in values):
             result = all(math.isnan(v) for v in values)
         return result
 
@@ -418,7 +424,7 @@ class Loss(_PlotCallback):
         self.clear_plot(agent_context)
         lossvalues = list(tc.loss.values())
         if self._is_nan(lossvalues):
-            self.plot_text('plot not available for this backend.')
+            self.plot_text('plot not available')
         else:
             self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes trained',
                            ylim=self.ylim, ylabel='loss', yscale=self.yscale)

@@ -10,11 +10,17 @@ from typing import List, Tuple, Optional, Union, Type
 from easyagents import core
 from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
+
 import easyagents.backends.default
+import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
 import easyagents.backends.tforce
 
 _backends: [bcore.BackendAgentFactory] = []
+
+"""The seed used for all agents and gym environments. If None no seed is set (default)."""
+seed: Optional[int] = None
+
 
 def register_backend(backend: bcore.BackendAgentFactory):
     """registers a backend as a factory for agent implementations.
@@ -32,6 +38,7 @@ def register_backend(backend: bcore.BackendAgentFactory):
 register_backend(easyagents.backends.default.BackendAgentFactory())
 register_backend(easyagents.backends.tfagents.BackendAgentFactory())
 register_backend(easyagents.backends.tforce.BackendAgentFactory())
+register_backend(easyagents.backends.kerasrl.BackendAgentFactory())
 
 
 class EasyAgent(ABC):
@@ -146,20 +153,22 @@ class EasyAgent(ABC):
         callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Loss(), plot.Steps(), plot.Rewards()])
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
-
-def get_backends(agent: Optional[Type[EasyAgent]] = None):
+def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False):
     """returns a list of all registered backends containing an implementation for the EasyAgent type agent.
 
     Args:
         agent: type deriving from EasyAgent for which the backend identifiers are returned.
+        skip_v1: if set only backends compatible with tensorflow v2 compatibility mode and eager execution
+            are returned.
 
     Returns:
         a list of admissible values for the 'backend' argument of EazyAgents constructors or a list of all
         available backends if agent is None.
     """
-    result = [b.name for b in _backends]
+    backends = [ b for b in _backends if (not skip_v1) or b.tensorflow_v2_eager_compatible]
+    result = [b.name for b in backends]
     if agent:
-        result = [b.name for b in _backends if agent in b.get_algorithms()]
+        result = [b.name for b in backends if agent in b.get_algorithms()]
     return result
 
 
@@ -175,6 +184,7 @@ def _get_backend(backend_name: str):
     if backends:
         result = backends[0]
     return result
+
 
 class DqnAgent(EasyAgent):
     """creates a new agent based on the Dqn algorithm.
@@ -243,7 +253,6 @@ class DqnAgent(EasyAgent):
               num_steps_per_iteration: int = 1,
               num_steps_buffer_preload=1000,
               num_steps_sampled_from_buffer=64,
-              num_iterations_between_log=200,
               num_iterations_between_eval: int = 1000,
               num_episodes_per_eval: int = 10,
               learning_rate: float = 0.001,
@@ -258,7 +267,6 @@ class DqnAgent(EasyAgent):
             num_steps_per_iteration: number of steps played per training iteration
             num_steps_buffer_preload: number of initial collect steps to preload the buffer
             num_steps_sampled_from_buffer: the number of steps sampled from buffer for each iteration training
-            num_iterations_between_log: number of training iterations before an iteration based log / plot is updated.
             num_iterations_between_eval: number of training iterations before the current policy is evaluated.
                 if 0 no evaluation is performed.
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
@@ -278,7 +286,6 @@ class DqnAgent(EasyAgent):
             train_context.num_steps_per_iteration = num_steps_per_iteration
             train_context.num_steps_buffer_preload = num_steps_buffer_preload
             train_context.num_steps_sampled_from_buffer = num_steps_sampled_from_buffer
-            train_context.num_iterations_between_log = num_iterations_between_log
             train_context.num_iterations_between_eval = num_iterations_between_eval
             train_context.num_episodes_per_eval = num_episodes_per_eval
             train_context.learning_rate = learning_rate
