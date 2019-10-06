@@ -80,7 +80,7 @@ class DqnAgentTest(unittest.TestCase):
             tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration(), plot.Loss()],
                                                     num_iterations=2000,
                                                     num_iterations_between_log=200,
-                                                    num_iterations_between_eval=1000,
+                                                    num_iterations_between_eval=100,
                                                     max_steps_per_episode=200,
                                                     default_plots=False)
             (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
