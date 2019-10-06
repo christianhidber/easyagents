@@ -1,35 +1,26 @@
 """This module contains the backend implementation for keras-rl (see https://github.com/keras-rl/keras-rl)"""
 from abc import ABCMeta
-from typing import Dict, Type, Optional
+from typing import Optional
 import math
 
 # noinspection PyUnresolvedReferences
 import easyagents.agents
 from easyagents import core
 from easyagents.backends import core as bcore
-from easyagents.backends import monitor
 
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten
+from keras.layers import Activation, Flatten
 from keras.optimizers import Adam
 
-from rl.agents.cem import CEMAgent
-from rl.memory import EpisodeParameterMemory
-
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten
-from keras.optimizers import Adam
-
-from rl.agents.dqn import DQNAgent, AbstractDQNAgent
+from rl.agents.dqn import DQNAgent
 from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
 
 import keras.backend as K
 from keras.models import Model
-from keras.layers import Lambda, Input, Layer, Dense
+from keras.layers import Lambda, Dense
 
 import rl
-from rl.core import Agent
 from rl.policy import EpsGreedyQPolicy, GreedyQPolicy
 from rl.callbacks import Callback
 
@@ -45,40 +36,11 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
     """
 
     def __init__(self, model_config: core.ModelConfig):
-        super().__init__(model_config=model_config)
-
-    class DqnCallback(rl.callbacks.Callback):
-        """Callback registered with keras rl agents to propagate iteration and episode updates."""
-
-        def __init__(self, agent: bcore.BackendAgent, dqn_context : core.DqnTrainContext,
-                     loss_metric_idx: Optional[int]):
-            """
-            Args:
-                agent: the agent to propagate iteration begn/end events to.
-                dqn_context: the train_context containing the iteration definitions
-                loss_metric_idx: the index of the loss in the metrics list, or None
-            """
-            assert agent
-            assert dqn_context
-            self._agent = agent
-            self._dqn_context = dqn_context
-            self._loss_metric_idx = loss_metric_idx
-            super().__init__()
-
-        def on_step_end(self, step, logs=None):
-            """Signals the base class the end / begin of a training iteration."""
-            if self._dqn_context.steps_done_in_training % self._dqn_context.num_steps_per_iteration == 0:
-                loss = math.nan
-                if self._loss_metric_idx and logs and len(logs) > self._loss_metric_idx:
-                    loss = logs[self._loss_metric_idx]
-                self._agent.on_train_iteration_end(loss)
-                if not self._dqn_context.training_done:
-                    self._agent.on_train_iteration_begin()
-
+        super().__init__(model_config=model_config, tensorflow_v2_eager=False)
 
     def _create_env(self) -> gym.Env:
         """Creates a new gym instance."""
-        self.log_api(f'gym.make',f'("{self.model_config.original_env_name}")')
+        self.log_api(f'gym.make', f'("{self.model_config.original_env_name}")')
         result = gym.make(self.model_config.gym_env_name)
         return result
 
@@ -96,21 +58,24 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
         assert gym_env
 
         num_actions = gym_env.action_space.n
-        self.log_api(f'Sequential',f'()')
+        self.log_api(f'Sequential', f'()')
         result = Sequential()
         input_shape = (1,) + gym_env.observation_space.shape
-        self.log_api(f'model.add',f'(Flatten(input_shape={input_shape}))')
+        self.log_api(f'model.add', f'(Flatten(input_shape={input_shape}))')
         result.add(Flatten(input_shape=input_shape))
         for layer_size in self.model_config.fc_layers:
-            self.log_api(f'model.add',f'(Dense({layer_size}))')
+            self.log_api(f'model.add', f'(Dense({layer_size}))')
             result.add(Dense(layer_size))
-            self.log_api(f'model.add',f'(Activation("relu"))')
+            self.log_api(f'model.add', f'(Activation("relu"))')
             result.add(Activation('relu'))
-        self.log_api(f'model.add',f'(Dense({num_actions}))')
+        self.log_api(f'model.add', f'(Dense({num_actions}))')
         result.add(Dense(num_actions))
-        self.log_api(f'model.add',f'(Activation("linear"))')
+        self.log_api(f'model.add', f'(Activation("linear"))')
         result.add(Activation('linear'))
         return result
+
+    def play_implementation(self, play_context: core.PlayContext):
+        pass
 
 
 class KerasRlDqnAgent(KerasRlAgent):
@@ -162,6 +127,36 @@ class KerasRlDqnAgent(KerasRlAgent):
             self.test_policy = test_policy
             self.reset_states()
 
+    class DqnCallback(rl.callbacks.Callback):
+        """Callback registered with keras rl agents to propagate iteration and episode updates."""
+
+        def __init__(self, agent: bcore.BackendAgent, dqn_context: core.DqnTrainContext,
+                     loss_metric_idx: Optional[int]):
+            """
+            Args:
+                agent: the agent to propagate iteration begn/end events to.
+                dqn_context: the train_context containing the iteration definitions
+                loss_metric_idx: the index of the loss in the metrics list, or None
+            """
+            assert agent
+            assert dqn_context
+            self._agent = agent
+            self._dqn_context = dqn_context
+            self._loss_metric_idx = loss_metric_idx
+            super().__init__()
+
+        def on_step_end(self, step, logs=None):
+            """Signals the base class the end / begin of a training iteration."""
+            if self._dqn_context.steps_done_in_training % self._dqn_context.num_steps_per_iteration == 0:
+                loss = math.nan
+                if logs and 'metrics' in logs and (self._loss_metric_idx is not None):
+                    metrics = logs['metrics']
+                    if len(metrics) > self._loss_metric_idx:
+                        loss = metrics[self._loss_metric_idx]
+                self._agent.on_train_iteration_end(loss)
+                if not self._dqn_context.training_done:
+                    self._agent.on_train_iteration_begin()
+
     def __init__(self, model_config: core.ModelConfig):
         """ creates a new agent based on the DQN algorithm using the keras-rl implementation.
 
@@ -201,8 +196,8 @@ class KerasRlDqnAgent(KerasRlAgent):
 
         loss_metric_idx = None
         if 'loss' in rl_agent.metrics_names:
-            loss_metric_idx = list(rl_agent.metrics_names.keys()).index("loss")
-        dqn_callback = KerasRlAgent.DqnCallback(self,dc,loss_metric_idx)
+            loss_metric_idx = rl_agent.metrics_names.index("loss")
+        dqn_callback = KerasRlDqnAgent.DqnCallback(self, dc, loss_metric_idx)
         self.on_train_iteration_begin()
         self.log_api(f'agent.fit', f'(train_env, nb_steps={num_steps})')
         rl_agent.fit(train_env, nb_steps=num_steps, visualize=False, verbose=0, callbacks=[dqn_callback])

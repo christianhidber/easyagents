@@ -10,4 +10,5 @@ class KerasRlTest(unittest.TestCase):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.DqnTrainContext()
         dqnAgent = kerasrl.KerasRlDqnAgent(model_config=model_config)
-        dqnAgent.train(train_context=tc, callbacks=[duration._SingleEpisode(), log.Step(), log.Iteration()])
+        dqnAgent.train(train_context=tc,
+                       callbacks=[duration._SingleEpisode(), log.Agent(), log.Step(), log.Iteration()])

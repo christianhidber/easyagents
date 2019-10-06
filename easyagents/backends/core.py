@@ -2,7 +2,6 @@
 
     The concrete backends like tfagent or baselines are implemented in seprate modules.
 """
-
 from abc import ABC, ABCMeta, abstractmethod
 from typing import List, Optional, Tuple, Type, Dict
 import gym
@@ -11,10 +10,11 @@ import tensorflow
 import numpy
 import random
 
-
 from easyagents import core
 from easyagents.backends import monitor
 from easyagents.callbacks import plot
+
+_tensorflow_v2_eager_enabled: bool = False
 
 
 class _BackendEvalCallback(core.AgentCallback):
@@ -42,9 +42,15 @@ class _BackendAgent(ABC):
         Implements the train loop and calls the Callbacks.
     """
 
-    def __init__(self, model_config: core.ModelConfig):
+    def __init__(self, model_config: core.ModelConfig, tensorflow_v2_eager: bool = True):
+        """
+        Args:
+            model_config: defines the model and environment to be used
+            tensorflow_v2_eager: if false, v2 and eager execution must not be active
+        """
         assert model_config is not None, "model_config not set."
 
+        self._tensorflow_v2_eager = tensorflow_v2_eager
         self.model_config = model_config
         self._agent_context: core.AgentContext = core.AgentContext(self.model_config)
         self._agent_context.gym._totals = monitor._register_gym_monitor(self.model_config.original_env_name)
@@ -55,21 +61,33 @@ class _BackendAgent(ABC):
         self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
-        self._initialize_tensorflow_and_seeds()
 
-    def _initialize_tensorflow_and_seeds(self):
-        """ initializes TensorFlow behaviour and random seeds."""
-        self.log_api('tf.compat.v1.enable_v2_behavior')
-        tensorflow.compat.v1.enable_v2_behavior()
-        self.log_api('tf.compat.v1.enable_eager_execution')
-        tensorflow.compat.v1.enable_eager_execution()
+    def _set_tensorflow_and_seed(self):
+        """ sets the random seeds for all dependent packages and tensorflow to v2 behavior with
+            eager execution.
+
+            if tensorflow_v2_eager is false but already active, an exception is raised.
+            """
+        if (self._tensorflow_v2_eager and not _tensorflow_v2_eager_enabled):
+            self.log_api('tf.compat.v1.enable_v2_behavior')
+            tensorflow.compat.v1.enable_v2_behavior()
+            self.log_api('tf.compat.v1.enable_eager_execution')
+            tensorflow.compat.v1.enable_eager_execution()
+        if not self._tensorflow_v2_eager:
+            assert not _tensorflow_v2_eager_enabled, \
+                "v2 behavior and eager execution were activated by another backend, " + \
+                "but not supported by this backend. " + \
+                "To avoid the conflict do not use this backend in the same python / jupyter kernel instance " + \
+                "with another backend."
         if self.model_config.seed:
             seed = self.model_config.seed
-            self.log_api(f'tf.compat.v1.set_random_seed({seed})')
+            self.log_api(f'tf.compat.v1.set_random_seed', f'({seed})')
             tensorflow.compat.v1.set_random_seed(seed)
-            self.log_api(f'tf.random.set_random_seed({seed})')
+            self.log_api(f'tf.random.set_random_seed', f'(seed={seed})')
             tensorflow.random.set_random_seed(seed=seed)
+            self.log_api(f'numpy.random.seed', f'({seed})')
             numpy.random.seed(seed)
+            self.log_api(f'random.seed', f'({seed})')
             random.seed(seed)
         return
 
@@ -348,6 +366,7 @@ class _BackendAgent(ABC):
         old_callbacks = self._callbacks
         self._callbacks = callbacks
         try:
+            self._set_tensorflow_and_seed()
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_play_begin()
             self.play_implementation(self._agent_context.play)
@@ -381,6 +400,7 @@ class _BackendAgent(ABC):
         self._callbacks = callbacks
 
         try:
+            self._set_tensorflow_and_seed()
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_train_begin()
             self.train_implementation(self._agent_context.train)
