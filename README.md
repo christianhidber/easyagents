@@ -57,14 +57,14 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 
 ### algorithms and backends
 
-|algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl](https://github.com/keras-rl/keras-rl) |
-|----------|:---------:|:-----------:|:--------:|
-|[Dqn](https://arxiv.org/abs/1312.5602)                 |`yes`       |`open`         |`yes`|
-|[Dueling Dqn](https://arxiv.org/abs/1511.06581)        |`open`       |`open`         |`open`|
-|[Ppo](https://arxiv.org/abs/1707.06347)                |`yes`       |`yes`          |`not available`|
-|Random                                                 |`yes`       |`open`         |`open`|
-|[REINFORCE](www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`       |`yes`          |`open`|
-|[SAC](https://arxiv.org/abs/1801.01290)                |`open`      |`not available`|`not available`|
+|algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl](https://github.com/keras-rl/keras-rl) | easyagents class name |
+|----------|:---------:|:-----------:|:--------:| :---: | 
+|[Dqn](https://arxiv.org/abs/1312.5602)                 |`yes`       |`open`  |`yes`            | DqnAgent | 
+|[Dueling Dqn](https://arxiv.org/abs/1511.06581)        |`open`      |`open`  |`open`           |`open`|
+|[Ppo](https://arxiv.org/abs/1707.06347)                |`yes`       |`yes`   |`not available`  | PpoAgent |
+|Random                                                 |`yes`       |`open`  |`open`           | RandomAgent |
+|[REINFORCE](www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`open`| ReinforceAgent | 
+|[SAC](https://arxiv.org/abs/1801.01290)                |`open`      |`not available`|`not available`|`open`|
 
 [october 2019]
 
