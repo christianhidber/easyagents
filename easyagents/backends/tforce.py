@@ -140,13 +140,17 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
 class TforceDqnAgent(TforceAgent):
     """ Agent based on the DQN algorithm using the tensorforce implementation."""
 
-    def __init__(self, model_config: easyagents.core.ModelConfig):
+    def __init__(self, model_config: easyagents.core.ModelConfig,
+                 enable_dueling_dqn: bool= False, enable_double_dqn = False):
         """
         Args:
             model_config: the model configuration including the name of the target gym environment
                 as well as the neural network architecture.
+            enable_double_dqn:
         """
         super().__init__(model_config=model_config)
+        self._enable_double_dqn : bool = enable_double_dqn
+        self._enable_dueling_dqn : bool = enable_dueling_dqn
 
     def train_implementation(self, train_context: easyagents.core.DqnTrainContext):
         """Tensorforce Dqn Implementation of the train loop.

@@ -293,6 +293,46 @@ class DqnAgent(EasyAgent):
         super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
         return train_context
 
+class DoubleDqnAgent(DqnAgent):
+    """creates a new agent based on the Double Dqn algorithm (https://arxiv.org/abs/1509.06461)
+
+    Args:
+        gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
+        fc_layers: defines the neural network to be used, a sequence of fully connected
+            layers of the given size. Eg (75,40) yields a neural network consisting
+            out of 2 hidden layers, the first one containing 75 and the second layer
+            containing 40 neurons.
+        backend=the backend to be used (eg 'tensorforce'), if None a default implementation is used.
+            call get_backends() to get a list of the available backends.
+    """
+
+    def __init__(self,
+                 gym_env_name: str,
+                 fc_layers: Optional[Tuple[int, ...]] = None,
+                 backend: str = None):
+        super(EasyAgent,self).__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
+        return
+
+class DuelingDqnAgent(DqnAgent):
+    """creates a new agent based on the Dueling Dqn algorithm (https://arxiv.org/abs/1511.06581).
+
+    Args:
+        gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
+        fc_layers: defines the neural network to be used, a sequence of fully connected
+            layers of the given size. Eg (75,40) yields a neural network consisting
+            out of 2 hidden layers, the first one containing 75 and the second layer
+            containing 40 neurons.
+        backend=the backend to be used (eg 'tensorforce'), if None a default implementation is used.
+            call get_backends() to get a list of the available backends.
+    """
+
+    def __init__(self,
+                 gym_env_name: str,
+                 fc_layers: Optional[Tuple[int, ...]] = None,
+                 backend: str = None):
+        super(EasyAgent,self).__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
+        return
+
 
 class PpoAgent(EasyAgent):
     """creates a new agent based on the PPO algorithm.

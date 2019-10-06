@@ -199,14 +199,18 @@ class KerasRlDqnAgent(KerasRlAgent):
                 if not self._dqn_context.training_done:
                     self._agent.on_train_iteration_begin()
 
-    def __init__(self, model_config: core.ModelConfig):
+    def __init__(self, model_config: core.ModelConfig,
+                 enable_dueling_dqn: bool = False, enable_double_dqn=False):
         """ creates a new agent based on the DQN algorithm using the keras-rl implementation.
 
             Args:
                 model_config: the model configuration including the name of the target gym environment
                     as well as the neural network architecture.
+                enable_double_dqn:
         """
         super().__init__(model_config=model_config)
+        self._enable_double_dqn: bool = enable_double_dqn
+        self._enable_dueling_network: bool = enable_dueling_dqn
 
     def train_implementation(self, train_context: core.DqnTrainContext):
         assert train_context
@@ -219,10 +223,14 @@ class KerasRlDqnAgent(KerasRlAgent):
         policy = BoltzmannQPolicy()
         num_actions = train_env.action_space.n
         self.log_api(f'DQNAgent', f'(nb_actions={num_actions}, ' +
+                     f'enable_double_dqn={self._enable_double_dqn}, ' +
+                     f'enable_dueling_network={self._enable_dueling_network}, ' +
                      f'nb_steps_warmup={dc.num_steps_buffer_preload}, target_model_update=1e-2,' +
                      f'gamma={dc.reward_discount_gamma}, batch_size={dc.num_steps_sampled_from_buffer}, ' +
                      f'train_interval={dc.num_steps_per_iteration}, model=..., memory=..., policy=...)')
         self._agent = KerasRlDqnAgent.DQNAgentWrapper(
+            enable_double_dqn=self._enable_double_dqn,
+            enable_dueling_network=self._enable_dueling_network,
             model=keras_model,
             nb_actions=num_actions,
             memory=memory,
