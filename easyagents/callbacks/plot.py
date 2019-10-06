@@ -417,7 +417,7 @@ class Loss(_PlotCallback):
         self.clear_plot(agent_context)
         lossvalues = list(tc.loss.values())
         if self._is_nan(lossvalues):
-            self.plot_text('plot not available for this backend.')
+            self.plot_text('plot not available')
         else:
             self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes trained',
                            ylim=self.ylim, ylabel='loss', yscale=self.yscale)
