@@ -14,8 +14,7 @@ from easyagents import core
 from easyagents.backends import monitor
 from easyagents.callbacks import plot
 
-_tensorflow_v2_eager_enabled: bool = False
-
+_tensorflow_v2_eager_enabled: Optional[bool] = None
 
 class _BackendEvalCallback(core.AgentCallback):
     """Evaluates an agents current policy and updates its train_context accordingly."""
@@ -46,7 +45,7 @@ class _BackendAgent(ABC):
         """
         Args:
             model_config: defines the model and environment to be used
-            tensorflow_v2_eager: if false, v2 and eager execution must not be active
+            tensorflow_v2_eager: the execution mode, enforced for this and all other backend agents.
         """
         assert model_config is not None, "model_config not set."
 
@@ -61,26 +60,28 @@ class _BackendAgent(ABC):
         self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
+        self._initialize_tensorflow()
 
-    def _assert_tensorflow_configuration(self, backend_name:str = ''):
-        if not self._tensorflow_v2_eager:
-            assert not _tensorflow_v2_eager_enabled, \
-                "v2 behavior and eager execution were activated by another backend. " + \
-                f'This is not compatible with the current backend "{backend_name}". ' + \
-                "To avoid the conflict, do not combine both backends in the same python / jupyter kernel instance. "
+    def _initialize_tensorflow(self):
+        """ v2 behavior and eager execution mode. if a previous backend selected a different mode an
+            exceptionis raised."""
+        global _tensorflow_v2_eager_enabled
 
-    def _set_tensorflow_and_seed(self):
-        """ sets the random seeds for all dependent packages and tensorflow to v2 behavior with
-            eager execution.
+        if _tensorflow_v2_eager_enabled is None:
+            _tensorflow_v2_eager_enabled = self._tensorflow_v2_eager
+            if _tensorflow_v2_eager_enabled:
+                self.log_api('tf.compat.v1.enable_v2_behavior')
+                tensorflow.compat.v1.enable_v2_behavior()
+                self.log_api('tf.compat.v1.enable_eager_execution')
+                tensorflow.compat.v1.enable_eager_execution()
+        assert _tensorflow_v2_eager_enabled == self._tensorflow_v2_eager, \
+            "v2 behavior and eager execution mode already selected by another backend does not match " + \
+            "the requirements of this backend. " + \
+            "To avoid the conflict, do not combine both backend types in the same python / jupyter kernel instance. "
+        return
 
-            if tensorflow_v2_eager is false but already active, an exception is raised.
-            """
-        if (self._tensorflow_v2_eager and not _tensorflow_v2_eager_enabled):
-            self.log_api('tf.compat.v1.enable_v2_behavior')
-            tensorflow.compat.v1.enable_v2_behavior()
-            self.log_api('tf.compat.v1.enable_eager_execution')
-            tensorflow.compat.v1.enable_eager_execution()
-        self._assert_tensorflow_configuration()
+    def _set_seed(self):
+        """ sets the random seeds for all dependent packages """
         if not self.model_config.seed is None:
             seed = self.model_config.seed
             self.log_api(f'tf.compat.v1.set_random_seed', f'({seed})')
@@ -401,7 +402,7 @@ class _BackendAgent(ABC):
         self._callbacks = callbacks
 
         try:
-            self._set_tensorflow_and_seed()
+            self._set_seed()
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_train_begin()
             self.train_implementation(self._agent_context.train)
