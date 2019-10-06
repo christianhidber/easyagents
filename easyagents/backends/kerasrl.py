@@ -188,7 +188,8 @@ class KerasRlDqnAgent(KerasRlAgent):
 
         def on_step_end(self, step, logs=None):
             """Signals the base class the end / begin of a training iteration."""
-            if self._dqn_context.steps_done_in_training % self._dqn_context.num_steps_per_iteration == 0:
+            steps_done = self._dqn_context.steps_done_in_training - self._dqn_context.num_steps_buffer_preload
+            if steps_done > 0 and steps_done % self._dqn_context.num_steps_per_iteration == 0:
                 loss = math.nan
                 if logs and 'metrics' in logs and (self._loss_metric_idx is not None):
                     metrics = logs['metrics']
