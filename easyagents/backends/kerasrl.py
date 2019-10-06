@@ -130,7 +130,7 @@ class KerasRlDqnAgent(KerasRlAgent):
         Essentially a copy of  https://raw.githubusercontent.com/keras-rl/keras-rl/master/rl/agents/dqn.py
         """
 
-        def __init__(self, model, policy=None, test_policy=None, enable_double_dqn=True, enable_dueling_network=False,
+        def __init__(self, model, policy=None, test_policy=None, enable_double_dqn=False, enable_dueling_network=False,
                      dueling_type='avg', *args, **kwargs):
             super(DQNAgent, self).__init__(*args, **kwargs)
 
@@ -199,14 +199,18 @@ class KerasRlDqnAgent(KerasRlAgent):
                 if not self._dqn_context.training_done:
                     self._agent.on_train_iteration_begin()
 
-    def __init__(self, model_config: core.ModelConfig):
+    def __init__(self, model_config: core.ModelConfig,
+                 enable_dueling_dqn: bool = False, enable_double_dqn=False):
         """ creates a new agent based on the DQN algorithm using the keras-rl implementation.
 
             Args:
                 model_config: the model configuration including the name of the target gym environment
                     as well as the neural network architecture.
+                enable_double_dqn:
         """
         super().__init__(model_config=model_config)
+        self._enable_double_dqn: bool = enable_double_dqn
+        self._enable_dueling_network: bool = enable_dueling_dqn
 
     def train_implementation(self, train_context: core.DqnTrainContext):
         assert train_context
@@ -219,10 +223,14 @@ class KerasRlDqnAgent(KerasRlAgent):
         policy = BoltzmannQPolicy()
         num_actions = train_env.action_space.n
         self.log_api(f'DQNAgent', f'(nb_actions={num_actions}, ' +
+                     f'enable_double_dqn={self._enable_double_dqn}, ' +
+                     f'enable_dueling_network={self._enable_dueling_network}, ' +
                      f'nb_steps_warmup={dc.num_steps_buffer_preload}, target_model_update=1e-2,' +
                      f'gamma={dc.reward_discount_gamma}, batch_size={dc.num_steps_sampled_from_buffer}, ' +
                      f'train_interval={dc.num_steps_per_iteration}, model=..., memory=..., policy=...)')
         self._agent = KerasRlDqnAgent.DQNAgentWrapper(
+            enable_double_dqn=self._enable_double_dqn,
+            enable_dueling_network=self._enable_dueling_network,
             model=keras_model,
             nb_actions=num_actions,
             memory=memory,
@@ -245,6 +253,32 @@ class KerasRlDqnAgent(KerasRlAgent):
         self._agent.fit(train_env, nb_steps=num_steps, visualize=False, verbose=0, callbacks=[dqn_callback])
         if not dc.training_done:
             self.on_train_iteration_end(math.nan)
+
+class KerasRlDoubleDqnAgent(KerasRlDqnAgent):
+    """Keras-rl implementation of the algorithm described in https://arxiv.org/abs/1509.06461 """
+
+    def __init__(self, model_config: core.ModelConfig):
+        """ creates a new agent based on the DQN algorithm using the keras-rl implementation.
+
+            Args:
+                model_config: the model configuration including the name of the target gym environment
+                    as well as the neural network architecture.
+                enable_double_dqn:
+        """
+        super().__init__(model_config=model_config, enable_double_dqn=True)
+
+class KerasRlDuelingDqnAgent(KerasRlDqnAgent):
+    """Keras-rl implementation of the algorithm described in https://arxiv.org/abs/1511.06581 """
+
+    def __init__(self, model_config: core.ModelConfig):
+        """ creates a new agent based on the DQN algorithm using the keras-rl implementation.
+
+            Args:
+                model_config: the model configuration including the name of the target gym environment
+                    as well as the neural network architecture.
+                enable_double_dqn:
+        """
+        super().__init__(model_config=model_config, enable_dueling_dqn=True)
 
 
 class CemKerasRlAgent(KerasRlAgent):
@@ -290,4 +324,8 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
-        return {easyagents.agents.DqnAgent: KerasRlDqnAgent}
+        return {
+            easyagents.agents.DqnAgent: KerasRlDqnAgent,
+            easyagents.agents.DoubleDqnAgent: KerasRlDoubleDqnAgent,
+            easyagents.agents.DuelingDqnAgent: KerasRlDuelingDqnAgent,
+        }

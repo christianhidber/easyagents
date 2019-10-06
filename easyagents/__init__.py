@@ -10,4 +10,5 @@ import easyagents.core
 import easyagents.env
 
 # Version of the easy_agents package
-__version__ = "1.1.21"
+__version__ = "1.1.22"
+
