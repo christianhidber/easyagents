@@ -10,8 +10,5 @@ import easyagents.core
 import easyagents.env
 
 # Version of the easy_agents package
-<<<<<<< dueling-dqn
 __version__ = "1.1.22"
-=======
-__version__ = "1.1.21"
->>>>>>> master
+
