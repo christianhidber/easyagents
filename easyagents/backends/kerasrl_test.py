@@ -9,7 +9,7 @@ from easyagents.callbacks import duration,log, plot
 
 class KerasRlTest(unittest.TestCase):
 
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled)
+    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
     @pytest.mark.tfv1
     def test_train(self):
         easyagents.agents.seed = 0

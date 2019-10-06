@@ -71,7 +71,7 @@ class BackendRegistrationTest(unittest.TestCase):
 
 class DqnAgentTest(unittest.TestCase):
 
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled)
+    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
     @pytest.mark.tfv1
     def test_train_v1(self):
         v2_backends = get_backends(DqnAgent, skip_v1=True)

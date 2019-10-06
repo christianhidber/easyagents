@@ -22,6 +22,6 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - pytest -r a -v
+  - pytest -r a -v -m "not tfv1"
   - pytest -r a -v -m tfv1
 
