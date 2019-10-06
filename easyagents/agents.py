@@ -310,7 +310,7 @@ class DoubleDqnAgent(DqnAgent):
                  gym_env_name: str,
                  fc_layers: Optional[Tuple[int, ...]] = None,
                  backend: str = None):
-        super(EasyAgent,self).__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
+        super(DqnAgent,self).__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
         return
 
 class DuelingDqnAgent(DqnAgent):
@@ -330,7 +330,7 @@ class DuelingDqnAgent(DqnAgent):
                  gym_env_name: str,
                  fc_layers: Optional[Tuple[int, ...]] = None,
                  backend: str = None):
-        super(EasyAgent,self).__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
+        super(DqnAgent,self).__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
         return
 
 
