@@ -33,6 +33,7 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
 
     def _create_env(self) -> Environment:
         """Creates a tensorforce Environment encapsulating the underlying gym environment given in self.model_config"""
+        self.log_api('Environment.create', f'(environment="gym", level={self.model_config.gym_env_name})')
         result = Environment.create(environment='gym', level=self.model_config.gym_env_name)
         return result
 
@@ -141,7 +142,7 @@ class TforceDqnAgent(TforceAgent):
     """ Agent based on the DQN algorithm using the tensorforce implementation."""
 
     def __init__(self, model_config: easyagents.core.ModelConfig,
-                 enable_dueling_dqn: bool= False, enable_double_dqn = False):
+                 enable_dueling_dqn: bool = False, enable_double_dqn=False):
         """
         Args:
             model_config: the model configuration including the name of the target gym environment
@@ -149,8 +150,8 @@ class TforceDqnAgent(TforceAgent):
             enable_double_dqn:
         """
         super().__init__(model_config=model_config)
-        self._enable_double_dqn : bool = enable_double_dqn
-        self._enable_dueling_dqn : bool = enable_dueling_dqn
+        self._enable_double_dqn: bool = enable_double_dqn
+        self._enable_dueling_dqn: bool = enable_dueling_dqn
 
     def train_implementation(self, train_context: easyagents.core.DqnTrainContext):
         """Tensorforce Dqn Implementation of the train loop.
@@ -191,14 +192,6 @@ class TforceDqnAgent(TforceAgent):
 class TforcePpoAgent(TforceAgent):
     """ Agent based on the PPO algorithm using the tensorforce implementation."""
 
-    def __init__(self, model_config: easyagents.core.ModelConfig):
-        """
-        Args:
-            model_config: the model configuration including the name of the target gym environment
-                as well as the neural network architecture.
-        """
-        super().__init__(model_config=model_config)
-
     def train_implementation(self, train_context: easyagents.core.ActorCriticTrainContext):
         """Tensorforce Ppo Implementation of the train loop.
 
@@ -230,16 +223,30 @@ class TforcePpoAgent(TforceAgent):
         shutil.rmtree(tempdir, ignore_errors=True)
 
 
+class TforceRandomAgent(TforceAgent):
+    """ Random agent using the tensorforce implementation."""
+
+    def train_implementation(self, train_context: easyagents.core.TrainContext):
+        assert isinstance(train_context, easyagents.core.TrainContext)
+        train_env = self._create_env()
+        self.log_api('Agent.create', f'(agent="random", environment=...)')
+        self._agent = Agent.create(agent='random', environment=train_env )
+
+        while not train_context.training_done:
+            self.on_train_iteration_begin()
+            state = train_env.reset()
+            done = False
+            while not done:
+                action = self._agent.act(state, evaluation=True)
+                state, terminal, reward = self._play_env.execute(actions=action)
+                if isinstance(terminal, bool):
+                    done = terminal
+                else:
+                    done = terminal > 0
+            self.on_train_iteration_end(math.nan)
+
 class TforceReinforceAgent(TforceAgent):
     """ Agent based on the REINFORCE algorithm using the tensorforce implementation."""
-
-    def __init__(self, model_config: easyagents.core.ModelConfig):
-        """
-        Args:
-            model_config: the model configuration including the name of the target gym environment
-                as well as the neural network architecture.
-        """
-        super().__init__(model_config=model_config)
 
     def train_implementation(self, train_context: easyagents.core.EpisodesTrainContext):
         """Tensorforce REINFORCE Implementation of the train loop.
