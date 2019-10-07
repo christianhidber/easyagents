@@ -103,10 +103,13 @@ class DqnAgentsTest(unittest.TestCase):
         v1_backends = [b for b in get_backends(agent_type) if (not b in v2_backends) and  b != 'default']
         backends = v1_backends if is_v1 else v2_backends
         for backend in backends:
-            logger(f'backend={backend} agent={agent_type}, num_iterations={num_iterations}')
+            current_num_iterations=num_iterations
+            if backend=='tensorforce':
+                current_num_iterations=num_iterations*3
+            logger(f'backend={backend} agent={agent_type}, num_iterations={current_num_iterations}')
             dqn_agent: DqnAgent = agent_type('CartPole-v0', fc_layers=(100,), backend=backend)
             tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
-                                                    num_iterations=num_iterations,
+                                                    num_iterations=current_num_iterations,
                                                     num_steps_buffer_preload=1000,
                                                     num_iterations_between_eval=500,
                                                     max_steps_per_episode=200,

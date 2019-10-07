@@ -165,14 +165,15 @@ class TforceDqnAgent(TforceAgent):
         self.log('Creating network specification...')
         network = self._create_network_specification()
 
-        self.log_api('Agent.create', f'(agent="dqn", ' +
+        self.log_api('Agent.create',
+                     f'(agent="dqn", ' +
+                     f'network={network}, ' +
                      f'memory={tc.max_steps_in_buffer}, ' +
                      f'start_updating={tc.num_steps_buffer_preload},'
                      f'learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_steps_sampled_from_buffer}, ' +
                      f'update_frequeny={tc.num_steps_per_iteration}, ' +
                      f'discount={tc.reward_discount_gamma})')
-        tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='dqn',
             environment=train_env,
@@ -183,10 +184,8 @@ class TforceDqnAgent(TforceAgent):
             batch_size=tc.num_steps_sampled_from_buffer,
             update_frequency=tc.num_steps_per_iteration,
             discount=tc.reward_discount_gamma,
-            summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_runner(train_env, tc)
-        shutil.rmtree(tempdir, ignore_errors=True)
 
 
 class TforcePpoAgent(TforceAgent):
@@ -208,7 +207,6 @@ class TforcePpoAgent(TforceAgent):
                      f'batch_size={tc.num_episodes_per_iteration}, ' +
                      f'optimization_steps={tc.num_epochs_per_iteration}, ' +
                      f'discount={tc.reward_discount_gamma})')
-        tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='ppo',
             environment=train_env,
@@ -217,10 +215,8 @@ class TforcePpoAgent(TforceAgent):
             batch_size=tc.num_episodes_per_iteration,
             optimization_steps=tc.num_epochs_per_iteration,
             discount=tc.reward_discount_gamma,
-            summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_runner(train_env, tc)
-        shutil.rmtree(tempdir, ignore_errors=True)
 
 
 class TforceRandomAgent(TforceAgent):
@@ -266,7 +262,6 @@ class TforceReinforceAgent(TforceAgent):
         self.log_api('Agent.create', f'(agent="vpg", learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_episodes_per_iteration}, ' +
                      f'discount={tc.reward_discount_gamma})')
-        tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='vpg',
             environment=train_env,
@@ -274,10 +269,8 @@ class TforceReinforceAgent(TforceAgent):
             learning_rate=tc.learning_rate,
             batch_size=tc.num_episodes_per_iteration,
             discount=tc.reward_discount_gamma,
-            summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_runner(train_env, tc)
-        shutil.rmtree(tempdir, ignore_errors=True)
 
 
 class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
@@ -291,7 +284,7 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
         return {
-            # easyagents.agents.DqnAgent: TforceDqnAgent,
+            easyagents.agents.DqnAgent: TforceDqnAgent,
             easyagents.agents.PpoAgent: TforcePpoAgent,
             easyagents.agents.RandomAgent: TforceRandomAgent,
             easyagents.agents.ReinforceAgent: TforceReinforceAgent}
