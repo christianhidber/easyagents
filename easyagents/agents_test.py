@@ -39,7 +39,7 @@ class BackendRegistrationTest(unittest.TestCase):
         backends = agents.get_backends(agents.RandomAgent)
         assert 'default' in backends
         assert 'tfagents' in backends
-        assert 'tensorforce' not in backends
+        assert 'tensorforce' in backends
 
     def test_prepare_callbacks(self):
         agent = agents.PpoAgent("CartPole-v0")
