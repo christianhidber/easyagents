@@ -142,16 +142,13 @@ class TforceDqnAgent(TforceAgent):
     """ Agent based on the DQN algorithm using the tensorforce implementation."""
 
     def __init__(self, model_config: easyagents.core.ModelConfig,
-                 enable_dueling_dqn: bool = False, enable_double_dqn=False):
+                 enable_dueling_dqn: bool = False):
         """
         Args:
             model_config: the model configuration including the name of the target gym environment
                 as well as the neural network architecture.
-            enable_double_dqn:
         """
         super().__init__(model_config=model_config)
-        self._enable_double_dqn: bool = enable_double_dqn
-        self._enable_dueling_dqn: bool = enable_dueling_dqn
 
     def train_implementation(self, train_context: easyagents.core.DqnTrainContext):
         """Tensorforce Dqn Implementation of the train loop.
@@ -165,8 +162,9 @@ class TforceDqnAgent(TforceAgent):
         self.log('Creating network specification...')
         network = self._create_network_specification()
 
+        agent_type='dqn'
         self.log_api('Agent.create',
-                     f'(agent="dqn", ' +
+                     f'(agent="{agent_type}", ' +
                      f'network={network}, ' +
                      f'memory={tc.max_steps_in_buffer}, ' +
                      f'start_updating={tc.num_steps_buffer_preload},'
@@ -175,7 +173,7 @@ class TforceDqnAgent(TforceAgent):
                      f'update_frequeny={tc.num_steps_per_iteration}, ' +
                      f'discount={tc.reward_discount_gamma})')
         self._agent = Agent.create(
-            agent='dqn',
+            agent=agent_type,
             environment=train_env,
             network=network,
             memory=tc.max_steps_in_buffer,
@@ -186,6 +184,19 @@ class TforceDqnAgent(TforceAgent):
             discount=tc.reward_discount_gamma,
         )
         self._train_with_runner(train_env, tc)
+
+
+class TforceDuelingDqnAgent(TforceDqnAgent):
+    """ Agent based on the DQN algorithm using the tensorforce implementation."""
+
+    def __init__(self, model_config: easyagents.core.ModelConfig):
+        """
+        Args:
+            model_config: the model configuration including the name of the target gym environment
+                as well as the neural network architecture.
+            enable_double_dqn:
+        """
+        super().__init__(model_config=model_config,enable_dueling_dqn=True)
 
 
 class TforcePpoAgent(TforceAgent):
