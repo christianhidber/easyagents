@@ -231,6 +231,8 @@ class TforceRandomAgent(TforceAgent):
         train_env = self._create_env()
         self.log_api('Agent.create', f'(agent="random", environment=...)')
         self._agent = Agent.create(agent='random', environment=train_env )
+        if not self._agent.model.is_initialized:
+            self._agent.initialize()
 
         while not train_context.training_done:
             self.on_train_iteration_begin()
@@ -238,7 +240,7 @@ class TforceRandomAgent(TforceAgent):
             done = False
             while not done:
                 action = self._agent.act(state, evaluation=True)
-                state, terminal, reward = self._play_env.execute(actions=action)
+                state, terminal, reward = train_env.execute(actions=action)
                 if isinstance(terminal, bool):
                     done = terminal
                 else:
@@ -291,4 +293,5 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
         return {
             # easyagents.agents.DqnAgent: TforceDqnAgent,
             easyagents.agents.PpoAgent: TforcePpoAgent,
+            easyagents.agents.RandomAgent: TforceRandomAgent,
             easyagents.agents.ReinforceAgent: TforceReinforceAgent}

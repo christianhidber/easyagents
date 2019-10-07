@@ -22,11 +22,17 @@ class TensorforceAgentTest(unittest.TestCase):
         ppoAgent = tforce.TforcePpoAgent(model_config=model_config)
         ppoAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent(), duration.Fast()])
 
+    def test_tandom_train(self):
+        model_config = core.ModelConfig("CartPole-v0")
+        tc = core.TrainContext()
+        randomAgent = tforce.TforceRandomAgent(model_config=model_config)
+        randomAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent(), duration.Fast()])
+
     def test_reinforce_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.EpisodesTrainContext()
-        randomAgent = tforce.TforceReinforceAgent(model_config=model_config)
-        randomAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent(), duration.Fast()])
+        reinforceAgent = tforce.TforceReinforceAgent(model_config=model_config)
+        reinforceAgent.train(train_context=tc, callbacks=[log.Iteration(), log.Agent(), duration.Fast()])
 
 
 if __name__ == '__main__':
