@@ -64,7 +64,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 |[Double Dqn](https://arxiv.org/abs/1509.06461)   |`not available` |`open`    |`yes`            | DoubleDqnAgent|
 |[Dueling Dqn](https://arxiv.org/abs/1511.06581)  |`open`          |`open`    |`yes`            | DuelingDqnAgent|
 |[Ppo](https://arxiv.org/abs/1707.06347)          |`yes`           |`yes`     |`not available`  | PpoAgent |
-|Random                                           |`yes`           |`open`    |`not available`           | RandomAgent |
+|Random                                           |`yes`           |`yes`    |`not available`           | RandomAgent |
 |[REINFORCE](www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
 |[SAC](https://arxiv.org/abs/1801.01290)          |`open`          |`not available`|`not available`|`open`|
 
