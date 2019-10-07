@@ -40,7 +40,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
     def __init__(self, model_config: core.ModelConfig):
         super().__init__(model_config=model_config)
         self._trained_policy = None
-        self._play_env : Optional[gym.Env] = None
+        self._play_env: Optional[gym.Env] = None
 
     def _create_gym_with_wrapper(self, discount):
         gym_spec = gym.spec(self.model_config.gym_env_name)
@@ -51,7 +51,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
         env = gym_wrapper.GymWrapper(
             gym_env,
             discount=discount,
-            simplify_box_bounds=False) # important, default (True) crashes environments with boundaries with identical values 
+            simplify_box_bounds=False)  # important, default (True) crashes environments with boundaries with identical values
         return env
 
     def _create_env(self, discount: float = 1) -> tf_py_environment.TFPyEnvironment:
@@ -62,7 +62,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
         """
         assert 0 < discount <= 1, "discount not admissible"
 
-        self.log_api(f'creating TFPyEnvironment( suite_gym.load( ... ) )')
+        self.log_api(f'TFPyEnvironment', f'( suite_gym.load( ... ) )')
         # suit_gym.load crashes our environment 
         # py_env = suite_gym.load(self.model_config.gym_env_name, discount=discount)
         py_env = self._create_gym_with_wrapper(discount)
@@ -135,49 +135,50 @@ class TfDqnAgent(TfAgent):
         assert isinstance(train_context, core.DqnTrainContext)
         dc: core.DqnTrainContext = train_context
 
-        self.log('Creating environment...')
         train_env = self._create_env(discount=dc.reward_discount_gamma)
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
 
         # SetUp Optimizer, Networks and DqnAgent
-        self.log_api('AdamOptimizer', 'create')
+        self.log_api('AdamOptimizer', '()')
         optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=dc.learning_rate)
-        self.log_api('QNetwork', 'create')
+        self.log_api('QNetwork', '()')
         q_net = q_network.QNetwork(observation_spec, action_spec, fc_layer_params=self.model_config.fc_layers)
-        self.log_api('DqnAgent', 'create')
+        self.log_api('DqnAgent', '()')
         tf_agent = dqn_agent.DqnAgent(timestep_spec, action_spec,
                                       q_network=q_net, optimizer=optimizer,
                                       td_errors_loss_fn=common.element_wise_squared_loss)
 
-        self.log_api('tf_agent.initialize()')
+        self.log_api('tf_agent.initialize', f'()')
         tf_agent.initialize()
         self._trained_policy = tf_agent.policy
 
         # SetUp Data collection & Buffering
-        self.log_api('TFUniformReplayBuffer', 'create')
+        self.log_api('TFUniformReplayBuffer', '()')
         replay_buffer = TFUniformReplayBuffer(data_spec=tf_agent.collect_data_spec,
                                               batch_size=train_env.batch_size,
                                               max_length=dc.max_steps_in_buffer)
-        self.log_api('RandomTFPolicy', 'create')
-        self.log("Preloading replay buffer...")
+        self.log_api('RandomTFPolicy', '()')
         random_policy = random_tf_policy.RandomTFPolicy(timestep_spec, action_spec)
+        self.log_api('replay_buffer.add_batch', '(trajectory)')
         for _ in range(dc.num_steps_buffer_preload):
             self.collect_step(env=train_env, policy=random_policy, replay_buffer=replay_buffer)
 
         # Train
         tf_agent.train = common.function(tf_agent.train, autograph=False)
-        self.log_api('replay_buffer.as_dataset', 'create')
+        self.log_api('replay_buffer.as_dataset', f'(num_parallel_calls=3, ' + \
+                     f'sample_batch_size={dc.num_steps_sampled_from_buffer}, num_steps=2).prefetch(3)')
         dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=dc.num_steps_sampled_from_buffer,
                                            num_steps=2).prefetch(3)
         iter_dataset = iter(dataset)
-        self.log("Training...")
         while True:
             self.on_train_iteration_begin()
+            self.log_api('replay_buffer.add_batch', '(trajectory)')
             for _ in range(dc.num_steps_per_iteration):
                 self.collect_step(env=train_env, policy=tf_agent.collect_policy, replay_buffer=replay_buffer)
             trajectories, _ = next(iter_dataset)
+            self.log_api('tf_agent.train', '(experience=trajectory)')
             tf_loss_info = tf_agent.train(experience=trajectories)
             self.on_train_iteration_end(tf_loss_info.loss)
             if train_context.training_done:
@@ -392,7 +393,6 @@ class TfReinforceAgent(TfAgent):
         return
 
 
-
 class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend for TfAgents.
 
@@ -403,8 +403,7 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
-        return {easyagents.agents.DqnAgent : TfDqnAgent,
-                easyagents.agents.PpoAgent : TfPpoAgent,
-                easyagents.agents.RandomAgent : TfRandomAgent,
+        return {easyagents.agents.DqnAgent: TfDqnAgent,
+                easyagents.agents.PpoAgent: TfPpoAgent,
+                easyagents.agents.RandomAgent: TfRandomAgent,
                 easyagents.agents.ReinforceAgent: TfReinforceAgent}
-

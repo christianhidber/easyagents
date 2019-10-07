@@ -7,7 +7,7 @@ Status: under active development, breaking changes may occur. [Release notes](do
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
 EasyAgents is a high level reinforcement learning api focusing on ease of use and simplicity.
-Written in Python and running on top of different reinforcement learning libraries like
+Written in Python and running on top of established reinforcement learning libraries like
 [tf-Agents](https://github.com/tensorflow/agents), 
 [tensorforce](https://github.com/tensorforce/tensorforce) or 
 [keras-rl](https://github.com/keras-rl/keras-rl).
@@ -59,7 +59,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 
 |algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl](https://github.com/keras-rl/keras-rl) | easyagents class name |
 |----------|:---------:|:-----------:|:--------:| :---: | 
-|[CEM](citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf) |`not available`  |`not available`  |`open`  | `open` | 
+|[CEM](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf) |`not available`  |`not available`  |`open`  | `open` | 
 |[Dqn](https://arxiv.org/abs/1312.5602)           |`yes`           |`open`    |`yes`            | DqnAgent | 
 |[Double Dqn](https://arxiv.org/abs/1509.06461)   |`not available` |`open`    |`yes`            | DoubleDqnAgent|
 |[Dueling Dqn](https://arxiv.org/abs/1511.06581)  |`open`          |`open`    |`yes`            | DuelingDqnAgent|
@@ -91,7 +91,7 @@ pip install easyagents
 ```
 
 ### Documentation
-[release notes, class diagrams](documentation/README.md)
+[release notes, class diagram](documentation/README.md)
 
 ### EasyAgents may not be ideal if
 
@@ -102,7 +102,8 @@ pip install easyagents
 
 * This repository is under active development and in an early stage. 
   Thus any- and everything may (and probably should) change.
-* If you have any difficulties in installing or using easyagents please let us know. 
+* If you have any difficulties in installing or using easyagents please let us know by 
+  [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose).
   We'll try to do our best to help you.
 * Any ideas, help, suggestions, comments etc in python / open source development / reinforcement learning / whatever
   are more than welcome. Thanks a lot in advance.

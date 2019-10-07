@@ -2,7 +2,7 @@ import pytest
 import unittest
 import logging
 
-from easyagents.agents import ReinforceAgent, PpoAgent, DqnAgent, DoubleDqnAgent, DuelingDqnAgent, RandomAgent
+from easyagents.agents import CemAgent, ReinforceAgent, PpoAgent, DqnAgent, DoubleDqnAgent, DuelingDqnAgent, RandomAgent
 from easyagents.agents import get_backends
 from easyagents import env, core, agents
 from easyagents.callbacks import duration, log, plot
@@ -69,6 +69,31 @@ class BackendRegistrationTest(unittest.TestCase):
         with pytest.raises(AssertionError):
             agents.register_backend(backend=None)
 
+
+
+class CemAgentTest(unittest.TestCase):
+
+    def train_and_assert(self, agent_type, is_v1: bool, num_iterations=100):
+        logger = logging.warning
+        v2_backends = [b for b in get_backends(agent_type, skip_v1=True) if b != 'default']
+        v1_backends = [b for b in get_backends(agent_type) if (not b in v2_backends) and  b != 'default']
+        backends = v1_backends if is_v1 else v2_backends
+        for backend in backends:
+            logger(f'backend={backend} agent={agent_type}, num_iterations={num_iterations}')
+            cem_agent: CemAgent = agent_type('CartPole-v0', fc_layers=(100,), backend=backend)
+            tc: core.TrainContext = cem_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
+                                                    num_iterations=num_iterations,
+                                                    num_iterations_between_eval=10,
+                                                    max_steps_per_episode=200,
+                                                    default_plots=False)
+            (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
+            assert max_steps >= 100
+            assert avg_steps >= 50
+
+    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
+    @pytest.mark.tfv1
+    def test_cem_v1(self):
+        self.train_and_assert(CemAgent, True)
 
 class DqnAgentsTest(unittest.TestCase):
 
