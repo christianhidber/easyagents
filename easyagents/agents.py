@@ -16,6 +16,8 @@ import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
 import easyagents.backends.tforce
 
+import statistics
+
 _backends: [bcore.BackendAgentFactory] = []
 
 """The seed used for all agents and gym environments. If None no seed is set (default)."""
@@ -132,7 +134,7 @@ class EasyAgent(ABC):
                 if None default callbacks are only added if the callbacks list is empty
 
         Returns:
-            play_context containg the actions taken and the rewards received during training
+            play_context containing the actions taken and the rewards received during training
         """
         assert play_context, "play_context not set."
         if callbacks is None:
@@ -168,6 +170,26 @@ class EasyAgent(ABC):
             play_context.num_episodes = num_episodes
         self._play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
         return play_context
+
+    def score(self,
+             num_episodes: int = 50,
+             max_steps_per_episode: int = 50):
+        """Plays num_episodes with the current policy and computes metrics on rewards.
+
+        Args:
+            num_episodes: number of episodes to play
+            max_steps_per_episode: max steps per episode
+
+        Returns:
+            score metrics - mean, std, min, max, all
+        """
+        play_context = core.PlayContext()
+        play_context.max_steps_per_episode = max_steps_per_episode
+        play_context.num_episodes = num_episodes
+        self.play(play_context=play_context, default_plots=False)
+        all = list(play_context.sum_of_rewards.values())
+
+        return statistics.mean(all), statistics.stdev(all), min(all), max(all), all
 
     def train(self, train_context: core.TrainContext,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
