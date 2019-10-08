@@ -536,4 +536,5 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
         return {easyagents.agents.DqnAgent: TfDqnAgent,
                 easyagents.agents.PpoAgent: TfPpoAgent,
                 easyagents.agents.RandomAgent: TfRandomAgent,
-                easyagents.agents.ReinforceAgent: TfReinforceAgent}
+                easyagents.agents.ReinforceAgent: TfReinforceAgent,
+                easyagents.agents.SacAgent: TfSacAgent}

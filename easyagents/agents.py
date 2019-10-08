@@ -505,3 +505,6 @@ class ReinforceAgent(EasyAgent):
 
         super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
         return train_context
+
+class SacAgent(DqnAgent):
+    """Agent based on the Soft-Actor-Critic algorithm (https://arxiv.org/abs/1812.05905)."""
