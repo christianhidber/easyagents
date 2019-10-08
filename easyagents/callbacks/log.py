@@ -223,7 +223,7 @@ class Iteration(_LogCallbackBase):
         tc = agent_context.train
         e = tc.episodes_done_in_training
         if not self._eval_only or (tc.iterations_done_in_training % tc.num_iterations_between_eval == 0):
-            msg = f'episodes_done={e:<3} '
+            msg = f'episodes_done={e:<3} steps_done={tc.steps_done_in_training:<5} '
             if e in tc.loss:
                 loss = tc.loss[e]
                 if not (isinstance(loss, float) and math.isnan(loss)):

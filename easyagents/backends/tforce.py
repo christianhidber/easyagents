@@ -33,6 +33,7 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
 
     def _create_env(self) -> Environment:
         """Creates a tensorforce Environment encapsulating the underlying gym environment given in self.model_config"""
+        self.log_api('Environment.create', f'(environment="gym", level={self.model_config.gym_env_name})')
         result = Environment.create(environment='gym', level=self.model_config.gym_env_name)
         return result
 
@@ -141,16 +142,13 @@ class TforceDqnAgent(TforceAgent):
     """ Agent based on the DQN algorithm using the tensorforce implementation."""
 
     def __init__(self, model_config: easyagents.core.ModelConfig,
-                 enable_dueling_dqn: bool= False, enable_double_dqn = False):
+                 enable_dueling_dqn: bool = False):
         """
         Args:
             model_config: the model configuration including the name of the target gym environment
                 as well as the neural network architecture.
-            enable_double_dqn:
         """
         super().__init__(model_config=model_config)
-        self._enable_double_dqn : bool = enable_double_dqn
-        self._enable_dueling_dqn : bool = enable_dueling_dqn
 
     def train_implementation(self, train_context: easyagents.core.DqnTrainContext):
         """Tensorforce Dqn Implementation of the train loop.
@@ -164,16 +162,18 @@ class TforceDqnAgent(TforceAgent):
         self.log('Creating network specification...')
         network = self._create_network_specification()
 
-        self.log_api('Agent.create', f'(agent="dqn", ' +
+        agent_type='dqn'
+        self.log_api('Agent.create',
+                     f'(agent="{agent_type}", ' +
+                     f'network={network}, ' +
                      f'memory={tc.max_steps_in_buffer}, ' +
                      f'start_updating={tc.num_steps_buffer_preload},'
                      f'learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_steps_sampled_from_buffer}, ' +
                      f'update_frequeny={tc.num_steps_per_iteration}, ' +
                      f'discount={tc.reward_discount_gamma})')
-        tempdir = self._get_temp_path()
         self._agent = Agent.create(
-            agent='dqn',
+            agent=agent_type,
             environment=train_env,
             network=network,
             memory=tc.max_steps_in_buffer,
@@ -182,22 +182,25 @@ class TforceDqnAgent(TforceAgent):
             batch_size=tc.num_steps_sampled_from_buffer,
             update_frequency=tc.num_steps_per_iteration,
             discount=tc.reward_discount_gamma,
-            summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_runner(train_env, tc)
-        shutil.rmtree(tempdir, ignore_errors=True)
 
 
-class TforcePpoAgent(TforceAgent):
-    """ Agent based on the PPO algorithm using the tensorforce implementation."""
+class TforceDuelingDqnAgent(TforceDqnAgent):
+    """ Agent based on the DQN algorithm using the tensorforce implementation."""
 
     def __init__(self, model_config: easyagents.core.ModelConfig):
         """
         Args:
             model_config: the model configuration including the name of the target gym environment
                 as well as the neural network architecture.
+            enable_double_dqn:
         """
-        super().__init__(model_config=model_config)
+        super().__init__(model_config=model_config,enable_dueling_dqn=True)
+
+
+class TforcePpoAgent(TforceAgent):
+    """ Agent based on the PPO algorithm using the tensorforce implementation."""
 
     def train_implementation(self, train_context: easyagents.core.ActorCriticTrainContext):
         """Tensorforce Ppo Implementation of the train loop.
@@ -215,7 +218,6 @@ class TforcePpoAgent(TforceAgent):
                      f'batch_size={tc.num_episodes_per_iteration}, ' +
                      f'optimization_steps={tc.num_epochs_per_iteration}, ' +
                      f'discount={tc.reward_discount_gamma})')
-        tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='ppo',
             environment=train_env,
@@ -224,22 +226,36 @@ class TforcePpoAgent(TforceAgent):
             batch_size=tc.num_episodes_per_iteration,
             optimization_steps=tc.num_epochs_per_iteration,
             discount=tc.reward_discount_gamma,
-            summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_runner(train_env, tc)
-        shutil.rmtree(tempdir, ignore_errors=True)
 
+
+class TforceRandomAgent(TforceAgent):
+    """ Random agent using the tensorforce implementation."""
+
+    def train_implementation(self, train_context: easyagents.core.TrainContext):
+        assert isinstance(train_context, easyagents.core.TrainContext)
+        train_env = self._create_env()
+        self.log_api('Agent.create', f'(agent="random", environment=...)')
+        self._agent = Agent.create(agent='random', environment=train_env )
+        if not self._agent.model.is_initialized:
+            self._agent.initialize()
+
+        while not train_context.training_done:
+            self.on_train_iteration_begin()
+            state = train_env.reset()
+            done = False
+            while not done:
+                action = self._agent.act(state, evaluation=True)
+                state, terminal, reward = train_env.execute(actions=action)
+                if isinstance(terminal, bool):
+                    done = terminal
+                else:
+                    done = terminal > 0
+            self.on_train_iteration_end(math.nan)
 
 class TforceReinforceAgent(TforceAgent):
     """ Agent based on the REINFORCE algorithm using the tensorforce implementation."""
-
-    def __init__(self, model_config: easyagents.core.ModelConfig):
-        """
-        Args:
-            model_config: the model configuration including the name of the target gym environment
-                as well as the neural network architecture.
-        """
-        super().__init__(model_config=model_config)
 
     def train_implementation(self, train_context: easyagents.core.EpisodesTrainContext):
         """Tensorforce REINFORCE Implementation of the train loop.
@@ -257,7 +273,6 @@ class TforceReinforceAgent(TforceAgent):
         self.log_api('Agent.create', f'(agent="vpg", learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_episodes_per_iteration}, ' +
                      f'discount={tc.reward_discount_gamma})')
-        tempdir = self._get_temp_path()
         self._agent = Agent.create(
             agent='vpg',
             environment=train_env,
@@ -265,10 +280,8 @@ class TforceReinforceAgent(TforceAgent):
             learning_rate=tc.learning_rate,
             batch_size=tc.num_episodes_per_iteration,
             discount=tc.reward_discount_gamma,
-            summarizer=dict(directory=tempdir, labels=['losses']),
         )
         self._train_with_runner(train_env, tc)
-        shutil.rmtree(tempdir, ignore_errors=True)
 
 
 class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
@@ -282,6 +295,7 @@ class BackendAgentFactory(easyagents.backends.core.BackendAgentFactory):
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
         return {
-            # easyagents.agents.DqnAgent: TforceDqnAgent,
+            easyagents.agents.DqnAgent: TforceDqnAgent,
             easyagents.agents.PpoAgent: TforcePpoAgent,
+            easyagents.agents.RandomAgent: TforceRandomAgent,
             easyagents.agents.ReinforceAgent: TforceReinforceAgent}

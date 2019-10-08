@@ -2,7 +2,7 @@ import pytest
 import unittest
 import logging
 
-from easyagents.agents import ReinforceAgent, PpoAgent, DqnAgent, DoubleDqnAgent, DuelingDqnAgent, RandomAgent
+from easyagents.agents import CemAgent, ReinforceAgent, PpoAgent, DqnAgent, DoubleDqnAgent, DuelingDqnAgent, RandomAgent
 from easyagents.agents import get_backends
 from easyagents import env, core, agents
 from easyagents.callbacks import duration, log, plot
@@ -39,7 +39,7 @@ class BackendRegistrationTest(unittest.TestCase):
         backends = agents.get_backends(agents.RandomAgent)
         assert 'default' in backends
         assert 'tfagents' in backends
-        assert 'tensorforce' not in backends
+        assert 'tensorforce' in backends
 
     def test_prepare_callbacks(self):
         agent = agents.PpoAgent("CartPole-v0")
@@ -70,7 +70,44 @@ class BackendRegistrationTest(unittest.TestCase):
             agents.register_backend(backend=None)
 
 
+
+class CemAgentTest(unittest.TestCase):
+
+    def train_and_assert(self, agent_type, is_v1: bool, num_iterations=100):
+        logger = logging.warning
+        v2_backends = [b for b in get_backends(agent_type, skip_v1=True) if b != 'default']
+        v1_backends = [b for b in get_backends(agent_type) if (not b in v2_backends) and  b != 'default']
+        backends = v1_backends if is_v1 else v2_backends
+        for backend in backends:
+            logger(f'backend={backend} agent={agent_type}, num_iterations={num_iterations}')
+            cem_agent: CemAgent = agent_type('CartPole-v0', fc_layers=(100,), backend=backend)
+            tc: core.TrainContext = cem_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
+                                                    num_iterations=num_iterations,
+                                                    num_iterations_between_eval=10,
+                                                    max_steps_per_episode=200,
+                                                    default_plots=False)
+            (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
+            assert max_steps >= 100
+            assert avg_steps >= 50
+
+    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
+    @pytest.mark.tfv1
+    def test_cem_v1(self):
+        self.train_and_assert(CemAgent, True)
+
 class DqnAgentsTest(unittest.TestCase):
+
+    def train_and_eval(self, agent_type, backend, num_iterations):
+        dqn_agent: DqnAgent = agent_type('CartPole-v0', fc_layers=(100,), backend=backend)
+        tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
+                                                num_iterations=num_iterations,
+                                                num_steps_buffer_preload=1000,
+                                                num_iterations_between_eval=500,
+                                                max_steps_per_episode=200,
+                                                default_plots=False)
+        max_avg_steps = max([avg_steps for (min_steps,avg_steps,max_steps) in tc.eval_steps.values()])
+        return max_avg_steps
+
 
     def train_and_assert(self, agent_type, is_v1: bool, num_iterations=10000):
         logger = logging.warning
@@ -78,16 +115,12 @@ class DqnAgentsTest(unittest.TestCase):
         v1_backends = [b for b in get_backends(agent_type) if (not b in v2_backends) and  b != 'default']
         backends = v1_backends if is_v1 else v2_backends
         for backend in backends:
-            logger(f'backend={backend} agent={agent_type}, num_iterations={num_iterations}')
-            dqn_agent: DqnAgent = agent_type('CartPole-v0', fc_layers=(100,), backend=backend)
-            tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
-                                                    num_iterations=num_iterations,
-                                                    num_steps_buffer_preload=1000,
-                                                    num_iterations_between_eval=500,
-                                                    max_steps_per_episode=200,
-                                                    default_plots=False)
-            (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
-            assert avg_steps >= 100
+            current_num_iterations=num_iterations
+            if backend=='tensorforce':
+                current_num_iterations=num_iterations*3
+            logger(f'backend={backend} agent={agent_type}, num_iterations={current_num_iterations}')
+            max_avg_steps = self.train_and_eval(agent_type=agent_type, backend=backend, num_iterations=current_num_iterations)
+            assert max_avg_steps >= 100, f'agent_type={agent_type} backend={backend} num_iterations={num_iterations}'
 
     @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
     @pytest.mark.tfv1

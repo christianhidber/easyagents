@@ -284,6 +284,29 @@ class ActorCriticTrainContext(EpisodesTrainContext):
         self.critic_loss = dict()
         super()._reset()
 
+class CemTrainContext(EpisodesTrainContext):
+    """Holds the configuration and current training state for Cross-Entropy-Methode agents.
+
+        Attributes:
+            elite_set_fraction: fraction of the elite policy set.
+            num_steps_warmup: number of steps performed to initially load the policy buffer
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.num_iterations = 100
+        self.num_episodes_per_iteration: int = 50
+        self.elite_set_fraction: float = 0.1
+        self.num_steps_warmup: int = 2000
+
+    def __str__(self):
+        return super().__str__() + f'#elite_set_fraction={self.elite_set_fraction} '
+
+    def _validate(self):
+        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
+        super()._validate()
+        assert  1 >= self.elite_set_fraction > 0, "elite_set_fraction must be in interval (0,1]"
+
 
 class DqnTrainContext(TrainContext):
     """Base class for all agent which evaluate a number of steps during each iteration:
@@ -302,7 +325,6 @@ class DqnTrainContext(TrainContext):
             num_steps_per_iteration: number of steps played for each iteration
             num_steps_buffer_preload: number of initial collect steps to preload the buffer
             num_steps_sampled_from_buffer: the number of steps sampled from buffer for each iteration training
-
     """
 
     def __init__(self):
@@ -310,8 +332,8 @@ class DqnTrainContext(TrainContext):
         self.num_iterations = 20000
         self.num_iterations_between_eval = 1000
         self.num_steps_per_iteration: int = 1
-        self.num_steps_buffer_preload = 1000
-        self.num_steps_sampled_from_buffer = 64
+        self.num_steps_buffer_preload: int = 1000
+        self.num_steps_sampled_from_buffer: int = 64
         self.max_steps_in_buffer = 100000
 
     def __str__(self):
@@ -394,8 +416,8 @@ class PlayContext(object):
 
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
-        assert self.num_episodes is None or self.num_episodes > 0, "num_episodes not admissible"
-        assert self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
+        assert (self.num_episodes is None) or (self.num_episodes > 0), "num_episodes not admissible"
+        assert (self.max_steps_per_episode is None) or self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
 
 
 class AgentContext(object):

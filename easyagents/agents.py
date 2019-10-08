@@ -44,19 +44,30 @@ register_backend(easyagents.backends.kerasrl.BackendAgentFactory())
 
 
 class EasyAgent(ABC):
-    """Abstract base class for all easy reinforcment learning agents.
-
-        Implementations must set _agent_config.
-
-        Args:
-            backend_name: the backend (implementation) to be used, if None the a default implementation is used
-    """
+    """Abstract base class for all easy reinforcment learning agents."""
 
     def __init__(self,
-                 gym_env_name: str = None,
-                 fc_layers: Tuple[int, ...] = None,
-                 model_config: core.ModelConfig = None,
-                 backend_name: str = None):
+                 gym_env_name: str,
+                 fc_layers: Optional[Tuple[int, ...]] = None,
+                 backend: str = None):
+        """
+            Args:
+                gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
+                fc_layers: defines the neural network to be used, a sequence of fully connected
+                    layers of the given size. Eg (75,40) yields a neural network consisting
+                    out of 2 hidden layers, the first one containing 75 and the second layer
+                    containing 40 neurons.
+                backend=the backend to be used (eg 'tfagents'), if None a default implementation is used.
+                    call get_backends() to get a list of the available backends.
+        """
+        self._initialize(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
+        return
+
+    def _initialize(self,
+                    gym_env_name: str = None,
+                    fc_layers: Tuple[int, ...] = None,
+                    model_config: core.ModelConfig = None,
+                    backend_name: str = None):
 
         if model_config is None:
             model_config = core.ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
@@ -108,9 +119,9 @@ class EasyAgent(ABC):
         result: List[core.AgentCallback] = pre_process + agent + post_process
         return result
 
-    def play(self, play_context: core.PlayContext,
-             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
-             default_plots: Optional[bool]):
+    def _play(self, play_context: core.PlayContext,
+              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
+              default_plots: Optional[bool]):
         """Plays episodes with the current policy according to play_context.
 
         Hints:
@@ -154,6 +165,31 @@ class EasyAgent(ABC):
         all = list(play_context.sum_of_rewards.values())
 
         return statistics.mean(all), statistics.stdev(all), min(all), max(all), all
+        
+    def play(self,
+             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
+             num_episodes: int = 1,
+             max_steps_per_episode: int = 1000,
+             play_context: core.PlayContext = None,
+             default_plots: bool = None):
+        """Plays num_episodes with the current policy.
+
+        Args:
+            callbacks: list of callbacks called during each episode play
+            num_episodes: number of episodes to play
+            max_steps_per_episode: max steps per episode
+            play_context: play configuration to be used. If set override all other play context arguments
+            default_plots: if set addes a set of default callbacks (plot.State, plot.Rewards, ...)
+
+        Returns:
+            play_context containg the actions taken and the rewards received during training
+        """
+        if play_context is None:
+            play_context = core.PlayContext()
+            play_context.max_steps_per_episode = max_steps_per_episode
+            play_context.num_episodes = num_episodes
+        self._play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
+        return play_context
 
     def train(self, train_context: core.TrainContext,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
@@ -175,6 +211,7 @@ class EasyAgent(ABC):
         callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Loss(), plot.Steps(), plot.Rewards()])
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
+
 def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False):
     """returns a list of all registered backends containing an implementation for the EasyAgent type agent.
 
@@ -187,7 +224,7 @@ def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False)
         a list of admissible values for the 'backend' argument of EazyAgents constructors or a list of all
         available backends if agent is None.
     """
-    backends = [ b for b in _backends if (not skip_v1) or b.tensorflow_v2_eager_compatible]
+    backends = [b for b in _backends if (not skip_v1) or b.tensorflow_v2_eager_compatible]
     result = [b.name for b in backends]
     if agent:
         result = [b.name for b in backends if agent in b.get_algorithms()]
@@ -208,6 +245,65 @@ def _get_backend(backend_name: str):
     return result
 
 
+class CemAgent(EasyAgent):
+    """creates a new agent based on the cross-entropy-method algorithm.
+
+       From https://learning.mpi-sws.org/mlss2016/slides/2016-MLSS-RL.pdf:
+        Initialize µ ∈Rd,σ ∈Rd
+        for iteration = 1,2,... num_iterations do
+            Collect num_episodes_per_iteration samples of θi ∼ N(µ,diag(σ))
+            Perform a noisy evaluation Ri ∼ θi
+            Select the top elite_set_fraction of samples (e.g. p = 0.2), which we’ll call the elite set
+            Fit a Gaussian distribution, with diagonal covariance, to the elite set, obtaining a new µ,σ.
+        end for
+        Return the ﬁnal µ.
+
+        see https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf
+    """
+
+    def train(self,
+              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
+              num_iterations: int = 100,
+              num_episodes_per_iteration: int = 50,
+              max_steps_per_episode: int = 500,
+              elite_set_fraction: float = 0.1,
+              num_iterations_between_eval: int = 5,
+              num_episodes_per_eval: int = 10,
+              train_context: core.CemTrainContext = None,
+              default_plots: bool = None):
+        """Trains a new model using the gym environment passed during instantiation.
+
+        Args:
+            callbacks: list of callbacks called during training and evaluation
+            num_iterations: number of times the training is repeated (with additional data)
+            num_episodes_per_iteration: number of episodes played in each iteration. for each episode a new
+                policy is sampled from the current weight distribution.
+            max_steps_per_episode: maximum number of steps per episode
+            elite_set_fraction: the fraction of policies which are members of the elite set.
+                These policies are used to fit a new weight distribution in each iteration.
+            num_iterations_between_eval: number of training iterations before the current policy is evaluated.
+                if 0 no evaluation is performed.
+            num_episodes_per_eval: number of episodes played to estimate the average return and steps
+            train_context: training configuration to be used. if set overrides all other training context arguments.
+            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...).
+                if None default callbacks are only added if the callbacks list is empty
+
+        Returns:
+            train_context: the training configuration containing the loss and sum of rewards encountered
+                during training
+        """
+        if train_context is None:
+            train_context = core.CemTrainContext()
+            train_context.num_iterations = num_iterations
+            train_context.max_steps_per_episode = max_steps_per_episode
+            train_context.elite_set_fraction = elite_set_fraction
+            train_context.num_iterations_between_eval = num_iterations_between_eval
+            train_context.num_episodes_per_eval = num_episodes_per_eval
+
+        super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
+        return train_context
+
+
 class DqnAgent(EasyAgent):
     """creates a new agent based on the Dqn algorithm.
 
@@ -225,48 +321,7 @@ class DqnAgent(EasyAgent):
     updated, further reducing correlations with the target.[17]
 
     see also: https://deepmind.com/research/publications/human-level-control-through-deep-reinforcement-learning
-
-    Args:
-        gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
-        fc_layers: defines the neural network to be used, a sequence of fully connected
-            layers of the given size. Eg (75,40) yields a neural network consisting
-            out of 2 hidden layers, the first one containing 75 and the second layer
-            containing 40 neurons.
-        backend=the backend to be used (eg 'tfagents'), if None a default implementation is used.
-            call get_backends() to get a list of the available backends.
     """
-
-    def __init__(self,
-                 gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
-                 backend: str = None):
-        super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
-        return
-
-    def play(self,
-             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
-             num_episodes: int = 1,
-             max_steps_per_episode: int = 1000,
-             play_context: core.PlayContext = None,
-             default_plots: bool = None):
-        """Plays num_episodes with the current policy.
-
-        Args:
-            callbacks: list of callbacks called during each episode play
-            num_episodes: number of episodes to play
-            max_steps_per_episode: max steps per episode
-            play_context: play configuration to be used. If set override all other play context arguments
-            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, ...)
-
-        Returns:
-            play_context containing the actions taken and the rewards received during training
-        """
-        if play_context is None:
-            play_context = core.PlayContext()
-            play_context.max_steps_per_episode = max_steps_per_episode
-            play_context.num_episodes = num_episodes
-        super().play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
-        return play_context
 
     def train(self,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
@@ -315,45 +370,13 @@ class DqnAgent(EasyAgent):
         super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
         return train_context
 
+
 class DoubleDqnAgent(DqnAgent):
-    """creates a new agent based on the Double Dqn algorithm (https://arxiv.org/abs/1509.06461)
+    """Agent based on the Double Dqn algorithm (https://arxiv.org/abs/1509.06461)"""
 
-    Args:
-        gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
-        fc_layers: defines the neural network to be used, a sequence of fully connected
-            layers of the given size. Eg (75,40) yields a neural network consisting
-            out of 2 hidden layers, the first one containing 75 and the second layer
-            containing 40 neurons.
-        backend=the backend to be used (eg 'tensorforce'), if None a default implementation is used.
-            call get_backends() to get a list of the available backends.
-    """
-
-    def __init__(self,
-                 gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
-                 backend: str = None):
-        super(DqnAgent,self).__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
-        return
 
 class DuelingDqnAgent(DqnAgent):
-    """creates a new agent based on the Dueling Dqn algorithm (https://arxiv.org/abs/1511.06581).
-
-    Args:
-        gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
-        fc_layers: defines the neural network to be used, a sequence of fully connected
-            layers of the given size. Eg (75,40) yields a neural network consisting
-            out of 2 hidden layers, the first one containing 75 and the second layer
-            containing 40 neurons.
-        backend=the backend to be used (eg 'tensorforce'), if None a default implementation is used.
-            call get_backends() to get a list of the available backends.
-    """
-
-    def __init__(self,
-                 gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
-                 backend: str = None):
-        super(DqnAgent,self).__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
-        return
+    """Agent based on the Dueling Dqn algorithm (https://arxiv.org/abs/1511.06581)."""
 
 
 class PpoAgent(EasyAgent):
@@ -365,50 +388,7 @@ class PpoAgent(EasyAgent):
         sum of future rewards when following the current actor network).
 
         see also: https://spinningup.openai.com/en/latest/algorithms/ppo.html
-
-        Args:
-            gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
-            fc_layers: defines the neural network to be used, a sequence of fully connected
-                layers of the given size. Eg (75,40) yields a neural network consisting
-                out of 2 hidden layers, the first one containing 75 and the second layer
-                containing 40 neurons.
-            backend=the backend to be used (eg 'tfagents'), if None a default implementation is used.
-                call get_backends() to get a list of the available backends.
     """
-
-    def __init__(self,
-                 gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
-
-                 backend: str = None):
-        super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
-        return
-
-    def play(self,
-             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
-             num_episodes: int = 1,
-             max_steps_per_episode: int = 1000,
-             play_context: core.PlayContext = None,
-             default_plots: bool = None):
-        """Plays num_episodes with the current policy.
-
-        Args:
-            callbacks: list of callbacks called during each episode play
-            num_episodes: number of episodes to play
-            max_steps_per_episode: max steps per episode
-            play_context: play configuration to be used. If set override all other play context arguments
-            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, ...).
-                if None default callbacks are only added if the callbacks list is empty
-
-        Returns:
-            play_context containing the actions taken and the rewards received during training
-        """
-        if play_context is None:
-            play_context = core.PlayContext()
-            play_context.max_steps_per_episode = max_steps_per_episode
-            play_context.num_episodes = num_episodes
-        super().play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
-        return play_context
 
     def train(self,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
@@ -457,43 +437,7 @@ class PpoAgent(EasyAgent):
 
 
 class RandomAgent(EasyAgent):
-    """creates a new agent which always chooses uniform random actions.
-
-        Args:
-            gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
-            backend=the backend to be used (eg 'tfagents'), if None a default implementation is used.
-                call get_backends() to get a list of the available backends.
-
-        Returns:
-            play_context containing the actions taken and the rewards received during training
-    """
-
-    def __init__(self, gym_env_name: str, backend: str = None):
-        super().__init__(gym_env_name=gym_env_name, fc_layers=None, backend_name=backend)
-        return
-
-    def play(self,
-             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
-             num_episodes: int = 1,
-             max_steps_per_episode: int = 1000,
-             play_context: core.PlayContext = None,
-             default_plots: bool = None):
-        """Plays num_episodes with the current policy.
-
-        Args:
-            callbacks: list of callbacks called during each episode play
-            num_episodes: number of episodes to play
-            max_steps_per_episode: max steps per episode
-            play_context: play configuration to be used. If set override all other play context arguments
-            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, ...).
-                if None default callbacks are only added if the callbacks list is empty
-        """
-        if play_context is None:
-            play_context = core.PlayContext()
-            play_context.max_steps_per_episode = max_steps_per_episode
-            play_context.num_episodes = num_episodes
-        super().play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
-        return play_context
+    """Agent which always chooses uniform random actions."""
 
     def train(self,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
@@ -537,50 +481,7 @@ class ReinforceAgent(EasyAgent):
         Reinforce is a vanilla policy gradient algorithm using a single actor network.
 
         see also: www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf
-
-        Args:
-            gym_env_name: name of an OpenAI gym environment to be used for training and evaluation
-            fc_layers: defines the neural network to be used, a sequence of fully connected
-                layers of the given size. Eg (75,40) yields a neural network consisting
-                out of 2 hidden layers, the first one containing 75 and the second layer
-                containing 40 neurons.
-            backend=the backend to be used (eg 'tfagents'), if None a default implementation is used.
-                call get_backends() to get a list of the available backends.
     """
-
-    def __init__(self,
-                 gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
-
-                 backend: str = None):
-        super().__init__(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
-        return
-
-    def play(self,
-             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
-             num_episodes: int = 1,
-             max_steps_per_episode: int = 1000,
-             play_context: core.PlayContext = None,
-             default_plots: bool = None):
-        """Plays num_episodes with the current policy.
-
-        Args:
-            callbacks: list of callbacks called during each episode play
-            num_episodes: number of episodes to play
-            max_steps_per_episode: max steps per episode
-            play_context: play configuration to be used. If set override all other play context arguments
-            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, ...).
-                if None default callbacks are only added if the callbacks list is empty
-
-        Returns:
-            play_context containg the actions taken and the rewards received during training
-        """
-        if play_context is None:
-            play_context = core.PlayContext()
-            play_context.max_steps_per_episode = max_steps_per_episode
-            play_context.num_episodes = num_episodes
-        super().play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
-        return play_context
 
     def train(self,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
