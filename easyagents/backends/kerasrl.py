@@ -8,21 +8,17 @@ import easyagents.agents
 from easyagents import core
 from easyagents.backends import core as bcore
 
-from keras.models import Sequential
-from keras.layers import Activation, Flatten
+import keras.backend as K
+from keras.layers import Activation, Flatten, Lambda, Dense
+from keras.models import Sequential, Model
 from keras.optimizers import Adam
 
-from rl.agents.dqn import DQNAgent
-from rl.policy import BoltzmannQPolicy
-from rl.memory import SequentialMemory
-
-import keras.backend as K
-from keras.models import Model
-from keras.layers import Lambda, Dense
-
 import rl.core
-from rl.policy import EpsGreedyQPolicy, GreedyQPolicy
+from rl.agents.dqn import DQNAgent
+from rl.agents.cem import CEMAgent
 from rl.callbacks import Callback
+from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy, GreedyQPolicy
+from rl.memory import EpisodeParameterMemory, SequentialMemory
 
 import gym
 import gym.spaces
@@ -46,13 +42,14 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
         result = gym.make(self.model_config.gym_env_name)
         return result
 
-    def _create_model(self, gym_env: gym.Env) -> Sequential:
+    def _create_model(self, gym_env: gym.Env, activation: str) -> Sequential:
         """Creates a model consisting of  fully connected layers as given by self.model_config.fc_layers
         with relu as activation function.
 
         Args:
             gym_env: gym_env whose observation shape ofdefines the size of the input layer and
                 whose action_space defines the size of the output layer.
+            activation: output activation function eg 'linear' or 'softmax'
 
         Returns:
             Keras Sequential model according to model_config.fc_layers
@@ -72,29 +69,9 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
             result.add(Activation('relu'))
         self.log_api(f'model.add', f'(Dense({num_actions}))')
         result.add(Dense(num_actions))
-        self.log_api(f'model.add', f'(Activation("linear"))')
-        result.add(Activation('linear'))
+        self.log_api(f'model.add', f'(Activation("{activation}"))')
+        result.add(Activation(activation))
         return result
-
-    def play_episode(self, env: gym.core.Env):
-        self.training = False
-        self.step = 0
-
-        self.reset_states()
-        observation = deepcopy(env.reset())
-        done = False
-        while not done:
-            action = self.forward(observation)
-            if self.processor is not None:
-                action = self.processor.process_action(action)
-
-                observation, r, d, info = env.step(action)
-                observation = deepcopy(observation)
-                if self.processor is not None:
-                    observation, r, d, info = self.processor.process_step(observation, r, d, info)
-                if d:
-                    done = True
-                    break
 
     def play_implementation(self, play_context: core.PlayContext):
         """Agent specific implementation of playing a single episodes with the current policy.
@@ -119,9 +96,78 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
                 break
 
 
+class KerasRlCemAgent(KerasRlAgent):
+    """Keras-rl implementation of the cross-entropy method algorithm.
+
+        see "https://learning.mpi-sws.org/mlss2016/slides/2016-MLSS-RL.pdf" and
+            "https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf"
+    """
+
+    class CemCallback(rl.callbacks.Callback):
+        """Callback registered with keras rl agents to propagate iteration and episode updates."""
+
+        def __init__(self, cem_agent: KerasRlAgent, cem_context: core.CemTrainContext, nb_steps: int):
+            """
+            Args:
+                cem_agent: the agent to propagate iteration begn/end events to.
+                cem_context: the train_context containing the iteration definitions
+                nb_steps: value set in the keras cem agent.
+            """
+            assert cem_agent
+            assert cem_context
+            assert nb_steps
+            self._cem_agent: KerasRlAgent = cem_agent
+            self._cem_context: core.CemTrainContext = cem_context
+            self._nb_steps = nb_steps
+            super().__init__()
+
+        def on_episode_end(self, episode, logs=None):
+            """Signals the base class the end / begin of a training iteration."""
+            cc: core.CemTrainContext = self._cem_context
+            episode = episode + 1
+            if episode % cc.num_episodes_per_iteration == 0:
+                self._cem_agent.on_train_iteration_end(math.nan)
+                if self._cem_context.training_done:
+                    self._cem_agent._agent.step = self._nb_steps
+                else:
+                    self._cem_agent.on_train_iteration_begin()
+
+    def train_implementation(self, train_context: core.CemTrainContext):
+        assert train_context
+        cc: core.CemTrainContext = train_context
+        train_env = self._create_env()
+        keras_model = self._create_model(gym_env=train_env, activation='softmax')
+
+        policy_buffer_size = 5 * cc.num_episodes_per_iteration
+        self.log_api(f'EpisodeParameterMemory', f'(limit={policy_buffer_size}, window_length=1)')
+        memory = EpisodeParameterMemory(limit=policy_buffer_size, window_length=1)
+        num_actions = train_env.action_space.n
+        self.log_api(f'CEMAgent', f'(model=..., nb_actions={num_actions}, memory=..., ' + \
+                     f'nb_steps_warmup={cc.num_steps_warmup}, ' + \
+                     f'train_interval={cc.num_episodes_per_iteration}, ' + \
+                     f'batch_size={cc.num_episodes_per_iteration}, ' + \
+                     f'elite_frac={cc.elite_set_fraction})')
+        self._agent = CEMAgent(model=keras_model, nb_actions=num_actions, memory=memory,
+                               nb_steps_warmup=cc.num_steps_warmup,
+                               batch_size=cc.num_episodes_per_iteration,
+                               train_interval=cc.num_episodes_per_iteration,
+                               elite_frac=cc.elite_set_fraction)
+        self.log_api(f'agent.compile', '()')
+        self._agent.compile()
+        nb_steps = cc.num_iterations * cc.num_episodes_per_iteration * cc.max_steps_per_episode
+        callback = KerasRlCemAgent.CemCallback(self, cc, nb_steps)
+        self.on_train_iteration_begin()
+        self.log_api(f'agent.fit', f'(train_env, nb_steps={nb_steps})')
+        self._agent.fit(train_env, nb_steps=nb_steps, visualize=False, verbose=0, callbacks=[callback])
+        if not cc.training_done:
+            self.on_train_iteration_end(math.nan)
+
+
 class KerasRlDqnAgent(KerasRlAgent):
     """Keras-rl implementation of the algorithm described in in Mnih (2013) and Mnih (2015).
         http://arxiv.org/pdf/1312.5602.pdf and http://arxiv.org/abs/1509.06461
+
+        includes implementations for the double dqn and dueling dqn variations.
         """
 
     class DQNAgentWrapper(DQNAgent):
@@ -206,7 +252,8 @@ class KerasRlDqnAgent(KerasRlAgent):
             Args:
                 model_config: the model configuration including the name of the target gym environment
                     as well as the neural network architecture.
-                enable_double_dqn:
+                enable_double_dqn: use the double dqn algorithm instead
+                enable_dueling_dqn: use the dueling dqn algorithm instead
         """
         super().__init__(model_config=model_config)
         self._enable_double_dqn: bool = enable_double_dqn
@@ -216,7 +263,7 @@ class KerasRlDqnAgent(KerasRlAgent):
         assert train_context
         dc: core.DqnTrainContext = train_context
         train_env = self._create_env()
-        keras_model = self._create_model(train_env)
+        keras_model = self._create_model(gym_env=train_env, activation='linear')
         self.log_api(f'SequentialMemory', f'(limit={dc.max_steps_in_buffer}, window_length=1)')
         memory = SequentialMemory(limit=dc.max_steps_in_buffer, window_length=1)
         self.log_api(f'BoltzmannQPolicy', f'()')
@@ -254,18 +301,17 @@ class KerasRlDqnAgent(KerasRlAgent):
         if not dc.training_done:
             self.on_train_iteration_end(math.nan)
 
+
 class KerasRlDoubleDqnAgent(KerasRlDqnAgent):
     """Keras-rl implementation of the algorithm described in https://arxiv.org/abs/1509.06461 """
 
     def __init__(self, model_config: core.ModelConfig):
-        """ creates a new agent based on the DQN algorithm using the keras-rl implementation.
-
-            Args:
+        """Args:
                 model_config: the model configuration including the name of the target gym environment
                     as well as the neural network architecture.
-                enable_double_dqn:
         """
         super().__init__(model_config=model_config, enable_double_dqn=True)
+
 
 class KerasRlDuelingDqnAgent(KerasRlDqnAgent):
     """Keras-rl implementation of the algorithm described in https://arxiv.org/abs/1511.06581 """
@@ -325,6 +371,7 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
         return {
+            easyagents.agents.CemAgent: KerasRlCemAgent,
             easyagents.agents.DqnAgent: KerasRlDqnAgent,
             easyagents.agents.DoubleDqnAgent: KerasRlDoubleDqnAgent,
             easyagents.agents.DuelingDqnAgent: KerasRlDuelingDqnAgent,
