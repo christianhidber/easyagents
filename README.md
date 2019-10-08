@@ -66,7 +66,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 |[Ppo](https://arxiv.org/abs/1707.06347)          |`yes`           |`yes`     |`not available` | PpoAgent |
 |Random                                           |`yes`           |`yes`    |`not available`  | RandomAgent |
 |[REINFORCE](www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
-|[SAC](https://arxiv.org/abs/1801.01290)          |`open`          |`not available`|`not available`|`open`|
+|[SAC](https://arxiv.org/abs/1801.01290)          |`preview`          |`not available`|`not available`|SacAgent|
 
 [191001]
 
