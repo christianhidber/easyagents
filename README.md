@@ -62,13 +62,13 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 |[CEM](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf) |`not available`  |`not available`  |`yes`  | CemAgent | 
 |[Dqn](https://arxiv.org/abs/1312.5602)           |`yes`           |`yes`    |`yes`            | DqnAgent | 
 |[Double Dqn](https://arxiv.org/abs/1509.06461)   |`open`          |`not available`    |`yes`  | DoubleDqnAgent|
-|[Dueling Dqn](https://arxiv.org/abs/1511.06581)  | `not available`        |`open`    |`yes`   | DuelingDqnAgent|
+|[Dueling Dqn](https://arxiv.org/abs/1511.06581)  | `not available`        |`not available`    |`yes`   | DuelingDqnAgent|
 |[Ppo](https://arxiv.org/abs/1707.06347)          |`yes`           |`yes`     |`not available` | PpoAgent |
 |Random                                           |`yes`           |`yes`    |`not available`  | RandomAgent |
 |[REINFORCE](www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
 |[SAC](https://arxiv.org/abs/1801.01290)          |`open`          |`not available`|`not available`|`open`|
 
-[october 2019]
+[191001]
 
 restriction: keras-rl is not compatible with tensorflow eager execution mode.
 Thus keras-rl based agents should run in a different python / jupyter notebook instance 
