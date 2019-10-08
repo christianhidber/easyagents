@@ -1,4 +1,6 @@
 ## Release notes
+* v1.2 [19Q4]
+    * 1.2.0: Agent.score
 * v1.1 [19Q4]
     * 1.1.23: CemAgent for keras-rl backend; DqnAgent, RandomAgent for tensorforce
     * 1.1.22: DuelingDqnAgent, DoubleDqnAgent with keras-rl backend
