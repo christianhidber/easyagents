@@ -172,13 +172,14 @@ class TfDqnAgent(TfAgent):
         dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=dc.num_steps_sampled_from_buffer,
                                            num_steps=2).prefetch(3)
         iter_dataset = iter(dataset)
+        self.log_api('for each iteration')
+        self.log_api('  replay_buffer.add_batch', '(trajectory)')
+        self.log_api('  tf_agent.train', '(experience=trajectory)')
         while True:
             self.on_train_iteration_begin()
-            self.log_api('replay_buffer.add_batch', '(trajectory)')
             for _ in range(dc.num_steps_per_iteration):
                 self.collect_step(env=train_env, policy=tf_agent.collect_policy, replay_buffer=replay_buffer)
             trajectories, _ = next(iter_dataset)
-            self.log_api('tf_agent.train', '(experience=trajectory)')
             tf_loss_info = tf_agent.train(experience=trajectories)
             self.on_train_iteration_end(tf_loss_info.loss)
             if train_context.training_done:
