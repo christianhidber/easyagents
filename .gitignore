@@ -114,7 +114,7 @@ venv.bak/
 /documentation/EasyAgents_Design/bin/
 /env_master/
 /env_setup/
-/env_coach/
 /env/
+/env_req/
 
 *.h5f
