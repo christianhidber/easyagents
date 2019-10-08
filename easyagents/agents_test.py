@@ -214,5 +214,16 @@ class ReinforceAgentTest(unittest.TestCase):
             assert avg_steps >= 10
 
 
+class EasyAgentTest(unittest.TestCase):
+    def test_score(self):
+        random_agent = RandomAgent('CartPole-v0')
+        num_episodes = 5
+        mean, std, min_reward, max_reward, all_rewards = random_agent.score(num_episodes=num_episodes)
+        assert min_reward <= max_reward
+        assert mean <= max_reward
+        assert mean >= min_reward
+        assert std >= 0
+        assert len(all_rewards) == num_episodes
+
 if __name__ == '__main__':
     unittest.main()
