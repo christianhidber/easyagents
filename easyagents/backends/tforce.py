@@ -65,8 +65,8 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
 
         def step_callback(_: Runner) -> bool:
             result = not train_context.training_done
-            if isinstance(train_context, easyagents.core.DqnTrainContext):
-                dc: easyagents.core.DqnTrainContext = train_context
+            if isinstance(train_context, easyagents.core.StepsTrainContext):
+                dc: easyagents.core.StepsTrainContext = train_context
                 while result and \
                         dc.steps_done_in_training > dc.iterations_done_in_training * dc.num_steps_per_iteration:
                     self.on_train_iteration_end(loss=math.nan)
@@ -76,7 +76,7 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
             return result
 
         def eval_callback(tforce_runner: Runner) -> bool:
-            if isinstance(train_context, easyagents.core.DqnTrainContext):
+            if isinstance(train_context, easyagents.core.StepsTrainContext):
                 result = step_callback(tforce_runner)
             else:
                 self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
@@ -150,7 +150,7 @@ class TforceDqnAgent(TforceAgent):
         """
         super().__init__(model_config=model_config)
 
-    def train_implementation(self, train_context: easyagents.core.DqnTrainContext):
+    def train_implementation(self, train_context: easyagents.core.StepsTrainContext):
         """Tensorforce Dqn Implementation of the train loop.
 
             The implementation follows https://github.com/tensorforce/tensorforce/blob/master/examples/quickstart.py
@@ -202,7 +202,7 @@ class TforceDuelingDqnAgent(TforceDqnAgent):
 class TforcePpoAgent(TforceAgent):
     """ Agent based on the PPO algorithm using the tensorforce implementation."""
 
-    def train_implementation(self, train_context: easyagents.core.ActorCriticTrainContext):
+    def train_implementation(self, train_context: easyagents.core.PpoTrainContext):
         """Tensorforce Ppo Implementation of the train loop.
 
             The implementation follows https://github.com/tensorforce/tensorforce/blob/master/examples/quickstart.py

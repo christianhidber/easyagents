@@ -143,12 +143,12 @@ class KerasRlCemAgent(KerasRlAgent):
         memory = EpisodeParameterMemory(limit=policy_buffer_size, window_length=1)
         num_actions = train_env.action_space.n
         self.log_api(f'CEMAgent', f'(model=..., nb_actions={num_actions}, memory=..., ' + \
-                     f'nb_steps_warmup={cc.num_steps_warmup}, ' + \
+                     f'nb_steps_warmup={cc.num_steps_buffer_preload}, ' + \
                      f'train_interval={cc.num_episodes_per_iteration}, ' + \
                      f'batch_size={cc.num_episodes_per_iteration}, ' + \
                      f'elite_frac={cc.elite_set_fraction})')
         self._agent = CEMAgent(model=keras_model, nb_actions=num_actions, memory=memory,
-                               nb_steps_warmup=cc.num_steps_warmup,
+                               nb_steps_warmup=cc.num_steps_buffer_preload,
                                batch_size=cc.num_episodes_per_iteration,
                                train_interval=cc.num_episodes_per_iteration,
                                elite_frac=cc.elite_set_fraction)
@@ -217,7 +217,7 @@ class KerasRlDqnAgent(KerasRlAgent):
     class DqnCallback(rl.callbacks.Callback):
         """Callback registered with keras rl agents to propagate iteration and episode updates."""
 
-        def __init__(self, agent: bcore.BackendAgent, dqn_context: core.DqnTrainContext,
+        def __init__(self, agent: bcore.BackendAgent, dqn_context: core.StepsTrainContext,
                      loss_metric_idx: Optional[int]):
             """
             Args:
@@ -259,9 +259,9 @@ class KerasRlDqnAgent(KerasRlAgent):
         self._enable_double_dqn: bool = enable_double_dqn
         self._enable_dueling_network: bool = enable_dueling_dqn
 
-    def train_implementation(self, train_context: core.DqnTrainContext):
+    def train_implementation(self, train_context: core.StepsTrainContext):
         assert train_context
-        dc: core.DqnTrainContext = train_context
+        dc: core.StepsTrainContext = train_context
         train_env = self._create_env()
         keras_model = self._create_model(gym_env=train_env, activation='linear')
         self.log_api(f'SequentialMemory', f'(limit={dc.max_steps_in_buffer}, window_length=1)')
@@ -340,7 +340,7 @@ class CemKerasRlAgent(KerasRlAgent):
     def __init__(self, model_config: core.ModelConfig):
         super().__init__(model_config=model_config)
 
-    def train_implementation(self, train_context: core.DqnTrainContext):
+    def train_implementation(self, train_context: core.StepsTrainContext):
         """
         train_env = self._create_env()
 

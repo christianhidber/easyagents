@@ -459,8 +459,8 @@ class Loss(_PlotCallback):
         else:
             self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes trained',
                            ylim=self.ylim, ylabel='loss', yscale=self.yscale)
-            if isinstance(tc, core.ActorCriticTrainContext):
-                acc: core.ActorCriticTrainContext = tc
+            if isinstance(tc, core.PpoTrainContext):
+                acc: core.PpoTrainContext = tc
                 self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=lossvalues, color='indigo', pause=False)
                 self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g',
                                  pause=False)

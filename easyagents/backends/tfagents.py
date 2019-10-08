@@ -132,8 +132,8 @@ class TfDqnAgent(TfAgent):
         The implementation follows
         https://colab.research.google.com/github/tensorflow/agents/blob/master/tf_agents/colabs/1_dqn_tutorial.ipynb
         """
-        assert isinstance(train_context, core.DqnTrainContext)
-        dc: core.DqnTrainContext = train_context
+        assert isinstance(train_context, core.StepsTrainContext)
+        dc: core.StepsTrainContext = train_context
 
         train_env = self._create_env(discount=dc.reward_discount_gamma)
         observation_spec = train_env.observation_spec()
@@ -207,8 +207,8 @@ class TfPpoAgent(TfAgent):
     def train_implementation(self, train_context: core.TrainContext):
         """Tf-Agents Ppo Implementation of the train loop."""
 
-        assert isinstance(train_context, core.ActorCriticTrainContext)
-        tc: core.ActorCriticTrainContext = train_context
+        assert isinstance(train_context, core.PpoTrainContext)
+        tc: core.PpoTrainContext = train_context
         self.log('Creating environment...')
         train_env = self._create_env(discount=tc.reward_discount_gamma)
         observation_spec = train_env.observation_spec()

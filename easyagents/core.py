@@ -266,7 +266,30 @@ class EpisodesTrainContext(TrainContext):
         assert self.num_epochs_per_iteration > 0, "num_epochs_per_iteration not admissible"
 
 
-class ActorCriticTrainContext(EpisodesTrainContext):
+class CemTrainContext(EpisodesTrainContext):
+    """Holds the configuration and current training state for Cross-Entropy-Methode agents.
+
+        Attributes:
+            elite_set_fraction: fraction of the elite policy set.
+            num_steps_buffer_preload: number of steps performed to initially load the policy buffer
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.num_iterations = 100
+        self.num_episodes_per_iteration: int = 50
+        self.elite_set_fraction: float = 0.1
+        self.num_steps_buffer_preload: int = 2000
+
+    def __str__(self):
+        return super().__str__() + f'#elite_set_fraction={self.elite_set_fraction} '
+
+    def _validate(self):
+        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
+        super()._validate()
+        assert  1 >= self.elite_set_fraction > 0, "elite_set_fraction must be in interval (0,1]"
+
+class PpoTrainContext(EpisodesTrainContext):
     """TrainContext for Actor-Critic type agents like Ppo or Sac.
 
     Attributes:
@@ -284,31 +307,7 @@ class ActorCriticTrainContext(EpisodesTrainContext):
         self.critic_loss = dict()
         super()._reset()
 
-class CemTrainContext(EpisodesTrainContext):
-    """Holds the configuration and current training state for Cross-Entropy-Methode agents.
-
-        Attributes:
-            elite_set_fraction: fraction of the elite policy set.
-            num_steps_warmup: number of steps performed to initially load the policy buffer
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.num_iterations = 100
-        self.num_episodes_per_iteration: int = 50
-        self.elite_set_fraction: float = 0.1
-        self.num_steps_warmup: int = 2000
-
-    def __str__(self):
-        return super().__str__() + f'#elite_set_fraction={self.elite_set_fraction} '
-
-    def _validate(self):
-        """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
-        super()._validate()
-        assert  1 >= self.elite_set_fraction > 0, "elite_set_fraction must be in interval (0,1]"
-
-
-class DqnTrainContext(TrainContext):
+class StepsTrainContext(TrainContext):
     """Base class for all agent which evaluate a number of steps during each iteration:
 
         The train loop proceeds roughly as follows:

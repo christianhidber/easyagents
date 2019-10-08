@@ -154,7 +154,7 @@ class PpoAgentTest(unittest.TestCase):
     def test_train_cartpole(self):
         for backend in get_backends(PpoAgent):
             ppo = PpoAgent(gym_env_name="CartPole-v0", backend=backend)
-            tc = core.ActorCriticTrainContext()
+            tc = core.PpoTrainContext()
             tc.num_iterations = 3
             tc.num_episodes_per_iteration = 10
             tc.max_steps_per_episode = 500

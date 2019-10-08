@@ -12,7 +12,7 @@ class TfDqnAgentTest(unittest.TestCase):
 
     def test_train(self):
         model_config = core.ModelConfig("CartPole-v0")
-        tc = core.DqnTrainContext()
+        tc = core.StepsTrainContext()
         dqnAgent = tfagents.TfDqnAgent(model_config=model_config)
         dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
 
@@ -24,7 +24,7 @@ class TfPpoAgentTest(unittest.TestCase):
 
     def test_train(self):
         model_config = core.ModelConfig("CartPole-v0")
-        tc = core.ActorCriticTrainContext()
+        tc = core.PpoTrainContext()
         ppoAgent = tfagents.TfPpoAgent(model_config=model_config)
         ppoAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
 

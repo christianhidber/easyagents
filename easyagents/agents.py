@@ -311,7 +311,7 @@ class DqnAgent(EasyAgent):
               num_iterations_between_eval: int = 1000,
               num_episodes_per_eval: int = 10,
               learning_rate: float = 0.001,
-              train_context: core.DqnTrainContext = None,
+              train_context: core.StepsTrainContext = None,
               default_plots: bool = None):
         """Trains a new model using the gym environment passed during instantiation.
 
@@ -335,7 +335,7 @@ class DqnAgent(EasyAgent):
                 during training
         """
         if train_context is None:
-            train_context = core.DqnTrainContext()
+            train_context = core.StepsTrainContext()
             train_context.num_iterations = num_iterations
             train_context.max_steps_per_episode = max_steps_per_episode
             train_context.num_steps_per_iteration = num_steps_per_iteration
@@ -377,7 +377,7 @@ class PpoAgent(EasyAgent):
               num_iterations_between_eval: int = 5,
               num_episodes_per_eval: int = 10,
               learning_rate: float = 0.001,
-              train_context: core.ActorCriticTrainContext = None,
+              train_context: core.PpoTrainContext = None,
               default_plots: bool = None):
         """Trains a new model using the gym environment passed during instantiation.
 
@@ -401,7 +401,7 @@ class PpoAgent(EasyAgent):
                 during training
         """
         if train_context is None:
-            train_context = core.ActorCriticTrainContext()
+            train_context = core.PpoTrainContext()
             train_context.num_iterations = num_iterations
             train_context.num_episodes_per_iteration = num_episodes_per_iteration
             train_context.max_steps_per_episode = max_steps_per_episode

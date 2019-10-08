@@ -19,7 +19,7 @@ from tf_agents.policies import greedy_policy
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.utils import common
 
-env_name = "CartPole-v0"  # @param {type:"string"}
+env_name = "Pendulum-v0"  # @param {type:"string"}
 num_iterations = 1000000  # @param {type:"integer"}
 
 initial_collect_steps = 10000  # @param {type:"integer"}
