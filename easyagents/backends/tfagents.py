@@ -397,6 +397,9 @@ class TfReinforceAgent(TfAgent):
 class TfSacAgent(TfAgent):
     """ creates a new agent based on the SAC algorithm using the tfagents implementation.
 
+        adapted from
+            https://github.com/tensorflow/agents/blob/master/tf_agents/colabs/7_SAC_minitaur_tutorial.ipynb
+
         Args:
             model_config: the model configuration including the name of the target gym environment
                 as well as the neural network architecture.
@@ -417,7 +420,7 @@ class TfSacAgent(TfAgent):
         timestep_spec = train_env.time_step_spec()
 
         self.log_api('CriticNetwork',
-                     f'{(observation_spec, action_spec)}, observation_fc_layer_params=None, ' +
+                     f'(observation_spec, action_spec), observation_fc_layer_params=None, ' +
                      f'action_fc_layer_params=None, joint_fc_layer_params={self.model_config.fc_layers})')
         critic_net = critic_network.CriticNetwork((observation_spec, action_spec),
                                                   observation_fc_layer_params=None, action_fc_layer_params=None,
@@ -432,17 +435,17 @@ class TfSacAgent(TfAgent):
                                                                      scale_distribution=True)
 
         self.log_api('ActorDistributionNetwork',
-                     f'{observation_spec}, {action_spec}, fc_layer_params={self.model_config.fc_layers}), ' +
+                     f'observation_spec, action_spec, fc_layer_params={self.model_config.fc_layers}), ' +
                      f'continuous_projection_net=...)')
         actor_net = actor_distribution_network.ActorDistributionNetwork(observation_spec, action_spec,
                                                                         fc_layer_params=self.model_config.fc_layers,
                                                                         continuous_projection_net=normal_projection_net)
         # self.log_api('tf.compat.v1.train.get_or_create_global_step','()')
         # global_step = tf.compat.v1.train.get_or_create_global_step()
-        self.log_api('SacAgent', f'({timestep_spec}, {action_spec}, actor_network=..., critic_network=..., ' +
-                     f'actor_optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate={tc.learning_rate}), ' +
-                     f'critic_optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate={tc.learning_rate}), ' +
-                     f'alpha_optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate={tc.learning_rate}), ' +
+        self.log_api('SacAgent', f'(timestep_spec, action_spec, actor_network=..., critic_network=..., ' +
+                     f'actor_optimizer=AdamOptimizer(learning_rate={tc.learning_rate}), ' +
+                     f'critic_optimizer=AdamOptimizer(learning_rate={tc.learning_rate}), ' +
+                     f'alpha_optimizer=AdamOptimizer(learning_rate={tc.learning_rate}), ' +
                      f'gamma={tc.reward_discount_gamma})')
         tf_agent = sac_agent.SacAgent(
             timestep_spec,
@@ -466,7 +469,7 @@ class TfSacAgent(TfAgent):
         collect_policy = tf_agent.collect_policy
 
         # setup and preload replay buffer
-        self.log_api('TFUniformReplayBuffer', f'(data_spec={tf_agent.collect_data_spec}, ' +
+        self.log_api('TFUniformReplayBuffer', f'(data_spec=tf_agent.collect_data_spec, ' +
                      f'batch_size={train_env.batch_size}, max_length={tc.max_steps_in_buffer})')
         replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(data_spec=tf_agent.collect_data_spec,
                                                                        batch_size=train_env.batch_size,

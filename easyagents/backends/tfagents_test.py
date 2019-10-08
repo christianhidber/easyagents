@@ -74,7 +74,7 @@ class TfSacAgentTest(unittest.TestCase):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.StepsTrainContext()
         dqnAgent = tfagents.TfSacAgent(model_config=model_config)
-        dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
+        dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration(), log.Agent()])
 
 if __name__ == '__main__':
     unittest.main()
