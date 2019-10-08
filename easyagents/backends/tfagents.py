@@ -11,21 +11,21 @@ from easyagents.backends import monitor
 
 # noinspection PyPackageRequirements
 import tensorflow as tf
-from tf_agents.agents.ppo import ppo_agent
-from tf_agents.drivers.dynamic_episode_driver import DynamicEpisodeDriver
-from tf_agents.environments import py_environment
-from tf_agents.environments import gym_wrapper
-from tf_agents.environments import tf_py_environment
-from tf_agents.networks import actor_distribution_network
-from tf_agents.networks import value_network
-from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
-from tf_agents.utils import common
 
+from tf_agents.agents.ddpg import critic_network
 from tf_agents.agents.dqn import dqn_agent
-from tf_agents.networks import q_network
-from tf_agents.policies import tf_policy, random_tf_policy
-from tf_agents.trajectories import trajectory
+from tf_agents.agents.ppo import ppo_agent
 from tf_agents.agents.reinforce import reinforce_agent
+from tf_agents.agents.sac import sac_agent
+from tf_agents.drivers import dynamic_step_driver
+from tf_agents.drivers.dynamic_episode_driver import DynamicEpisodeDriver
+from tf_agents.environments import gym_wrapper, py_environment, tf_py_environment
+from tf_agents.networks import actor_distribution_network, normal_projection_network, q_network, value_network
+from tf_agents.policies import greedy_policy, tf_policy, random_tf_policy
+from tf_agents.replay_buffers import tf_uniform_replay_buffer
+from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
+from tf_agents.trajectories import trajectory
+from tf_agents.utils import common
 
 import gym
 
@@ -48,10 +48,11 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
 
         # simplify_box_bounds: Whether to replace bounds of Box space that are arrays
         #  with identical values with one number and rely on broadcasting.
+        # important, simplify_box_bounds True crashes environments with boundaries with identical values
         env = gym_wrapper.GymWrapper(
             gym_env,
             discount=discount,
-            simplify_box_bounds=False)  # important, default (True) crashes environments with boundaries with identical values
+            simplify_box_bounds=False)
         return env
 
     def _create_env(self, discount: float = 1) -> tf_py_environment.TFPyEnvironment:
@@ -167,7 +168,7 @@ class TfDqnAgent(TfAgent):
 
         # Train
         tf_agent.train = common.function(tf_agent.train, autograph=False)
-        self.log_api('replay_buffer.as_dataset', f'(num_parallel_calls=3, ' + \
+        self.log_api('replay_buffer.as_dataset', f'(num_parallel_calls=3, ' +
                      f'sample_batch_size={dc.num_steps_sampled_from_buffer}, num_steps=2).prefetch(3)')
         dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=dc.num_steps_sampled_from_buffer,
                                            num_steps=2).prefetch(3)
@@ -209,7 +210,6 @@ class TfPpoAgent(TfAgent):
 
         assert isinstance(train_context, core.PpoTrainContext)
         tc: core.PpoTrainContext = train_context
-        self.log('Creating environment...')
         train_env = self._create_env(discount=tc.reward_discount_gamma)
         observation_spec = train_env.observation_spec()
         action_spec = train_env.action_spec()
@@ -248,7 +248,6 @@ class TfPpoAgent(TfAgent):
         collect_driver.run = common.function(collect_driver.run, autograph=False)
         tf_agent.train = common.function(tf_agent.train, autograph=False)
 
-        self.log('Starting training...')
         while True:
             self.on_train_iteration_begin()
             msg = f'iteration {tc.iterations_done_in_training:4} of {tc.num_iterations:<4}'
@@ -389,6 +388,133 @@ class TfReinforceAgent(TfAgent):
             replay_buffer.clear()
 
             self.on_train_iteration_end(loss=total_loss)
+            if tc.training_done:
+                break
+        return
+
+
+# noinspection PyUnresolvedReferences
+class TfSacAgent(TfAgent):
+    """ creates a new agent based on the SAC algorithm using the tfagents implementation.
+
+        Args:
+            model_config: the model configuration including the name of the target gym environment
+                as well as the neural network architecture.
+    """
+
+    def __init__(self, model_config: core.ModelConfig):
+        super().__init__(model_config=model_config)
+
+    # noinspection DuplicatedCode
+    def train_implementation(self, train_context: core.TrainContext):
+        """Tf-Agents Ppo Implementation of the train loop."""
+
+        assert isinstance(train_context, core.StepsTrainContext)
+        tc: core.StepsTrainContext = train_context
+        train_env = self._create_env(discount=tc.reward_discount_gamma)
+        observation_spec = train_env.observation_spec()
+        action_spec = train_env.action_spec()
+        timestep_spec = train_env.time_step_spec()
+
+        self.log_api('CriticNetwork',
+                     f'{(observation_spec, action_spec)}, observation_fc_layer_params=None, ' +
+                     f'action_fc_layer_params=None, joint_fc_layer_params={self.model_config.fc_layers})')
+        critic_net = critic_network.CriticNetwork((observation_spec, action_spec),
+                                                  observation_fc_layer_params=None, action_fc_layer_params=None,
+                                                  joint_fc_layer_params=self.model_config.fc_layers)
+
+        def normal_projection_net(action_spec_arg, init_means_output_factor=0.1):
+            return normal_projection_network.NormalProjectionNetwork(action_spec_arg,
+                                                                     mean_transform=None,
+                                                                     state_dependent_std=True,
+                                                                     init_means_output_factor=init_means_output_factor,
+                                                                     std_transform=sac_agent.std_clip_transform,
+                                                                     scale_distribution=True)
+
+        self.log_api('ActorDistributionNetwork',
+                     f'{observation_spec}, {action_spec}, fc_layer_params={self.model_config.fc_layers}), ' +
+                     f'continuous_projection_net=...)')
+        actor_net = actor_distribution_network.ActorDistributionNetwork(observation_spec, action_spec,
+                                                                        fc_layer_params=self.model_config.fc_layers,
+                                                                        continuous_projection_net=normal_projection_net)
+        # self.log_api('tf.compat.v1.train.get_or_create_global_step','()')
+        # global_step = tf.compat.v1.train.get_or_create_global_step()
+        self.log_api('SacAgent', f'({timestep_spec}, {action_spec}, actor_network=..., critic_network=..., ' +
+                     f'actor_optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate={tc.learning_rate}), ' +
+                     f'critic_optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate={tc.learning_rate}), ' +
+                     f'alpha_optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate={tc.learning_rate}), ' +
+                     f'gamma={tc.reward_discount_gamma})')
+        tf_agent = sac_agent.SacAgent(
+            timestep_spec,
+            action_spec,
+            actor_network=actor_net,
+            critic_network=critic_net,
+            actor_optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=tc.learning_rate),
+            critic_optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=tc.learning_rate),
+            alpha_optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=tc.learning_rate),
+            # target_update_tau=0.005,
+            # target_update_period=1,
+            # td_errors_loss_fn=tf.compat.v1.losses.mean_squared_error,
+            gamma=tc.reward_discount_gamma)
+        # reward_scale_factor=1.0,
+        # gradient_clipping=None,
+        # train_step_counter=global_step)
+        self.log_api('tf_agent.initialize', '()')
+        tf_agent.initialize()
+
+        self._trained_policy = greedy_policy.GreedyPolicy(tf_agent.policy)
+        collect_policy = tf_agent.collect_policy
+
+        # setup and preload replay buffer
+        self.log_api('TFUniformReplayBuffer', f'(data_spec={tf_agent.collect_data_spec}, ' +
+                     f'batch_size={train_env.batch_size}, max_length={tc.max_steps_in_buffer})')
+        replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(data_spec=tf_agent.collect_data_spec,
+                                                                       batch_size=train_env.batch_size,
+                                                                       max_length=tc.max_steps_in_buffer)
+
+        self.log_api('DynamicStepDriver', f'(env, collect_policy, observers=[replay_buffer.add_batch], ' +
+                     f'num_steps={tc.num_steps_buffer_preload})')
+        initial_collect_driver = dynamic_step_driver.DynamicStepDriver(train_env,
+                                                                       collect_policy,
+                                                                       observers=[replay_buffer.add_batch],
+                                                                       num_steps=tc.num_steps_buffer_preload)
+        self.log_api('initial_collect_driver.run()')
+        initial_collect_driver.run()
+
+        # Dataset generates trajectories with shape [Bx2x...]
+        dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=tc.num_steps_sampled_from_buffer,
+                                           num_steps=2).prefetch(3)
+        iterator = iter(dataset)
+
+        self.log_api('DynamicStepDriver', f'(env, collect_policy, observers=[replay_buffer.add_batch], ' +
+                     f'num_steps={tc.num_steps_per_iteration})')
+        collect_driver = dynamic_step_driver.DynamicStepDriver(train_env,
+                                                               collect_policy,
+                                                               observers=[replay_buffer.add_batch],
+                                                               num_steps=tc.num_steps_per_iteration)
+
+        # (Optional) Optimize by wrapping some of the code in a graph using TF function.
+        tf_agent.train = common.function(tf_agent.train)
+        collect_driver.run = common.function(collect_driver.run)
+
+        self.log_api('for each iteration')
+        self.log_api('  collect_driver.run', '()')
+        self.log_api('  tf_agent.train', '(experience=...)')
+        while True:
+            self.on_train_iteration_begin()
+            # Collect a few steps using collect_policy and save to the replay buffer.
+            for _ in range(tc.num_steps_per_iteration):
+                collect_driver.run()
+
+            # Sample a batch of data from the buffer and update the agent's network.
+            experience, _ = next(iterator)
+            loss_info = tf_agent.train(experience)
+            total_loss = loss_info.loss.numpy()
+            actor_loss = loss_info.extra.actor_loss
+            alpha_loss = loss_info.extra.alpha_loss
+            critic_loss = loss_info.extra.critic_loss
+            self.on_train_iteration_end(loss=total_loss, actor_loss=actor_loss, critic_loss=critic_loss,
+                                        alpha_loss=alpha_loss)
             if tc.training_done:
                 break
         return

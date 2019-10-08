@@ -65,5 +65,16 @@ class TfReinforceAgentTest(unittest.TestCase):
         rmin, ravg, rmax = tc.eval_rewards[tc.episodes_done_in_training]
         assert rmax >= 10
 
+class TfSacAgentTest(unittest.TestCase):
+
+    def setUp(self):
+        self.env_name = env._StepCountEnv.register_with_gym()
+
+    def test_train(self):
+        model_config = core.ModelConfig("CartPole-v0")
+        tc = core.StepsTrainContext()
+        dqnAgent = tfagents.TfSacAgent(model_config=model_config)
+        dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
+
 if __name__ == '__main__':
     unittest.main()
