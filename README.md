@@ -15,12 +15,14 @@ Environments are implemented in [OpenAI gym](https://github.com/openai/gym).
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
-### Use EasyAgents if
-* you want to compare different algorithms and implementations, easily switch between the implementations,
-  without having to learn the details first
-* you like easily interpretable plots, consistent across all algorithms and backends
-* you work a lot with jupyter notebooks besides a python ide
-* you are looking for a simple 2 lines of code api to run and evaluate algorithms against your environment  
+### Features 
+* provides the **same, simple api across all libraries**. Thus you can easily switch between different implementations
+  and you don't have to learn for each of them a new api.
+* to create and run any algorithm you only need **2 lines of code**, all the parameters are named
+  consistently across all algorithms.
+* supports a broad set of different algorithms
+* runs inside **jupyter notebooks** as well as stand-alone, easy to install requiring only a single 'pip install'.
+* easy to understand, **ready-made plots** and logs to investigate the algorithms and environments behaviour
 
 ### Try it on colab
 * [1. Introduction (CartPole on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb):
