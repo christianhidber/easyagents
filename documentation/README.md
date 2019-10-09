@@ -1,5 +1,6 @@
 ## Release notes
 * v1.2 [19Q4]
+    * 1.2.2: fix for CemAgent and SacAgent default backend registration
     * 1.2.1: SacAgent for tfagents preview; notebook on 'Agent logging, seeding and jupyter output cells'
     * 1.2.0: Agent.score
 * v1.1 [19Q3]
