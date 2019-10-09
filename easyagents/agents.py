@@ -146,6 +146,26 @@ class EasyAgent(ABC):
         self._backend_agent.play(play_context=play_context, callbacks=callbacks)
         return play_context
 
+    def score(self,
+             num_episodes: int = 50,
+             max_steps_per_episode: int = 50):
+        """Plays num_episodes with the current policy and computes metrics on rewards.
+
+        Args:
+            num_episodes: number of episodes to play
+            max_steps_per_episode: max steps per episode
+
+        Returns:
+            score metrics - mean, std, min, max, all
+        """
+        play_context = core.PlayContext()
+        play_context.max_steps_per_episode = max_steps_per_episode
+        play_context.num_episodes = num_episodes
+        self.play(play_context=play_context, default_plots=False)
+        all = list(play_context.sum_of_rewards.values())
+
+        return statistics.mean(all), statistics.stdev(all), min(all), max(all), all
+        
     def play(self,
              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
              num_episodes: int = 1,
