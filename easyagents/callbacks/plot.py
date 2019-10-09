@@ -419,6 +419,8 @@ class Clear(core.AgentCallback):
             """
         self._on_play: bool = on_play
         self._on_train: bool = on_train
+        on_play_end_clear_jupyter_display = self._on_play
+        on_train_end_clear_jupyter_display = self._on_train
 
     def on_play_begin(self, agent_context: core.AgentContext):
         global on_play_end_clear_jupyter_display
