@@ -1,8 +1,8 @@
 ## Release notes
 * v1.2 [19Q4]
-    * 1.2.1: SacAgent for tfagents preview; notebook on Agent logging, seeding and fixing a jupyter cell problem
+    * 1.2.1: SacAgent for tfagents preview; notebook on 'Agent logging, seeding and jupyter output cells'
     * 1.2.0: Agent.score
-* v1.1 [19Q4]
+* v1.1 [19Q3]
     * 1.1.23: CemAgent for keras-rl backend; DqnAgent, RandomAgent for tensorforce
     * 1.1.22: DuelingDqnAgent, DoubleDqnAgent with keras-rl backend
     * 1.1.21: keras-rl backend (dqn)

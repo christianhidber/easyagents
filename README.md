@@ -1,4 +1,4 @@
-### Reinforcement Learning for Practitioners (v1.1, 19Q4)
+### Reinforcement Learning for Practitioners (v1.2, 19Q4)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)
 
