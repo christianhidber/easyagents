@@ -2,7 +2,8 @@ import pytest
 import unittest
 import logging
 
-from easyagents.agents import CemAgent, ReinforceAgent, PpoAgent, DqnAgent, DoubleDqnAgent, DuelingDqnAgent, RandomAgent
+from easyagents.agents import CemAgent, DqnAgent, DoubleDqnAgent, DuelingDqnAgent, PpoAgent, \
+    RandomAgent, ReinforceAgent, SacAgent
 from easyagents.agents import get_backends
 from easyagents import env, core, agents
 from easyagents.callbacks import duration, log, plot
@@ -70,13 +71,12 @@ class BackendRegistrationTest(unittest.TestCase):
             agents.register_backend(backend=None)
 
 
-
 class CemAgentTest(unittest.TestCase):
 
     def train_and_assert(self, agent_type, is_v1: bool, num_iterations=100):
         logger = logging.warning
-        v2_backends = [b for b in get_backends(agent_type, skip_v1=True) if b != 'default']
-        v1_backends = [b for b in get_backends(agent_type) if (not b in v2_backends) and  b != 'default']
+        v2_backends = [b for b in get_backends(agent_type, skip_v1=True)]
+        v1_backends = [b for b in get_backends(agent_type) if (not b in v2_backends)]
         backends = v1_backends if is_v1 else v2_backends
         for backend in backends:
             logger(f'backend={backend} agent={agent_type}, num_iterations={num_iterations}')
@@ -95,6 +95,7 @@ class CemAgentTest(unittest.TestCase):
     def test_cem_v1(self):
         self.train_and_assert(CemAgent, True)
 
+
 class DqnAgentsTest(unittest.TestCase):
 
     def train_and_eval(self, agent_type, backend, num_iterations):
@@ -105,21 +106,21 @@ class DqnAgentsTest(unittest.TestCase):
                                                 num_iterations_between_eval=500,
                                                 max_steps_per_episode=200,
                                                 default_plots=False)
-        max_avg_steps = max([avg_steps for (min_steps,avg_steps,max_steps) in tc.eval_steps.values()])
+        max_avg_steps = max([avg_steps for (min_steps, avg_steps, max_steps) in tc.eval_steps.values()])
         return max_avg_steps
-
 
     def train_and_assert(self, agent_type, is_v1: bool, num_iterations=10000):
         logger = logging.warning
         v2_backends = [b for b in get_backends(agent_type, skip_v1=True) if b != 'default']
-        v1_backends = [b for b in get_backends(agent_type) if (not b in v2_backends) and  b != 'default']
+        v1_backends = [b for b in get_backends(agent_type) if (not b in v2_backends) and b != 'default']
         backends = v1_backends if is_v1 else v2_backends
         for backend in backends:
-            current_num_iterations=num_iterations
-            if backend=='tensorforce':
-                current_num_iterations=num_iterations*3
+            current_num_iterations = num_iterations
+            if backend == 'tensorforce':
+                current_num_iterations = num_iterations * 3
             logger(f'backend={backend} agent={agent_type}, num_iterations={current_num_iterations}')
-            max_avg_steps = self.train_and_eval(agent_type=agent_type, backend=backend, num_iterations=current_num_iterations)
+            max_avg_steps = self.train_and_eval(agent_type=agent_type, backend=backend,
+                                                num_iterations=current_num_iterations)
             assert max_avg_steps >= 100, f'agent_type={agent_type} backend={backend} num_iterations={num_iterations}'
 
     @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
@@ -145,6 +146,7 @@ class DqnAgentsTest(unittest.TestCase):
 
     def test_dueling_dqn_v2(self):
         self.train_and_assert(DuelingDqnAgent, False)
+
 
 # noinspection PyTypeChecker
 class PpoAgentTest(unittest.TestCase):
@@ -214,6 +216,17 @@ class ReinforceAgentTest(unittest.TestCase):
             assert avg_steps >= 10
 
 
+class SacAgentTest(unittest.TestCase):
+
+    def test_train(self):
+        for backend in get_backends(SacAgent):
+            sac_agent: SacAgent = SacAgent('CartPole-v0', backend=backend)
+            sac_agent.train([log.Duration(), log.Iteration(), log.Agent()],
+                            num_iterations=10,
+                            max_steps_per_episode=200,
+                            default_plots=False)
+
+
 class EasyAgentTest(unittest.TestCase):
     def test_score(self):
         random_agent = RandomAgent('CartPole-v0')
@@ -224,6 +237,7 @@ class EasyAgentTest(unittest.TestCase):
         assert mean >= min_reward
         assert std >= 0
         assert len(all_rewards) == num_episodes
+
 
 if __name__ == '__main__':
     unittest.main()
