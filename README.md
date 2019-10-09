@@ -15,7 +15,7 @@ Environments are implemented in [OpenAI gym](https://github.com/openai/gym).
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
-#### Features 
+### Features 
 * provides the **same, simple api across all libraries**. Thus you can easily switch between different implementations
   and you don't have to learn for each of them a new api.
 * to create and run any algorithm you only need **2 lines of code**, all the parameters are named
@@ -23,7 +23,7 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
 * runs inside **jupyter notebooks** as well as stand-alone
 * easy to understand, **ready-made plots** and logs to investigate the algorithms and environments behaviour
 
-#### Try it on colab
+### Try it on colab
 * [1. Introduction (CartPole on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb):
    training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
    balancing a stick on a cart.
@@ -35,7 +35,7 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
   Investigate how an agents api and how it interacts with the gym environment; 
   how to set seeds; controlling jupyter output cell clearing
 
-#### Scenario: simple
+### Scenario: simple
 ````
 from easyagents.agents import PpoAgent
 from easyagents.callbacks import plot
@@ -45,7 +45,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards()])
 ````
 ![Scenario_Simple](images/Scenario_simple.png)
 
-#### Scenario: more detailed
+### Scenario: more detailed
 ````
 from easyagents.agents import PpoAgent
 from easyagents.callbacks import plot
@@ -58,7 +58,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 
 ![Scenario_Detailed](images/Scenario_detailed.gif)
 
-#### Available Algorithms and Backends
+### Available Algorithms and Backends
 
 |algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl](https://github.com/keras-rl/keras-rl) | easyagents class name |
 |----------|:---------:|:-----------:|:--------:| :---: | 
@@ -81,7 +81,7 @@ Thus keras-rl based agents should run in a different python / jupyter notebook i
 than  tf-agents or tensorforce based agents.
 
 
-#### Guiding Principles
+### Guiding Principles
 * **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
 * **simple & consistent** over "flexible & powerful"
 * **inspired by keras**: 
@@ -89,22 +89,22 @@ than  tf-agents or tensorforce based agents.
     * support different implementations of the same algorithm 
     * extensible (pluggable backends, plots & training schemes)   
 
-#### Installation
+### Installation
 Install from pypi using pip:
 
 ```python
 pip install easyagents
 ```
 
-#### Documentation
+### Documentation
 [release notes, class diagram](documentation/README.md)
 
-#### EasyAgents may not be ideal if
+### EasyAgents may not be ideal if
 
 * you would like to leverage implementation specific advantages of an algorithm
 * you want to do distributed or in parallel reinforcement learning
 
-#### Note
+### Note
 
 * This repository is under active development and in an early stage. 
   Thus any- and everything may (and probably should) change.
