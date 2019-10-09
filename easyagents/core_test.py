@@ -3,7 +3,7 @@ import unittest
 
 import easyagents.backends.core
 
-from easyagents.core import ModelConfig, AgentCallback, AgentContext, ActorCriticTrainContext, PlayContext
+from easyagents.core import ModelConfig, AgentCallback, AgentContext, PpoTrainContext, PlayContext
 from easyagents.callbacks.duration import Fast
 import easyagents.backends.debug
 from easyagents.agents import DqnAgent,PpoAgent,ReinforceAgent,RandomAgent
@@ -46,15 +46,15 @@ class AgentContextTest(unittest.TestCase):
             self.train_called = True
 
     def test_agentcontext_train(self):
-        b = easyagents.backends.debug.BackendAgentFactory()
+        b = easyagents.backends.debug.DebugAgentFactory()
         a = b.create_agent( PpoAgent, ModelConfig(_env_name))
         c = AgentContextTest.TrainCallback()
-        a.train(callbacks=[Fast(), c], train_context=ActorCriticTrainContext())
+        a.train(callbacks=[Fast(), c], train_context=PpoTrainContext())
         assert c.train_called
         assert c.play_called
 
     def test_agentcontext_play(self):
-        b = easyagents.backends.debug.BackendAgentFactory()
+        b = easyagents.backends.debug.DebugAgentFactory()
         a = b.create_agent( PpoAgent, ModelConfig(_env_name))
         c = AgentContextTest.PlayCallback()
         pc =PlayContext()

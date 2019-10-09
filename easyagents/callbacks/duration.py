@@ -23,8 +23,8 @@ class Fast(core.AgentCallback):
             ec: core.EpisodesTrainContext = tc
             ec.num_episodes_per_iteration = self._num_episodes_per_iteration
             ec.num_epochs_per_iteration = 1
-        if isinstance(tc, core.DqnTrainContext):
-            dc: core.DqnTrainContext = tc
+        if isinstance(tc, core.StepsTrainContext):
+            dc: core.StepsTrainContext = tc
             if self._num_iterations is None:
                 self._num_iterations = 5 * self._num_episodes_per_iteration * self._max_steps_per_episode
             dc.num_steps_buffer_preload = math.ceil(self._num_iterations / 10)
@@ -45,7 +45,7 @@ class _SingleEpisode(Fast):
     def on_train_begin(self, agent_context: core.AgentContext):
         super().on_train_begin(agent_context)
         tc = agent_context.train
-        if isinstance(tc, core.DqnTrainContext):
+        if isinstance(tc, core.StepsTrainContext):
             tc.num_iterations = self._max_steps_per_episode
         tc.num_iterations_between_eval = 0
         tc.num_episodes_per_eval = 0

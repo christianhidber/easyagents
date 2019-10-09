@@ -228,7 +228,7 @@ class Iteration(_LogCallbackBase):
                 loss = tc.loss[e]
                 if not (isinstance(loss, float) and math.isnan(loss)):
                     msg = msg + f'loss={tc.loss[e]:<7.1f} '
-                if isinstance(tc, core.ActorCriticTrainContext):
+                if isinstance(tc, core.PpoTrainContext):
                     msg = msg + f'[actor={tc.actor_loss[e]:<7.1f} '
                     msg = msg + f'critic={tc.critic_loss[e]:<7.1f}] '
             if e in tc.eval_rewards:

@@ -21,7 +21,7 @@ class KerasRlTest(unittest.TestCase):
         tc.num_episodes_per_iteration=50
         tc.max_steps_per_episode=200
         tc.elite_set_fraction=0.1
-        tc.num_steps_warmup=2000
+        tc.num_steps_buffer_preload=2000
         cemAgent = kerasrl.KerasRlCemAgent(model_config=model_config)
         cemAgent.train(train_context=tc,callbacks=[log.Agent(), log.Iteration()])
 
@@ -31,7 +31,7 @@ class KerasRlTest(unittest.TestCase):
     def test_dqn(self):
         easyagents.agents.seed = 0
         model_config = core.ModelConfig("CartPole-v0")
-        tc = core.DqnTrainContext()
+        tc = core.StepsTrainContext()
         dqnAgent = kerasrl.KerasRlDqnAgent(model_config=model_config)
         dqnAgent.train(train_context=tc,
                        callbacks=[duration.Fast(), log.Agent(), log.Step(), log.Iteration()])

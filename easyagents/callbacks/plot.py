@@ -15,7 +15,7 @@ import datetime
 imageio.plugins.ffmpeg.download()
 
 # avoid "double rendering" of the final jupyter output
-on_play_end_clear_jupyter_display: bool = True
+on_play_end_clear_jupyter_display: bool = False
 on_train_end_clear_jupyter_display: bool = True
 
 # check if we are running in Jupyter, if so interactive plotting must be handled differently
@@ -455,12 +455,12 @@ class Loss(_PlotCallback):
         self.clear_plot(agent_context)
         lossvalues = list(tc.loss.values())
         if self._is_nan(lossvalues):
-            self.plot_text('plot not available')
+            self.plot_text('no loss data available')
         else:
             self.plot_axes(xlim=(0, tc.episodes_done_in_training), xlabel='episodes trained',
                            ylim=self.ylim, ylabel='loss', yscale=self.yscale)
-            if isinstance(tc, core.ActorCriticTrainContext):
-                acc: core.ActorCriticTrainContext = tc
+            if isinstance(tc, core.PpoTrainContext):
+                acc: core.PpoTrainContext = tc
                 self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=lossvalues, color='indigo', pause=False)
                 self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g',
                                  pause=False)

@@ -15,7 +15,7 @@ easyagents.agents.seed = 0
 # noinspection PyTypeChecker
 class BackendRegistrationTest(unittest.TestCase):
     class MyBackend(easyagents.backends.core.BackendAgentFactory):
-        name = "MyBackend"
+        backend_name = "MyBackend"
 
     def setUp(self):
         self._oldbackends = agents._backends.copy()
@@ -55,7 +55,7 @@ class BackendRegistrationTest(unittest.TestCase):
         agents.register_backend(BackendRegistrationTest.MyBackend())
         b = easyagents.agents.get_backends()
         assert (old_len + 1) == len(b)
-        assert BackendRegistrationTest.MyBackend.name in b
+        assert BackendRegistrationTest.MyBackend.backend_name in b
 
     def test_register_backend_twice(self):
         b2 = easyagents.backends.default.BackendAgentFactory()
@@ -159,7 +159,7 @@ class PpoAgentTest(unittest.TestCase):
     def test_train_cartpole(self):
         for backend in get_backends(PpoAgent):
             ppo = PpoAgent(gym_env_name="CartPole-v0", backend=backend)
-            tc = core.ActorCriticTrainContext()
+            tc = core.PpoTrainContext()
             tc.num_iterations = 3
             tc.num_episodes_per_iteration = 10
             tc.max_steps_per_episode = 500

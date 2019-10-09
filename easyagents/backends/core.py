@@ -16,6 +16,7 @@ from easyagents.callbacks import plot
 
 _tensorflow_v2_eager_enabled: Optional[bool] = None
 
+
 class _BackendEvalCallback(core.AgentCallback):
     """Evaluates an agents current policy and updates its train_context accordingly."""
 
@@ -41,14 +42,17 @@ class _BackendAgent(ABC):
         Implements the train loop and calls the Callbacks.
     """
 
-    def __init__(self, model_config: core.ModelConfig, tensorflow_v2_eager: bool = True):
+    def __init__(self, model_config: core.ModelConfig, backend_name: str, tensorflow_v2_eager: bool = True):
         """
         Args:
             model_config: defines the model and environment to be used
+            backend_name: id of the backend to which this agent belongs to.
             tensorflow_v2_eager: the execution mode, enforced for this and all other backend agents.
         """
         assert model_config is not None, "model_config not set."
+        assert backend_name
 
+        self._backend_name: str = backend_name
         self._tensorflow_v2_eager = tensorflow_v2_eager
         self.model_config = model_config
         self._agent_context: core.AgentContext = core.AgentContext(self.model_config)
@@ -402,6 +406,7 @@ class _BackendAgent(ABC):
         self._callbacks = callbacks
 
         try:
+            self.log_api(f'backend_name', f'{self._backend_name}')
             self._set_seed()
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_train_begin()
@@ -477,9 +482,9 @@ class BackendAgentFactory(ABC):
     """Backend agent factory defining the currently available agents (algorithms).
     """
 
-    name: str = 'abstract_BackendAgentFactory'
+    backend_name: str = 'abstract_BackendAgentFactory'
 
-    tensorflow_v2_eager_compatible : bool = True
+    tensorflow_v2_eager_compatible: bool = True
 
     def create_agent(self, easyagent_type: Type, model_config: core.ModelConfig) \
             -> Optional[_BackendAgent]:

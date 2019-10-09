@@ -1,4 +1,4 @@
-### Reinforcement Learning for Practitioners (v1.1, 19Q4)
+### Reinforcement Learning for Practitioners (v1.2, 19Q4)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)
 
@@ -13,24 +13,26 @@ Written in Python and running on top of established reinforcement learning libra
 [keras-rl](https://github.com/keras-rl/keras-rl).
 Environments are implemented in [OpenAI gym](https://github.com/openai/gym). 
 
+In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
 ### Use EasyAgents if
 * you want to compare different algorithms and implementations, easily switch between the implementations,
   without having to learn the details first
 * you like easily interpretable plots, consistent across all algorithms and backends
-* you have a gym environment and want to experiment with it (inside or outside of a jupyter notebook)
+* you work a lot with jupyter notebooks besides a python ide
 * you are looking for a simple 2 lines of code api to run and evaluate algorithms against your environment  
 
-Try it on colab:
-* [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
-  introduction: training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
+### Try it on colab
+* [1. Introduction (cartpole on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb):
+   training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
    balancing a stick on a cart.
-* [Orso on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb):
-  custom training, creating a movie, switching backends & logging. gym environment based on a routing problem.
-* [LineWorld on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb)
-  implement your own environment, workshop example.
-
-In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
+* [2. Next steps (Orso on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb):
+  custom training, creating a movie & switching backends. gym environment based on a routing problem.
+* [3. Creating your own environment (LineWorld on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb):
+  implement a gym environment from scratch, workshop example.
+* [4. Logging, seeding & plot clearing (on colab)]((https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_logging.ipynb):): 
+  Investigate how an agents api and how it interacts with the gym environment; 
+  how to set seeds; controlling jupyter output cell clearing
 
 ### Scenario: simple
 ````
@@ -62,15 +64,18 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 |[CEM](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf) |`not available`  |`not available`  |`yes`  | CemAgent | 
 |[Dqn](https://arxiv.org/abs/1312.5602)           |`yes`           |`yes`    |`yes`            | DqnAgent | 
 |[Double Dqn](https://arxiv.org/abs/1509.06461)   |`open`          |`not available`    |`yes`  | DoubleDqnAgent|
-|[Dueling Dqn](https://arxiv.org/abs/1511.06581)  | `not available`        |`open`    |`yes`   | DuelingDqnAgent|
+|[Dueling Dqn](https://arxiv.org/abs/1511.06581)  | `not available`        |`not available`    |`yes`   | DuelingDqnAgent|
 |[Ppo](https://arxiv.org/abs/1707.06347)          |`yes`           |`yes`     |`not available` | PpoAgent |
 |Random                                           |`yes`           |`yes`    |`not available`  | RandomAgent |
 |[REINFORCE](www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
-|[SAC](https://arxiv.org/abs/1801.01290)          |`open`          |`not available`|`not available`|`open`|
+|[SAC](https://arxiv.org/abs/1801.01290)          |`preview`          |`not available`|`not available`|SacAgent|
 
-[october 2019]
+[191001]
 
-restriction: keras-rl is not compatible with tensorflow eager execution mode.
+* if you are interested in other algorithms, backends or hyperparameters let us know by
+ [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose). 
+  We'll try our best to support you.
+* keras-rl is not compatible with tensorflow eager execution mode.
 Thus keras-rl based agents should run in a different python / jupyter notebook instance 
 than  tf-agents or tensorforce based agents.
 
@@ -104,6 +109,6 @@ pip install easyagents
   Thus any- and everything may (and probably should) change.
 * If you have any difficulties in installing or using easyagents please let us know by 
   [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose).
-  We'll try to do our best to help you.
+  We'll try our best to help you.
 * Any ideas, help, suggestions, comments etc in python / open source development / reinforcement learning / whatever
   are more than welcome. Thanks a lot in advance.

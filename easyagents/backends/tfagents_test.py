@@ -12,7 +12,7 @@ class TfDqnAgentTest(unittest.TestCase):
 
     def test_train(self):
         model_config = core.ModelConfig("CartPole-v0")
-        tc = core.DqnTrainContext()
+        tc = core.StepsTrainContext()
         dqnAgent = tfagents.TfDqnAgent(model_config=model_config)
         dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
 
@@ -24,7 +24,7 @@ class TfPpoAgentTest(unittest.TestCase):
 
     def test_train(self):
         model_config = core.ModelConfig("CartPole-v0")
-        tc = core.ActorCriticTrainContext()
+        tc = core.PpoTrainContext()
         ppoAgent = tfagents.TfPpoAgent(model_config=model_config)
         ppoAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
 
@@ -64,6 +64,17 @@ class TfReinforceAgentTest(unittest.TestCase):
         assert tc.iterations_done_in_training == tc.num_iterations > 0
         rmin, ravg, rmax = tc.eval_rewards[tc.episodes_done_in_training]
         assert rmax >= 10
+
+class TfSacAgentTest(unittest.TestCase):
+
+    def setUp(self):
+        self.env_name = env._StepCountEnv.register_with_gym()
+
+    def test_train(self):
+        model_config = core.ModelConfig("CartPole-v0")
+        tc = core.StepsTrainContext()
+        dqnAgent = tfagents.TfSacAgent(model_config=model_config)
+        dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration(), log.Agent()])
 
 if __name__ == '__main__':
     unittest.main()
