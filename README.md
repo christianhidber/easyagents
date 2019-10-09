@@ -13,6 +13,7 @@ Written in Python and running on top of established reinforcement learning libra
 [keras-rl](https://github.com/keras-rl/keras-rl).
 Environments are implemented in [OpenAI gym](https://github.com/openai/gym). 
 
+In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
 ### Use EasyAgents if
 * you want to compare different algorithms and implementations, easily switch between the implementations,
@@ -21,17 +22,17 @@ Environments are implemented in [OpenAI gym](https://github.com/openai/gym).
 * you work a lot with jupyter notebooks besides a python ide
 * you are looking for a simple 2 lines of code api to run and evaluate algorithms against your environment  
 
-Try it on colab:
-* [Cartpole on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb)
-  introduction: training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
+### Try it on colab
+* [1. Introduction (cartpole on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb):
+   training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
    balancing a stick on a cart.
-* [Orso on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb):
+* [2. Next steps (Orso on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb):
   custom training, creating a movie & switching backends. gym environment based on a routing problem.
-* [LineWorld on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb)
-  implement your own environment, workshop example.
-* [Logging in colab]
-
-In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
+* [3. Creating your own environment (LineWorld on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb):
+  implement a gym environment from scratch, workshop example.
+* [4. Logging, seeding & plot clearing (on colab)]((https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_logging.ipynb):): 
+  Investigate how an agents api and how it interacts with the gym environment; 
+  how to set seeds; controlling jupyter output cell clearing
 
 ### Scenario: simple
 ````
