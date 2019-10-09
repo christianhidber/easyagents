@@ -20,7 +20,8 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
   and you don't have to learn for each of them a new api.
 * to create and run any algorithm you only need **2 lines of code**, all the parameters are named
   consistently across all algorithms.
-* runs inside **jupyter notebooks** as well as stand-alone
+* supports a broad set of different algorithms
+* runs inside **jupyter notebooks** as well as stand-alone, easy to install requiring only a single 'pip install'.
 * easy to understand, **ready-made plots** and logs to investigate the algorithms and environments behaviour
 
 ### Try it on colab
