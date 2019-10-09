@@ -26,7 +26,7 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
 * [1. Introduction (CartPole on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb):
    training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
    balancing a stick on a cart.
-* [2. Next steps (Orso on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb):
+* [2. Next steps & backend switching (Orso on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb):
   custom training, creating a movie & switching backends. gym environment based on a routing problem.
 * [3. Creating your own environment (LineWorld on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb):
   implement a gym environment from scratch, workshop example.
