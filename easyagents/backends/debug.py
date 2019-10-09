@@ -11,8 +11,8 @@ import easyagents.agents
 import gym
 
 
-class BackendAgentFactory(bcore.BackendAgentFactory):
-    name : str  = 'debug'
+class DebugAgentFactory(bcore.BackendAgentFactory):
+    backend_name : str  = 'debug'
 
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
@@ -31,7 +31,7 @@ class BackendAgent(bcore._BackendAgent):
             model_config: containing the gym_env_name to "train" on
             action: the action to take in all steps or None. If None no steps are taken.
         """
-        super().__init__(model_config)
+        super().__init__(model_config, backend_name= DebugAgentFactory.backend_name)
         self.action = action
 
     def play_implementation(self, play_context: core.PlayContext):

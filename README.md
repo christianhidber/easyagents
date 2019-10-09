@@ -18,7 +18,7 @@ Environments are implemented in [OpenAI gym](https://github.com/openai/gym).
 * you want to compare different algorithms and implementations, easily switch between the implementations,
   without having to learn the details first
 * you like easily interpretable plots, consistent across all algorithms and backends
-* you have a gym environment and want to experiment with it (inside or outside of a jupyter notebook)
+* you work a lot with jupyter notebooks besides a python ide
 * you are looking for a simple 2 lines of code api to run and evaluate algorithms against your environment  
 
 Try it on colab:
@@ -26,9 +26,10 @@ Try it on colab:
   introduction: training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
    balancing a stick on a cart.
 * [Orso on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb):
-  custom training, creating a movie, switching backends & logging. gym environment based on a routing problem.
+  custom training, creating a movie & switching backends. gym environment based on a routing problem.
 * [LineWorld on colab](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb)
   implement your own environment, workshop example.
+* [Logging in colab]
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
@@ -70,7 +71,10 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 
 [191001]
 
-restriction: keras-rl is not compatible with tensorflow eager execution mode.
+* if you are interested in other algorithms, backends or hyperparameters let us know by
+ [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose). 
+  We'll try our best to support you.
+* keras-rl is not compatible with tensorflow eager execution mode.
 Thus keras-rl based agents should run in a different python / jupyter notebook instance 
 than  tf-agents or tensorforce based agents.
 
@@ -104,6 +108,6 @@ pip install easyagents
   Thus any- and everything may (and probably should) change.
 * If you have any difficulties in installing or using easyagents please let us know by 
   [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose).
-  We'll try to do our best to help you.
+  We'll try our best to help you.
 * Any ideas, help, suggestions, comments etc in python / open source development / reinforcement learning / whatever
   are more than welcome. Thanks a lot in advance.

@@ -13,7 +13,7 @@ class LogCallbacksTest(unittest.TestCase):
 
     def test_log_agent(self):
         agent = agents.PpoAgent(env_name)
-        agent.train([log.Agent(), duration._SingleIteration()])
+        agent.train([log.Agent(), duration.Fast()])
 
     def test_log_iteration(self):
         agent = agents.PpoAgent(env_name)

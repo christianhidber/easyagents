@@ -30,7 +30,7 @@ def register_backend(backend: bcore.BackendAgentFactory):
     If another backend with the same name is already registered, the old backend is replaced by backend.
     """
     assert backend
-    old_backends = [b for b in _backends if b.name == backend.name]
+    old_backends = [b for b in _backends if b.backend_name == backend.backend_name]
     for old_backend in old_backends:
         _backends.remove(old_backend)
     _backends.append(backend)
@@ -38,9 +38,9 @@ def register_backend(backend: bcore.BackendAgentFactory):
 
 # register all backends deployed with easyagents
 register_backend(easyagents.backends.default.BackendAgentFactory())
-register_backend(easyagents.backends.tfagents.BackendAgentFactory())
-register_backend(easyagents.backends.tforce.BackendAgentFactory())
-register_backend(easyagents.backends.kerasrl.BackendAgentFactory())
+register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
+register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
+register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
 
 
 class EasyAgent(ABC):
@@ -72,7 +72,7 @@ class EasyAgent(ABC):
         if model_config is None:
             model_config = core.ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
         if backend_name is None:
-            backend_name = easyagents.backends.default.BackendAgentFactory.name
+            backend_name = easyagents.backends.default.BackendAgentFactory.backend_name
         backend: bcore.BackendAgentFactory = _get_backend(backend_name)
 
         assert model_config is not None, "model_config not set."
@@ -225,9 +225,9 @@ def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False)
         available backends if agent is None.
     """
     backends = [b for b in _backends if (not skip_v1) or b.tensorflow_v2_eager_compatible]
-    result = [b.name for b in backends]
+    result = [b.backend_name for b in backends]
     if agent:
-        result = [b.name for b in backends if agent in b.get_algorithms()]
+        result = [b.backend_name for b in backends if agent in b.get_algorithms()]
     return result
 
 
@@ -237,7 +237,7 @@ def _get_backend(backend_name: str):
     Returns:
         the backend instance or None if no backend is found."""
     assert backend_name
-    backends = [b for b in _backends if b.name == backend_name]
+    backends = [b for b in _backends if b.backend_name == backend_name]
     assert len(backends) <= 1, f'no backend found with name "{backend_name}". Available backends = {get_backends()}'
     result = None
     if backends:

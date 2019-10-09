@@ -91,7 +91,7 @@ class BackendAgentFactoryTest(unittest.TestCase):
             def __init__(self,model_config : core.ModelConfig):
                 super().__init__(model_config=model_config, action=1)
 
-        name = "debug"
+        backend_name = "debug"
 
         def get_algorithms(self) -> Dict[Type[easyagents.agents.EasyAgent], Type[bcore._BackendAgent]]:
             return {easyagents.agents.DqnAgent: BackendAgentFactoryTest.DebugAgentFactory.DebugAgent}

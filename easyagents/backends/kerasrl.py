@@ -32,7 +32,9 @@ class KerasRlAgent(bcore.BackendAgent, metaclass=ABCMeta):
     """
 
     def __init__(self, model_config: core.ModelConfig):
-        super().__init__(model_config=model_config, tensorflow_v2_eager=False)
+        super().__init__(model_config=model_config,
+                         backend_name=KerasRlAgentFactory.backend_name,
+                         tensorflow_v2_eager=False)
         self._agent: Optional[rl.core.Agent] = None
         self._play_env: Optional[gym.Env] = None
 
@@ -358,13 +360,13 @@ class CemKerasRlAgent(KerasRlAgent):
         """
 
 
-class BackendAgentFactory(bcore.BackendAgentFactory):
+class KerasRlAgentFactory(bcore.BackendAgentFactory):
     """Backend for TfAgents.
 
         Serves as a factory to create algorithm specific wrappers for the keras-rl implementations.
     """
 
-    name: str = 'kerasrl'
+    backend_name: str = 'kerasrl'
 
     tensorflow_v2_eager_compatible: bool = False
 

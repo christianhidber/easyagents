@@ -7,7 +7,7 @@ import easyagents.backends.kerasrl
 class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend which redirects all calls to the some default implementation."""
 
-    name = 'default'
+    backend_name = 'default'
 
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""

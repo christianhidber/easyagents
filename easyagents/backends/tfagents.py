@@ -38,7 +38,7 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
     """
 
     def __init__(self, model_config: core.ModelConfig):
-        super().__init__(model_config=model_config)
+        super().__init__(model_config=model_config, backend_name=TfAgentAgentFactory.backend_name)
         self._trained_policy = None
         self._play_env: Optional[gym.Env] = None
 
@@ -216,31 +216,31 @@ class TfPpoAgent(TfAgent):
         timestep_spec = train_env.time_step_spec()
 
         # SetUp Optimizer, Networks and PpoAgent
-        self.log_api('AdamOptimizer', 'create')
+        self.log_api('AdamOptimizer', '()')
         optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=tc.learning_rate)
 
-        self.log_api('ActorDistributionNetwork', 'create')
+        self.log_api('ActorDistributionNetwork', '()')
         actor_net = actor_distribution_network.ActorDistributionNetwork(observation_spec, action_spec,
                                                                         fc_layer_params=self.model_config.fc_layers)
-        self.log_api('ValueNetwork', 'create')
+        self.log_api('ValueNetwork', '()')
         value_net = value_network.ValueNetwork(observation_spec, fc_layer_params=self.model_config.fc_layers)
 
-        self.log_api('PpoAgent', 'create')
+        self.log_api('PpoAgent', '()')
         tf_agent = ppo_agent.PPOAgent(timestep_spec, action_spec, optimizer,
                                       actor_net=actor_net, value_net=value_net,
                                       num_epochs=tc.num_epochs_per_iteration)
-        self.log_api('tf_agent.initialize()')
+        self.log_api('tf_agent.initialize','()')
         tf_agent.initialize()
         self._trained_policy = tf_agent.policy
 
         # SetUp Data collection & Buffering
         collect_data_spec = tf_agent.collect_data_spec
-        self.log_api('TFUniformReplayBuffer', 'create')
+        self.log_api('TFUniformReplayBuffer', '()')
         replay_buffer = TFUniformReplayBuffer(collect_data_spec,
                                               batch_size=1, max_length=tc.max_steps_in_buffer)
 
         collect_policy = tf_agent.collect_policy
-        self.log_api('DynamicEpisodeDriver', 'create')
+        self.log_api('DynamicEpisodeDriver', '()')
         collect_driver = DynamicEpisodeDriver(train_env, collect_policy, observers=[replay_buffer.add_batch],
                                               num_episodes=tc.num_episodes_per_iteration)
 
@@ -250,21 +250,21 @@ class TfPpoAgent(TfAgent):
 
         while True:
             self.on_train_iteration_begin()
-            msg = f'iteration {tc.iterations_done_in_training:4} of {tc.num_iterations:<4}'
-            self.log_api('collect_driver.run', msg)
+            self.log_api('-----', f'iteration {tc.iterations_done_in_training:4} of {tc.num_iterations:<4}      -----')
+            self.log_api('collect_driver.run', '()')
             collect_driver.run()
 
-            self.log_api('replay_buffer.gather_all', msg)
+            self.log_api('replay_buffer.gather_all', '()')
             trajectories = replay_buffer.gather_all()
 
-            self.log_api('tf_agent.train', msg)
+            self.log_api('tf_agent.train', '(experience=...)')
             loss_info = tf_agent.train(experience=trajectories)
             total_loss = loss_info.loss.numpy()
             actor_loss = loss_info.extra.policy_gradient_loss.numpy()
             critic_loss = loss_info.extra.value_estimation_loss.numpy()
             self.log_api('', f'loss={total_loss:<7.1f} [actor={actor_loss:<7.1f} critic={critic_loss:<7.1f}]')
 
-            self.log_api('replay_buffer.clear', msg)
+            self.log_api('replay_buffer.clear', '()')
             replay_buffer.clear()
 
             self.on_train_iteration_end(loss=total_loss, actor_loss=actor_loss, critic_loss=critic_loss)
@@ -523,13 +523,13 @@ class TfSacAgent(TfAgent):
         return
 
 
-class BackendAgentFactory(bcore.BackendAgentFactory):
+class TfAgentAgentFactory(bcore.BackendAgentFactory):
     """Backend for TfAgents.
 
         Serves as a factory to create algorithm specific wrappers for the TfAgents implementations.
     """
 
-    name: str = 'tfagents'
+    backend_name: str = 'tfagents'
 
     def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
