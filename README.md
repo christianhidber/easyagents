@@ -105,18 +105,18 @@ Install from pypi using pip:
 pip install easyagents
 ```
 
-### Documentation
+### More
 ---
+
+#### Documentation
 [release notes, class diagram](documentation/README.md)
 
-### EasyAgents may not be ideal if
----
+#### EasyAgents may not be ideal if
 
 * you would like to leverage implementation specific advantages of an algorithm
 * you want to do distributed or in parallel reinforcement learning
 
-### Note
----
+#### Note
 
 * This repository is under active development and in an early stage. 
   Thus any- and everything may (and probably should) change.
