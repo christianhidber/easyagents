@@ -97,6 +97,9 @@ pip install easyagents
 
 ### More
 ---
+#### Documentation
+[release notes, class diagram](documentation/README.md)
+
 #### Guiding Principles
 * **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
 * **simple & consistent** over "flexible & powerful"
@@ -104,9 +107,6 @@ pip install easyagents
     * same api across all algorithms
     * support different implementations of the same algorithm 
     * extensible (pluggable backends, plots & training schemes)   
-
-#### Documentation
-[release notes, class diagram](documentation/README.md)
 
 #### EasyAgents may not be ideal if
 
