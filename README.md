@@ -26,7 +26,7 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
   'pip install easyagents'.
 * easy to understand, **ready-made plots** and logs to investigate the algorithms and environments behaviour
 
-### Example
+### Examples
 ---
 ````
 from easyagents.agents import PpoAgent
@@ -86,16 +86,6 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 Thus keras-rl based agents should run in a different python / jupyter notebook instance 
 than  tf-agents or tensorforce based agents.
 
-
-### Guiding Principles
----
-* **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
-* **simple & consistent** over "flexible & powerful"
-* **inspired by keras**: 
-    * same api across all algorithms
-    * support different implementations of the same algorithm 
-    * extensible (pluggable backends, plots & training schemes)   
-
 ### Installation
 ---
 Install from pypi using pip:
@@ -104,8 +94,16 @@ Install from pypi using pip:
 pip install easyagents
 ```
 
+
 ### More
 ---
+#### Guiding Principles
+* **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
+* **simple & consistent** over "flexible & powerful"
+* **inspired by keras**: 
+    * same api across all algorithms
+    * support different implementations of the same algorithm 
+    * extensible (pluggable backends, plots & training schemes)   
 
 #### Documentation
 [release notes, class diagram](documentation/README.md)
