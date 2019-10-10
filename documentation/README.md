@@ -1,4 +1,5 @@
-## Release notes
+### Release notes
+---
 * v1.2 [19Q4]
     * 1.2.2: fix for CemAgent and SacAgent default backend registration
     * 1.2.1: SacAgent for tfagents preview; notebook on 'Agent logging, seeding and jupyter output cells'
@@ -28,13 +29,15 @@
     * hard-wired plots for loss, sum-of-rewards, steps and state rendering 
     * hard-wired mp4 rendering
     
-## Design guidelines
+### Design guidelines
+---
 * separate "public api" from concrete implementation using a frontend / backend architecture 
   (inspired by scikit learn, matplotlib, keras)
 * pluggable backends
 * extensible through callbacks (inspired by keras). separate callback types for training, evaluation and monitoring
 * pre-configurable, algorithm specific train & play loops 
     
-## Class diagram
+### Class diagram
+---
 ![ClassDiagram](ClassDiagram.png)
  
