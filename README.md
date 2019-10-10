@@ -101,9 +101,9 @@ pip install easyagents
 [release notes, class diagram](documentation/README.md)
 
 #### Guiding Principles
-* **easily train, evaluate & debug policies for (you own) gym environment** over "designing new algorithms"
-* **simple & consistent** over "flexible & powerful"
-* **inspired by keras**: 
+* easily train, evaluate & debug policies for (you own) gym environment over "designing new algorithms"
+* simple & consistent over "flexible & powerful"
+* inspired by keras: 
     * same api across all algorithms
     * support different implementations of the same algorithm 
     * extensible (pluggable backends, plots & training schemes)   
@@ -121,4 +121,4 @@ pip install easyagents
   [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose).
   We'll try our best to help you.
 * Any ideas, help, suggestions, comments etc in python / open source development / reinforcement learning / whatever
-  are more than welcome. Thanks a lot in advance.
+  are more than welcome. 
