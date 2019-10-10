@@ -26,9 +26,8 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
   'pip install easyagents'.
 * easy to understand, **ready-made plots** and logs to investigate the algorithms and environments behaviour
 
-### Examples
+### Example
 ---
-#### Simple
 ````
 from easyagents.agents import PpoAgent
 from easyagents.callbacks import plot
