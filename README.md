@@ -115,8 +115,6 @@ pip install easyagents
 
 #### Note
 
-* This repository is under active development and in an early stage. 
-  Thus any- and everything may (and probably should) change.
 * If you have any difficulties in installing or using easyagents please let us know by 
   [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose).
   We'll try our best to help you.
