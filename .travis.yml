@@ -28,7 +28,7 @@ notifications:
 
 script:
   - pytest -r a -v -m "not tfv1" --cov=easyagents/
-  - pytest -r a -v -m tfv1 --cov=easyagents/
+  - pytest -r a -v -m tfv1 --cov=easyagents/ --cov-append
 
 after_success:
   - coveralls
