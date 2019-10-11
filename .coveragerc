@@ -1,0 +1,10 @@
+[paths]
+source =
+    easyagents/
+
+[run]
+omit =
+    *test.py
+    *scratch*.py
+    
+    

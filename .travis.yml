@@ -20,8 +20,16 @@ matrix:
 
 install:
   - pip install -r requirements.txt
+  - pip install pytest-cov
+  - pip install coveralls
+
+#notifications:
+#  webhooks: https://coveralls.io/webhook
 
 script:
-  - pytest -r a -v -m "not tfv1"
-  - pytest -r a -v -m tfv1
+  - pytest -r a -v -m "not tfv1" --cov=easyagents/
+  - pytest -r a -v -m tfv1 --cov=easyagents/ --cov-append
+
+after_success:
+  - coveralls
 
