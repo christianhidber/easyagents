@@ -1,6 +1,8 @@
 ### Reinforcement Learning for Practitioners (v1.2, 19Q4)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=coverall)](https://coveralls.io/github/christianhidber/easyagents?branch=coverall)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)
+
 
 Status: under active development, breaking changes may occur. [Release notes](documentation/README.md).
 

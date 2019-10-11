@@ -23,6 +23,9 @@ install:
   - pip install pytest-cov
   - pip install coveralls
 
+notifications:
+  webhooks: https://coveralls.io/webhook
+
 script:
   - pytest -r a -v -m "not tfv1" --cov=easyagents/
   - pytest -r a -v -m tfv1 --cov=easyagents/
