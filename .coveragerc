@@ -1,0 +1,11 @@
+[paths]
+source =
+    easyagents/
+
+[run]
+omit =
+    # omit anything in a .local directory anywhere
+    *test.py
+    scratch*.py
+    
+    
