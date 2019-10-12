@@ -52,7 +52,7 @@ tensorflow-estimator==1.14.0
 tensorflow-probability==0.7.0
 Tensorforce==0.5.1
 termcolor==1.1.0
-tf-agents-nightly==0.2.0.dev20190928
+tf-agents-nightly==0.2.0.dev20191012
 tf-estimator-nightly==2.0.0.dev2019100201
 tf-nightly==1.15.0.dev20190821
 tfp-nightly==0.9.0.dev20191002
