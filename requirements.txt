@@ -55,7 +55,7 @@ termcolor==1.1.0
 tf-agents-nightly==0.2.0.dev20190928
 tf-estimator-nightly==2.0.0.dev2019100201
 tf-nightly==1.15.0.dev20190821
-tfp-nightly==0.9.0.dev20191002
+tfp-nightly==0.9.0.dev20191012
 tqdm==4.36.1
 twine==2.0.0
 urllib3==1.25.6
