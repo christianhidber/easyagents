@@ -1,0 +1,4 @@
+[tool.portray]
+output_dir = "documentation\portray"
+docs_dir="documentation"
+modules='easyagents', 'easyagents.callbacks', 'easyagents.backends']

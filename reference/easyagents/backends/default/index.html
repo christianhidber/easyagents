@@ -1,0 +1,1936 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+    
+    
+      
+        <title>Default - easyagents</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/application.30686662.css">
+      
+        <link rel="stylesheet" href="../../../../assets/stylesheets/application-palette.a8b3c06d.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#4caf50">
+      
+    
+    
+      <script src="../../../../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../../../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="green" data-md-color-accent="lightgreen">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#module-easyagentsbackendsdefault" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../../../.." title="easyagents" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              easyagents
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Default
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/christianhidber/easyagents/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    easyagents
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../../../.." title="easyagents" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    easyagents
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/christianhidber/easyagents/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    easyagents
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../../CODE_OF_CONDUCT/" title="Code Of Conduct" class="md-nav__link">
+      Code Of Conduct
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../../CONTRIBUTING/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../../docs/" title="Readme" class="md-nav__link">
+      Readme
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="190809" class="md-nav__link">
+      190809
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Easyagents Design
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Easyagents Design
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-1" type="checkbox" id="nav-6-1">
+    
+    <label class="md-nav__link" for="nav-6-1">
+       Resharper
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-6-1">
+         Resharper
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-1-1" type="checkbox" id="nav-6-1-1">
+    
+    <label class="md-nav__link" for="nav-6-1-1">
+      Resharperplatformvs16192 2Da7C489.Easyagents Design
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-6-1-1">
+        Resharperplatformvs16192 2Da7C489.Easyagents Design
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Buildscriptcache" class="md-nav__link">
+      Buildscriptcache
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Completionstatistics" class="md-nav__link">
+      Completionstatistics
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Db" class="md-nav__link">
+      Db
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Externalfiles" class="md-nav__link">
+      Externalfiles
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Filedependencies" class="md-nav__link">
+      Filedependencies
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Jstest" class="md-nav__link">
+      Jstest
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Projectfiledatacache" class="md-nav__link">
+      Projectfiledatacache
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Recentactions" class="md-nav__link">
+      Recentactions
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Recentitems" class="md-nav__link">
+      Recentitems
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Recentlyviewedmethods" class="md-nav__link">
+      Recentlyviewedmethods
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Tagprefixes" class="md-nav__link">
+      Tagprefixes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-1-1-12" type="checkbox" id="nav-6-1-1-12">
+    
+    <label class="md-nav__link" for="nav-6-1-1-12">
+      Websymbols
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="4">
+      <label class="md-nav__title" for="nav-6-1-1-12">
+        Websymbols
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="0" class="md-nav__link">
+      0
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-1-1-13" type="checkbox" id="nav-6-1-1-13">
+    
+    <label class="md-nav__link" for="nav-6-1-1-13">
+      Xmlindex
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="4">
+      <label class="md-nav__title" for="nav-6-1-1-13">
+        Xmlindex
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Componentmodel.Composition" class="md-nav__link">
+      System.Componentmodel.Composition
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Core" class="md-nav__link">
+      System.Core
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Data" class="md-nav__link">
+      System.Data
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Diagnostics.Tracing" class="md-nav__link">
+      System.Diagnostics.Tracing
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Drawing" class="md-nav__link">
+      System.Drawing
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Io.Compression.Filesystem" class="md-nav__link">
+      System.Io.Compression.Filesystem
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Io.Compression" class="md-nav__link">
+      System.Io.Compression
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Linq" class="md-nav__link">
+      System.Linq
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Net.Http" class="md-nav__link">
+      System.Net.Http
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Net" class="md-nav__link">
+      System.Net
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Numerics" class="md-nav__link">
+      System.Numerics
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Runtime.Serialization" class="md-nav__link">
+      System.Runtime.Serialization
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Servicemodel.Web" class="md-nav__link">
+      System.Servicemodel.Web
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Transactions" class="md-nav__link">
+      System.Transactions
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Web" class="md-nav__link">
+      System.Web
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Xml.Linq" class="md-nav__link">
+      System.Xml.Linq
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System.Xml" class="md-nav__link">
+      System.Xml
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="System" class="md-nav__link">
+      System
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Mscorlib" class="md-nav__link">
+      Mscorlib
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Netstandard" class="md-nav__link">
+      Netstandard
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-2" type="checkbox" id="nav-6-2">
+    
+    <label class="md-nav__link" for="nav-6-2">
+      Backend
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-6-2">
+        Backend
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Core" class="md-nav__link">
+      Core
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Default" class="md-nav__link">
+      Default
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Tfagents" class="md-nav__link">
+      Tfagents
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Tforce" class="md-nav__link">
+      Tforce
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-3" type="checkbox" id="nav-6-3">
+    
+    <label class="md-nav__link" for="nav-6-3">
+      Bin
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-6-3">
+        Bin
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-3-1" type="checkbox" id="nav-6-3-1">
+    
+    <label class="md-nav__link" for="nav-6-3-1">
+      Debug
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-6-3-1">
+        Debug
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Netstandard2" class="md-nav__link">
+      Netstandard2
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-4" type="checkbox" id="nav-6-4">
+    
+    <label class="md-nav__link" for="nav-6-4">
+      Callbacks
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-6-4">
+        Callbacks
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Duration" class="md-nav__link">
+      Duration
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Log" class="md-nav__link">
+      Log
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Plot" class="md-nav__link">
+      Plot
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Core" class="md-nav__link">
+      Core
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-6" type="checkbox" id="nav-6-6">
+    
+    <label class="md-nav__link" for="nav-6-6">
+      Obj
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-6-6">
+        Obj
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6-6-1" type="checkbox" id="nav-6-6-1">
+    
+    <label class="md-nav__link" for="nav-6-6-1">
+      Debug
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-6-6-1">
+        Debug
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../.." title="Netstandard2" class="md-nav__link">
+      Netstandard2
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" checked>
+    
+    <label class="md-nav__link" for="nav-7">
+      Reference
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7-1" type="checkbox" id="nav-7-1" checked>
+    
+    <label class="md-nav__link" for="nav-7-1">
+      Easyagents
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-7-1">
+        Easyagents
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../agents/" title="Agents" class="md-nav__link">
+      Agents
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../agents_test/" title="Agents Test" class="md-nav__link">
+      Agents Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../core/" title="Core" class="md-nav__link">
+      Core
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../core_test/" title="Core Test" class="md-nav__link">
+      Core Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../env/" title="Env" class="md-nav__link">
+      Env
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../env_test/" title="Env Test" class="md-nav__link">
+      Env Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../scratch_dqn/" title="Scratch Dqn" class="md-nav__link">
+      Scratch Dqn
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7-1-9" type="checkbox" id="nav-7-1-9" checked>
+    
+    <label class="md-nav__link" for="nav-7-1-9">
+      Backends
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-7-1-9">
+        Backends
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../core/" title="Core" class="md-nav__link">
+      Core
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../core_test/" title="Core Test" class="md-nav__link">
+      Core Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../debug/" title="Debug" class="md-nav__link">
+      Debug
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Default
+      </label>
+    
+    <a href="./" title="Default" class="md-nav__link md-nav__link--active">
+      Default
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#backendagentfactory" class="md-nav__link">
+    BackendAgentFactory
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_agent" class="md-nav__link">
+    create_agent
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_algorithms" class="md-nav__link">
+    get_algorithms
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../kerasrl/" title="Kerasrl" class="md-nav__link">
+      Kerasrl
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../kerasrl_test/" title="Kerasrl Test" class="md-nav__link">
+      Kerasrl Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../monitor/" title="Monitor" class="md-nav__link">
+      Monitor
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../monitor_test/" title="Monitor Test" class="md-nav__link">
+      Monitor Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tfagents/" title="Tfagents" class="md-nav__link">
+      Tfagents
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tfagents_test/" title="Tfagents Test" class="md-nav__link">
+      Tfagents Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tforce/" title="Tforce" class="md-nav__link">
+      Tforce
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tforce_test/" title="Tforce Test" class="md-nav__link">
+      Tforce Test
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7-1-10" type="checkbox" id="nav-7-1-10">
+    
+    <label class="md-nav__link" for="nav-7-1-10">
+      Callbacks
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-7-1-10">
+        Callbacks
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../callbacks/duration/" title="Duration" class="md-nav__link">
+      Duration
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../callbacks/duration_test/" title="Duration Test" class="md-nav__link">
+      Duration Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../callbacks/" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../callbacks/log/" title="Log" class="md-nav__link">
+      Log
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../callbacks/log_test/" title="Log Test" class="md-nav__link">
+      Log Test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../callbacks/plot/" title="Plot" class="md-nav__link">
+      Plot
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../callbacks/plot_test/" title="Plot Test" class="md-nav__link">
+      Plot Test
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#backendagentfactory" class="md-nav__link">
+    BackendAgentFactory
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_agent" class="md-nav__link">
+    create_agent
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_algorithms" class="md-nav__link">
+    get_algorithms
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/christianhidber/easyagents/edit/master/reference/easyagents/backends/default.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="module-easyagentsbackendsdefault">Module easyagents.backends.default</h1>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span> <span class="nn">easyagents.backends</span> <span class="kn">import</span> <span class="n">core</span> <span class="k">as</span> <span class="n">bcore</span>
+
+<span class="kn">import</span> <span class="nn">easyagents.backends.tfagents</span>
+
+<span class="kn">import</span> <span class="nn">easyagents.backends.kerasrl</span>
+
+<span class="k">class</span> <span class="nc">BackendAgentFactory</span><span class="p">(</span><span class="n">bcore</span><span class="o">.</span><span class="n">BackendAgentFactory</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Backend which redirects all calls to the some default implementation.&quot;&quot;&quot;</span>
+
+    <span class="n">backend_name</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_algorithms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">BackendAgent</span><span class="p">]]:</span>
+
+        <span class="sd">&quot;&quot;&quot;Yields a mapping of EasyAgent types to the implementations provided by this backend.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">easyagents</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">CemAgent</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">kerasrl</span><span class="o">.</span><span class="n">KerasRlCemAgent</span><span class="p">,</span>
+
+                <span class="n">easyagents</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">DqnAgent</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">tfagents</span><span class="o">.</span><span class="n">TfDqnAgent</span><span class="p">,</span>
+
+                <span class="n">easyagents</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">DoubleDqnAgent</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">kerasrl</span><span class="o">.</span><span class="n">KerasRlDoubleDqnAgent</span><span class="p">,</span>
+
+                <span class="n">easyagents</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">DuelingDqnAgent</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">kerasrl</span><span class="o">.</span><span class="n">KerasRlDuelingDqnAgent</span><span class="p">,</span>
+
+                <span class="n">easyagents</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">PpoAgent</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">tfagents</span><span class="o">.</span><span class="n">TfPpoAgent</span><span class="p">,</span>
+
+                <span class="n">easyagents</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">RandomAgent</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">tfagents</span><span class="o">.</span><span class="n">TfRandomAgent</span><span class="p">,</span>
+
+                <span class="n">easyagents</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">ReinforceAgent</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">tfagents</span><span class="o">.</span><span class="n">TfReinforceAgent</span><span class="p">,</span>
+
+                <span class="n">easyagents</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">SacAgent</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">tfagents</span><span class="o">.</span><span class="n">TfSacAgent</span><span class="p">}</span>
+</pre></div>
+
+
+</details>
+<h2 id="classes">Classes</h2>
+<h3 id="backendagentfactory">BackendAgentFactory</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BackendAgentFactory</span><span class="p">(</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Backend which redirects all calls to the some default implementation.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">BackendAgentFactory</span><span class="ss">(</span><span class="nv">bcore</span>.<span class="nv">BackendAgentFactory</span><span class="ss">)</span>:
+
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Backend which redirects all calls to the some default implementation.</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nv">backend_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">default</span><span class="s1">&#39;</span>
+
+    <span class="nv">def</span> <span class="nv">get_algorithms</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">Dict</span>[<span class="nv">Type</span>, <span class="nv">Type</span>[<span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">core</span>.<span class="nv">BackendAgent</span>]]:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Yields a mapping of EasyAgent types to the implementations provided by this backend.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> {<span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">CemAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">kerasrl</span>.<span class="nv">KerasRlCemAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">DqnAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfDqnAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">DoubleDqnAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">kerasrl</span>.<span class="nv">KerasRlDoubleDqnAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">DuelingDqnAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">kerasrl</span>.<span class="nv">KerasRlDuelingDqnAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">PpoAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfPpoAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">RandomAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfRandomAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">ReinforceAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfReinforceAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">SacAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfSacAgent</span>}
+</pre></div>
+
+
+</details>
+<hr />
+<h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
+<ul>
+<li>easyagents.backends.core.BackendAgentFactory</li>
+<li>abc.ABC</li>
+</ul>
+<h4 id="class-variables">Class variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">backend_name</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">tensorflow_v2_eager_compatible</span>
+</pre></div>
+
+
+<h4 id="methods">Methods</h4>
+<h5 id="create_agent">create_agent</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create_agent</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">easyagent_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">,</span>
+    <span class="n">model_config</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">ModelConfig</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">_BackendAgent</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span>
+</pre></div>
+
+
+<p>Creates a backend agent instance implementing the algorithm given by agent_type.</p>
+<p>Args:
+    easyagent_type: the EasyAgent derived type for which an implementing backend instance will be created
+    model_config: the model_config passed to the constructor of the backend instance.</p>
+<p>Returns:
+    instance of the agent or None if not implemented by this backend.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">create_agent</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">easyagent_type</span>: <span class="nv">Type</span>, <span class="nv">model_config</span>: <span class="nv">core</span>.<span class="nv">ModelConfig</span><span class="ss">)</span> \
+
+            <span class="o">-&gt;</span> <span class="nv">Optional</span>[<span class="nv">_BackendAgent</span>]:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Creates a backend agent instance implementing the algorithm given by agent_type.</span>
+
+        <span class="nv">Args</span>:
+
+            <span class="nv">easyagent_type</span>: <span class="nv">the</span> <span class="nv">EasyAgent</span> <span class="nv">derived</span> <span class="nv">type</span> <span class="k">for</span> <span class="nv">which</span> <span class="nv">an</span> <span class="nv">implementing</span> <span class="nv">backend</span> <span class="nv">instance</span> <span class="nv">will</span> <span class="nv">be</span> <span class="nv">created</span>
+
+            <span class="nv">model_config</span>: <span class="nv">the</span> <span class="nv">model_config</span> <span class="nv">passed</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">constructor</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">backend</span> <span class="nv">instance</span>.
+
+        <span class="nv">Returns</span>:
+
+            <span class="nv">instance</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">agent</span> <span class="nv">or</span> <span class="nv">None</span> <span class="k">if</span> <span class="nv">not</span> <span class="nv">implemented</span> <span class="nv">by</span> <span class="nv">this</span> <span class="nv">backend</span>.
+
+        <span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nb">result</span>: <span class="nv">Optional</span>[<span class="nv">_BackendAgent</span>] <span class="o">=</span> <span class="nv">None</span>
+
+        <span class="nv">algorithms</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">get_algorithms</span><span class="ss">()</span>
+
+        <span class="k">if</span> <span class="nv">easyagent_type</span> <span class="nv">in</span> <span class="nv">algorithms</span>:
+
+            <span class="nb">result</span> <span class="o">=</span> <span class="nv">algorithms</span>[<span class="nv">easyagent_type</span>]<span class="ss">(</span><span class="nv">model_config</span><span class="o">=</span><span class="nv">model_config</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nb">result</span>
+</pre></div>
+
+
+</details>
+<h5 id="get_algorithms">get_algorithms</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_algorithms</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">BackendAgent</span><span class="p">]]</span>
+</pre></div>
+
+
+<p>Yields a mapping of EasyAgent types to the implementations provided by this backend.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_algorithms</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">Dict</span>[<span class="nv">Type</span>, <span class="nv">Type</span>[<span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">core</span>.<span class="nv">BackendAgent</span>]]:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Yields a mapping of EasyAgent types to the implementations provided by this backend.</span><span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> {<span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">CemAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">kerasrl</span>.<span class="nv">KerasRlCemAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">DqnAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfDqnAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">DoubleDqnAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">kerasrl</span>.<span class="nv">KerasRlDoubleDqnAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">DuelingDqnAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">kerasrl</span>.<span class="nv">KerasRlDuelingDqnAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">PpoAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfPpoAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">RandomAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfRandomAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">ReinforceAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfReinforceAgent</span>,
+
+                <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">SacAgent</span>: <span class="nv">easyagents</span>.<span class="nv">backends</span>.<span class="nv">tfagents</span>.<span class="nv">TfSacAgent</span>}
+</pre></div>
+
+
+</details>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../debug/" title="Debug" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Debug
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../" title="Index" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Index
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,7 @@
+C:\Dev\GitHub\easyagents\documentation\EasyAgents_Design\obj\Debug\netstandard2.0\EasyAgents_Design.AssemblyInfoInputs.cache
+C:\Dev\GitHub\easyagents\documentation\EasyAgents_Design\obj\Debug\netstandard2.0\EasyAgents_Design.AssemblyInfo.cs
+C:\Dev\GitHub\easyagents\documentation\EasyAgents_Design\bin\Debug\netstandard2.0\EasyAgents_Design.deps.json
+C:\Dev\GitHub\easyagents\documentation\EasyAgents_Design\bin\Debug\netstandard2.0\EasyAgents_Design.dll
+C:\Dev\GitHub\easyagents\documentation\EasyAgents_Design\bin\Debug\netstandard2.0\EasyAgents_Design.pdb
+C:\Dev\GitHub\easyagents\documentation\EasyAgents_Design\obj\Debug\netstandard2.0\EasyAgents_Design.dll
+C:\Dev\GitHub\easyagents\documentation\EasyAgents_Design\obj\Debug\netstandard2.0\EasyAgents_Design.pdb
