@@ -2,6 +2,7 @@
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=master)](https://coveralls.io/github/christianhidber/easyagents?branch=master)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)
+[![Downloads](https://pepy.tech/badge/easyagents/month)](https://pepy.tech/project/easyagents/month)
 
 
 Status: under active development, breaking changes may occur. [Release notes](documentation/README.md).
