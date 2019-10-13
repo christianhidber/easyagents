@@ -5,7 +5,7 @@
 [![Downloads](https://pepy.tech/badge/easyagents/month)](https://pepy.tech/project/easyagents/month)
 
 
-Status: under active development, breaking changes may occur. [Release notes](documentation/README.md).
+Status: under active development, breaking changes may occur. [Release notes](docs/README.md).
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
@@ -101,7 +101,7 @@ pip install easyagents
 ### More
 ---
 #### Documentation
-[release notes, class diagram](documentation/README.md)
+[release notes, class diagram](docs/README.md)
 
 #### Guiding Principles
 * easily train, evaluate & debug policies for (you own) gym environment over "designing new algorithms"
