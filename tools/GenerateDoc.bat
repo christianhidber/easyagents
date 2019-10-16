@@ -1,4 +1,3 @@
 cd ..
-rmdir /s /q site
-portray as_html
+portray on_github_pages
 
