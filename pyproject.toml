@@ -1,4 +1,19 @@
 [tool.portray]
-output_dir = "docs\portray"
-docs_dir="docs"
-modules=["easyagents", "easyagents.callbacks"]
+output_dir = "documentation\\portray"
+docs_dir="documentation\\markdown"
+modules=[
+    "easyagents.agents",
+    "easyagents.agents",
+    "easyagents.core",
+    "easyagents.backends.core",
+    "easyagents.backends.kerasrl",
+    "easyagents.backends.tfagents",
+    "easyagents.backends.tforce",
+    "easyagents.callbacks.duration",
+    "easyagents.callbacks.log",
+    "easyagents.callbacks.plot",
+    ]
+
+
+
+
