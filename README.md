@@ -103,6 +103,9 @@ It is actually so difficult, that as of today **no feasable, deterministic algor
 Thus traditional heuristics and classic machine learning were used to support the users 
 in finding a suitable solution.
 
+Using reinforcement learning the failrate of the previous solution was reduced by 70%, resulting
+in an end-to-end success-rate of > 98%.
+
 ![Pluvia](images/Pluvia_small.png) 
 
 For more details take a look at this [talk](https://www.youtube.com/watch?v=FCyZplb0ul4).
