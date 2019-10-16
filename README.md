@@ -92,7 +92,7 @@ than  tf-agents or tensorforce based agents.
 
 
 ### Industrial Application
-
+---
 [Geberit](https://www.geberit.com/en/) - a sanitary technology company with > 12'000 employees -
 produces in particular pipes and other parts to get rain-water of flat roofs - so called
 [syphonic roof drainage systems](https://www.international.geberit.com/products/piping-systems-drainage/geberit-pluvia-roof-drainage/). 
