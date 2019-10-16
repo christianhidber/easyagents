@@ -121,7 +121,7 @@ class DqnAgentsTest(unittest.TestCase):
             logger(f'backend={backend} agent={agent_type}, num_iterations={current_num_iterations}')
             max_avg_steps = self.train_and_eval(agent_type=agent_type, backend=backend,
                                                 num_iterations=current_num_iterations)
-            assert max_avg_steps >= 100, f'agent_type={agent_type} backend={backend} num_iterations={num_iterations}'
+            assert max_avg_steps >= 80, f'agent_type={agent_type} backend={backend} num_iterations={num_iterations}'
 
     @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
     @pytest.mark.tfv1

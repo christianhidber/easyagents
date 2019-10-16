@@ -3,9 +3,10 @@
 [![Coverage Status](https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=master)](https://coveralls.io/github/christianhidber/easyagents?branch=master)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)
 [![Downloads](https://pepy.tech/badge/easyagents/month)](https://pepy.tech/project/easyagents/month)
+[![Docs](https://img.shields.io/badge/docs-github.io-blue)](https://christianhidber.github.io/easyagents/)
 
 
-Status: under active development, breaking changes may occur. [Release notes](documentation/README.md).
+Status: under active development, breaking changes may occur. [Release notes](documentation/markdown/Release Notes.md).
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
@@ -77,7 +78,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 |[Dueling Dqn](https://arxiv.org/abs/1511.06581)  | `not available`        |`not yet available`    |`yes`   | DuelingDqnAgent|
 |[Ppo](https://arxiv.org/abs/1707.06347)          |`yes`           |`yes`     |`not available` | PpoAgent |
 |Random                                           |`yes`           |`yes`    |`not available`  | RandomAgent |
-|[REINFORCE](www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
+|[REINFORCE](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
 |[SAC](https://arxiv.org/abs/1801.01290)          |`preview`          |`not available`|`not available`|SacAgent|
 
 [191001]
@@ -88,6 +89,27 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 * keras-rl is not compatible with tensorflow eager execution mode.
 Thus keras-rl based agents should run in a different python / jupyter notebook instance 
 than  tf-agents or tensorforce based agents.
+
+
+### Industrial Application
+---
+[Geberit](https://www.geberit.com/en/) - a sanitary technology company with > 12'000 employees -
+produces in particular pipes and other parts to get rain-water of flat roofs - so called
+[syphonic roof drainage systems](https://www.international.geberit.com/products/piping-systems-drainage/geberit-pluvia-roof-drainage/). 
+They warrant that large buildings like stadiums, airports or shopping malls do not collapse during 
+heavy rainfalls. 
+However it is surprisingly difficult to find the right dimensions for the pipes. 
+It is actually so difficult, that as of today **no feasable, deterministic algorithm** is known. 
+Thus traditional heuristics and classic machine learning were used to support the users 
+in finding a suitable solution.
+
+Using reinforcement learning, the failrate of the previous solution was reduced by 70%, resulting
+in an end-to-end success-rate of > 98%.
+
+![Scenario_Simple](images/Pluvia_Small.png) 
+
+For more details take a look at this [talk](https://www.youtube.com/watch?v=FCyZplb0ul4).
+
 
 ### Installation
 ---
@@ -101,7 +123,7 @@ pip install easyagents
 ### More
 ---
 #### Documentation
-[release notes, class diagram](documentation/README.md)
+[release notes, class diagram](documentation/Markdown/Release Notes.md)
 
 #### Guiding Principles
 * easily train, evaluate & debug policies for (you own) gym environment over "designing new algorithms"
