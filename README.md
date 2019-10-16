@@ -90,6 +90,27 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 Thus keras-rl based agents should run in a different python / jupyter notebook instance 
 than  tf-agents or tensorforce based agents.
 
+
+### Industrial Application
+
+[Geberit](https://www.geberit.com/en/) - a sanitary technology company with > 12'000 employees -
+produces in particular pipes and other parts to get rain-water of flat roofs - so called
+[syphonic roof drainage systems](https://www.international.geberit.com/products/piping-systems-drainage/geberit-pluvia-roof-drainage/). 
+They warrant that large buildings like stadiums, airports or shopping malls do not collapse during 
+heavy rainfalls. 
+However it is surprisingly difficult to find the right dimensions for the pipes. 
+It is actually so difficult, that as of today **no feasable, deterministic algorithm** is known. 
+Thus traditional heuristics and classic machine learning were used to support the users 
+in finding a suitable solution.
+
+Using reinforcement learning, the failrate of the previous solution was reduced by 70%, resulting
+in an end-to-end success-rate of > 98%.
+
+![Scenario_Simple](images/Pluvia_Small.png) 
+
+For more details take a look at this [talk](https://www.youtube.com/watch?v=FCyZplb0ul4).
+
+
 ### Installation
 ---
 Install from pypi using pip:
