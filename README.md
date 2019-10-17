@@ -3,9 +3,10 @@
 [![Coverage Status](https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=master)](https://coveralls.io/github/christianhidber/easyagents?branch=master)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)
 [![Downloads](https://pepy.tech/badge/easyagents/month)](https://pepy.tech/project/easyagents/month)
+[![Docs](https://img.shields.io/badge/api-docs-blue)](https://christianhidber.github.io/easyagents/)
 
 
-Status: under active development, breaking changes may occur. [Release notes](documentation/README.md).
+Status: under active development, breaking changes may occur. [Release notes](documentation/markdown/Release_Notes.md).
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
@@ -15,6 +16,7 @@ Written in Python and running on top of established reinforcement learning libra
 [tensorforce](https://github.com/tensorforce/tensorforce) or 
 [keras-rl](https://github.com/keras-rl/keras-rl).
 Environments are implemented in [OpenAI gym](https://github.com/openai/gym). 
+For an example of an industrial application of reinforcement learning see [here](#Industrial-Application).
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
@@ -77,7 +79,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 |[Dueling Dqn](https://arxiv.org/abs/1511.06581)  | `not available`        |`not yet available`    |`yes`   | DuelingDqnAgent|
 |[Ppo](https://arxiv.org/abs/1707.06347)          |`yes`           |`yes`     |`not available` | PpoAgent |
 |Random                                           |`yes`           |`yes`    |`not available`  | RandomAgent |
-|[REINFORCE](www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
+|[REINFORCE](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
 |[SAC](https://arxiv.org/abs/1801.01290)          |`preview`          |`not available`|`not available`|SacAgent|
 
 [191001]
@@ -85,9 +87,33 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 * if you are interested in other algorithms, backends or hyperparameters let us know by
  [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose). 
   We'll try our best to support you.
+* for a documentation of the agents api see [here](https://christianhidber.github.io/easyagents/).
 * keras-rl is not compatible with tensorflow eager execution mode.
 Thus keras-rl based agents should run in a different python / jupyter notebook instance 
 than  tf-agents or tensorforce based agents.
+
+
+### Industrial Application
+---
+[Geberit](https://www.geberit.com/en/) - a sanitary technology company with > 12'000 employees -
+produces in particular pipes and other parts to get rain-water of flat roofs - so called
+[syphonic roof drainage systems](https://www.international.geberit.com/products/piping-systems-drainage/geberit-pluvia-roof-drainage/). 
+They warrant that large buildings like stadiums, airports or shopping malls do not collapse during 
+heavy rainfalls. 
+However it is surprisingly difficult to find the right dimensions for the pipes. 
+It is actually so difficult, that as of today **no feasable, deterministic algorithm** is known. 
+Thus traditional heuristics and classic machine learning were used to support the users 
+in finding a suitable solution.
+
+Using reinforcement learning the failrate of the previous solution was reduced by 70%, resulting
+in an end-to-end success-rate of > 98%.
+
+<p align="center"> 
+<img src="https://raw.githubusercontent.com/christianhidber/easyagents/master/images/Pluvia_small.png">
+</p>
+
+For more details take a look at this [talk](https://www.youtube.com/watch?v=3RjSanoNIlk).
+
 
 ### Installation
 ---
@@ -101,7 +127,8 @@ pip install easyagents
 ### More
 ---
 #### Documentation
-[release notes, class diagram](documentation/README.md)
+for [release notes & class diagram](documentation/Markdown/Release_Notes.md), 
+for [agents & api](https://christianhidber.github.io/easyagents/). 
 
 #### Guiding Principles
 * easily train, evaluate & debug policies for (you own) gym environment over "designing new algorithms"

@@ -102,14 +102,10 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
-
 # mypy
 .mypy_cache/
 
 \.idea/
-
 /documentation/EasyAgents_Design/obj/
 /documentation/EasyAgents_Design/bin/
 /env_master/

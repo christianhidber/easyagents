@@ -1,0 +1,18 @@
+[tool.portray]
+docs_dir="documentation\\markdown"
+modules=[
+    "easyagents.agents",
+    "easyagents.agents",
+    "easyagents.core",
+    "easyagents.backends.core",
+    "easyagents.backends.kerasrl",
+    "easyagents.backends.tfagents",
+    "easyagents.backends.tforce",
+    "easyagents.callbacks.duration",
+    "easyagents.callbacks.log",
+    "easyagents.callbacks.plot",
+    ]
+
+
+
+
