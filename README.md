@@ -70,6 +70,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 ### Available Algorithms and Backends
 ---
 
+<p align="center"> 
 |algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl](https://github.com/keras-rl/keras-rl) | easyagents class name |
 |----------|:---------:|:-----------:|:--------:| :---: | 
 |[CEM](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf) |`not available`  |`not available`  |`yes`  | CemAgent | 
@@ -80,7 +81,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 |Random                                           |`yes`           |`yes`    |`not available`  | RandomAgent |
 |[REINFORCE](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
 |[SAC](https://arxiv.org/abs/1801.01290)          |`preview`          |`not available`|`not available`|SacAgent|
-
+</p>
 [191001]
 
 * if you are interested in other algorithms, backends or hyperparameters let us know by
@@ -109,8 +110,6 @@ in an end-to-end success-rate of > 98%.
 <p align="center"> 
 <img src="https://raw.githubusercontent.com/christianhidber/easyagents/master/images/Pluvia_small.png">
 </p>
-
-![Pluvia](images/Pluvia_small.png) 
 
 For more details take a look at this [talk](https://www.youtube.com/watch?v=FCyZplb0ul4).
 
