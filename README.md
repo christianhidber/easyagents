@@ -6,7 +6,7 @@
 [![Docs](https://img.shields.io/badge/api-docs-blue)](https://christianhidber.github.io/easyagents/)
 
 
-Status: under active development, breaking changes may occur. [Release notes](documentation/markdown/Release Notes.md).
+Status: under active development, breaking changes may occur. [Release notes](documentation/markdown/Release_Notes.md).
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
@@ -16,7 +16,7 @@ Written in Python and running on top of established reinforcement learning libra
 [tensorforce](https://github.com/tensorforce/tensorforce) or 
 [keras-rl](https://github.com/keras-rl/keras-rl).
 Environments are implemented in [OpenAI gym](https://github.com/openai/gym). 
-For an example of an industrial application of reinforcement learning see [here](#Industrial Application).
+For an example of an industrial application of reinforcement learning see [here](#Industrial-Application).
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
@@ -111,7 +111,7 @@ in an end-to-end success-rate of > 98%.
 <img src="https://raw.githubusercontent.com/christianhidber/easyagents/master/images/Pluvia_small.png">
 </p>
 
-For more details take a look at this [talk](https://www.youtube.com/watch?v=FCyZplb0ul4).
+For more details take a look at this [talk](https://www.youtube.com/watch?v=3RjSanoNIlk).
 
 
 ### Installation
@@ -126,7 +126,7 @@ pip install easyagents
 ### More
 ---
 #### Documentation
-for [release notes & class diagram](documentation/Markdown/Release Notes.md), 
+for [release notes & class diagram](documentation/Markdown/Release_Notes.md), 
 for [agents & api](https://christianhidber.github.io/easyagents/). 
 
 #### Guiding Principles
