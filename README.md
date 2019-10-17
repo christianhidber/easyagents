@@ -81,6 +81,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 |Random                                           |`yes`           |`yes`    |`not available`  | RandomAgent |
 |[REINFORCE](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
 |[SAC](https://arxiv.org/abs/1801.01290)          |`preview`          |`not available`|`not available`|SacAgent|
+
 [191001]
 
 * if you are interested in other algorithms, backends or hyperparameters let us know by
