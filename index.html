@@ -293,6 +293,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#industrial-application" class="md-nav__link">
+    Industrial Application
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
     Installation
   </a>
@@ -658,6 +665,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#industrial-application" class="md-nav__link">
+    Industrial Application
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
     Installation
   </a>
@@ -731,7 +745,7 @@
 <a href="https://coveralls.io/github/christianhidber/easyagents?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=master" /></a>
 <img alt="License" src="https://img.shields.io/github/license/christianhidber/easyagents" />
 <a href="https://pepy.tech/project/easyagents/month"><img alt="Downloads" src="https://pepy.tech/badge/easyagents/month" /></a>
-<a href="https://christianhidber.github.io/easyagents/"><img alt="Docs" src="https://img.shields.io/badge/docs-portray-blue" /></a></p>
+<a href="https://christianhidber.github.io/easyagents/"><img alt="Docs" src="https://img.shields.io/badge/api-docs-blue" /></a></p>
 <p>Status: under active development, breaking changes may occur. <a href="documentation/markdown/Release Notes/">Release notes</a>.</p>
 <p><img alt="EasyAgents logo" src="images/EazyAgentsIcon.png" /></p>
 <p>EasyAgents is a high level reinforcement learning api focusing on ease of use and simplicity.
@@ -739,7 +753,8 @@ Written in Python and running on top of established reinforcement learning libra
 <a href="https://github.com/tensorflow/agents">tf-Agents</a>, 
 <a href="https://github.com/tensorforce/tensorforce">tensorforce</a> or 
 <a href="https://github.com/keras-rl/keras-rl">keras-rl</a>.
-Environments are implemented in <a href="https://github.com/openai/gym">OpenAI gym</a>. </p>
+Environments are implemented in <a href="https://github.com/openai/gym">OpenAI gym</a>. 
+For an example of an industrial application of reinforcement learning see <a href="#Industrial Application">here</a>.</p>
 <p>In collaboration with <a href="http://zeigermann.eu/">Oliver Zeigermann</a>. </p>
 <h3 id="features">Features</h3>
 <hr />
@@ -859,17 +874,42 @@ Environments are implemented in <a href="https://github.com/openai/gym">OpenAI g
 <td align="center"><code>not available</code></td>
 <td align="center">SacAgent</td>
 </tr>
+<tr>
+<td>[191001]</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
 </tbody>
 </table>
-<p>[191001]</p>
 <ul>
 <li>if you are interested in other algorithms, backends or hyperparameters let us know by
  <a href="https://github.com/christianhidber/easyagents/issues/new/choose">creating an issue</a>. 
   We'll try our best to support you.</li>
+<li>for a documentation of the agents api see <a href="https://christianhidber.github.io/easyagents/">here</a>.</li>
 <li>keras-rl is not compatible with tensorflow eager execution mode.
 Thus keras-rl based agents should run in a different python / jupyter notebook instance 
 than  tf-agents or tensorforce based agents.</li>
 </ul>
+<h3 id="industrial-application">Industrial Application</h3>
+<hr />
+<p><a href="https://www.geberit.com/en/">Geberit</a> - a sanitary technology company with &gt; 12'000 employees -
+produces in particular pipes and other parts to get rain-water of flat roofs - so called
+<a href="https://www.international.geberit.com/products/piping-systems-drainage/geberit-pluvia-roof-drainage/">syphonic roof drainage systems</a>. 
+They warrant that large buildings like stadiums, airports or shopping malls do not collapse during 
+heavy rainfalls. 
+However it is surprisingly difficult to find the right dimensions for the pipes. 
+It is actually so difficult, that as of today <strong>no feasable, deterministic algorithm</strong> is known. 
+Thus traditional heuristics and classic machine learning were used to support the users 
+in finding a suitable solution.</p>
+<p>Using reinforcement learning the failrate of the previous solution was reduced by 70%, resulting
+in an end-to-end success-rate of &gt; 98%.</p>
+<p align="center"> 
+<img src="https://raw.githubusercontent.com/christianhidber/easyagents/master/images/Pluvia_small.png">
+</p>
+
+<p>For more details take a look at this <a href="https://www.youtube.com/watch?v=FCyZplb0ul4">talk</a>.</p>
 <h3 id="installation">Installation</h3>
 <hr />
 <p>Install from pypi using pip:</p>
@@ -880,7 +920,8 @@ than  tf-agents or tensorforce based agents.</li>
 <h3 id="more">More</h3>
 <hr />
 <h4 id="documentation">Documentation</h4>
-<p><a href="documentation/Markdown/Release Notes.md">release notes, class diagram</a></p>
+<p>for <a href="documentation/Markdown/Release Notes.md">release notes &amp; class diagram</a>, 
+for <a href="https://christianhidber.github.io/easyagents/">agents &amp; api</a>. </p>
 <h4 id="guiding-principles">Guiding Principles</h4>
 <ul>
 <li>easily train, evaluate &amp; debug policies for (you own) gym environment over "designing new algorithms"</li>
