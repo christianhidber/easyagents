@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=master)](https://coveralls.io/github/christianhidber/easyagents?branch=master)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)
 [![Downloads](https://pepy.tech/badge/easyagents/month)](https://pepy.tech/project/easyagents/month)
-[![Docs](https://img.shields.io/badge/docs-github.io-blue)](https://christianhidber.github.io/easyagents/)
+[![Docs](https://img.shields.io/badge/api-docs-blue)](https://christianhidber.github.io/easyagents/)
 
 
 Status: under active development, breaking changes may occur. [Release notes](documentation/markdown/Release Notes.md).
@@ -16,6 +16,7 @@ Written in Python and running on top of established reinforcement learning libra
 [tensorforce](https://github.com/tensorforce/tensorforce) or 
 [keras-rl](https://github.com/keras-rl/keras-rl).
 Environments are implemented in [OpenAI gym](https://github.com/openai/gym). 
+For an example of an industrial application of reinforcement learning see [here](#Industrial Application).
 
 In collaboration with [Oliver Zeigermann](http://zeigermann.eu/). 
 
@@ -70,7 +71,6 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 ### Available Algorithms and Backends
 ---
 
-<p align="center"> 
 |algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl](https://github.com/keras-rl/keras-rl) | easyagents class name |
 |----------|:---------:|:-----------:|:--------:| :---: | 
 |[CEM](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf) |`not available`  |`not available`  |`yes`  | CemAgent | 
@@ -81,12 +81,12 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 |Random                                           |`yes`           |`yes`    |`not available`  | RandomAgent |
 |[REINFORCE](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
 |[SAC](https://arxiv.org/abs/1801.01290)          |`preview`          |`not available`|`not available`|SacAgent|
-</p>
 [191001]
 
 * if you are interested in other algorithms, backends or hyperparameters let us know by
  [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose). 
   We'll try our best to support you.
+* for a documentation of the agents api see [here](https://christianhidber.github.io/easyagents/).
 * keras-rl is not compatible with tensorflow eager execution mode.
 Thus keras-rl based agents should run in a different python / jupyter notebook instance 
 than  tf-agents or tensorforce based agents.
@@ -126,7 +126,8 @@ pip install easyagents
 ### More
 ---
 #### Documentation
-[release notes, class diagram](documentation/Markdown/Release Notes.md)
+for [release notes & class diagram](documentation/Markdown/Release Notes.md), 
+for [agents & api](https://christianhidber.github.io/easyagents/). 
 
 #### Guiding Principles
 * easily train, evaluate & debug policies for (you own) gym environment over "designing new algorithms"
