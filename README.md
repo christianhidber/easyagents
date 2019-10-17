@@ -106,6 +106,10 @@ in finding a suitable solution.
 Using reinforcement learning the failrate of the previous solution was reduced by 70%, resulting
 in an end-to-end success-rate of > 98%.
 
+<p align="center"> 
+<img src="https://raw.githubusercontent.com/christianhidber/easyagents/master/images/Pluvia_small.png">
+</p>
+
 ![Pluvia](images/Pluvia_small.png) 
 
 For more details take a look at this [talk](https://www.youtube.com/watch?v=FCyZplb0ul4).
