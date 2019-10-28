@@ -165,6 +165,28 @@ class EasyAgent(ABC):
         all = list(play_context.sum_of_rewards.values())
 
         return statistics.mean(all), statistics.stdev(all), min(all), max(all), all
+
+    def evaluate(self,
+             num_episodes: int = 50,
+             max_steps_per_episode: int = 50):
+        """Plays num_episodes with the current policy and computes metrics on rewards.
+
+        Args:
+            num_episodes: number of episodes to play
+            max_steps_per_episode: max steps per episode
+
+        Returns:
+            score metrics - mean, std, min, max, all
+        """
+        play_context = core.PlayContext()
+        play_context.max_steps_per_episode = max_steps_per_episode
+        play_context.num_episodes = num_episodes
+        self.play(play_context=play_context, default_plots=False)
+        all = list(play_context.sum_of_rewards.values())
+        mean_val, std_val, min_val, max_val = statistics.mean(all), statistics.stdev(all), min(all), max(all)
+        metric = dict(mean=mean_val, std=std_val, min=min_val, max=max_val, all=all)
+
+        return metric
         
     def play(self,
              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
@@ -190,26 +212,6 @@ class EasyAgent(ABC):
             play_context.num_episodes = num_episodes
         self._play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
         return play_context
-
-    def score(self,
-             num_episodes: int = 50,
-             max_steps_per_episode: int = 50):
-        """Plays num_episodes with the current policy and computes metrics on rewards.
-
-        Args:
-            num_episodes: number of episodes to play
-            max_steps_per_episode: max steps per episode
-
-        Returns:
-            score metrics - mean, std, min, max, all
-        """
-        play_context = core.PlayContext()
-        play_context.max_steps_per_episode = max_steps_per_episode
-        play_context.num_episodes = num_episodes
-        self.play(play_context=play_context, default_plots=False)
-        all = list(play_context.sum_of_rewards.values())
-
-        return statistics.mean(all), statistics.stdev(all), min(all), max(all), all
 
     def train(self, train_context: core.TrainContext,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
