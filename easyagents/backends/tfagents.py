@@ -237,7 +237,8 @@ class TfPpoAgent(TfAgent):
         collect_data_spec = tf_agent.collect_data_spec
         self.log_api('TFUniformReplayBuffer', '()')
         replay_buffer = TFUniformReplayBuffer(collect_data_spec,
-                                              batch_size=1, max_length=tc.max_steps_in_buffer)
+                                            batch_size=train_env.batch_size,
+                                            max_length=tc.max_steps_in_buffer)
 
         collect_policy = tf_agent.collect_policy
         self.log_api('DynamicEpisodeDriver', '()')
@@ -262,12 +263,14 @@ class TfPpoAgent(TfAgent):
             total_loss = loss_info.loss.numpy()
             actor_loss = loss_info.extra.policy_gradient_loss.numpy()
             critic_loss = loss_info.extra.value_estimation_loss.numpy()
-            self.log_api('', f'loss={total_loss:<7.1f} [actor={actor_loss:<7.1f} critic={critic_loss:<7.1f}]')
+            kl_loss = loss_info.extra.kl_penalty_loss.numpy()
+            entropy_loss = loss_info.extra.entropy_regularization_loss.numpy()
+            self.log_api('', f'loss={total_loss:<7.1f} [actor={actor_loss:<7.1f} critic={critic_loss:<7.1f} kl={kl_loss:<7.1f} entropy={entropy_loss:<7.1f}]')
 
             self.log_api('replay_buffer.clear', '()')
             replay_buffer.clear()
 
-            self.on_train_iteration_end(loss=total_loss, actor_loss=actor_loss, critic_loss=critic_loss)
+            self.on_train_iteration_end(loss=total_loss, actor_loss=actor_loss, critic_loss=critic_loss, kl_loss=kl_loss, entropy_loss=entropy_loss)
             if tc.training_done:
                 break
         return

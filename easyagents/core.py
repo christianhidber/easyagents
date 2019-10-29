@@ -301,10 +301,14 @@ class PpoTrainContext(EpisodesTrainContext):
         super().__init__()
         self.actor_loss: Dict[int, float]
         self.critic_loss: Dict[int, float]
+        self.kl_loss: Dict[int, float]
+        self.entropy_loss: Dict[int, float]
 
     def _reset(self):
         self.actor_loss = dict()
         self.critic_loss = dict()
+        self.kl_loss = dict()
+        self.entropy_loss = dict()
         super()._reset()
 
 class StepsTrainContext(TrainContext):

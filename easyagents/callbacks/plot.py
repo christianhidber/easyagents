@@ -352,7 +352,7 @@ class _PlotCallback(core.AgentCallback):
         marker = marker
         if marker is None and len(xvalues) < 10:
             marker = 'o'
-        fill_alpha = 0.1
+        fill_alpha = 0.6
         if pyc.is_jupyter_active:
             if yminvalues is not None:
                 self.axes.fill_between(xvalues, yminvalues, ymaxvalues, color=color, alpha=fill_alpha)
@@ -467,7 +467,10 @@ class Loss(_PlotCallback):
                 self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.actor_loss.values()), color='g',
                                  pause=False)
                 self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.critic_loss.values()), color='b')
-                self.axes.legend(('total', 'actor', 'critic'))
+                self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.kl_loss.values()), color='k',
+                                 pause=False)
+                self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=list(acc.entropy_loss.values()), color='y')
+                self.axes.legend(('total', 'actor', 'critic', 'kl', 'entropy'))
             else:
                 self.plot_values(agent_context=ac, xvalues=xvalues, yvalues=lossvalues, color='indigo')
 
