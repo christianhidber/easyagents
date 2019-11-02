@@ -7,7 +7,8 @@
 
 
 Status: 
-under active development, breaking changes may occur. [Release notes](documentation/markdown/Release_Notes.md).
+under active development, breaking changes may occur. 
+[Release notes](documentation/Markdown/Release_Notes.md).
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
