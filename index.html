@@ -85,7 +85,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#reinforcement-learning-for-practitioners-v12-19q4" tabindex="1" class="md-skip">
+      <a href="#reinforcement-learning-for-practitioners-v13-19q4" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -245,8 +245,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#reinforcement-learning-for-practitioners-v12-19q4" class="md-nav__link">
-    Reinforcement Learning for Practitioners (v1.2, 19Q4)
+  <a href="#reinforcement-learning-for-practitioners-v13-19q4" class="md-nav__link">
+    Reinforcement Learning for Practitioners (v1.3, 19Q4)
   </a>
   
 </li>
@@ -493,32 +493,8 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/easyagents/backends/kerasrl/" title="Kerasrl" class="md-nav__link">
-      Kerasrl
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="reference/easyagents/backends/tfagents/" title="Tfagents" class="md-nav__link">
       Tfagents
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="reference/easyagents/backends/tforce/" title="Tforce" class="md-nav__link">
-      Tforce
     </a>
   </li>
 
@@ -617,8 +593,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#reinforcement-learning-for-practitioners-v12-19q4" class="md-nav__link">
-    Reinforcement Learning for Practitioners (v1.2, 19Q4)
+  <a href="#reinforcement-learning-for-practitioners-v13-19q4" class="md-nav__link">
+    Reinforcement Learning for Practitioners (v1.3, 19Q4)
   </a>
   
 </li>
@@ -740,13 +716,14 @@
                 
                   <h1>Home</h1>
                 
-                <h3 id="reinforcement-learning-for-practitioners-v12-19q4">Reinforcement Learning for Practitioners (v1.2, 19Q4)</h3>
+                <h3 id="reinforcement-learning-for-practitioners-v13-19q4">Reinforcement Learning for Practitioners (v1.3, 19Q4)</h3>
 <p><img alt="Travis_Status" src="https://travis-ci.com/christianhidber/easyagents.svg?branch=master" />
 <a href="https://coveralls.io/github/christianhidber/easyagents?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=master" /></a>
 <img alt="License" src="https://img.shields.io/github/license/christianhidber/easyagents" />
-<a href="https://pepy.tech/project/easyagents/month"><img alt="Downloads" src="https://pepy.tech/badge/easyagents/month" /></a>
+<a href="https://pepy.tech/project/easyagents"><img alt="Downloads" src="https://pepy.tech/badge/easyagents" /></a>
 <a href="https://christianhidber.github.io/easyagents/"><img alt="Docs" src="https://img.shields.io/badge/api-docs-blue" /></a></p>
-<p>Status: under active development, breaking changes may occur. <a href="documentation/markdown/Release_Notes/">Release notes</a>.</p>
+<p>Status: 
+under active development, breaking changes may occur. <a href="documentation/markdown/Release_Notes/">Release notes</a>.</p>
 <p><img alt="EasyAgents logo" src="images/EazyAgentsIcon.png" /></p>
 <p>EasyAgents is a high level reinforcement learning api focusing on ease of use and simplicity.
 Written in Python and running on top of established reinforcement learning libraries like
@@ -768,6 +745,7 @@ For an example of an industrial application of reinforcement learning see <a hre
   'pip install easyagents'.</li>
 <li>easy to understand, <strong>ready-made plots</strong> and logs to investigate the algorithms and environments behaviour</li>
 </ul>
+<p>Note: tensorforce and keras-rl backends are suspended until support for tensorflow 2.0 is available.</p>
 <h3 id="examples">Examples</h3>
 <hr />
 <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">easyagents.agents</span> <span class="kn">import</span> <span class="n">PpoAgent</span>
@@ -794,14 +772,14 @@ For an example of an industrial application of reinforcement learning see <a hre
 <h3 id="try-it-on-colab">Try it on colab</h3>
 <hr />
 <ul>
-<li><a href="https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_cartpole.ipynb">1. Introduction (CartPole on colab)</a>:
+<li><a href="https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_cartpole.ipynb">1. Introduction (CartPole on colab)</a>:
    training, plotting, switching algorithms &amp; backends. based on the classic reinforcement learning example 
    balancing a stick on a cart.</li>
-<li><a href="https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_orso.ipynb">2. Next steps &amp; backend switching (Orso on colab)</a>:
+<li><a href="https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_orso.ipynb">2. Next steps &amp; backend switching (Orso on colab)</a>:
   custom training, creating a movie &amp; switching backends. gym environment based on a routing problem.</li>
-<li><a href="https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_line.ipynb">3. Creating your own environment (LineWorld on colab)</a>:
+<li><a href="https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_line.ipynb">3. Creating your own environment (LineWorld on colab)</a>:
   implement a gym environment from scratch, workshop example.</li>
-<li><a href="https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/easyagents_logging.ipynb">4. Logging, seeding &amp; plot clearing (on colab)</a>: 
+<li><a href="https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_logging.ipynb">4. Logging, seeding &amp; plot clearing (on colab)</a>: 
   Investigate how an agents api and how it interacts with the gym environment; 
   how to set seeds; controlling jupyter output cell clearing</li>
 </ul>
@@ -812,8 +790,8 @@ For an example of an industrial application of reinforcement learning see <a hre
 <tr>
 <th>algorithm</th>
 <th align="center"><a href="https://github.com/tensorflow/agents">tf-Agents</a></th>
-<th align="center"><a href="https://github.com/tensorforce/tensorforce">tensorforce</a></th>
-<th align="center"><a href="https://github.com/keras-rl/keras-rl">keras-rl</a></th>
+<th align="center"><a href="https://github.com/tensorforce/tensorforce">tensorforce (suspended)</a></th>
+<th align="center"><a href="https://github.com/keras-rl/keras-rl">keras-rl (suspended)</a></th>
 <th align="center">easyagents class name</th>
 </tr>
 </thead>
@@ -874,16 +852,11 @@ For an example of an industrial application of reinforcement learning see <a hre
 <td align="center"><code>not available</code></td>
 <td align="center">SacAgent</td>
 </tr>
-<tr>
-<td>[191001]</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
 </tbody>
 </table>
+<p>[191001]</p>
 <ul>
+<li>starting with easyagents 1.3 (191102) the backends for tensorforce and keras-rl are suspended until support for tensorflow 2.0 is available.</li>
 <li>if you are interested in other algorithms, backends or hyperparameters let us know by
  <a href="https://github.com/christianhidber/easyagents/issues/new/choose">creating an issue</a>. 
   We'll try our best to support you.</li>

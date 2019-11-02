@@ -584,32 +584,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../kerasrl/" title="Kerasrl" class="md-nav__link">
-      Kerasrl
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../tfagents/" title="Tfagents" class="md-nav__link">
       Tfagents
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../tforce/" title="Tforce" class="md-nav__link">
-      Tforce
     </a>
   </li>
 
@@ -1057,13 +1033,9 @@
 
             <span class="kp">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span><span class="o">.</span><span class="kp">seed</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;tf.compat.v1.set_random_seed&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;({seed})&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;tf.random.set_seed&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;(seed={seed})&#39;</span><span class="p">)</span>
 
-            <span class="n">tensorflow</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">set_random_seed</span><span class="p">(</span><span class="kp">seed</span><span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;tf.random.set_random_seed&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;(seed={seed})&#39;</span><span class="p">)</span>
-
-            <span class="n">tensorflow</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_random_seed</span><span class="p">(</span><span class="kp">seed</span><span class="o">=</span><span class="kp">seed</span><span class="p">)</span>
+            <span class="n">tensorflow</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="kp">seed</span><span class="o">=</span><span class="kp">seed</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;numpy.random.seed&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;({seed})&#39;</span><span class="p">)</span>
 
@@ -1852,8 +1824,6 @@
 <h4 id="descendants">Descendants</h4>
 <ul>
 <li>easyagents.backends.tfagents.TfAgent</li>
-<li>easyagents.backends.kerasrl.KerasRlAgent</li>
-<li>easyagents.backends.tforce.TforceAgent</li>
 </ul>
 <h4 id="methods">Methods</h4>
 <h5 id="log">log</h5>
@@ -2410,9 +2380,7 @@ o the subclasses training loss is passed through to BackendAgent by on_iteration
 <h4 id="descendants_1">Descendants</h4>
 <ul>
 <li>easyagents.backends.tfagents.TfAgentAgentFactory</li>
-<li>easyagents.backends.kerasrl.KerasRlAgentFactory</li>
 <li>easyagents.backends.default.BackendAgentFactory</li>
-<li>easyagents.backends.tforce.TensorforceAgentFactory</li>
 </ul>
 <h4 id="class-variables">Class variables</h4>
 <div class="codehilite"><pre><span></span><span class="n">backend_name</span>
@@ -2522,13 +2490,13 @@ o the subclasses training loss is passed through to BackendAgent by on_iteration
           </a>
         
         
-          <a href="../kerasrl/" title="Kerasrl" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../tfagents/" title="Tfagents" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Kerasrl
+                Tfagents
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
