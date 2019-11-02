@@ -220,8 +220,8 @@ class SacAgentTest(unittest.TestCase):
 
     def test_train(self):
         for backend in get_backends(SacAgent):
-            sac_agent: SacAgent = SacAgent('CartPole-v0', backend=backend)
-            sac_agent.train([log.Duration(), log.Iteration(), log.Agent()],
+            sac_agent: SacAgent = SacAgent('MountainCarContinuous-v0', backend=backend)
+            sac_agent.train([log.Duration(), log.Iteration(), log.Agent(), duration.Fast()],
                             num_iterations=10,
                             max_steps_per_episode=200,
                             default_plots=False)
