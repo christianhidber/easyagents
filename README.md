@@ -2,11 +2,12 @@
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=master)](https://coveralls.io/github/christianhidber/easyagents?branch=master)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)
-[![Downloads](https://pepy.tech/badge/easyagents/month)](https://pepy.tech/project/easyagents/month)
+[![Downloads](https://pepy.tech/badge/easyagents)](https://pepy.tech/project/easyagents)
 [![Docs](https://img.shields.io/badge/api-docs-blue)](https://christianhidber.github.io/easyagents/)
 
 
-Status: under active development, breaking changes may occur. [Release notes](documentation/markdown/Release_Notes.md).
+Status: 
+under active development, breaking changes may occur. [Release notes](documentation/markdown/Release_Notes.md).
 
 ![EasyAgents logo](images/EazyAgentsIcon.png)
 
@@ -30,6 +31,8 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
 * runs inside **jupyter notebooks** as well as stand-alone, easy to install requiring only a single 
   'pip install easyagents'.
 * easy to understand, **ready-made plots** and logs to investigate the algorithms and environments behaviour
+
+Note: tensorforce and keras-rl backends are suspended until support for tensorflow 2.0 is available.
 
 ### Examples
 ---
