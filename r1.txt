@@ -1,0 +1,7 @@
+tf-agents-nightly
+tensorflow
+tensorforce[tf]
+gym
+imageio
+imageio-ffmpeg
+
