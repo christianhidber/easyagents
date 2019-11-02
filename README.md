@@ -71,7 +71,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 ### Available Algorithms and Backends
 ---
 
-|algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl](https://github.com/keras-rl/keras-rl) | easyagents class name |
+|algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce (suspended)](https://github.com/tensorforce/tensorforce) | [keras-rl (suspended)](https://github.com/keras-rl/keras-rl) | easyagents class name |
 |----------|:---------:|:-----------:|:--------:| :---: | 
 |[CEM](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf) |`not available`  |`not available`  |`yes`  | CemAgent | 
 |[Dqn](https://arxiv.org/abs/1312.5602)           |`yes`           |`yes`    |`yes`            | DqnAgent | 
@@ -84,6 +84,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 
 [191001]
 
+* starting with easyagents 1.3 (191102) the backends for tensorforce and keras-rl are suspended until support for tensorflow 2.0 is available.
 * if you are interested in other algorithms, backends or hyperparameters let us know by
  [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose). 
   We'll try our best to support you.

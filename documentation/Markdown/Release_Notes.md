@@ -1,5 +1,8 @@
 ### Release notes
 ---
+* v1.3 [19Q4]
+    * 1.3.0: migration to tensorflow 2.0; 
+             support for tensorforce and keras-rl suspended until support for tf 2.0 is available
 * v1.2 [19Q4]
     * 1.2.2: fix for CemAgent and SacAgent default backend registration
     * 1.2.1: SacAgent for tfagents preview; notebook on 'Agent logging, seeding and jupyter output cells'
