@@ -88,10 +88,8 @@ class _BackendAgent(ABC):
         """ sets the random seeds for all dependent packages """
         if not self.model_config.seed is None:
             seed = self.model_config.seed
-            self.log_api(f'tf.compat.v1.set_random_seed', f'({seed})')
-            tensorflow.compat.v1.set_random_seed(seed)
-            self.log_api(f'tf.random.set_random_seed', f'(seed={seed})')
-            tensorflow.random.set_random_seed(seed=seed)
+            self.log_api(f'tf.random.set_seed', f'(seed={seed})')
+            tensorflow.random.set_seed(seed=seed)
             self.log_api(f'numpy.random.seed', f'({seed})')
             numpy.random.seed(seed)
             self.log_api(f'random.seed', f'({seed})')

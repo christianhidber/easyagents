@@ -12,9 +12,9 @@ from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
 
 import easyagents.backends.default
-import easyagents.backends.kerasrl
+#import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
-import easyagents.backends.tforce
+#import easyagents.backends.tforce
 
 import statistics
 
@@ -39,8 +39,8 @@ def register_backend(backend: bcore.BackendAgentFactory):
 # register all backends deployed with easyagents
 register_backend(easyagents.backends.default.BackendAgentFactory())
 register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
-register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
-register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
+#register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
+#register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
 
 
 class EasyAgent(ABC):

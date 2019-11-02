@@ -33,14 +33,14 @@ class BackendRegistrationTest(unittest.TestCase):
         backends = agents.get_backends(agents.PpoAgent)
         assert 'default' in backends
         assert 'tfagents' in backends
-        assert 'tensorforce' in backends
+#        assert 'tensorforce' in backends
 
     def test_getbackends_randomagent(self):
         assert agents._backends is not None
         backends = agents.get_backends(agents.RandomAgent)
         assert 'default' in backends
         assert 'tfagents' in backends
-        assert 'tensorforce' in backends
+#        assert 'tensorforce' in backends
 
     def test_prepare_callbacks(self):
         agent = agents.PpoAgent("CartPole-v0")
@@ -220,8 +220,8 @@ class SacAgentTest(unittest.TestCase):
 
     def test_train(self):
         for backend in get_backends(SacAgent):
-            sac_agent: SacAgent = SacAgent('CartPole-v0', backend=backend)
-            sac_agent.train([log.Duration(), log.Iteration(), log.Agent()],
+            sac_agent: SacAgent = SacAgent('MountainCarContinuous-v0', backend=backend)
+            sac_agent.train([log.Duration(), log.Iteration(), log.Agent(), duration.Fast()],
                             num_iterations=10,
                             max_steps_per_episode=200,
                             default_plots=False)

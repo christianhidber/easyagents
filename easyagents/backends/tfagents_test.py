@@ -71,7 +71,7 @@ class TfSacAgentTest(unittest.TestCase):
         self.env_name = env._StepCountEnv.register_with_gym()
 
     def test_train(self):
-        model_config = core.ModelConfig("CartPole-v0")
+        model_config = core.ModelConfig('MountainCarContinuous-v0')
         tc = core.StepsTrainContext()
         dqnAgent = tfagents.TfSacAgent(model_config=model_config)
         dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration(), log.Agent()])

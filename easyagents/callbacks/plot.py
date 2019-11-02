@@ -11,9 +11,6 @@ import tempfile
 import os.path
 import datetime
 
-# download mp4 rendering
-imageio.plugins.ffmpeg.download()
-
 # avoid "double rendering" of the final jupyter output
 on_play_end_clear_jupyter_display: bool = False
 on_train_end_clear_jupyter_display: bool = True
