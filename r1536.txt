@@ -1,9 +1,0 @@
-tf-agents-nightly
-tensorflow
-gym
-imageio
-imageio-ffmpeg
-matplotlib
-
-pytest
-
