@@ -227,16 +227,21 @@ class SacAgentTest(unittest.TestCase):
                             default_plots=False)
 
 
+def assert_properties_for_metric(metric, num_episodes):
+        assert metric.min <= metric.max
+        assert metric.mean <= metric.max
+        assert metric.mean >= metric.min
+        assert metric.std >= 0
+        assert len(metric.all) == num_episodes
+
+
 class EasyAgentTest(unittest.TestCase):
-    def test_score(self):
+    def test_evaluate(self):
         random_agent = RandomAgent('CartPole-v0')
         num_episodes = 5
-        mean, std, min_reward, max_reward, all_rewards = random_agent.score(num_episodes=num_episodes)
-        assert min_reward <= max_reward
-        assert mean <= max_reward
-        assert mean >= min_reward
-        assert std >= 0
-        assert len(all_rewards) == num_episodes
+        metrics = random_agent.evaluate(num_episodes=num_episodes)
+        assert_properties_for_metric(metrics.steps, num_episodes)
+        assert_properties_for_metric(metrics.rewards, num_episodes)
 
 
 if __name__ == '__main__':
