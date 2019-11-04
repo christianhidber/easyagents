@@ -17,6 +17,8 @@ import easyagents.backends.tfagents
 #import easyagents.backends.tforce
 
 import statistics
+from collections import namedtuple
+
 
 _backends: [bcore.BackendAgentFactory] = []
 
@@ -146,7 +148,7 @@ class EasyAgent(ABC):
         self._backend_agent.play(play_context=play_context, callbacks=callbacks)
         return play_context
 
-    def score(self,
+    def evaluate(self,
              num_episodes: int = 50,
              max_steps_per_episode: int = 50):
         """Plays num_episodes with the current policy and computes metrics on rewards.
@@ -156,15 +158,29 @@ class EasyAgent(ABC):
             max_steps_per_episode: max steps per episode
 
         Returns:
-            score metrics - mean, std, min, max, all
+            extensible score metrics
         """
         play_context = core.PlayContext()
         play_context.max_steps_per_episode = max_steps_per_episode
         play_context.num_episodes = num_episodes
         self.play(play_context=play_context, default_plots=False)
-        all = list(play_context.sum_of_rewards.values())
+        Metrics = namedtuple('Metrics', 'steps rewards')
 
-        return statistics.mean(all), statistics.stdev(all), min(all), max(all), all
+        Rewards = namedtuple('Rewards', 'mean std min max all')    
+        all_rewards = list(play_context.sum_of_rewards.values())
+        mean_reward, std_reward, min_reward, max_reward = statistics.mean(all_rewards), statistics.stdev(all_rewards), min(all_rewards), max(all_rewards)
+        rewards = Rewards(mean=mean_reward, std=std_reward, min=min_reward, max=max_reward, all=all_rewards)
+
+        Steps = namedtuple('Steps', 'mean std min max all')    
+        all_num_steps = []
+        for i in play_context.rewards.keys():
+            all_num_steps.append(len(play_context.rewards[i]))
+
+        mean_steps, std_steps, min_steps, max_steps = statistics.mean(all_num_steps), statistics.stdev(all_num_steps), min(all_num_steps), max(all_num_steps)
+        steps = Steps(mean=mean_steps, std=std_steps, min=min_steps, max=max_steps, all=all_num_steps)
+
+        metrics = Metrics(rewards=rewards, steps=steps)
+        return metrics
         
     def play(self,
              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
@@ -190,26 +206,6 @@ class EasyAgent(ABC):
             play_context.num_episodes = num_episodes
         self._play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
         return play_context
-
-    def score(self,
-             num_episodes: int = 50,
-             max_steps_per_episode: int = 50):
-        """Plays num_episodes with the current policy and computes metrics on rewards.
-
-        Args:
-            num_episodes: number of episodes to play
-            max_steps_per_episode: max steps per episode
-
-        Returns:
-            score metrics - mean, std, min, max, all
-        """
-        play_context = core.PlayContext()
-        play_context.max_steps_per_episode = max_steps_per_episode
-        play_context.num_episodes = num_episodes
-        self.play(play_context=play_context, default_plots=False)
-        all = list(play_context.sum_of_rewards.values())
-
-        return statistics.mean(all), statistics.stdev(all), min(all), max(all), all
 
     def train(self, train_context: core.TrainContext,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
