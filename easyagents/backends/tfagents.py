@@ -2,6 +2,7 @@
 from abc import ABCMeta
 from typing import Dict, Type
 import math
+import os
 
 # noinspection PyUnresolvedReferences
 import easyagents.agents
@@ -21,7 +22,7 @@ from tf_agents.drivers import dynamic_step_driver
 from tf_agents.drivers.dynamic_episode_driver import DynamicEpisodeDriver
 from tf_agents.environments import gym_wrapper, py_environment, tf_py_environment
 from tf_agents.networks import actor_distribution_network, normal_projection_network, q_network, value_network
-from tf_agents.policies import greedy_policy, tf_policy, random_tf_policy
+from tf_agents.policies import greedy_policy, tf_policy, random_tf_policy, policy_saver
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
 from tf_agents.trajectories import trajectory
@@ -104,6 +105,33 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
             self.on_play_episode_end()
             if play_context.play_done:
                 break
+
+
+    def load_implementation(self, directory: str):
+        """Loads a previously saved actor policy from the directory
+
+        Args:
+             directory: the directory to load the policy from.
+        """
+        assert directory
+
+        self.log_api('saved_model.load', f'({directory})')
+        self._trained_policy = tf.compat.v2.saved_model.load(directory)
+
+
+    def save_implementation(self, directory: str):
+        """Saves the trained actor policy in directory.
+           If no policy was trained yet, an exception is raised.
+.
+        Args:
+             directory: the directory to save the policy weights to.
+        """
+        assert self._trained_policy, "no policy trained yet."
+
+        self.log_api('PolicySaver', f'(trained_policy,seed={easyagents.agents.seed})')
+        saver = policy_saver.PolicySaver(self._trained_policy, seed=easyagents.agents.seed)
+        self.log_api('policy_saver.save', f'({directory})')
+        saver.save(directory)
 
 
 # noinspection PyUnresolvedReferences
@@ -229,7 +257,7 @@ class TfPpoAgent(TfAgent):
         tf_agent = ppo_agent.PPOAgent(timestep_spec, action_spec, optimizer,
                                       actor_net=actor_net, value_net=value_net,
                                       num_epochs=tc.num_epochs_per_iteration)
-        self.log_api('tf_agent.initialize','()')
+        self.log_api('tf_agent.initialize', '()')
         tf_agent.initialize()
         self._trained_policy = tf_agent.policy
 
@@ -293,9 +321,16 @@ class TfRandomAgent(TfAgent):
         action_spec = train_env.action_spec()
         timestep_spec = train_env.time_step_spec()
 
-        # SetUp Data collection & Buffering
         self.log_api('RandomTFPolicy', 'create')
         self._trained_policy = random_tf_policy.RandomTFPolicy(timestep_spec, action_spec)
+
+    def load_implementation(self, directory: str):
+        """NoOps implementation, since we don't save/load random policies."""
+        pass
+
+    def save_implementation(self, directory: str):
+        """NoOps implementation, since we don't save/load random policies."""
+        pass
 
     # noinspection DuplicatedCode
     def train_implementation(self, train_context: core.TrainContext):

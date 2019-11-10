@@ -208,7 +208,7 @@ class Iteration(_LogCallbackBase):
     """Logs training iteration summaries to a python logger."""
 
     def __init__(self, eval_only:bool=False, logger: logging.Logger = None, prefix: str = None):
-        """Logs the completeion of each training iteration. On iteration with policy evaluation the
+        """Logs the completion of each training iteration. On an iteration with policy evaluation the
             current average reward/episode and steps/episode is logged as well.
 
             Args:

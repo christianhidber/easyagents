@@ -1,6 +1,10 @@
 ### Release notes
 ---
 * v1.3 [19Q4]
+    * 1.3.1: agent.score substituted by agent.evalute; 
+             support for play policy persistence (see intro 
+             [Saving & loading a trained policy](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb));
+             lineworld as test environment included             
     * 1.3.0: migration to tensorflow 2.0; 
              support for tensorforce and keras-rl suspended until support for tf 2.0 is available
 * v1.2 [19Q4]

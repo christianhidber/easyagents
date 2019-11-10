@@ -7,10 +7,12 @@
 
 from abc import ABC
 from typing import List, Tuple, Optional, Union, Type
+import os
+import statistics
+
 from easyagents import core
 from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
-
 import easyagents.backends.default
 #import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
@@ -121,32 +123,13 @@ class EasyAgent(ABC):
         result: List[core.AgentCallback] = pre_process + agent + post_process
         return result
 
-    def _play(self, play_context: core.PlayContext,
-              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
-              default_plots: Optional[bool]):
-        """Plays episodes with the current policy according to play_context.
-
-        Hints:
-        o updates rewards in play_context
-
-        Args:
-            play_context: specifies the num of episodes to play
-            callbacks: list of callbacks called during the play of the episodes
-            default_plots: if set adds a set of default callbacks (plot.State, plot.Rewards, plot.Loss,...).
-                if None default callbacks are only added if the callbacks list is empty
-
-        Returns:
-            play_context containing the actions taken and the rewards received during training
-        """
-        assert play_context, "play_context not set."
+    def _to_callback_list(self, callbacks):
+        """"""
         if callbacks is None:
             callbacks = []
         if not isinstance(callbacks, list):
             assert isinstance(callbacks, core.AgentCallback), "callback not an AgentCallback or a list thereof."
             callbacks = [callbacks]
-        callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Steps(), plot.Rewards()])
-        self._backend_agent.play(play_context=play_context, callbacks=callbacks)
-        return play_context
 
     def evaluate(self,
              num_episodes: int = 50,
@@ -204,8 +187,47 @@ class EasyAgent(ABC):
             play_context = core.PlayContext()
             play_context.max_steps_per_episode = max_steps_per_episode
             play_context.num_episodes = num_episodes
-        self._play(play_context=play_context, callbacks=callbacks, default_plots=default_plots)
+        if callbacks is None:
+            callbacks = []
+        if not isinstance(callbacks, list):
+            assert isinstance(callbacks, core.AgentCallback), "callback not an AgentCallback or a list thereof."
+            callbacks = [callbacks]
+        callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Steps(), plot.Rewards()])
+        self._backend_agent.play(play_context=play_context, callbacks=callbacks)
         return play_context
+
+    def load(self, directory: str):
+        """Loads a trained policy from directory.
+
+        After a successful load play() may be called directly. The agent as well as the model must be of the
+        same type and shape as when the policy was saved.
+
+        Args:
+            directory: the directory containing the previously saved policy.
+        """
+        assert directory
+        assert os.path.isdir(directory), f'directory "{directory}" not found.'
+        self._backend_agent.load(directory)
+
+    def save(self, directory: Optional[str] = None) -> str:
+        """Saves the currently trained actor policy in directory.
+
+        If save is called before a trained policy is created, eg by calling train, an exception is raised.
+
+        Args:
+             directory: the directory to save the policy weights to. any existing content is removed.
+                if the directory does not exist yet, a new directory is created. if None the policy is saved
+                in a temp directory.
+
+        Returns:
+            the absolute path to the directory containing the saved policy.
+        """
+        if directory is None:
+            directory = bcore._get_temp_path()
+        assert directory
+        directory = os.path.abspath(directory)
+        self._backend_agent.save(directory=directory)
+        return directory
 
     def train(self, train_context: core.TrainContext,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None],
@@ -276,6 +298,11 @@ class CemAgent(EasyAgent):
 
         see https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf
     """
+    def __init__(self,
+                 gym_env_name: str,
+                 fc_layers: Optional[Tuple[int, ...]] = None,
+                 backend: str = None):
+        assert False, "CemAgent is currently not available (pending migration of keras-rl to tf2.0)"
 
     def train(self,
               callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
@@ -389,10 +416,20 @@ class DqnAgent(EasyAgent):
 
 class DoubleDqnAgent(DqnAgent):
     """Agent based on the Double Dqn algorithm (https://arxiv.org/abs/1509.06461)"""
+    def __init__(self,
+                 gym_env_name: str,
+                 fc_layers: Optional[Tuple[int, ...]] = None,
+                 backend: str = None):
+        assert False, "DoubleDqnAgent is currently not available (pending migration of tensorforce/keras-rl to tf2.0)"
 
 
 class DuelingDqnAgent(DqnAgent):
     """Agent based on the Dueling Dqn algorithm (https://arxiv.org/abs/1511.06581)."""
+def __init__(self,
+             gym_env_name: str,
+             fc_layers: Optional[Tuple[int, ...]] = None,
+             backend: str = None):
+    assert False, "DuelingDqnAgent is currently not available (pending migration of tensorforce/keras-rl to tf2.0)"
 
 
 class PpoAgent(EasyAgent):
@@ -543,6 +580,7 @@ class ReinforceAgent(EasyAgent):
 
         super().train(train_context=train_context, callbacks=callbacks, default_plots=default_plots)
         return train_context
+
 
 class SacAgent(DqnAgent):
     """Agent based on the Soft-Actor-Critic algorithm (https://arxiv.org/abs/1812.05905)."""

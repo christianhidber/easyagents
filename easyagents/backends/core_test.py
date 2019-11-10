@@ -1,5 +1,5 @@
 import unittest
-import pytest
+import os
 from typing import Dict, Optional, Type
 
 import easyagents
@@ -83,6 +83,23 @@ class BackendAgentTest(unittest.TestCase):
         assert count.gym_init_begin_count == count.gym_init_end_count > 0
         assert count.gym_reset_begin_count == count.gym_reset_end_count > 0
         assert count.gym_step_begin_count == count.gym_step_end_count > 0
+
+    def test_save_directory_does_not_exist(self):
+        tempdir = bcore._get_temp_path()
+        agent = BackendAgentTest.DebugAgent()
+        agent.save(tempdir)
+        policy_dir = os.path.join(tempdir,'policy')
+        assert os.path.isdir(policy_dir)
+        easyagents.backends.core._rmpath(tempdir)
+
+    def test_save_directory_exists(self):
+        tempdir = bcore._get_temp_path()
+        agent = BackendAgentTest.DebugAgent()
+        os.mkdir(tempdir)
+        agent.save(tempdir)
+        policy_dir = os.path.join(tempdir,'policy')
+        assert os.path.isdir(policy_dir)
+        easyagents.backends.core._rmpath(tempdir)
 
 
 class BackendAgentFactoryTest(unittest.TestCase):

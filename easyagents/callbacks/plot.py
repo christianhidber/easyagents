@@ -1,15 +1,14 @@
 from typing import Optional, List, Tuple, Union, Dict
 
 import easyagents.core as core
+import easyagents.backends.core
 import base64
 import matplotlib.pyplot as plt
 import numpy as np
 import imageio
 import math
 import gym
-import tempfile
 import os.path
-import datetime
 
 # avoid "double rendering" of the final jupyter output
 on_play_end_clear_jupyter_display: bool = False
@@ -680,7 +679,7 @@ class ToMovie(core._PostProcessCallback):
         self._is_filepath_set = filepath is not None
         self.filepath = filepath
         if not self._is_filepath_set:
-            self.filepath = self._get_temp_path()
+            self.filepath = easyagents.backends.core._get_temp_path()
         if (not self._is_animated_gif()) and (not self.filepath.lower().endswith('.mp4')):
             self.filepath = self.filepath + '.mp4'
         self._video = imageio.get_writer(self.filepath, fps=fps) if fps else imageio.get_writer(self.filepath)
@@ -719,13 +718,6 @@ class ToMovie(core._PostProcessCallback):
         pyc.figure.canvas.draw()
         result = np.frombuffer(pyc.figure.canvas.tostring_rgb(), dtype='uint8')
         result = result.reshape(pyc.figure.canvas.get_width_height()[::-1] + (3,))
-        return result
-
-    def _get_temp_path(self):
-        result = os.path.join(tempfile.gettempdir(), tempfile.gettempprefix())
-        n = datetime.datetime.now()
-        result = result + f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-' + \
-                 f'{n.microsecond:06}'
         return result
 
     def _is_animated_gif(self):
