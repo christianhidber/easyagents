@@ -248,7 +248,7 @@ class SacAgentTest(unittest.TestCase):
     def test_train(self):
         for backend in get_backends(SacAgent):
             sac_agent: SacAgent = SacAgent(_mountaincart_continuous_name, backend=backend)
-            tc : core.TrainContext = sac_agent.train([log.Duration(), log.Iteration(eval_only=True)],
+            tc : core.TrainContext = sac_agent.train([log.Duration(), log.Iteration(eval_only=True), duration.Fast()],
                                                         default_plots=False)
             r = max_avg_rewards(tc)
             assert r >= -1
