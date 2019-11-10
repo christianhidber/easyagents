@@ -14,13 +14,12 @@ from easyagents import core
 from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
 import easyagents.backends.default
-#import easyagents.backends.kerasrl
+# import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
-#import easyagents.backends.tforce
+# import easyagents.backends.tforce
 
 import statistics
 from collections import namedtuple
-
 
 _backends: [bcore.BackendAgentFactory] = []
 
@@ -43,8 +42,10 @@ def register_backend(backend: bcore.BackendAgentFactory):
 # register all backends deployed with easyagents
 register_backend(easyagents.backends.default.BackendAgentFactory())
 register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
-#register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
-#register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
+
+
+# register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
+# register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
 
 
 class EasyAgent(ABC):
@@ -89,10 +90,10 @@ class EasyAgent(ABC):
         self._backend_agent: Optional[bcore._BackendAgent] = backend_agent
         return
 
-    def _prepare_callbacks(self, callbacks: List[core.AgentCallback],
-                           default_plots: Optional[bool],
-                           default_plot_callbacks: List[plot._PlotCallback],
-                           ) -> List[core.AgentCallback]:
+    def _add_plot_callbacks(self, callbacks: List[core.AgentCallback],
+                            default_plots: Optional[bool],
+                            default_plot_callbacks: List[plot._PlotCallback]
+                            ) -> List[core.AgentCallback]:
         """Adds the default callbacks and sorts all callbacks in the order
             _PreProcessCallbacks, AgentCallbacks, _PostProcessCallbacks.
 
@@ -123,17 +124,25 @@ class EasyAgent(ABC):
         result: List[core.AgentCallback] = pre_process + agent + post_process
         return result
 
-    def _to_callback_list(self, callbacks):
-        """"""
-        if callbacks is None:
-            callbacks = []
-        if not isinstance(callbacks, list):
-            assert isinstance(callbacks, core.AgentCallback), "callback not an AgentCallback or a list thereof."
-            callbacks = [callbacks]
+    def _to_callback_list(self, callbacks: Union[Optional[core.AgentCallback], List[core.AgentCallback]]) -> List[core.AgentCallback]:
+        """maps callbacks to an admissible callback list.
+
+        if callbacks is None an empty list is returned.
+        if callbacks is an AgentCallback a list containing only this callback is returned
+        otherwise callbacks is returned
+        """
+        result: List[core.AgentCallback] = []
+        if not callbacks is None:
+            if isinstance(callbacks, core.AgentCallback):
+                result = [callbacks]
+            else:
+                assert isinstance(callbacks, list), "callback not an AgentCallback or a list thereof."
+                result = callbacks
+        return result
 
     def evaluate(self,
-             num_episodes: int = 50,
-             max_steps_per_episode: int = 50):
+                 num_episodes: int = 50,
+                 max_steps_per_episode: int = 50):
         """Plays num_episodes with the current policy and computes metrics on rewards.
 
         Args:
@@ -149,22 +158,24 @@ class EasyAgent(ABC):
         self.play(play_context=play_context, default_plots=False)
         Metrics = namedtuple('Metrics', 'steps rewards')
 
-        Rewards = namedtuple('Rewards', 'mean std min max all')    
+        Rewards = namedtuple('Rewards', 'mean std min max all')
         all_rewards = list(play_context.sum_of_rewards.values())
-        mean_reward, std_reward, min_reward, max_reward = statistics.mean(all_rewards), statistics.stdev(all_rewards), min(all_rewards), max(all_rewards)
+        mean_reward, std_reward, min_reward, max_reward = statistics.mean(all_rewards), statistics.stdev(
+            all_rewards), min(all_rewards), max(all_rewards)
         rewards = Rewards(mean=mean_reward, std=std_reward, min=min_reward, max=max_reward, all=all_rewards)
 
-        Steps = namedtuple('Steps', 'mean std min max all')    
+        Steps = namedtuple('Steps', 'mean std min max all')
         all_num_steps = []
         for i in play_context.rewards.keys():
             all_num_steps.append(len(play_context.rewards[i]))
 
-        mean_steps, std_steps, min_steps, max_steps = statistics.mean(all_num_steps), statistics.stdev(all_num_steps), min(all_num_steps), max(all_num_steps)
+        mean_steps, std_steps, min_steps, max_steps = statistics.mean(all_num_steps), statistics.stdev(
+            all_num_steps), min(all_num_steps), max(all_num_steps)
         steps = Steps(mean=mean_steps, std=std_steps, min=min_steps, max=max_steps, all=all_num_steps)
 
         metrics = Metrics(rewards=rewards, steps=steps)
         return metrics
-        
+
     def play(self,
              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None,
              num_episodes: int = 1,
@@ -187,16 +198,13 @@ class EasyAgent(ABC):
             play_context = core.PlayContext()
             play_context.max_steps_per_episode = max_steps_per_episode
             play_context.num_episodes = num_episodes
-        if callbacks is None:
-            callbacks = []
-        if not isinstance(callbacks, list):
-            assert isinstance(callbacks, core.AgentCallback), "callback not an AgentCallback or a list thereof."
-            callbacks = [callbacks]
-        callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Steps(), plot.Rewards()])
+        callbacks = self._to_callback_list(callbacks=callbacks)
+        callbacks = self._add_plot_callbacks(callbacks, default_plots, [plot.Steps(), plot.Rewards()])
         self._backend_agent.play(play_context=play_context, callbacks=callbacks)
         return play_context
 
-    def load(self, directory: str):
+    def load(self, directory: str,
+             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None):
         """Loads a trained policy from directory.
 
         After a successful load play() may be called directly. The agent as well as the model must be of the
@@ -204,12 +212,15 @@ class EasyAgent(ABC):
 
         Args:
             directory: the directory containing the previously saved policy.
+            callbacks: list of callbacks called during save (eg log.Agent)
         """
         assert directory
         assert os.path.isdir(directory), f'directory "{directory}" not found.'
-        self._backend_agent.load(directory)
+        callbacks = self._to_callback_list(callbacks=callbacks)
+        self._backend_agent.load(directory=directory, callbacks=callbacks)
 
-    def save(self, directory: Optional[str] = None) -> str:
+    def save(self, directory: Optional[str] = None,
+             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None) -> str:
         """Saves the currently trained actor policy in directory.
 
         If save is called before a trained policy is created, eg by calling train, an exception is raised.
@@ -218,6 +229,7 @@ class EasyAgent(ABC):
              directory: the directory to save the policy weights to. any existing content is removed.
                 if the directory does not exist yet, a new directory is created. if None the policy is saved
                 in a temp directory.
+             callbacks: list of callbacks called during save (eg log.Agent)
 
         Returns:
             the absolute path to the directory containing the saved policy.
@@ -226,7 +238,8 @@ class EasyAgent(ABC):
             directory = bcore._get_temp_path()
         assert directory
         directory = os.path.abspath(directory)
-        self._backend_agent.save(directory=directory)
+        callbacks = self._to_callback_list(callbacks=callbacks)
+        self._backend_agent.save(directory=directory, callbacks=callbacks)
         return directory
 
     def train(self, train_context: core.TrainContext,
@@ -241,12 +254,8 @@ class EasyAgent(ABC):
                 if None default callbacks are only added if the callbacks list is empty
         """
         assert train_context, "train_context not set."
-        if callbacks is None:
-            callbacks = []
-        if not isinstance(callbacks, list):
-            assert isinstance(callbacks, core.AgentCallback), "callback not a AgentCallback or a list thereof."
-            callbacks = [callbacks]
-        callbacks = self._prepare_callbacks(callbacks, default_plots, [plot.Loss(), plot.Steps(), plot.Rewards()])
+        callbacks = self._to_callback_list(callbacks=callbacks)
+        callbacks = self._add_plot_callbacks(callbacks, default_plots, [plot.Loss(), plot.Steps(), plot.Rewards()])
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
 
@@ -298,6 +307,7 @@ class CemAgent(EasyAgent):
 
         see https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf
     """
+
     def __init__(self,
                  gym_env_name: str,
                  fc_layers: Optional[Tuple[int, ...]] = None,
@@ -416,6 +426,7 @@ class DqnAgent(EasyAgent):
 
 class DoubleDqnAgent(DqnAgent):
     """Agent based on the Double Dqn algorithm (https://arxiv.org/abs/1509.06461)"""
+
     def __init__(self,
                  gym_env_name: str,
                  fc_layers: Optional[Tuple[int, ...]] = None,
@@ -425,6 +436,8 @@ class DoubleDqnAgent(DqnAgent):
 
 class DuelingDqnAgent(DqnAgent):
     """Agent based on the Dueling Dqn algorithm (https://arxiv.org/abs/1511.06581)."""
+
+
 def __init__(self,
              gym_env_name: str,
              fc_layers: Optional[Tuple[int, ...]] = None,

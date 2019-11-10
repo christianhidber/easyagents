@@ -57,7 +57,7 @@ class BackendRegistrationTest(unittest.TestCase):
     def test_prepare_callbacks(self):
         agent = agents.PpoAgent(_line_world_name)
         c = [plot.ToMovie(), plot.Rewards()]
-        d = agent._prepare_callbacks(c, default_plots=None, default_plot_callbacks=[])
+        d = agent._add_plot_callbacks(c, default_plots=None, default_plot_callbacks=[])
         assert isinstance(d[0], plot._PreProcess)
         assert isinstance(d[1], plot.Rewards)
         assert isinstance(d[-2], plot._PostProcess)

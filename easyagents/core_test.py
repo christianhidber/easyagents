@@ -8,7 +8,7 @@ from easyagents.callbacks.duration import Fast
 import easyagents.backends.debug
 from easyagents.agents import DqnAgent,PpoAgent,ReinforceAgent,RandomAgent
 
-_env_name = easyagents.env._StepCountEnv.register_with_gym()
+_stepcount_name = easyagents.env._StepCountEnv.register_with_gym()
 
 
 class AgentContextTest(unittest.TestCase):
@@ -47,7 +47,7 @@ class AgentContextTest(unittest.TestCase):
 
     def test_agentcontext_train(self):
         b = easyagents.backends.debug.DebugAgentFactory()
-        a = b.create_agent( PpoAgent, ModelConfig(_env_name))
+        a = b.create_agent(PpoAgent, ModelConfig(_stepcount_name))
         c = AgentContextTest.TrainCallback()
         a.train(callbacks=[Fast(), c], train_context=PpoTrainContext())
         assert c.train_called
@@ -55,7 +55,7 @@ class AgentContextTest(unittest.TestCase):
 
     def test_agentcontext_play(self):
         b = easyagents.backends.debug.DebugAgentFactory()
-        a = b.create_agent( PpoAgent, ModelConfig(_env_name))
+        a = b.create_agent(PpoAgent, ModelConfig(_stepcount_name))
         c = AgentContextTest.PlayCallback()
         pc =PlayContext()
         pc.num_episodes=10
@@ -68,8 +68,8 @@ class AgentContextTest(unittest.TestCase):
 class ModelConfigTest(unittest.TestCase):
 
     def test_create(self):
-        assert ModelConfig(gym_env_name=_env_name) is not None
-        assert ModelConfig(gym_env_name=_env_name, fc_layers=(10, 20)) is not None
+        assert ModelConfig(gym_env_name=_stepcount_name) is not None
+        assert ModelConfig(gym_env_name=_stepcount_name, fc_layers=(10, 20)) is not None
 
     def test_create_envNotRegistered_exception(self):
         with pytest.raises(AssertionError):
@@ -81,14 +81,14 @@ class ModelConfigTest(unittest.TestCase):
 
     def test_create_fclayersEmpty_exception(self):
         with pytest.raises(AssertionError):
-            ModelConfig(gym_env_name=_env_name, fc_layers=())
+            ModelConfig(gym_env_name=_stepcount_name, fc_layers=())
 
     def test_create_fclayersSimpleInt(self):
-        assert ModelConfig(gym_env_name=_env_name, fc_layers=10) is not None
+        assert ModelConfig(gym_env_name=_stepcount_name, fc_layers=10) is not None
 
     def test_create_fclayersNegativeValue(self):
         with pytest.raises(AssertionError):
-            ModelConfig(gym_env_name=_env_name, fc_layers=-10)
+            ModelConfig(gym_env_name=_stepcount_name, fc_layers=-10)
 
 
 
