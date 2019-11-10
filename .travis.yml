@@ -3,6 +3,7 @@ matrix:
   include:
     - name: "Python 3.7.1 on Xenial Linux"
       python: 3.7           # this works for Linux but is ignored on macOS or Windows
+      cache: pip
       dist: xenial          # required for Python >= 3.7
       before_install:
         - sudo apt-get install python-opengl

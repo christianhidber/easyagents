@@ -1,7 +1,6 @@
 import pytest
 import unittest
 import logging
-import os
 from typing import Optional, Type
 
 import easyagents
@@ -214,7 +213,8 @@ class PpoAgentTest(unittest.TestCase):
             ppo = agents.PpoAgent(gym_env_name=_step_count_name, backend=backend)
             ppo.load(temp_dir)
             ppo.play(default_plots=False, num_episodes=1, callbacks=[])
-            os.rmdir(temp_dir)
+            easyagents.backends.core._rmpath(temp_dir)
+
 
 
 class RandomAgentTest(unittest.TestCase):

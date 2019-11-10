@@ -103,8 +103,6 @@ class TfReinforceAgentTest(unittest.TestCase):
         reinforce_agent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
         assert tc.episodes_done_in_iteration == tc.num_episodes_per_iteration > 0
         assert tc.iterations_done_in_training == tc.num_iterations > 0
-        rmin, ravg, rmax = tc.eval_rewards[tc.episodes_done_in_training]
-        assert rmax >= 5
 
 
 class TfSacAgentTest(unittest.TestCase):
