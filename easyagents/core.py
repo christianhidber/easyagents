@@ -3,7 +3,7 @@
 """
 
 from abc import ABC
-from typing import Optional, Dict, Tuple, List
+from typing import Optional, Dict, Tuple, List, Union
 from enum import Flag, auto
 import math
 
@@ -12,12 +12,9 @@ import easyagents.backends.monitor
 import gym.core
 import matplotlib.pyplot as plt
 
-class GymContext(object):
-    """Contains the context for gym api call
 
-    Attributes:
-        gym_env: the target gym instance of a pending gym api call
-    """
+class GymContext(object):
+    """Contains the context for gym api calls (wrapping a gym env instance)."""
 
     def __init__(self):
         self._monitor_env: Optional[easyagents.backends.monitor._MonitorEnv] = None
@@ -29,7 +26,8 @@ class GymContext(object):
     @property
     def gym_env(self) -> Optional[gym.core.Env]:
         result = None
-        if self._monitor_env: result = self._monitor_env.env
+        if self._monitor_env:
+            result = self._monitor_env.env
         return result
 
 
@@ -71,11 +69,12 @@ class PyPlotContext(object):
         self.max_columns = 3
 
     def __str__(self):
-        figure_number=None
+        figure_number = None
         figure_axes_len = 0
         if self.figure:
-            figure_number=self.figure.number
-            if self.figure.axes: figure_axes_len = len(self.figure.axes)
+            figure_number = self.figure.number
+            if self.figure.axes:
+                figure_axes_len = len(self.figure.axes)
         return f'is_jupyter_active={self.is_jupyter_active} max_columns={self.max_columns} ' + \
                f'_created_subplots={self._created_subplots} figure={figure_number} axes={figure_axes_len} '
 
@@ -96,7 +95,14 @@ class ModelConfig(object):
             seed: the seed to be used for example for the gym_env or None for no seed
     """
 
-    def __init__(self, gym_env_name: str, fc_layers: Optional[Tuple[int, ...]] = None):
+    _KEY_SEED = 'seed'
+    _KEY_GYM_ENV = 'gym_env'
+    _KEY_FC_LAYERS = 'fc_layers'
+
+    def __init__(self,
+                 gym_env_name: str,
+                 fc_layers: Union[Tuple[int, ...], int, None] = None,
+                 seed: Optional[int] = None):
         """
             Args:
                 gym_env_name: the name of the registered gym environment to use, eg 'CartPole-v0'
@@ -121,10 +127,37 @@ class ModelConfig(object):
         self.original_env_name = gym_env_name
         self.gym_env_name = None
         self.fc_layers = fc_layers
-        self.seed = easyagents.agents.seed
+        self.seed = seed
 
     def __str__(self):
         return f'fc_layers={self.fc_layers} seed={self.seed} gym_env_name={self.gym_env_name}'
+
+    @staticmethod
+    def _from_dict(from_dict: Dict[str, object]):
+        """Creates a new instance of ModelConfig based on the parameters contained in dict
+
+        Returns:
+            new instance of ModelConfig configured by dict
+        """
+        assert from_dict
+        # noinspection PyTypeChecker
+        fc_layers = tuple(from_dict[ModelConfig._KEY_FC_LAYERS])
+        result = ModelConfig(gym_env_name=from_dict[ModelConfig._KEY_GYM_ENV],
+                             fc_layers=fc_layers,
+                             seed=from_dict[ModelConfig._KEY_SEED])
+        return result
+
+    def _to_dict(self) -> Dict[str, object]:
+        """saves this model configuration to a dict. The model_config can be recreated by a call to _from_dict
+
+        Retunns:
+            dict containing all parameters of this model_config (this does not include any policy)
+        """
+        result: Dict[str, object] = dict()
+        result[ModelConfig._KEY_SEED] = self.seed
+        result[ModelConfig._KEY_GYM_ENV] = self.original_env_name
+        result[ModelConfig._KEY_FC_LAYERS] = self.fc_layers
+        return result
 
 
 class TrainContext(object):
@@ -150,7 +183,6 @@ class TrainContext(object):
             steps_done_in_training: the number of steps taken over all iterations so far
             steps_done_in_iteration: the number of steps taken in the current iteration
 
-            num_iterations_between_plot: number of training iterations before plots is updated.
             num_iterations_between_eval: number of training iterations before the current policy is evaluated.
             num_episodes_per_eval: number of episodes played to estimate the average return and steps
             eval_rewards: dict containg the rewards statistics for each policy evaluation.
@@ -189,7 +221,6 @@ class TrainContext(object):
                f'#steps_done_in_iteration={self.steps_done_in_iteration} ' + \
                f'#iterations={self.num_iterations} ' + \
                f'#max_steps_per_episode={self.max_steps_per_episode} ' + \
-               f'#iterations_between_plot={self.num_iterations_between_plot} ' + \
                f'#iterations_between_eval={self.num_iterations_between_eval} ' + \
                f'#episodes_per_eval={self.num_episodes_per_eval} ' + \
                f'#learning_rate={self.learning_rate} ' + \
@@ -287,7 +318,8 @@ class CemTrainContext(EpisodesTrainContext):
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
         super()._validate()
-        assert  1 >= self.elite_set_fraction > 0, "elite_set_fraction must be in interval (0,1]"
+        assert 1 >= self.elite_set_fraction > 0, "elite_set_fraction must be in interval (0,1]"
+
 
 class PpoTrainContext(EpisodesTrainContext):
     """TrainContext for Actor-Critic type agents like Ppo or Sac.
@@ -306,6 +338,7 @@ class PpoTrainContext(EpisodesTrainContext):
         self.actor_loss = dict()
         self.critic_loss = dict()
         super()._reset()
+
 
 class StepsTrainContext(TrainContext):
     """Base class for all agent which evaluate a number of steps during each iteration:
@@ -416,7 +449,8 @@ class PlayContext(object):
     def _validate(self):
         """Validates the consistency of all values, raising an exception if an inadmissible combination is detected."""
         assert (self.num_episodes is None) or (self.num_episodes > 0), "num_episodes not admissible"
-        assert (self.max_steps_per_episode is None) or self.max_steps_per_episode > 0, "max_steps_per_episode not admissible"
+        assert (self.max_steps_per_episode is None) or self.max_steps_per_episode > 0, \
+            "max_steps_per_episode not admissible"
 
 
 class AgentContext(object):
@@ -445,6 +479,7 @@ class AgentContext(object):
         self.play: Optional[PlayContext] = None
         self.gym: GymContext = GymContext()
         self.pyplot: PyPlotContext = PyPlotContext()
+        self._is_policy_trained = False
 
     def __str__(self):
         result = f'agent_context:'
@@ -496,7 +531,7 @@ class AgentContext(object):
 
     @property
     def is_train(self) -> bool:
-        """Yields true if an agent.tain(...) call is in progress, but not a policy evaluation."""
+        """Yields true if an agent.train(...) call is in progress, but not a policy evaluation."""
 
         return (self.train is not None) and (self.play is None)
 

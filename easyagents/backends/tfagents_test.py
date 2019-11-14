@@ -35,12 +35,13 @@ class TfPpoAgentTest(unittest.TestCase):
         ppo_agent = tfagents.TfPpoAgent(model_config=model_config)
         ppo_agent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
 
-    def test_load(self):
+    def test_save_load(self):
         model_config = core.ModelConfig(_lineworld_name)
         tc = core.PpoTrainContext()
         ppo_agent = tfagents.TfPpoAgent(model_config=model_config)
         ppo_agent.train(train_context=tc, callbacks=[duration._SingleIteration(), log.Iteration()])
         tempdir = bcore._get_temp_path()
+        bcore._mkdir(tempdir)
         ppo_agent.save(tempdir, [])
         ppo_agent = tfagents.TfPpoAgent(model_config=model_config)
         ppo_agent.load(tempdir, [])
@@ -49,16 +50,6 @@ class TfPpoAgentTest(unittest.TestCase):
         pc.num_episodes = 1
         ppo_agent.play(play_context=pc, callbacks=[])
         bcore._rmpath(tempdir)
-
-    def test_save(self):
-        model_config = core.ModelConfig(_lineworld_name)
-        tc = core.PpoTrainContext()
-        ppo_agent = tfagents.TfPpoAgent(model_config=model_config)
-        ppo_agent.train(train_context=tc, callbacks=[duration._SingleIteration(), log.Iteration()])
-        tempdir = bcore._get_temp_path()
-        ppo_agent.save(tempdir, [])
-        bcore._rmpath(tempdir)
-
 
 class TfRandomAgentTest(unittest.TestCase):
 
@@ -78,19 +69,13 @@ class TfRandomAgentTest(unittest.TestCase):
         random_agent.play(play_context=pc, callbacks=[])
         assert pc.num_episodes == 1
 
-    def test_load(self):
+    def test_save_load(self):
         model_config = core.ModelConfig(_lineworld_name)
         random_agent = tfagents.TfRandomAgent(model_config=model_config)
         tempdir = bcore._get_temp_path()
+        bcore._mkdir(tempdir)
         random_agent.save(directory=tempdir, callbacks=[])
         random_agent.load(directory=tempdir, callbacks=[])
-        bcore._rmpath(tempdir)
-
-    def test_save(self):
-        model_config = core.ModelConfig(_lineworld_name)
-        random_agent = tfagents.TfRandomAgent(model_config=model_config)
-        tempdir = bcore._get_temp_path()
-        random_agent.save(directory=tempdir, callbacks=[])
         bcore._rmpath(tempdir)
 
 

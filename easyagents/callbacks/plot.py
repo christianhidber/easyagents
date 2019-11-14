@@ -11,7 +11,7 @@ import gym
 import os.path
 
 # avoid "double rendering" of the final jupyter output
-on_play_end_clear_jupyter_display: bool = False
+on_play_end_clear_jupyter_display: bool = True
 on_train_end_clear_jupyter_display: bool = True
 
 # check if we are running in Jupyter, if so interactive plotting must be handled differently

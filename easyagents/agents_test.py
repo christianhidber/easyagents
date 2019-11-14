@@ -16,13 +16,16 @@ _cartpole_name = "CartPole-v0"
 _mountaincart_continuous_name = "MountainCarContinuous-v0"
 easyagents.agents.seed = 0
 
+
 def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False):
     result = [b for b in agents.get_backends(agent, skip_v1) if b != 'default']
     return result
 
+
 def max_avg_rewards(tc: core.TrainContext):
-    max_avg_rewards = max([avg_rewards for (min_rewards, avg_rewards, max_rewards) in tc.eval_rewards.values()])
-    return max_avg_rewards
+    result = max([avg_rewards for (min_rewards, avg_rewards, max_rewards) in tc.eval_rewards.values()])
+    return result
+
 
 # noinspection PyTypeChecker
 class BackendRegistrationTest(unittest.TestCase):
@@ -44,14 +47,16 @@ class BackendRegistrationTest(unittest.TestCase):
         backends = agents.get_backends(agents.PpoAgent)
         assert 'default' in backends
         assert 'tfagents' in backends
-#        assert 'tensorforce' in backends
+
+    #        assert 'tensorforce' in backends
 
     def test_getbackends_randomagent(self):
         assert agents._backends is not None
         backends = agents.get_backends(agents.RandomAgent)
         assert 'default' in backends
         assert 'tfagents' in backends
-#        assert 'tensorforce' in backends
+
+    #        assert 'tensorforce' in backends
 
     def test_prepare_callbacks(self):
         agent = agents.PpoAgent(_line_world_name)
@@ -107,7 +112,7 @@ class CemAgentTest(unittest.TestCase):
         self.train_and_assert(CemAgent, True)
 
     def test_create(self):
-        with pytest.raises(Exception) as e_info:
+        with pytest.raises(Exception):
             CemAgent('LineWorld-v0', fc_layers=(100,))
 
 
@@ -133,9 +138,8 @@ class DqnAgentsTest(unittest.TestCase):
             if backend == 'tensorforce':
                 current_num_iterations = num_iterations * 3
             logger(f'backend={backend} agent={agent_type}, num_iterations={current_num_iterations}')
-            max_avg_rewards = self.train_and_eval(agent_type=agent_type, backend=backend,
-                                                num_iterations=current_num_iterations)
-            assert max_avg_rewards >= 20, f'agent_type={agent_type} backend={backend} num_iterations={num_iterations}'
+            rewards = self.train_and_eval(agent_type=agent_type, backend=backend, num_iterations=current_num_iterations)
+            assert rewards >= 20, f'agent_type={agent_type} backend={backend} num_iterations={num_iterations}'
 
     @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
     @pytest.mark.tfv1
@@ -162,6 +166,67 @@ class DqnAgentsTest(unittest.TestCase):
         self.train_and_assert(DuelingDqnAgent, False)
 
 
+class EasyAgentTest(unittest.TestCase):
+
+    def assert_properties_for_metric(self, metric, num_episodes):
+        assert metric.min <= metric.max
+        assert metric.mean <= metric.max
+        assert metric.mean >= metric.min
+        assert metric.std >= 0
+        assert len(metric.all) == num_episodes
+
+    def test_evaluate(self):
+        random_agent = RandomAgent(_line_world_name)
+        num_episodes = 5
+        metrics = random_agent.evaluate(num_episodes=num_episodes)
+        self.assert_properties_for_metric(metrics.steps, num_episodes)
+        self.assert_properties_for_metric(metrics.rewards, num_episodes)
+
+    def test_save_no_trained_policy_exception(self):
+        p1 = PpoAgent(gym_env_name=_line_world_name, fc_layers=(10, 20, 30), backend='tfagents')
+        with pytest.raises(Exception):
+            p1.save()
+
+    def test_save_load_play(self):
+        oldseed = agents.seed
+        agents.seed = 123
+        p1 = PpoAgent(gym_env_name=_line_world_name, fc_layers=(10, 20, 30), backend='tfagents')
+        p1.train(callbacks=[duration._SingleEpisode()], default_plots=False)
+        d = p1.save()
+        agents.seed = oldseed
+        p2: EasyAgent = agents.load(d)
+        assert p2
+        assert p2._backend_name == p1._backend_name
+        assert p2._backend_agent.__class__ == p1._backend_agent.__class__
+        assert p2._model_config.original_env_name == p1._model_config.original_env_name
+        assert p2._model_config.seed == p1._model_config.seed
+        assert p2._model_config.gym_env_name == p1._model_config.gym_env_name
+        assert p2._model_config.fc_layers == p1._model_config.fc_layers
+        p2.play(default_plots=False, num_episodes=1)
+
+    def test_seed(self):
+        oldseed = agents.seed
+        agents.seed = 123
+        random_agent = RandomAgent(_line_world_name)
+        assert random_agent._model_config.seed == 123
+        agents.seed = oldseed
+
+    def test_to_dict_from_dict(self):
+        oldseed = agents.seed
+        agents.seed = 123
+        p1 = PpoAgent(gym_env_name=_line_world_name, fc_layers=(10, 20, 30), backend='tfagents')
+        d = p1._to_dict()
+        agents.seed = oldseed
+        p2: EasyAgent = EasyAgent._from_dict(d)
+        assert p2
+        assert p2._backend_name == p1._backend_name
+        assert p2._backend_agent.__class__ == p1._backend_agent.__class__
+        assert p2._model_config.original_env_name == p1._model_config.original_env_name
+        assert p2._model_config.seed == p1._model_config.seed
+        assert p2._model_config.gym_env_name == p1._model_config.gym_env_name
+        assert p2._model_config.fc_layers == p1._model_config.fc_layers
+
+
 # noinspection PyTypeChecker
 class PpoAgentTest(unittest.TestCase):
 
@@ -173,7 +238,7 @@ class PpoAgentTest(unittest.TestCase):
             assert env._StepCountEnv.reset_count <= 2
 
     def test_train_CartPole(self):
-        agents.seed=0
+        agents.seed = 0
         for backend in get_backends(PpoAgent):
             ppo = PpoAgent(gym_env_name=_cartpole_name, backend=backend)
             tc = core.PpoTrainContext()
@@ -210,11 +275,9 @@ class PpoAgentTest(unittest.TestCase):
             ppo = agents.PpoAgent(gym_env_name=_step_count_name, backend=backend)
             ppo.train([duration._SingleEpisode()], default_plots=False)
             temp_dir = ppo.save()
-            ppo = agents.PpoAgent(gym_env_name=_step_count_name, backend=backend)
-            ppo.load(temp_dir)
+            ppo = agents.load(temp_dir)
             ppo.play(default_plots=False, num_episodes=1, callbacks=[])
             easyagents.backends.core._rmpath(temp_dir)
-
 
 
 class RandomAgentTest(unittest.TestCase):
@@ -248,27 +311,10 @@ class SacAgentTest(unittest.TestCase):
     def test_train(self):
         for backend in get_backends(SacAgent):
             sac_agent: SacAgent = SacAgent(_mountaincart_continuous_name, backend=backend)
-            tc : core.TrainContext = sac_agent.train([log.Duration(), log.Iteration(eval_only=True), duration.Fast()],
-                                                        default_plots=False)
+            tc: core.TrainContext = sac_agent.train([log.Duration(), log.Iteration(eval_only=True), duration.Fast()],
+                                                    default_plots=False)
             r = max_avg_rewards(tc)
             assert r >= -1
-
-
-class EasyAgentTest(unittest.TestCase):
-
-    def assert_properties_for_metric(self, metric, num_episodes):
-        assert metric.min <= metric.max
-        assert metric.mean <= metric.max
-        assert metric.mean >= metric.min
-        assert metric.std >= 0
-        assert len(metric.all) == num_episodes
-
-    def test_evaluate(self):
-        random_agent = RandomAgent(_line_world_name)
-        num_episodes = 5
-        metrics = random_agent.evaluate(num_episodes=num_episodes)
-        self.assert_properties_for_metric(metrics.steps, num_episodes)
-        self.assert_properties_for_metric(metrics.rewards, num_episodes)
 
 
 if __name__ == '__main__':

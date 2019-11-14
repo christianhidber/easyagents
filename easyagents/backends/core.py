@@ -29,7 +29,23 @@ def _get_temp_path():
              f'{n.microsecond:06}'
     return result
 
-def _rmpath(path:str):
+
+def _mkdir(directory: str):
+    """Creates a directory with the given path. NoOps if the directory already exists.
+
+        If a file exists at path, the file is removed.
+
+        Returns:
+            the absolute path to directory
+    """
+    directory = os.path.abspath(directory)
+    if os.path.isfile(directory):
+        _rmpath(directory)
+    os.makedirs(directory, exist_ok=True)
+    return directory
+
+
+def _rmpath(path: str):
     """Removes the file or directory and its content. NoOps if the directory does not exist.
 
     Errors are ignored.
@@ -39,6 +55,7 @@ def _rmpath(path:str):
             shutil.rmtree(path, ignore_errors=True)
         if os.path.isfile(path):
             os.remove(path)
+
 
 class _BackendEvalCallback(core.AgentCallback):
     """Evaluates an agents current policy and updates its train_context accordingly."""
@@ -366,6 +383,34 @@ class _BackendAgent(ABC):
         """
         pass
 
+    def load(self, directory: str, callbacks: List[core.AgentCallback]):
+        """Loads a previously trained and saved actor policy from directory.
+
+        The loaded policy may afterwards be used by calling play().
+
+        Args:
+            directory: the directory containing the trained policy
+            callbacks: list of callbacks called during the load.
+        """
+        assert callbacks is not None, "callbacks not set"
+        assert directory
+        assert os.path.isdir(directory)
+
+        self._callbacks = callbacks
+        self.load_implementation(directory)
+        self._agent_context._is_policy_trained = True
+        self._callbacks = None
+
+    @abstractmethod
+    def load_implementation(self, directory: str):
+        """Loads a previously trained and saved actor policy from directory.
+
+        The loaded policy may afterwards be used by calling play().
+
+        Args:
+            directory: the directory containing the trained policy.
+        """
+
     # noinspection PyUnusedLocal
     def _on_train_step_end(self, action: object, step_result: Tuple):
         """Called after each call to gym.step on the current train env (agent_context.train.gym_env)
@@ -433,6 +478,7 @@ class _BackendAgent(ABC):
             self._on_train_begin()
             self.train_implementation(self._agent_context.train)
             self._on_train_end()
+            self._agent_context._is_policy_trained = True
         finally:
             monitor._MonitorEnv._register_backend_agent(None)
             self._callbacks = None
@@ -446,56 +492,24 @@ class _BackendAgent(ABC):
             For implementational details see BackendBaseAgent.
         """
 
-    def load(self, directory: str, callbacks: List[core.AgentCallback]):
-        """Loads a previously trained and saved actor policy from directory.
-
-        The loaded policy may afterwards be used by calling play().
-
-        Args:
-            directory: the directory containing the trained policy and all associated metadata.
-            callbacks: list of callbacks called during the load.
-        """
-        assert callbacks is not None, "callbacks not set"
-        assert directory, "directory not set."
-        assert os.path.isdir(directory), f'directory "{directory}" not found.'
-
-        self._callbacks = callbacks
-        policy_dir = os.path.join(directory,'policy')
-        assert os.path.isdir(policy_dir), f'policy not found in directory "{directory}".'
-        self.load_implementation(policy_dir)
-        self._callbacks = None
-
-    @abstractmethod
-    def load_implementation(self, directory: str):
-        """Loads a previously trained and saved actor policy from directory.
-
-        The loaded policy may afterwards be used by calling play().
-
-        Args:
-            directory: the directory containing the trained policy.
-        """
-
     def save(self, directory: str, callbacks: List[core.AgentCallback]):
         """Saves the currently trained actor policy in directory.
 
-        Note saving an untrained policy is not supported. Only the actor policy is guaranteed
-        to be saved. Thus after a call to load resuming training is not supported.
+        Only the actor policy is guaranteed to be saved.
+        Thus after a call to load resuming training is not supported.
 
         Args:
-             directory: the directory to save the policy weights to. any existing content removed.
-                if the directory does ot exist yet, a new directory is created.
-            callbacks: list of callbacks called during the load.
+            directory: the directory to save the policy weights to. the directory must exist.
+            callbacks: list of callbacks called during policy load.
         """
         assert callbacks is not None, "callbacks not set"
         assert directory
+        assert os.path.isdir(directory)
+        assert self._agent_context._is_policy_trained, "No trained policy available."
 
-        self._callbacks=callbacks
-        _rmpath(directory)
-        os.mkdir(directory)
-        policy_dir: str = os.path.join(directory, 'policy')
-        os.mkdir(policy_dir)
-        self.save_implementation(policy_dir)
-        self._callbacks=None
+        self._callbacks = callbacks
+        self.save_implementation(directory)
+        self._callbacks = None
 
     @abstractmethod
     def save_implementation(self, directory: str):

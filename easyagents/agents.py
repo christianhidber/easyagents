@@ -6,26 +6,53 @@
 """
 
 from abc import ABC
-from typing import List, Tuple, Optional, Union, Type
+from collections import namedtuple
+import json
 import os
 import statistics
+from typing import Dict, List, Optional, Tuple, Type, Union
 
 from easyagents import core
-from easyagents.callbacks import plot
 from easyagents.backends import core as bcore
+from easyagents.callbacks import plot
 import easyagents.backends.default
 # import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
-# import easyagents.backends.tforce
 
-import statistics
-from collections import namedtuple
+# import easyagents.backends.tforce
 
 _backends: [bcore.BackendAgentFactory] = []
 
 """The seed used for all agents and gym environments. If None no seed is set (default)."""
 seed: Optional[int] = None
 
+
+def load(directory: str,
+         callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None):
+    """Loads an agent from directory.
+
+    After a successful load play() may be called directly.
+    The agent, model, backend, seed and play policy are restored according to the previously saved agent.
+
+    Args:
+        directory: the directory containing the previously saved policy.
+        callbacks: list of callbacks called during save (eg log.Agent)
+
+    Result:
+        a new instance of EasyAgents
+    """
+    assert directory
+    agent_json_path = os.path.join(directory, EasyAgent._KEY_EASYAGENT_FILENAME)
+    policy_directory = os.path.join(directory, EasyAgent._KEY_POLICY_DIRECTORY)
+    assert os.path.isdir(directory), f'directory "{directory}" not found.'
+    assert os.path.isfile(agent_json_path), 'file "{agent_json_path}" not found.'
+    assert os.path.isdir(policy_directory), f'directory "{policy_directory}" not found.'
+    with open(agent_json_path) as jsonfile:
+        agent_dict = json.load(jsonfile)
+    result = EasyAgent._from_dict(agent_dict)
+    callbacks = result._to_callback_list(callbacks=callbacks)
+    result._backend_agent.load(directory=policy_directory, callbacks=callbacks)
+    return result
 
 def register_backend(backend: bcore.BackendAgentFactory):
     """registers a backend as a factory for agent implementations.
@@ -49,11 +76,20 @@ register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
 
 
 class EasyAgent(ABC):
-    """Abstract base class for all easy reinforcment learning agents."""
+    """Abstract base class for all easy reinforcment learning agents.
+
+    Besides forwarding train and play it implements persistence."""
+
+    _KEY_BACKEND = 'backend'
+    _KEY_EASYAGENT_CLASS = 'easyagent_class'
+    _KEY_EASYAGENT_FILENAME = 'easyagent.json'
+    _KEY_MODEL_CONFIG = 'model_config'
+    _KEY_POLICY_DIRECTORY = 'policy_directory'
+    _KEY_VERSION = 'version'
 
     def __init__(self,
                  gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
+                 fc_layers: Union[Tuple[int, ...], int, None] = None,
                  backend: str = None):
         """
             Args:
@@ -65,17 +101,11 @@ class EasyAgent(ABC):
                 backend=the backend to be used (eg 'tfagents'), if None a default implementation is used.
                     call get_backends() to get a list of the available backends.
         """
-        self._initialize(gym_env_name=gym_env_name, fc_layers=fc_layers, backend_name=backend)
+        model_config = core.ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers, seed=seed)
+        self._initialize(model_config=model_config, backend_name=backend)
         return
 
-    def _initialize(self,
-                    gym_env_name: str = None,
-                    fc_layers: Tuple[int, ...] = None,
-                    model_config: core.ModelConfig = None,
-                    backend_name: str = None):
-
-        if model_config is None:
-            model_config = core.ModelConfig(gym_env_name=gym_env_name, fc_layers=fc_layers)
+    def _initialize(self, model_config: core.ModelConfig, backend_name: str = None):
         if backend_name is None:
             backend_name = easyagents.backends.default.BackendAgentFactory.backend_name
         backend: bcore.BackendAgentFactory = _get_backend(backend_name)
@@ -88,6 +118,7 @@ class EasyAgent(ABC):
         assert backend_agent, f'Backend "{backend_name}" does not implement "{type(self).__name__}". ' + \
                               f'Choose one of the following backend {get_backends(type(self))}.'
         self._backend_agent: Optional[bcore._BackendAgent] = backend_agent
+        self._backend_name: str = backend_name
         return
 
     def _add_plot_callbacks(self, callbacks: List[core.AgentCallback],
@@ -124,7 +155,23 @@ class EasyAgent(ABC):
         result: List[core.AgentCallback] = pre_process + agent + post_process
         return result
 
-    def _to_callback_list(self, callbacks: Union[Optional[core.AgentCallback], List[core.AgentCallback]]) -> List[core.AgentCallback]:
+    @staticmethod
+    def _from_dict(param_dict: Dict[str, object]):
+        """recreates a new agent instance according to the definition previously created by _to_dict.
+
+        Returns:
+            new agent instance (excluding any trained policy), the agent type is preserved.
+        """
+        assert param_dict
+        mc: core.ModelConfig = core.ModelConfig._from_dict(param_dict[EasyAgent._KEY_MODEL_CONFIG])
+        agent_class = globals()[param_dict[EasyAgent._KEY_EASYAGENT_CLASS]]
+        backend: str = param_dict[EasyAgent._KEY_BACKEND]
+        result = agent_class(gym_env_name=mc.original_env_name)
+        result._initialize(model_config=mc, backend_name=backend)
+        return result
+
+    def _to_callback_list(self, callbacks: Union[Optional[core.AgentCallback], List[core.AgentCallback]]) -> List[
+        core.AgentCallback]:
         """maps callbacks to an admissible callback list.
 
         if callbacks is None an empty list is returned.
@@ -138,6 +185,20 @@ class EasyAgent(ABC):
             else:
                 assert isinstance(callbacks, list), "callback not an AgentCallback or a list thereof."
                 result = callbacks
+        return result
+
+    def _to_dict(self) -> Dict[str, object]:
+        """saves the agent definition to a dict.
+
+            Returns:
+                dict containing all parameters to recreate the agent (excluding a trained policy)
+        """
+        result: Dict[string, object] = dict()
+        result[EasyAgent._KEY_VERSION] = easyagents.__version__
+        result[EasyAgent._KEY_EASYAGENT_CLASS] = self.__class__.__name__
+        result[EasyAgent._KEY_BACKEND] = self._backend_name
+        result[EasyAgent._KEY_MODEL_CONFIG] = self._model_config._to_dict()
+        result[EasyAgent._KEY_POLICY_DIRECTORY] = 'policy'
         return result
 
     def evaluate(self,
@@ -194,6 +255,7 @@ class EasyAgent(ABC):
         Returns:
             play_context containg the actions taken and the rewards received during training
         """
+        assert self._backend_agent._agent_context._is_policy_trained, "No trained policy available. Call train() first."
         if play_context is None:
             play_context = core.PlayContext()
             play_context.max_steps_per_episode = max_steps_per_episode
@@ -203,22 +265,6 @@ class EasyAgent(ABC):
         self._backend_agent.play(play_context=play_context, callbacks=callbacks)
         return play_context
 
-    def load(self, directory: str,
-             callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None):
-        """Loads a trained policy from directory.
-
-        After a successful load play() may be called directly. The agent as well as the model must be of the
-        same type and shape as when the policy was saved.
-
-        Args:
-            directory: the directory containing the previously saved policy.
-            callbacks: list of callbacks called during save (eg log.Agent)
-        """
-        assert directory
-        assert os.path.isdir(directory), f'directory "{directory}" not found.'
-        callbacks = self._to_callback_list(callbacks=callbacks)
-        self._backend_agent.load(directory=directory, callbacks=callbacks)
-
     def save(self, directory: Optional[str] = None,
              callbacks: Union[List[core.AgentCallback], core.AgentCallback, None] = None) -> str:
         """Saves the currently trained actor policy in directory.
@@ -226,7 +272,7 @@ class EasyAgent(ABC):
         If save is called before a trained policy is created, eg by calling train, an exception is raised.
 
         Args:
-             directory: the directory to save the policy weights to. any existing content is removed.
+             directory: the directory to save the policy weights to.
                 if the directory does not exist yet, a new directory is created. if None the policy is saved
                 in a temp directory.
              callbacks: list of callbacks called during save (eg log.Agent)
@@ -237,9 +283,17 @@ class EasyAgent(ABC):
         if directory is None:
             directory = bcore._get_temp_path()
         assert directory
-        directory = os.path.abspath(directory)
+        assert self._backend_agent._agent_context._is_policy_trained, "No trained policy available. Call train() first."
+
+        directory = bcore._mkdir(directory)
+        agent_json_path = os.path.join(directory, EasyAgent._KEY_EASYAGENT_FILENAME)
+        with open(agent_json_path, 'w') as jsonfile:
+            agent_dict = self._to_dict()
+            json.dump(agent_dict, jsonfile, sort_keys=True, indent=2)
         callbacks = self._to_callback_list(callbacks=callbacks)
-        self._backend_agent.save(directory=directory, callbacks=callbacks)
+        policy_directory = os.path.join(directory, EasyAgent._KEY_POLICY_DIRECTORY)
+        policy_directory = bcore._mkdir(policy_directory)
+        self._backend_agent.save(directory=policy_directory, callbacks=callbacks)
         return directory
 
     def train(self, train_context: core.TrainContext,

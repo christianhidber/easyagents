@@ -121,15 +121,15 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
 
     def save_implementation(self, directory: str):
         """Saves the trained actor policy in directory.
-           If no policy was trained yet, an exception is raised.
+           If no policy was trained yet, no file is written
 .
         Args:
              directory: the directory to save the policy weights to.
         """
         assert self._trained_policy, "no policy trained yet."
 
-        self.log_api('PolicySaver', f'(trained_policy,seed={easyagents.agents.seed})')
-        saver = policy_saver.PolicySaver(self._trained_policy, seed=easyagents.agents.seed)
+        self.log_api('PolicySaver', f'(trained_policy,seed={self.model_config.seed})')
+        saver = policy_saver.PolicySaver(self._trained_policy, seed=self.model_config.seed)
         self.log_api('policy_saver.save', f'({directory})')
         saver.save(directory)
 
@@ -323,6 +323,7 @@ class TfRandomAgent(TfAgent):
 
         self.log_api('RandomTFPolicy', 'create')
         self._trained_policy = random_tf_policy.RandomTFPolicy(timestep_spec, action_spec)
+        self._agent_context._is_policy_trained = True
 
     def load_implementation(self, directory: str):
         """NoOps implementation, since we don't save/load random policies."""

@@ -1,5 +1,6 @@
 import unittest
 import os
+import pytest
 from typing import Dict, Type
 
 import easyagents
@@ -87,18 +88,18 @@ class BackendAgentTest(unittest.TestCase):
     def test_save_directory_does_not_exist(self):
         tempdir = bcore._get_temp_path()
         agent = BackendAgentTest.DebugAgent()
-        agent.save(tempdir, [])
-        policy_dir = os.path.join(tempdir, 'policy')
-        assert os.path.isdir(policy_dir)
-        easyagents.backends.core._rmpath(tempdir)
+        with pytest.raises(Exception):
+            agent.save(tempdir, [])
+
 
     def test_save_directory_exists(self):
         tempdir = bcore._get_temp_path()
+        easyagents.backends.core._mkdir(tempdir)
         agent = BackendAgentTest.DebugAgent()
-        os.mkdir(tempdir)
+        tc = core.EpisodesTrainContext()
+        tc.num_iterations=1
+        agent.train(callbacks=[], train_context=tc)
         agent.save(tempdir, [])
-        policy_dir = os.path.join(tempdir, 'policy')
-        assert os.path.isdir(policy_dir)
         easyagents.backends.core._rmpath(tempdir)
 
 
