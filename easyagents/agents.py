@@ -119,6 +119,7 @@ class EasyAgent(ABC):
                               f'Choose one of the following backend {get_backends(type(self))}.'
         self._backend_agent: Optional[bcore._BackendAgent] = backend_agent
         self._backend_name: str = backend_name
+        self._backend_agent._agent_context._agent_saver = self.save
         return
 
     def _add_plot_callbacks(self, callbacks: List[core.AgentCallback],

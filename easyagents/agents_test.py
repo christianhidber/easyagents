@@ -175,6 +175,10 @@ class EasyAgentTest(unittest.TestCase):
         assert metric.std >= 0
         assert len(metric.all) == num_episodes
 
+    def test_agent_saver_set(self):
+        random_agent = RandomAgent(_line_world_name)
+        assert random_agent._backend_agent._agent_context._agent_saver
+
     def test_evaluate(self):
         random_agent = RandomAgent(_line_world_name)
         num_episodes = 5

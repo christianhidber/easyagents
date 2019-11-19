@@ -480,6 +480,7 @@ class AgentContext(object):
         self.gym: GymContext = GymContext()
         self.pyplot: PyPlotContext = PyPlotContext()
         self._is_policy_trained = False
+        self._agent_saver: object = None
 
     def __str__(self):
         result = f'agent_context:'
