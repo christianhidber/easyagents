@@ -3,7 +3,7 @@
 """
 
 from abc import ABC
-from typing import Optional, Dict, Tuple, List, Union
+from typing import Callable, Optional, Dict, Tuple, List, Union
 from enum import Flag, auto
 import math
 
@@ -142,8 +142,8 @@ class ModelConfig(object):
         assert from_dict
         # noinspection PyTypeChecker
         fc_layers = tuple(from_dict[ModelConfig._KEY_FC_LAYERS])
-        result = ModelConfig(gym_env_name=from_dict[ModelConfig._KEY_GYM_ENV],
-                             fc_layers=fc_layers,
+        # noinspection PyTypeChecker
+        result = ModelConfig(gym_env_name=str(from_dict[ModelConfig._KEY_GYM_ENV]), fc_layers=fc_layers,
                              seed=from_dict[ModelConfig._KEY_SEED])
         return result
 
@@ -480,7 +480,8 @@ class AgentContext(object):
         self.gym: GymContext = GymContext()
         self.pyplot: PyPlotContext = PyPlotContext()
         self._is_policy_trained = False
-        self._agent_saver: object = None
+        self._agent_saver: Optional[
+            Callable[[Optional[str], Union[List[AgentCallback], AgentCallback, None]], str]] = None
 
     def __str__(self):
         result = f'agent_context:'

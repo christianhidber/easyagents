@@ -476,9 +476,9 @@ class _BackendAgent(ABC):
             self._set_seed()
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_train_begin()
+            self._agent_context._is_policy_trained = True
             self.train_implementation(self._agent_context.train)
             self._on_train_end()
-            self._agent_context._is_policy_trained = True
         finally:
             monitor._MonitorEnv._register_backend_agent(None)
             self._callbacks = None
