@@ -9,6 +9,7 @@ modules=[
     "easyagents.callbacks.duration",
     "easyagents.callbacks.log",
     "easyagents.callbacks.plot",
+    "easyagents.callbacks.save",
     ]
 
 
