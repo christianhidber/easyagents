@@ -34,7 +34,7 @@ class SaveTest(unittest.TestCase):
 
     def test_every(self):
         agent = agents.PpoAgent(_line_world_name)
-        every = save.Every(num_iterations_between_saves=1)
+        every = save.Every(num_evals_between_save=1)
         agent.train([every],
                     num_iterations_between_eval=1, num_episodes_per_iteration=10, num_iterations=3,
                     default_plots=False)

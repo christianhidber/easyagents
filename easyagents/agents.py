@@ -84,7 +84,7 @@ class EasyAgent(ABC):
     _KEY_EASYAGENT_CLASS = 'easyagent_class'
     _KEY_EASYAGENT_FILENAME = 'easyagent.json'
     _KEY_MODEL_CONFIG = 'model_config'
-    _KEY_POLICY_DIRECTORY = 'policy_directory'
+    _KEY_POLICY_DIRECTORY = 'policy'
     _KEY_VERSION = 'version'
 
     def __init__(self,

@@ -77,18 +77,22 @@ class Every(_SaveCallback):
             saved_agents: list of tuples (episode, avg_rewards, directory) for each saved agent
     """
 
-    def __init__(self, num_iterations_between_saves: int, directory: str = None):
-        """Saves the current policy every n iterations.
+    def __init__(self, num_evals_between_save: int = 1, directory: str = None):
+        """Saves the current policy every n evaluations. In terms of episodes: the policy is saved every
+
+        num_eval_between_saves * num_iterations_between_eval * num_episodes_per_iteration
 
         Args:
-            num_iterations_between_saves: the frequency to save the current policy.
+            num_evals_between_save: the number of evaluations between saves.
         """
-        assert num_iterations_between_saves > 0
+        assert num_evals_between_save > 0
         super().__init__(directory=directory)
-        self.num_iterations_between_saves: int = num_iterations_between_saves
+        self.num_evals_between_save: int = num_evals_between_save
 
     def on_play_end(self, agent_context: core.AgentContext):
         if agent_context.is_eval:
             tc = agent_context.train
-            if tc.iterations_done_in_training % self.num_iterations_between_saves == 0:
-                self._save(agent_context=agent_context)
+            if tc.num_iterations % tc.num_iterations_between_eval == 0:
+                evals = tc.num_iterations / tc.num_iterations_between_eval
+                if evals % self.num_evals_between_save == 0:
+                    self._save(agent_context=agent_context)

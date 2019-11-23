@@ -68,10 +68,11 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
   custom training, creating a movie & switching backends. gym environment based on a routing problem.
 * [3. Creating your own environment (LineWorld on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_line.ipynb):
   implement a gym environment from scratch, workshop example.
-* [4. Saving & loading a trained policy (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb): 
-  Once a policy is trained, save it and reload it in a production environment.
-* [5. Logging, seeding & plot clearing (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_logging.ipynb): 
-  Investigate how an agents api and how it interacts with the gym environment; 
+* [4. Saving & loading (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb): 
+  Once a policy is trained, save it and reload it in a production environment. 
+  You may also save intermediate policies as the training proceeds. 
+* [5. Api logging, seeding & plot clearing (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_logging.ipynb): 
+  Investigate how easyagent interacts with the backend api and the gym environment; 
   how to set seeds; controlling jupyter output cell clearing
 
 ### Available Algorithms and Backends
