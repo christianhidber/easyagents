@@ -70,7 +70,7 @@ class Best(_SaveCallback):
 
 
 class Every(_SaveCallback):
-    """Saves the current policy every n iterations.
+    """Saves the current policy every n evaluations.
 
         Attributes:
             directory: the absolute path of the directory containing the persisted policies.

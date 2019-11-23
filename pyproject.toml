@@ -1,5 +1,5 @@
 [tool.portray]
-docs_dir="documentation\\markdown"
+docs_dir="documentation\\Markdown"
 modules=[
     "easyagents.agents",
     "easyagents.agents",
@@ -9,6 +9,7 @@ modules=[
     "easyagents.callbacks.duration",
     "easyagents.callbacks.log",
     "easyagents.callbacks.plot",
+    "easyagents.callbacks.save",
     ]
 
 
