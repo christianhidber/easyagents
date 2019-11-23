@@ -3613,6 +3613,8 @@
 
 <span class="kn">import</span> <span class="nn">easyagents.core</span> <span class="kn">as</span> <span class="nn">core</span>
 
+<span class="kn">import</span> <span class="nn">easyagents.backends.core</span>
+
 <span class="kn">import</span> <span class="nn">base64</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
@@ -3625,15 +3627,11 @@
 
 <span class="kn">import</span> <span class="nn">gym</span>
 
-<span class="kn">import</span> <span class="nn">tempfile</span>
-
 <span class="kn">import</span> <span class="nn">os.path</span>
-
-<span class="kn">import</span> <span class="nn">datetime</span>
 
 <span class="c1"># avoid &quot;double rendering&quot; of the final jupyter output</span>
 
-<span class="n">on_play_end_clear_jupyter_display</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">on_play_end_clear_jupyter_display</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">True</span>
 
 <span class="n">on_train_end_clear_jupyter_display</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">True</span>
 
@@ -4743,7 +4741,7 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_filepath_set</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_temp_path</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">_get_temp_path</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_animated_gif</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.mp4&#39;</span><span class="p">)):</span>
 
@@ -4816,18 +4814,6 @@
         <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">frombuffer</span><span class="p">(</span><span class="n">pyc</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">tostring_rgb</span><span class="p">(),</span> <span class="kp">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="n">pyc</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">get_width_height</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="p">,))</span>
-
-        <span class="k">return</span> <span class="n">result</span>
-
-    <span class="k">def</span> <span class="nf">_get_temp_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="n">result</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempprefix</span><span class="p">())</span>
-
-        <span class="n">n</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-
-        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-&#39;</span> <span class="o">+</span> \
-
-                 <span class="n">f</span><span class="s1">&#39;{n.microsecond:06}&#39;</span>
 
         <span class="k">return</span> <span class="n">result</span>
 
@@ -10683,7 +10669,7 @@ During play all states are plotted.</p>
 
         <span class="s s-Atom">if</span> <span class="o">not</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">is_filepath_set:</span>
 
-            <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">filepath</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">get_temp_path</span><span class="p">()</span>
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">filepath</span> <span class="o">=</span> <span class="s s-Atom">easyagents</span><span class="p">.</span><span class="s s-Atom">backends</span><span class="p">.</span><span class="s s-Atom">core</span><span class="p">.</span><span class="k">_</span><span class="nf">get_temp_path</span><span class="p">()</span>
 
         <span class="nf">if</span> <span class="p">(</span><span class="o">not</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">is_animated_gif</span><span class="p">())</span> <span class="nf">and</span> <span class="p">(</span><span class="o">not</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">filepath</span><span class="p">.</span><span class="nf">lower</span><span class="p">().</span><span class="nf">endswith</span><span class="p">(</span><span class="s s-Atom">&#39;.mp4&#39;</span><span class="p">))</span><span class="s s-Atom">:</span>
 
@@ -10756,18 +10742,6 @@ During play all states are plotted.</p>
         <span class="s s-Atom">result</span> <span class="o">=</span> <span class="s s-Atom">np</span><span class="p">.</span><span class="nf">frombuffer</span><span class="p">(</span><span class="s s-Atom">pyc</span><span class="p">.</span><span class="s s-Atom">figure</span><span class="p">.</span><span class="s s-Atom">canvas</span><span class="p">.</span><span class="nf">tostring_rgb</span><span class="p">(),</span> <span class="s s-Atom">dtype=&#39;uint8&#39;</span><span class="p">)</span>
 
         <span class="s s-Atom">result</span> <span class="o">=</span> <span class="s s-Atom">result</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="s s-Atom">pyc</span><span class="p">.</span><span class="s s-Atom">figure</span><span class="p">.</span><span class="s s-Atom">canvas</span><span class="p">.</span><span class="nf">get_width_height</span><span class="p">()[</span><span class="s s-Atom">::-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="p">,))</span>
-
-        <span class="s s-Atom">return</span> <span class="s s-Atom">result</span>
-
-    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">get_temp_path</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
-
-        <span class="s s-Atom">result</span> <span class="o">=</span> <span class="s s-Atom">os</span><span class="p">.</span><span class="s s-Atom">path</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="s s-Atom">tempfile</span><span class="p">.</span><span class="nf">gettempdir</span><span class="p">(),</span> <span class="s s-Atom">tempfile</span><span class="p">.</span><span class="nf">gettempprefix</span><span class="p">())</span>
-
-        <span class="s s-Atom">n</span> <span class="o">=</span> <span class="s s-Atom">datetime</span><span class="p">.</span><span class="s s-Atom">datetime</span><span class="p">.</span><span class="nf">now</span><span class="p">()</span>
-
-        <span class="s s-Atom">result</span> <span class="o">=</span> <span class="s s-Atom">result</span> <span class="o">+</span> <span class="s s-Atom">f&#39;-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-&#39;</span> <span class="o">+</span> <span class="s s-Atom">\</span>
-
-                 <span class="s s-Atom">f&#39;{n.microsecond:06}&#39;</span>
 
         <span class="s s-Atom">return</span> <span class="s s-Atom">result</span>
 

@@ -422,6 +422,20 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#load" class="md-nav__link">
+    load
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load_implementation" class="md-nav__link">
+    load_implementation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#log" class="md-nav__link">
     log
   </a>
@@ -473,6 +487,20 @@
           <li class="md-nav__item">
   <a href="#play_implementation" class="md-nav__link">
     play_implementation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save" class="md-nav__link">
+    save
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_implementation" class="md-nav__link">
+    save_implementation
   </a>
   
 </li>
@@ -724,6 +752,20 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#load" class="md-nav__link">
+    load
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load_implementation" class="md-nav__link">
+    load_implementation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#log" class="md-nav__link">
     log
   </a>
@@ -775,6 +817,20 @@
           <li class="md-nav__item">
   <a href="#play_implementation" class="md-nav__link">
     play_implementation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save" class="md-nav__link">
+    save
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_implementation" class="md-nav__link">
+    save_implementation
   </a>
   
 </li>
@@ -901,7 +957,15 @@
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Dict</span>
 
+<span class="kn">import</span> <span class="nn">datetime</span>
+
 <span class="kn">import</span> <span class="nn">gym</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">import</span> <span class="nn">tempfile</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span>
 
@@ -916,6 +980,60 @@
 <span class="kn">from</span> <span class="nn">easyagents.callbacks</span> <span class="kn">import</span> <span class="n">plot</span>
 
 <span class="n">_tensorflow_v2_eager_enabled</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="k">def</span> <span class="nf">_get_temp_path</span><span class="p">():</span>
+
+    <span class="sd">&quot;&quot;&quot;Yields a path to a non-existent temporary directory inside the systems temp path.&quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempprefix</span><span class="p">())</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-&#39;</span> <span class="o">+</span> \
+
+             <span class="n">f</span><span class="s1">&#39;{n.microsecond:06}&#39;</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+<span class="k">def</span> <span class="nf">_mkdir</span><span class="p">(</span><span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Creates a directory with the given path. NoOps if the directory already exists.</span>
+
+<span class="sd">        If a file exists at path, the file is removed.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            the absolute path to directory</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+
+        <span class="n">_rmpath</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">directory</span>
+
+<span class="k">def</span> <span class="nf">_rmpath</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Removes the file or directory and its content. NoOps if the directory does not exist.</span>
+
+<span class="sd">    Errors are ignored.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">_BackendEvalCallback</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">AgentCallback</span><span class="p">):</span>
 
@@ -1459,6 +1577,48 @@
 
         <span class="k">pass</span>
 
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">core</span><span class="o">.</span><span class="n">AgentCallback</span><span class="p">]):</span>
+
+        <span class="sd">&quot;&quot;&quot;Loads a previously trained and saved actor policy from directory.</span>
+
+<span class="sd">        The loaded policy may afterwards be used by calling play().</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            directory: the directory containing the trained policy</span>
+
+<span class="sd">            callbacks: list of callbacks called during the load.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
+
+        <span class="k">assert</span> <span class="n">directory</span>
+
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="n">callbacks</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_implementation</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">_is_policy_trained</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@abstractmethod</span>
+
+    <span class="k">def</span> <span class="nf">load_implementation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Loads a previously trained and saved actor policy from directory.</span>
+
+<span class="sd">        The loaded policy may afterwards be used by calling play().</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            directory: the directory containing the trained policy.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
     <span class="c1"># noinspection PyUnusedLocal</span>
 
     <span class="k">def</span> <span class="nf">_on_train_step_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">step_result</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">):</span>
@@ -1569,6 +1729,8 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_on_train_begin</span><span class="p">()</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">_is_policy_trained</span> <span class="o">=</span> <span class="bp">True</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">train_implementation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">train</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_on_train_end</span><span class="p">()</span>
@@ -1590,6 +1752,52 @@
         <span class="sd">&quot;&quot;&quot;Agent specific implementation of the train loop.</span>
 
 <span class="sd">            For implementational details see BackendBaseAgent.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">core</span><span class="o">.</span><span class="n">AgentCallback</span><span class="p">]):</span>
+
+        <span class="sd">&quot;&quot;&quot;Saves the currently trained actor policy in directory.</span>
+
+<span class="sd">        Only the actor policy is guaranteed to be saved.</span>
+
+<span class="sd">        Thus after a call to load resuming training is not supported.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            directory: the directory to save the policy weights to. the directory must exist.</span>
+
+<span class="sd">            callbacks: list of callbacks called during policy load.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
+
+        <span class="k">assert</span> <span class="n">directory</span>
+
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">_is_policy_trained</span><span class="p">,</span> <span class="s2">&quot;No trained policy available.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="n">callbacks</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_implementation</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@abstractmethod</span>
+
+    <span class="k">def</span> <span class="nf">save_implementation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Agent speecific implementation of saving the weights for the actor policy.</span>
+
+<span class="sd">        Save must only guarantee to persist the weights of the actor policy.</span>
+
+<span class="sd">        The implementation may write multiple files with fixed filenames.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">             directory: the directory to save the policy weights to.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1826,6 +2034,80 @@
 <li>easyagents.backends.tfagents.TfAgent</li>
 </ul>
 <h4 id="methods">Methods</h4>
+<h5 id="load">load</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">easyagents</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">AgentCallback</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Loads a previously trained and saved actor policy from directory.</p>
+<p>The loaded policy may afterwards be used by calling play().</p>
+<p>Args:
+    directory: the directory containing the trained policy
+    callbacks: list of callbacks called during the load.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="k">load</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="n">str</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">core</span><span class="p">.</span><span class="n">AgentCallback</span><span class="p">]):</span>
+
+        <span class="ss">&quot;&quot;&quot;Loads a previously trained and saved actor policy from directory.</span>
+
+<span class="ss">        The loaded policy may afterwards be used by calling play().</span>
+
+<span class="ss">        Args:</span>
+
+<span class="ss">            directory: the directory containing the trained policy</span>
+
+<span class="ss">            callbacks: list of callbacks called during the load.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
+        <span class="n">assert</span> <span class="n">callbacks</span> <span class="k">is</span> <span class="k">not</span> <span class="k">None</span><span class="p">,</span> <span class="ss">&quot;callbacks not set&quot;</span>
+
+        <span class="n">assert</span> <span class="n">directory</span>
+
+        <span class="n">assert</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="n">callbacks</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">load_implementation</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">_is_policy_trained</span> <span class="o">=</span> <span class="k">True</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="k">None</span>
+</pre></div>
+
+
+</details>
+<h5 id="load_implementation">load_implementation</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load_implementation</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Loads a previously trained and saved actor policy from directory.</p>
+<p>The loaded policy may afterwards be used by calling play().</p>
+<p>Args:
+    directory: the directory containing the trained policy.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">load_implementation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">directory</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Loads a previously trained and saved actor policy from directory.</span>
+
+<span class="ss">        The loaded policy may afterwards be used by calling play().</span>
+
+<span class="ss">        Args:</span>
+
+<span class="ss">            directory: the directory containing the trained policy.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
+</pre></div>
+
+
+</details>
 <h5 id="log">log</h5>
 <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">log</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
@@ -2187,6 +2469,86 @@ Eg for an ActorCriticTrainContext the losses may be set like this:
 
 
 </details>
+<h5 id="save">save</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">easyagents</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">AgentCallback</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Saves the currently trained actor policy in directory.</p>
+<p>Only the actor policy is guaranteed to be saved.
+Thus after a call to load resuming training is not supported.</p>
+<p>Args:
+    directory: the directory to save the policy weights to. the directory must exist.
+    callbacks: list of callbacks called during policy load.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">save</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="n">str</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">core</span><span class="p">.</span><span class="n">AgentCallback</span><span class="p">]):</span>
+
+        <span class="ss">&quot;&quot;&quot;Saves the currently trained actor policy in directory.</span>
+
+<span class="ss">        Only the actor policy is guaranteed to be saved.</span>
+
+<span class="ss">        Thus after a call to load resuming training is not supported.</span>
+
+<span class="ss">        Args:</span>
+
+<span class="ss">            directory: the directory to save the policy weights to. the directory must exist.</span>
+
+<span class="ss">            callbacks: list of callbacks called during policy load.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
+        <span class="n">assert</span> <span class="n">callbacks</span> <span class="k">is</span> <span class="k">not</span> <span class="k">None</span><span class="p">,</span> <span class="ss">&quot;callbacks not set&quot;</span>
+
+        <span class="n">assert</span> <span class="n">directory</span>
+
+        <span class="n">assert</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="n">assert</span> <span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">_is_policy_trained</span><span class="p">,</span> <span class="ss">&quot;No trained policy available.&quot;</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="n">callbacks</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">save_implementation</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="k">None</span>
+</pre></div>
+
+
+</details>
+<h5 id="save_implementation">save_implementation</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save_implementation</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Agent speecific implementation of saving the weights for the actor policy.</p>
+<p>Save must only guarantee to persist the weights of the actor policy.
+The implementation may write multiple files with fixed filenames.</p>
+<p>Args:
+     directory: the directory to save the policy weights to.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">abstractmethod</span>
+
+    <span class="nv">def</span> <span class="nv">save_implementation</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">directory</span>: <span class="nv">str</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Agent speecific implementation of saving the weights for the actor policy.</span>
+
+        <span class="nv">Save</span> <span class="nv">must</span> <span class="nv">only</span> <span class="nv">guarantee</span> <span class="nv">to</span> <span class="nv">persist</span> <span class="nv">the</span> <span class="nv">weights</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">actor</span> <span class="nv">policy</span>.
+
+        <span class="nv">The</span> <span class="nv">implementation</span> <span class="nv">may</span> <span class="nv">write</span> <span class="nv">multiple</span> <span class="nv">files</span> <span class="nv">with</span> <span class="nv">fixed</span> <span class="nv">filenames</span>.
+
+        <span class="nv">Args</span>:
+
+             <span class="nv">directory</span>: <span class="nv">the</span> <span class="nv">directory</span> <span class="nv">to</span> <span class="nv">save</span> <span class="nv">the</span> <span class="nv">policy</span> <span class="nv">weights</span> <span class="nv">to</span>.
+
+        <span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+
+
+</details>
 <h5 id="train">train</h5>
 <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
@@ -2235,6 +2597,8 @@ Eg for an ActorCriticTrainContext the losses may be set like this:
             <span class="n">monitor</span><span class="p">.</span><span class="n">_MonitorEnv</span><span class="p">.</span><span class="n">_register_backend_agent</span><span class="p">(</span><span class="k">self</span><span class="p">)</span>
 
             <span class="k">self</span><span class="p">.</span><span class="n">_on_train_begin</span><span class="p">()</span>
+
+            <span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">_is_policy_trained</span> <span class="o">=</span> <span class="k">True</span>
 
             <span class="k">self</span><span class="p">.</span><span class="n">train_implementation</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">train</span><span class="p">)</span>
 

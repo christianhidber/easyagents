@@ -1347,7 +1347,7 @@ of all callbacks and agent configurations.</p>
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span><span class="p">,</span> <span class="n">auto</span>
 
@@ -1363,13 +1363,7 @@ of all callbacks and agent configurations.</p>
 
 <span class="k">class</span> <span class="nc">GymContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;Contains the context for gym api call</span>
-
-<span class="sd">    Attributes:</span>
-
-<span class="sd">        gym_env: the target gym instance of a pending gym api call</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Contains the context for gym api calls (wrapping a gym env instance).&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -1387,7 +1381,9 @@ of all callbacks and agent configurations.</p>
 
         <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_env</span><span class="p">:</span> <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_env</span><span class="o">.</span><span class="n">env</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_env</span><span class="p">:</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_env</span><span class="o">.</span><span class="n">env</span>
 
         <span class="k">return</span> <span class="n">result</span>
 
@@ -1455,15 +1451,17 @@ of all callbacks and agent configurations.</p>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="n">figure_number</span><span class="o">=</span><span class="bp">None</span>
+        <span class="n">figure_number</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="n">figure_axes_len</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">:</span>
 
-            <span class="n">figure_number</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">number</span>
+            <span class="n">figure_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">number</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span> <span class="n">figure_axes_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+
+                <span class="n">figure_axes_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;is_jupyter_active={self.is_jupyter_active} max_columns={self.max_columns} &#39;</span> <span class="o">+</span> \
 
@@ -1495,7 +1493,19 @@ of all callbacks and agent configurations.</p>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gym_env_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fc_layers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="n">_KEY_SEED</span> <span class="o">=</span> <span class="s1">&#39;seed&#39;</span>
+
+    <span class="n">_KEY_GYM_ENV</span> <span class="o">=</span> <span class="s1">&#39;gym_env&#39;</span>
+
+    <span class="n">_KEY_FC_LAYERS</span> <span class="o">=</span> <span class="s1">&#39;fc_layers&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+
+                 <span class="n">gym_env_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+
+                 <span class="n">fc_layers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+
+                 <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1541,11 +1551,57 @@ of all callbacks and agent configurations.</p>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fc_layers</span> <span class="o">=</span> <span class="n">fc_layers</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;fc_layers={self.fc_layers} seed={self.seed} gym_env_name={self.gym_env_name}&#39;</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_from_dict</span><span class="p">(</span><span class="n">from_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]):</span>
+
+        <span class="sd">&quot;&quot;&quot;Creates a new instance of ModelConfig based on the parameters contained in dict</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            new instance of ModelConfig configured by dict</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">from_dict</span>
+
+        <span class="c1"># noinspection PyTypeChecker</span>
+
+        <span class="n">fc_layers</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">from_dict</span><span class="p">[</span><span class="n">ModelConfig</span><span class="o">.</span><span class="n">_KEY_FC_LAYERS</span><span class="p">])</span>
+
+        <span class="c1"># noinspection PyTypeChecker</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ModelConfig</span><span class="p">(</span><span class="n">gym_env_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">from_dict</span><span class="p">[</span><span class="n">ModelConfig</span><span class="o">.</span><span class="n">_KEY_GYM_ENV</span><span class="p">]),</span> <span class="n">fc_layers</span><span class="o">=</span><span class="n">fc_layers</span><span class="p">,</span>
+
+                             <span class="n">seed</span><span class="o">=</span><span class="n">from_dict</span><span class="p">[</span><span class="n">ModelConfig</span><span class="o">.</span><span class="n">_KEY_SEED</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+
+        <span class="sd">&quot;&quot;&quot;saves this model configuration to a dict. The model_config can be recreated by a call to _from_dict</span>
+
+<span class="sd">        Retunns:</span>
+
+<span class="sd">            dict containing all parameters of this model_config (this does not include any policy)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="n">ModelConfig</span><span class="o">.</span><span class="n">_KEY_SEED</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="n">ModelConfig</span><span class="o">.</span><span class="n">_KEY_GYM_ENV</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_env_name</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="n">ModelConfig</span><span class="o">.</span><span class="n">_KEY_FC_LAYERS</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc_layers</span>
+
+        <span class="k">return</span> <span class="n">result</span>
 
 <span class="k">class</span> <span class="nc">TrainContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
@@ -1584,8 +1640,6 @@ of all callbacks and agent configurations.</p>
 <span class="sd">            steps_done_in_training: the number of steps taken over all iterations so far</span>
 
 <span class="sd">            steps_done_in_iteration: the number of steps taken in the current iteration</span>
-
-<span class="sd">            num_iterations_between_plot: number of training iterations before plots is updated.</span>
 
 <span class="sd">            num_iterations_between_eval: number of training iterations before the current policy is evaluated.</span>
 
@@ -1656,8 +1710,6 @@ of all callbacks and agent configurations.</p>
                <span class="n">f</span><span class="s1">&#39;#iterations={self.num_iterations} &#39;</span> <span class="o">+</span> \
 
                <span class="n">f</span><span class="s1">&#39;#max_steps_per_episode={self.max_steps_per_episode} &#39;</span> <span class="o">+</span> \
-
-               <span class="n">f</span><span class="s1">&#39;#iterations_between_plot={self.num_iterations_between_plot} &#39;</span> <span class="o">+</span> \
 
                <span class="n">f</span><span class="s1">&#39;#iterations_between_eval={self.num_iterations_between_eval} &#39;</span> <span class="o">+</span> \
 
@@ -1819,7 +1871,7 @@ of all callbacks and agent configurations.</p>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_validate</span><span class="p">()</span>
 
-        <span class="k">assert</span>  <span class="mi">1</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elite_set_fraction</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;elite_set_fraction must be in interval (0,1]&quot;</span>
+        <span class="k">assert</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elite_set_fraction</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;elite_set_fraction must be in interval (0,1]&quot;</span>
 
 <span class="k">class</span> <span class="nc">PpoTrainContext</span><span class="p">(</span><span class="n">EpisodesTrainContext</span><span class="p">):</span>
 
@@ -2033,7 +2085,9 @@ of all callbacks and agent configurations.</p>
 
         <span class="k">assert</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_episodes</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_episodes</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;num_episodes not admissible&quot;</span>
 
-        <span class="k">assert</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_steps_per_episode</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_steps_per_episode</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max_steps_per_episode not admissible&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_steps_per_episode</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_steps_per_episode</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> \
+
+            <span class="s2">&quot;max_steps_per_episode not admissible&quot;</span>
 
 <span class="k">class</span> <span class="nc">AgentContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
@@ -2080,6 +2134,12 @@ of all callbacks and agent configurations.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">gym</span><span class="p">:</span> <span class="n">GymContext</span> <span class="o">=</span> <span class="n">GymContext</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pyplot</span><span class="p">:</span> <span class="n">PyPlotContext</span> <span class="o">=</span> <span class="n">PyPlotContext</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_policy_trained</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_saver</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+
+            <span class="n">Callable</span><span class="p">[[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AgentCallback</span><span class="p">],</span> <span class="n">AgentCallback</span><span class="p">,</span> <span class="bp">None</span><span class="p">]],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -2171,7 +2231,7 @@ of all callbacks and agent configurations.</p>
 
     <span class="k">def</span> <span class="nf">is_train</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 
-        <span class="sd">&quot;&quot;&quot;Yields true if an agent.tain(...) call is in progress, but not a policy evaluation.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Yields true if an agent.train(...) call is in progress, but not a policy evaluation.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">play</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span>
 
@@ -2508,6 +2568,7 @@ environment</p>
 <li>easyagents.callbacks.duration.Fast</li>
 <li>easyagents.callbacks.log._LogCallbackBase</li>
 <li>easyagents.callbacks.log._CallbackCounts</li>
+<li>easyagents.callbacks.save._SaveCallback</li>
 </ul>
 <h4 id="methods">Methods</h4>
 <h5 id="on_api_log">on_api_log</h5>
@@ -2961,6 +3022,12 @@ environment</p>
 
         <span class="nv">self</span>.<span class="nv">pyplot</span>: <span class="nv">PyPlotContext</span> <span class="o">=</span> <span class="nv">PyPlotContext</span><span class="ss">()</span>
 
+        <span class="nv">self</span>.<span class="nv">_is_policy_trained</span> <span class="o">=</span> <span class="nv">False</span>
+
+        <span class="nv">self</span>.<span class="nv">_agent_saver</span>: <span class="nv">Optional</span>[
+
+            <span class="nv">Callable</span>[[<span class="nv">Optional</span>[<span class="nv">str</span>], <span class="nv">Union</span>[<span class="nv">List</span>[<span class="nv">AgentCallback</span>], <span class="nv">AgentCallback</span>, <span class="nv">None</span>]], <span class="nv">str</span>]] <span class="o">=</span> <span class="nv">None</span>
+
     <span class="nv">def</span> <span class="nv">__str__</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
         <span class="nb">result</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">agent_context:</span><span class="s1">&#39;</span>
@@ -3051,7 +3118,7 @@ environment</p>
 
     <span class="nv">def</span> <span class="nv">is_train</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">bool</span>:
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Yields true if an agent.tain(...) call is in progress, but not a policy evaluation.</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Yields true if an agent.train(...) call is in progress, but not a policy evaluation.</span><span class="s2">&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="ss">(</span><span class="nv">self</span>.<span class="nv">train</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span><span class="ss">)</span> <span class="nv">and</span> <span class="ss">(</span><span class="nv">self</span>.<span class="nv">play</span> <span class="nv">is</span> <span class="nv">None</span><span class="ss">)</span>
 </pre></div>
@@ -3074,7 +3141,7 @@ environment</p>
 </pre></div>
 
 
-<p>Yields true if an agent.tain(...) call is in progress, but not a policy evaluation.</p>
+<p>Yields true if an agent.train(...) call is in progress, but not a policy evaluation.</p>
 <h3 id="cemtraincontext">CemTrainContext</h3>
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CemTrainContext</span><span class="p">(</span>
 
@@ -3120,7 +3187,7 @@ environment</p>
 
         <span class="nv">super</span><span class="ss">()</span>.<span class="nv">_validate</span><span class="ss">()</span>
 
-        <span class="nv">assert</span>  <span class="mi">1</span> <span class="o">&gt;=</span> <span class="nv">self</span>.<span class="nv">elite_set_fraction</span> <span class="o">&gt;</span> <span class="mi">0</span>, <span class="s2">&quot;</span><span class="s">elite_set_fraction must be in interval (0,1]</span><span class="s2">&quot;</span>
+        <span class="nv">assert</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="nv">self</span>.<span class="nv">elite_set_fraction</span> <span class="o">&gt;</span> <span class="mi">0</span>, <span class="s2">&quot;</span><span class="s">elite_set_fraction must be in interval (0,1]</span><span class="s2">&quot;</span>
 </pre></div>
 
 
@@ -3246,18 +3313,10 @@ environment</p>
 </pre></div>
 
 
-<p>Contains the context for gym api call</p>
-<p>Attributes:
-    gym_env: the target gym instance of a pending gym api call</p>
+<p>Contains the context for gym api calls (wrapping a gym env instance).</p>
 <details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">GymContext</span><span class="ss">(</span><span class="nv">object</span><span class="ss">)</span>:
 
-    <span class="s2">&quot;&quot;&quot;</span><span class="s">Contains the context for gym api call</span>
-
-    <span class="nv">Attributes</span>:
-
-        <span class="nv">gym_env</span>: <span class="nv">the</span> <span class="nv">target</span> <span class="nv">gym</span> <span class="nv">instance</span> <span class="nv">of</span> <span class="nv">a</span> <span class="nv">pending</span> <span class="nv">gym</span> <span class="nv">api</span> <span class="nv">call</span>
-
-    <span class="s2">&quot;&quot;&quot;</span>
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Contains the context for gym api calls (wrapping a gym env instance).</span><span class="s2">&quot;&quot;&quot;</span>
 
     <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
@@ -3275,7 +3334,9 @@ environment</p>
 
         <span class="nb">result</span> <span class="o">=</span> <span class="nv">None</span>
 
-        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">_monitor_env</span>: <span class="nb">result</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_monitor_env</span>.<span class="nv">env</span>
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">_monitor_env</span>:
+
+            <span class="nb">result</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_monitor_env</span>.<span class="nv">env</span>
 
         <span class="k">return</span> <span class="nb">result</span>
 </pre></div>
@@ -3291,7 +3352,8 @@ environment</p>
 <h3 id="modelconfig">ModelConfig</h3>
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ModelConfig</span><span class="p">(</span>
     <span class="n">gym_env_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">fc_layers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">fc_layers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </pre></div>
 
@@ -3321,7 +3383,19 @@ environment</p>
 
     <span class="s2">&quot;&quot;&quot;</span>
 
-    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">gym_env_name</span>: <span class="nv">str</span>, <span class="nv">fc_layers</span>: <span class="nv">Optional</span>[<span class="nv">Tuple</span>[<span class="nv">int</span>, ...]] <span class="o">=</span> <span class="nv">None</span><span class="ss">)</span>:
+    <span class="nv">_KEY_SEED</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">seed</span><span class="s1">&#39;</span>
+
+    <span class="nv">_KEY_GYM_ENV</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">gym_env</span><span class="s1">&#39;</span>
+
+    <span class="nv">_KEY_FC_LAYERS</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">fc_layers</span><span class="s1">&#39;</span>
+
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>,
+
+                 <span class="nv">gym_env_name</span>: <span class="nv">str</span>,
+
+                 <span class="nv">fc_layers</span>: <span class="nv">Union</span>[<span class="nv">Tuple</span>[<span class="nv">int</span>, ...], <span class="nv">int</span>, <span class="nv">None</span>] <span class="o">=</span> <span class="nv">None</span>,
+
+                 <span class="nv">seed</span>: <span class="nv">Optional</span>[<span class="nv">int</span>] <span class="o">=</span> <span class="nv">None</span><span class="ss">)</span>:
 
         <span class="s2">&quot;&quot;&quot;</span>
 
@@ -3367,11 +3441,57 @@ environment</p>
 
         <span class="nv">self</span>.<span class="nv">fc_layers</span> <span class="o">=</span> <span class="nv">fc_layers</span>
 
-        <span class="nv">self</span>.<span class="nv">seed</span> <span class="o">=</span> <span class="nv">easyagents</span>.<span class="nv">agents</span>.<span class="nv">seed</span>
+        <span class="nv">self</span>.<span class="nv">seed</span> <span class="o">=</span> <span class="nv">seed</span>
 
     <span class="nv">def</span> <span class="nv">__str__</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
         <span class="k">return</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">fc_layers={self.fc_layers} seed={self.seed} gym_env_name={self.gym_env_name}</span><span class="s1">&#39;</span>
+
+    @<span class="nv">staticmethod</span>
+
+    <span class="nv">def</span> <span class="nv">_from_dict</span><span class="ss">(</span><span class="nv">from_dict</span>: <span class="nv">Dict</span>[<span class="nv">str</span>, <span class="nv">object</span>]<span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Creates a new instance of ModelConfig based on the parameters contained in dict</span>
+
+        <span class="nv">Returns</span>:
+
+            <span class="nv">new</span> <span class="nv">instance</span> <span class="nv">of</span> <span class="nv">ModelConfig</span> <span class="nv">configured</span> <span class="nv">by</span> <span class="nv">dict</span>
+
+        <span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">assert</span> <span class="nv">from_dict</span>
+
+        # <span class="nv">noinspection</span> <span class="nv">PyTypeChecker</span>
+
+        <span class="nv">fc_layers</span> <span class="o">=</span> <span class="nv">tuple</span><span class="ss">(</span><span class="nv">from_dict</span>[<span class="nv">ModelConfig</span>.<span class="nv">_KEY_FC_LAYERS</span>]<span class="ss">)</span>
+
+        # <span class="nv">noinspection</span> <span class="nv">PyTypeChecker</span>
+
+        <span class="nb">result</span> <span class="o">=</span> <span class="nv">ModelConfig</span><span class="ss">(</span><span class="nv">gym_env_name</span><span class="o">=</span><span class="nv">str</span><span class="ss">(</span><span class="nv">from_dict</span>[<span class="nv">ModelConfig</span>.<span class="nv">_KEY_GYM_ENV</span>]<span class="ss">)</span>, <span class="nv">fc_layers</span><span class="o">=</span><span class="nv">fc_layers</span>,
+
+                             <span class="nv">seed</span><span class="o">=</span><span class="nv">from_dict</span>[<span class="nv">ModelConfig</span>.<span class="nv">_KEY_SEED</span>]<span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nb">result</span>
+
+    <span class="nv">def</span> <span class="nv">_to_dict</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">Dict</span>[<span class="nv">str</span>, <span class="nv">object</span>]:
+
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">saves this model configuration to a dict. The model_config can be recreated by a call to _from_dict</span>
+
+        <span class="nv">Retunns</span>:
+
+            <span class="nv">dict</span> <span class="nv">containing</span> <span class="nv">all</span> <span class="nv">parameters</span> <span class="nv">of</span> <span class="nv">this</span> <span class="nv">model_config</span> <span class="ss">(</span><span class="nv">this</span> <span class="nv">does</span> <span class="nv">not</span> <span class="k">include</span> <span class="nv">any</span> <span class="nv">policy</span><span class="ss">)</span>
+
+        <span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nb">result</span>: <span class="nv">Dict</span>[<span class="nv">str</span>, <span class="nv">object</span>] <span class="o">=</span> <span class="nv">dict</span><span class="ss">()</span>
+
+        <span class="nb">result</span>[<span class="nv">ModelConfig</span>.<span class="nv">_KEY_SEED</span>] <span class="o">=</span> <span class="nv">self</span>.<span class="nv">seed</span>
+
+        <span class="nb">result</span>[<span class="nv">ModelConfig</span>.<span class="nv">_KEY_GYM_ENV</span>] <span class="o">=</span> <span class="nv">self</span>.<span class="nv">original_env_name</span>
+
+        <span class="nb">result</span>[<span class="nv">ModelConfig</span>.<span class="nv">_KEY_FC_LAYERS</span>] <span class="o">=</span> <span class="nv">self</span>.<span class="nv">fc_layers</span>
+
+        <span class="k">return</span> <span class="nb">result</span>
 </pre></div>
 
 
@@ -3523,7 +3643,9 @@ and the max number of steps per episode.</p>
 
         <span class="nv">assert</span> <span class="ss">(</span><span class="nv">self</span>.<span class="nv">num_episodes</span> <span class="nv">is</span> <span class="nv">None</span><span class="ss">)</span> <span class="nv">or</span> <span class="ss">(</span><span class="nv">self</span>.<span class="nv">num_episodes</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="ss">)</span>, <span class="s2">&quot;</span><span class="s">num_episodes not admissible</span><span class="s2">&quot;</span>
 
-        <span class="nv">assert</span> <span class="ss">(</span><span class="nv">self</span>.<span class="nv">max_steps_per_episode</span> <span class="nv">is</span> <span class="nv">None</span><span class="ss">)</span> <span class="nv">or</span> <span class="nv">self</span>.<span class="nv">max_steps_per_episode</span> <span class="o">&gt;</span> <span class="mi">0</span>, <span class="s2">&quot;</span><span class="s">max_steps_per_episode not admissible</span><span class="s2">&quot;</span>
+        <span class="nv">assert</span> <span class="ss">(</span><span class="nv">self</span>.<span class="nv">max_steps_per_episode</span> <span class="nv">is</span> <span class="nv">None</span><span class="ss">)</span> <span class="nv">or</span> <span class="nv">self</span>.<span class="nv">max_steps_per_episode</span> <span class="o">&gt;</span> <span class="mi">0</span>, \
+
+            <span class="s2">&quot;</span><span class="s">max_steps_per_episode not admissible</span><span class="s2">&quot;</span>
 </pre></div>
 
 
@@ -3710,15 +3832,17 @@ TRAIN_ITERATION: Called after each train iteration. No gym environment is availa
 
     <span class="nv">def</span> <span class="nv">__str__</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        <span class="nv">figure_number</span><span class="o">=</span><span class="nv">None</span>
+        <span class="nv">figure_number</span> <span class="o">=</span> <span class="nv">None</span>
 
         <span class="nv">figure_axes_len</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">if</span> <span class="nv">self</span>.<span class="nv">figure</span>:
 
-            <span class="nv">figure_number</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">figure</span>.<span class="nv">number</span>
+            <span class="nv">figure_number</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">figure</span>.<span class="nv">number</span>
 
-            <span class="k">if</span> <span class="nv">self</span>.<span class="nv">figure</span>.<span class="nv">axes</span>: <span class="nv">figure_axes_len</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">figure</span>.<span class="nv">axes</span><span class="ss">)</span>
+            <span class="k">if</span> <span class="nv">self</span>.<span class="nv">figure</span>.<span class="nv">axes</span>:
+
+                <span class="nv">figure_axes_len</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">figure</span>.<span class="nv">axes</span><span class="ss">)</span>
 
         <span class="k">return</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">is_jupyter_active={self.is_jupyter_active} max_columns={self.max_columns} </span><span class="s1">&#39;</span> <span class="o">+</span> \
 
@@ -3865,7 +3989,6 @@ o Subclasses of TrainContext may contain additional Agent (but not backend) spec
 <span class="nv">steps_done_in_training</span>: <span class="nv">the</span> <span class="nv">number</span> <span class="nv">of</span> <span class="nv">steps</span> <span class="nv">taken</span> <span class="nv">over</span> <span class="nv">all</span> <span class="nv">iterations</span> <span class="nv">so</span> <span class="nv">far</span>
 <span class="nv">steps_done_in_iteration</span>: <span class="nv">the</span> <span class="nv">number</span> <span class="nv">of</span> <span class="nv">steps</span> <span class="nv">taken</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">current</span> <span class="nv">iteration</span>
 
-<span class="nv">num_iterations_between_plot</span>: <span class="nv">number</span> <span class="nv">of</span> <span class="nv">training</span> <span class="nv">iterations</span> <span class="nv">before</span> <span class="nv">plots</span> <span class="nv">is</span> <span class="nv">updated</span>.
 <span class="nv">num_iterations_between_eval</span>: <span class="nv">number</span> <span class="nv">of</span> <span class="nv">training</span> <span class="nv">iterations</span> <span class="nv">before</span> <span class="nv">the</span> <span class="nv">current</span> <span class="nv">policy</span> <span class="nv">is</span> <span class="nv">evaluated</span>.
 <span class="nv">num_episodes_per_eval</span>: <span class="nv">number</span> <span class="nv">of</span> <span class="nv">episodes</span> <span class="nv">played</span> <span class="nv">to</span> <span class="nv">estimate</span> <span class="nv">the</span> <span class="nv">average</span> <span class="k">return</span> <span class="nv">and</span> <span class="nv">steps</span>
 <span class="nv">eval_rewards</span>: <span class="nv">dict</span> <span class="nv">containg</span> <span class="nv">the</span> <span class="nv">rewards</span> <span class="nv">statistics</span> <span class="k">for</span> <span class="nv">each</span> <span class="nv">policy</span> <span class="nv">evaluation</span>.
@@ -3915,8 +4038,6 @@ o Subclasses of TrainContext may contain additional Agent (but not backend) spec
             <span class="nv">steps_done_in_training</span>: <span class="nv">the</span> <span class="nv">number</span> <span class="nv">of</span> <span class="nv">steps</span> <span class="nv">taken</span> <span class="nv">over</span> <span class="nv">all</span> <span class="nv">iterations</span> <span class="nv">so</span> <span class="nv">far</span>
 
             <span class="nv">steps_done_in_iteration</span>: <span class="nv">the</span> <span class="nv">number</span> <span class="nv">of</span> <span class="nv">steps</span> <span class="nv">taken</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">current</span> <span class="nv">iteration</span>
-
-            <span class="nv">num_iterations_between_plot</span>: <span class="nv">number</span> <span class="nv">of</span> <span class="nv">training</span> <span class="nv">iterations</span> <span class="nv">before</span> <span class="nv">plots</span> <span class="nv">is</span> <span class="nv">updated</span>.
 
             <span class="nv">num_iterations_between_eval</span>: <span class="nv">number</span> <span class="nv">of</span> <span class="nv">training</span> <span class="nv">iterations</span> <span class="nv">before</span> <span class="nv">the</span> <span class="nv">current</span> <span class="nv">policy</span> <span class="nv">is</span> <span class="nv">evaluated</span>.
 
@@ -3987,8 +4108,6 @@ o Subclasses of TrainContext may contain additional Agent (but not backend) spec
                <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#iterations={self.num_iterations} </span><span class="s1">&#39;</span> <span class="o">+</span> \
 
                <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#max_steps_per_episode={self.max_steps_per_episode} </span><span class="s1">&#39;</span> <span class="o">+</span> \
-
-               <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#iterations_between_plot={self.num_iterations_between_plot} </span><span class="s1">&#39;</span> <span class="o">+</span> \
 
                <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#iterations_between_eval={self.num_iterations_between_eval} </span><span class="s1">&#39;</span> <span class="o">+</span> \
 
