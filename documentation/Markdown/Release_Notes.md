@@ -1,9 +1,15 @@
 ### Release notes
 ---
+* v1.4 [19Q4]
+    * 1.4.0: agent saving & loading (see intro 
+             [Saving & loading a trained policy](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb));
+             lineworld as test environment included 
+
 * v1.3 [19Q4]
+    * 1.3.1: agent.score substituted by agent.evalute; 
     * 1.3.0: migration to tensorflow 2.0; 
              support for tensorforce and keras-rl suspended until support for tf 2.0 is available
-* v1.2 [19Q4]
+* v1.2 [19Q3]
     * 1.2.2: fix for CemAgent and SacAgent default backend registration
     * 1.2.1: SacAgent for tfagents preview; notebook on 'Agent logging, seeding and jupyter output cells'
     * 1.2.0: Agent.score

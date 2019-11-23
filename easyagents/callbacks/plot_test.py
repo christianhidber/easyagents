@@ -36,26 +36,26 @@ class PlotTest(unittest.TestCase):
     def test_default_plots_False_nocallback(self):
         agent = agents.PpoAgent("CartPole-v0")
         p = plot.Loss()
-        c = agent._prepare_callbacks([], False, [p])
+        c = agent._add_plot_callbacks([], False, [p])
         assert not p in c
 
     def test_default_plots_None_durationcallback(self):
         agent = agents.PpoAgent("CartPole-v0")
         p = plot.Loss()
-        c = agent._prepare_callbacks([duration.Fast()], None, [p])
+        c = agent._add_plot_callbacks([duration.Fast()], None, [p])
         assert p in c
 
     def test_default_plots_None_nocallback(self):
         agent = agents.PpoAgent("CartPole-v0")
         p = plot.Loss()
-        c = agent._prepare_callbacks([], None, [p])
+        c = agent._add_plot_callbacks([], None, [p])
         assert p in c
 
     def test_default_plots_None_plotcallback(self):
         agent = agents.PpoAgent("CartPole-v0")
         p = plot.Loss()
         r = plot.Rewards()
-        c = agent._prepare_callbacks([r], None, [p])
+        c = agent._add_plot_callbacks([r], None, [p])
         assert not p in c
         assert r in c
 
@@ -63,7 +63,7 @@ class PlotTest(unittest.TestCase):
         agent = agents.PpoAgent("CartPole-v0")
         p = plot.Loss()
         r = plot.Rewards()
-        c = agent._prepare_callbacks([r], True, [p])
+        c = agent._add_plot_callbacks([r], True, [p])
         assert p in c
         assert r in c
 

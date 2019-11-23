@@ -64,6 +64,12 @@ class BackendAgent(bcore._BackendAgent):
             if tc.training_done:
                 break
 
+    def load_implementation(self, directory: str):
+        pass
+
+    def save_implementation(self, directory: str):
+        pass
+
 class InvariantCallback(core.AgentCallback):
     """Validates the callback invariants"""
 

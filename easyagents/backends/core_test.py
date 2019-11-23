@@ -1,6 +1,7 @@
 import unittest
+import os
 import pytest
-from typing import Dict, Optional, Type
+from typing import Dict, Type
 
 import easyagents
 import easyagents.core as core
@@ -30,7 +31,7 @@ class BackendAgentTest(unittest.TestCase):
         agent = BackendAgentTest.DebugAgent()
         count = easyagents.callbacks.log._CallbackCounts()
         agent.play(play_context=self.pc, callbacks=[count])
-        assert self.pc.play_done == True
+        assert self.pc.play_done is True
         assert self.pc.episodes_done == self.pc.num_episodes
         assert self.pc.steps_done == self.pc.num_episodes * self.pc.max_steps_per_episode == 10
         assert self.pc.steps_done_in_episode == self.pc.max_steps_per_episode == 5
@@ -84,11 +85,28 @@ class BackendAgentTest(unittest.TestCase):
         assert count.gym_reset_begin_count == count.gym_reset_end_count > 0
         assert count.gym_step_begin_count == count.gym_step_end_count > 0
 
+    def test_save_directory_does_not_exist(self):
+        tempdir = bcore._get_temp_path()
+        agent = BackendAgentTest.DebugAgent()
+        with pytest.raises(Exception):
+            agent.save(tempdir, [])
+
+
+    def test_save_directory_exists(self):
+        tempdir = bcore._get_temp_path()
+        easyagents.backends.core._mkdir(tempdir)
+        agent = BackendAgentTest.DebugAgent()
+        tc = core.EpisodesTrainContext()
+        tc.num_iterations=1
+        agent.train(callbacks=[], train_context=tc)
+        agent.save(tempdir, [])
+        easyagents.backends.core._rmpath(tempdir)
+
 
 class BackendAgentFactoryTest(unittest.TestCase):
     class DebugAgentFactory(bcore.BackendAgentFactory):
         class DebugAgent(debug.BackendAgent):
-            def __init__(self,model_config : core.ModelConfig):
+            def __init__(self, model_config: core.ModelConfig):
                 super().__init__(model_config=model_config, action=1)
 
         backend_name = "debug"
@@ -103,13 +121,13 @@ class BackendAgentFactoryTest(unittest.TestCase):
 
     def test_create_agent(self):
         f = BackendAgentFactoryTest.DebugAgentFactory()
-        mc = core.ModelConfig(gym_env_name= "CartPole-v0")
+        mc = core.ModelConfig(gym_env_name="CartPole-v0")
         a = f.create_agent(easyagent_type=easyagents.agents.DqnAgent, model_config=mc)
         assert a is not None
 
     def test_create_agent_not_implemented(self):
         f = BackendAgentFactoryTest.DebugAgentFactory()
-        mc = core.ModelConfig(gym_env_name= "CartPole-v0")
+        mc = core.ModelConfig(gym_env_name="CartPole-v0")
         a = f.create_agent(easyagent_type=easyagents.agents.ReinforceAgent, model_config=mc)
         assert a is None
 
@@ -119,4 +137,3 @@ class BackendAgentFactoryTest(unittest.TestCase):
 
     def test_get_backend_invalid_name(self):
         assert easyagents.agents._get_backend('noname') is None
-

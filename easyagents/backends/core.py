@@ -4,7 +4,11 @@
 """
 from abc import ABC, ABCMeta, abstractmethod
 from typing import List, Optional, Tuple, Type, Dict
+import datetime
 import gym
+import os
+import shutil
+import tempfile
 import tensorflow
 
 import numpy
@@ -15,6 +19,42 @@ from easyagents.backends import monitor
 from easyagents.callbacks import plot
 
 _tensorflow_v2_eager_enabled: Optional[bool] = None
+
+
+def _get_temp_path():
+    """Yields a path to a non-existent temporary directory inside the systems temp path."""
+    result = os.path.join(tempfile.gettempdir(), tempfile.gettempprefix())
+    n = datetime.datetime.now()
+    result = result + f'-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-' + \
+             f'{n.microsecond:06}'
+    return result
+
+
+def _mkdir(directory: str):
+    """Creates a directory with the given path. NoOps if the directory already exists.
+
+        If a file exists at path, the file is removed.
+
+        Returns:
+            the absolute path to directory
+    """
+    directory = os.path.abspath(directory)
+    if os.path.isfile(directory):
+        _rmpath(directory)
+    os.makedirs(directory, exist_ok=True)
+    return directory
+
+
+def _rmpath(path: str):
+    """Removes the file or directory and its content. NoOps if the directory does not exist.
+
+    Errors are ignored.
+    """
+    if path:
+        if os.path.isdir(path):
+            shutil.rmtree(path, ignore_errors=True)
+        if os.path.isfile(path):
+            os.remove(path)
 
 
 class _BackendEvalCallback(core.AgentCallback):
@@ -343,6 +383,34 @@ class _BackendAgent(ABC):
         """
         pass
 
+    def load(self, directory: str, callbacks: List[core.AgentCallback]):
+        """Loads a previously trained and saved actor policy from directory.
+
+        The loaded policy may afterwards be used by calling play().
+
+        Args:
+            directory: the directory containing the trained policy
+            callbacks: list of callbacks called during the load.
+        """
+        assert callbacks is not None, "callbacks not set"
+        assert directory
+        assert os.path.isdir(directory)
+
+        self._callbacks = callbacks
+        self.load_implementation(directory)
+        self._agent_context._is_policy_trained = True
+        self._callbacks = None
+
+    @abstractmethod
+    def load_implementation(self, directory: str):
+        """Loads a previously trained and saved actor policy from directory.
+
+        The loaded policy may afterwards be used by calling play().
+
+        Args:
+            directory: the directory containing the trained policy.
+        """
+
     # noinspection PyUnusedLocal
     def _on_train_step_end(self, action: object, step_result: Tuple):
         """Called after each call to gym.step on the current train env (agent_context.train.gym_env)
@@ -408,6 +476,7 @@ class _BackendAgent(ABC):
             self._set_seed()
             monitor._MonitorEnv._register_backend_agent(self)
             self._on_train_begin()
+            self._agent_context._is_policy_trained = True
             self.train_implementation(self._agent_context.train)
             self._on_train_end()
         finally:
@@ -421,6 +490,36 @@ class _BackendAgent(ABC):
         """Agent specific implementation of the train loop.
 
             For implementational details see BackendBaseAgent.
+        """
+
+    def save(self, directory: str, callbacks: List[core.AgentCallback]):
+        """Saves the currently trained actor policy in directory.
+
+        Only the actor policy is guaranteed to be saved.
+        Thus after a call to load resuming training is not supported.
+
+        Args:
+            directory: the directory to save the policy weights to. the directory must exist.
+            callbacks: list of callbacks called during policy load.
+        """
+        assert callbacks is not None, "callbacks not set"
+        assert directory
+        assert os.path.isdir(directory)
+        assert self._agent_context._is_policy_trained, "No trained policy available."
+
+        self._callbacks = callbacks
+        self.save_implementation(directory)
+        self._callbacks = None
+
+    @abstractmethod
+    def save_implementation(self, directory: str):
+        """Agent speecific implementation of saving the weights for the actor policy.
+
+        Save must only guarantee to persist the weights of the actor policy.
+        The implementation may write multiple files with fixed filenames.
+
+        Args:
+             directory: the directory to save the policy weights to.
         """
 
 
