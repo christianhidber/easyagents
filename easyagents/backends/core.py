@@ -530,6 +530,16 @@ class BackendAgent(_BackendAgent, metaclass=ABCMeta):
     """
 
     @abstractmethod
+    def load_implementation(self, directory: str):
+        """Loads a previously trained and saved actor policy from directory.
+
+        The loaded policy may afterwards be used by calling play().
+
+        Args:
+            directory: the directory containing the trained policy.
+        """
+
+    @abstractmethod
     def play_implementation(self, play_context: core.PlayContext):
         """Agent specific implementation of playing a number of episodes with the current policy.
 
@@ -549,6 +559,17 @@ class BackendAgent(_BackendAgent, metaclass=ABCMeta):
 
             Args:
                 play_context: play configuration to be used
+        """
+
+    @abstractmethod
+    def save_implementation(self, directory: str):
+        """Agent speecific implementation of saving the weights for the actor policy.
+
+        Save must only guarantee to persist the weights of the actor policy.
+        The implementation may write multiple files with fixed filenames.
+
+        Args:
+             directory: the directory to save the policy weights to.
         """
 
     @abstractmethod
