@@ -62,10 +62,10 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 ### Try it on colab
 ---
 * [1. Introduction (CartPole on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_cartpole.ipynb):
-   training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
+   training, plotting, switching algorithms & backends. Based on the classic reinforcement learning example 
    balancing a stick on a cart.
 * [2. Next steps & backend switching (Orso on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_orso.ipynb):
-  custom training, creating a movie & switching backends. gym environment based on a routing problem.
+  custom training, creating a movie & switching backends. Gym environment based on a routing problem.
 * [3. Creating your own environment (LineWorld on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_line.ipynb):
   implement a gym environment from scratch, workshop example.
 * [4. Saving & loading (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb): 

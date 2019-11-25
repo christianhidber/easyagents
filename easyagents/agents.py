@@ -314,22 +314,19 @@ class EasyAgent(ABC):
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
 
-def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False):
+def get_backends(agent: Optional[Type[EasyAgent]] = None):
     """returns a list of all registered backends containing an implementation for the EasyAgent type agent.
 
     Args:
         agent: type deriving from EasyAgent for which the backend identifiers are returned.
-        skip_v1: if set only backends compatible with tensorflow v2 compatibility mode and eager execution
-            are returned.
 
     Returns:
         a list of admissible values for the 'backend' argument of EazyAgents constructors or a list of all
         available backends if agent is None.
     """
-    backends = [b for b in _backends if (not skip_v1) or b.tensorflow_v2_eager_compatible]
-    result = [b.backend_name for b in backends]
+    result = [b.backend_name for b in _backends]
     if agent:
-        result = [b.backend_name for b in backends if agent in b.get_algorithms()]
+        result = [b.backend_name for b in _backends if agent in b.get_algorithms()]
     return result
 
 
