@@ -62,17 +62,30 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         assert train_env
         assert self._agent
 
-        def step_callback(_: Runner) -> bool:
+        def step_callback(tforce_runner: Runner) -> bool:
             """
                 Returns:
                     true if the training should continue, false to end the training
             """
             result = not train_context.training_done
-            if isinstance(train_context, easyagents.core.StepsTrainContext):
-                dc: easyagents.core.StepsTrainContext = train_context
-                while result and \
-                        dc.steps_done_in_training > dc.iterations_done_in_training * dc.num_steps_per_iteration:
-                    self.on_train_iteration_end(loss=math.nan)
+            if result:
+                is_iteration_end = False
+                if isinstance(train_context, easyagents.core.EpisodesTrainContext):
+                    ec: easyagents.core.EpisodesTrainContext = train_context
+                    current_episode = tforce_runner.episodes - 1
+                    current_step = tforce_runner.episode_timestep
+                    is_iteration_end = current_episode > 0 and \
+                                       current_step == 1 and \
+                                       current_episode % ec.num_episodes_per_iteration == 0
+                elif isinstance(train_context, easyagents.core.StepsTrainContext):
+                    sc: easyagents.core.StepsTrainContext = train_context
+                    current_step = tforce_runner.timesteps - 1
+                    is_iteration_end = current_step > 0 and \
+                                       current_step % sc.num_steps_per_iteration == 0
+                else:
+                    raise AssertionError("Unexpected TrainContext detected.")
+                if is_iteration_end:
+                    self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
                     result = not train_context.training_done
                     if result:
                         self.on_train_iteration_begin()
@@ -80,17 +93,11 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
 
         def eval_callback(tforce_runner: Runner) -> bool:
             """
-                Returns:
-                    true if the training should continue, false to end the training
+                This call back should never be called. Raises an exception.
+
+                Policy evaluation is performed by easyagents directly.
             """
-            if isinstance(train_context, easyagents.core.StepsTrainContext):
-                result = step_callback(tforce_runner)
-            else:
-                self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
-                result = not train_context.training_done
-                if result:
-                    self.on_train_iteration_begin()
-            return result
+            raise AssertionError("unexpected eval_callback call.")
 
         # Initialize the runner
         self.log_api('Runner.create', "(agent=..., environment=...)")
@@ -111,8 +118,8 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
                    evaluation=False,
                    num_evaluation_iterations=0
                    )
-        if not train_context.training_done:
-            self.on_train_iteration_end(loss=math.nan, actor_loss=math.nan, critic_loss=math.nan)
+        assert train_context.training_done
+        "Unexpected runner termination."
         runner.close()
 
     def load_implementation(self, directory: str):
