@@ -1,6 +1,7 @@
 from typing import Type, Dict
 from easyagents.backends import core as bcore
 import easyagents.backends.tfagents
+import easyagents.backends.tforce
 #import easyagents.backends.kerasrl
 
 
@@ -15,7 +16,7 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
 #                easyagents.agents.CemAgent: easyagents.backends.kerasrl.KerasRlCemAgent,
                 easyagents.agents.DqnAgent: easyagents.backends.tfagents.TfDqnAgent,
 #                easyagents.agents.DoubleDqnAgent: easyagents.backends.kerasrl.KerasRlDoubleDqnAgent,
-#                easyagents.agents.DuelingDqnAgent: easyagents.backends.kerasrl.KerasRlDuelingDqnAgent,
+                easyagents.agents.DuelingDqnAgent: easyagents.backends.tforce.TforceDuelingDqnAgent,
                 easyagents.agents.PpoAgent: easyagents.backends.tfagents.TfPpoAgent,
                 easyagents.agents.RandomAgent: easyagents.backends.tfagents.TfRandomAgent,
                 easyagents.agents.ReinforceAgent: easyagents.backends.tfagents.TfReinforceAgent,

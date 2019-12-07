@@ -188,6 +188,7 @@ class TforceDqnAgent(TforceAgent):
                 as well as the neural network architecture.
         """
         super().__init__(model_config=model_config)
+        self._agent_type : str = 'dueling_dqn' if enable_dueling_dqn else 'dqn'
 
     def train_implementation(self, train_context: easyagents.core.StepsTrainContext):
         """Tensorforce Dqn Implementation of the train loop.
@@ -198,9 +199,8 @@ class TforceDqnAgent(TforceAgent):
         train_env = self._create_env()
         network = self._create_network_specification()
 
-        agent_type = 'dqn'
         self.log_api('Agent.create',
-                     f'(agent="{agent_type}", ' +
+                     f'(agent="{self._agent_type}", ' +
                      f'network={network}, ' +
                      f'memory={tc.max_steps_in_buffer}, ' +
                      f'start_updating={tc.num_steps_buffer_preload},'
@@ -210,7 +210,7 @@ class TforceDqnAgent(TforceAgent):
                      f'discount={tc.reward_discount_gamma}, ' +
                      f'exploration=0.1')
         self._agent = Agent.create(
-            agent=agent_type,
+            agent=self._agent_type,
             environment=train_env,
             network=network,
             memory=tc.max_steps_in_buffer,
@@ -332,6 +332,7 @@ class TensorforceAgentFactory(easyagents.backends.core.BackendAgentFactory):
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
         return {
             easyagents.agents.DqnAgent: TforceDqnAgent,
+            easyagents.agents.DuelingDqnAgent: TforceDuelingDqnAgent,
             easyagents.agents.PpoAgent: TforcePpoAgent,
             easyagents.agents.RandomAgent: TforceRandomAgent,
             easyagents.agents.ReinforceAgent: TforceReinforceAgent}
