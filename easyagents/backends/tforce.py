@@ -130,7 +130,9 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         Args:
             directory: the directory containing the trained policy.
         """
-        pass
+        assert directory
+        assert os.path.isdir(directory)
+        self._agent = Agent.load(directory)
 
     def play_implementation(self, play_context: easyagents.core.PlayContext):
         """Agent specific implementation of playing a single episode with the current policy.
@@ -168,8 +170,11 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         The implementation may write multiple files with fixed filenames.
 
         Args:
-             directory: the directory to save the policy weights to.
+             directory: the (existing) directory to save the policy weights to.
         """
+        assert directory
+        assert os.path.isdir(directory)
+        self._agent.save(directory)
 
 
 class TforceDqnAgent(TforceAgent):
@@ -202,7 +207,8 @@ class TforceDqnAgent(TforceAgent):
                      f'learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_steps_sampled_from_buffer}, ' +
                      f'update_frequeny={tc.num_steps_per_iteration}, ' +
-                     f'discount={tc.reward_discount_gamma})')
+                     f'discount={tc.reward_discount_gamma}, ' +
+                     f'exploration=0.1')
         self._agent = Agent.create(
             agent=agent_type,
             environment=train_env,
@@ -213,6 +219,7 @@ class TforceDqnAgent(TforceAgent):
             batch_size=tc.num_steps_sampled_from_buffer,
             update_frequency=tc.num_steps_per_iteration,
             discount=tc.reward_discount_gamma,
+            exploration=0.1
         )
         self._train_with_runner(train_env, tc)
 

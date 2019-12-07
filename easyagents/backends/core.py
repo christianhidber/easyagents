@@ -519,7 +519,7 @@ class _BackendAgent(ABC):
         The implementation may write multiple files with fixed filenames.
 
         Args:
-             directory: the directory to save the policy weights to.
+             directory: the (existing) directory to save the policy weights to.
         """
 
 
