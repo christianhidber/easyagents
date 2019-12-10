@@ -59,7 +59,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 
 ![Scenario_Detailed](images/Scenario_detailed.gif)
 
-### Try it on colab
+### Tutorials
 ---
 * [1. Introduction (CartPole on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_cartpole.ipynb):
    training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
