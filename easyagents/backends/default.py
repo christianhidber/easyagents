@@ -1,9 +1,8 @@
 from typing import Type, Dict
+
 from easyagents.backends import core as bcore
 import easyagents.backends.tfagents
 import easyagents.backends.tforce
-#import easyagents.backends.kerasrl
-
 
 class BackendAgentFactory(bcore.BackendAgentFactory):
     """Backend which redirects all calls to the some default implementation."""

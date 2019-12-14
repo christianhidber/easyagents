@@ -16,7 +16,6 @@ from easyagents import core
 from easyagents.backends import core as bcore
 from easyagents.callbacks import plot
 import easyagents.backends.default
-# import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
 import easyagents.backends.tforce
 
