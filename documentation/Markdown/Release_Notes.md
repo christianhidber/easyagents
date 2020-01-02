@@ -1,5 +1,9 @@
 ### Release notes
 ---
+* v1.5 [20Q1]
+    * 1.5.0: support for tensorforce reactivated 
+             (restriction: tensorforce and tfagents can not be instantiated simultaneously due to different
+              tf 2.0 initialisation requirements)
 * v1.4 [19Q4]
     * 1.4.0: agent saving & loading (see intro 
              [Saving & loading a trained policy](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb));

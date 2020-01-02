@@ -25,10 +25,11 @@ setup(
     ],
     packages=["easyagents", "easyagents.callbacks", "easyagents.backends"],
     install_requires=[
-        "tfp-nightly==0.9.0.dev20191102",
-        "tf-agents==0.3.0rc0",
+        "tensorflow-probability==0.8.0",
+        "tf-agents==0.3.0",
+        "tensorforce==0.5.3",
         "tensorflow==2.0.0",
-        "gym==0.15.3",
+        "gym==0.15.4",
         "imageio==2.6.1",
         "imageio-ffmpeg==0.3.0",
         "matplotlib==3.1.1"
