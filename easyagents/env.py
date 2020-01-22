@@ -8,7 +8,8 @@ import inspect
 import math
 import matplotlib as plt
 import numpy as np
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict, Callable, Any
+
 
 def _is_registered_with_gym(gym_env_name: str) -> bool:
     """Determines if a gym environment with the name id exists.
@@ -30,7 +31,7 @@ def _is_registered_with_gym(gym_env_name: str) -> bool:
 
 
 # noinspection DuplicatedCode
-def register_with_gym(gym_env_name: str, entry_point: type, max_episode_steps: int = 100000):
+def register_with_gym(gym_env_name: str, entry_point: type, max_episode_steps: int = 100000, **kwargs):
     """Registers the class entry_point in gym by the name gym_env_name allowing overriding registrations.
 
     Thus different implementations of the same class (and the same name) maybe registered consecutively.
@@ -45,6 +46,7 @@ def register_with_gym(gym_env_name: str, entry_point: type, max_episode_steps: i
         gym_env_name: the gym environment name to be used as argument with gym.make
         max_episode_steps: all episodes end latest after this number of steps
         entry_point: the class to be registed with gym id gym_env_name
+        kwargs: the args passed to the entry_point constructor call
     """
     assert gym_env_name is not None, "None is not an admissible environment name"
     assert type(gym_env_name) is str, "gym_env_name is not a str"
@@ -58,7 +60,7 @@ def register_with_gym(gym_env_name: str, entry_point: type, max_episode_steps: i
                                        entry_point=_ShimEnv,
                                        max_episode_steps=max_episode_steps,
                                        kwargs={_ShimEnv._KWARG_GYM_NAME: gym_env_name})
-    _ShimEnv._entry_points[gym_env_name] = entry_point
+    _ShimEnv._entry_points[gym_env_name] = (entry_point, kwargs)
 
 
 class _LineWorldEnv(gym.Env):
@@ -91,22 +93,22 @@ class _LineWorldEnv(gym.Env):
         if world is None:
             world = [10, 0, 0, 5, 0, 2, 15]
         assert world, "world must not be None or empty."
-        self.world : np.array = np.array(world)
-        number_of_actions : int = 2
-        self.action_space : gym.spaces.Discrete = gym.spaces.Discrete(number_of_actions)
-        self.size_of_world : int = len(world)
-        self.max_reward : int = max(world)
-        self.min_reward : int = min(world)
+        self.world: np.array = np.array(world)
+        number_of_actions: int = 2
+        self.action_space: gym.spaces.Discrete = gym.spaces.Discrete(number_of_actions)
+        self.size_of_world: int = len(world)
+        self.max_reward: int = max(world)
+        self.min_reward: int = min(world)
 
         # the environment's current state is described by the position of the agent and the remaining rewards
-        self.observation_size : int = 1 + self.size_of_world
-        low : np.array = np.full(self.observation_size, self.min_reward)
-        high : np.array= np.full(self.observation_size, self.max_reward)
-        self.observation_space : gym.spaces.Box = gym.spaces.Box(low=low, high=high, dtype=np.float32)
-        self.reward_range : Tuple[int,int] = (self.min_reward, self.max_reward)
-        self.steps : int = 0
-        self.done : bool = False
-        self.pos : int = 0
+        self.observation_size: int = 1 + self.size_of_world
+        low: np.array = np.full(self.observation_size, self.min_reward)
+        high: np.array = np.full(self.observation_size, self.max_reward)
+        self.observation_space: gym.spaces.Box = gym.spaces.Box(low=low, high=high, dtype=np.float32)
+        self.reward_range: Tuple[int, int] = (self.min_reward, self.max_reward)
+        self.steps: int = 0
+        self.done: bool = False
+        self.pos: int = 0
         self._figure = None
         self.reset()
 
@@ -127,10 +129,10 @@ class _LineWorldEnv(gym.Env):
         Args:
             action: 0 ==> move left, 1 ==> move right
         """
-        if isinstance(action,np.ndarray):
+        if isinstance(action, np.ndarray):
             assert action.size == 1, "action of type numpy.array as invalid size"
             action = (int)(action)
-        assert isinstance(action,int)
+        assert isinstance(action, int)
         if action <= 0 and self.pos > 0:
             self.pos -= 1
         if action > 0 and self.pos < self.size_of_world - 1:
@@ -185,19 +187,20 @@ class _LineWorldEnv(gym.Env):
         else:
             super().render(mode=mode)
 
+
 class _ShimEnv(gym.Wrapper):
     """Wrapper to redirect the instantiation of a gym environment to its current implementation.
     """
 
     _KWARG_GYM_NAME = "shimenv_gym_name"
-    _entry_points = {}
+    _entry_points: Dict[str, Tuple[Callable, Dict]] = {}
 
     def __init__(self, **kwargs):
         assert _ShimEnv._KWARG_GYM_NAME in kwargs, f'{_ShimEnv._KWARG_GYM_NAME} missing from kwargs'
 
         self._gym_env_name = kwargs[_ShimEnv._KWARG_GYM_NAME]
-        entry_point = _ShimEnv._entry_points[self._gym_env_name]
-        self._gym_env = entry_point()
+        entry_point, gym_kwargs = _ShimEnv._entry_points[self._gym_env_name]
+        self._gym_env = entry_point(**gym_kwargs)
         super().__init__(self._gym_env)
 
     def step(self, action):
