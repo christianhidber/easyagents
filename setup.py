@@ -27,7 +27,7 @@ setup(
     install_requires=[
         "tfp-nightly==0.9.0.dev20191102",
         "tf-agents-nightly==0.2.0.dev20191102",
-        "tensorflow==2.0.0",
+        "tensorflow==2.0.1",
         "gym==0.15.3",
         "imageio==2.6.1",
         "imageio-ffmpeg==0.3.0",
