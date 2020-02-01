@@ -17,7 +17,7 @@ from easyagents.backends import core as bcore
 from easyagents.callbacks import plot
 import easyagents.backends.default
 import easyagents.backends.tfagents
-import easyagents.backends.tforce
+#import easyagents.backends.tforce
 
 _backends: [bcore.BackendAgentFactory] = []
 
@@ -68,9 +68,7 @@ def register_backend(backend: bcore.BackendAgentFactory):
 # register all backends deployed with easyagents
 register_backend(easyagents.backends.default.BackendAgentFactory())
 register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
-register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
-
-
+# register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
 # register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
 
 
@@ -359,10 +357,8 @@ class CemAgent(EasyAgent):
         see https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf
     """
 
-    def __init__(self,
-                 gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
-                 backend: str = None):
+    def __init__(self, gym_env_name: str, fc_layers: Optional[Tuple[int, ...]] = None, backend: str = None):
+        super().__init__(gym_env_name, fc_layers, backend)
         assert False, "CemAgent is currently not available (pending migration of keras-rl to tf2.0)"
 
     def train(self,

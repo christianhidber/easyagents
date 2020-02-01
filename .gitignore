@@ -114,3 +114,4 @@ venv.bak/
 /env_req/
 
 *.h5f
+/envtf2/
