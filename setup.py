@@ -28,7 +28,7 @@ setup(
         "tensorflow-probability==0.8.0",
         "tf-agents==0.3.0",
         "tensorforce==0.5.3",
-        "tensorflow==2.0.0",
+        "tensorflow==2.0.1",
         "gym==0.15.4",
         "imageio==2.6.1",
         "imageio-ffmpeg==0.3.0",

@@ -59,19 +59,21 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 
 ![Scenario_Detailed](images/Scenario_detailed.gif)
 
-### Try it on colab
+### Tutorials
 ---
 * [1. Introduction (CartPole on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_cartpole.ipynb):
    training, plotting, switching algorithms & backends. Based on the classic reinforcement learning example 
    balancing a stick on a cart.
 * [2. Next steps & backend switching (Orso on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_orso.ipynb):
-  custom training, creating a movie & switching backends. Gym environment based on a routing problem.
-* [3. Creating your own environment (LineWorld on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_line.ipynb):
+  custom training, creating a movie & switching backends. gym environment based on a routing problem.
+* [3. Controlling training & evaluation (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_train_args.ipynb):
+   or 'what do all these agent.train(...) args mean ?'
+* [4. Creating your own environment (LineWorld on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_line.ipynb):
   implement a gym environment from scratch, workshop example.
-* [4. Saving & loading (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb): 
+* [5. Saving & loading (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb): 
   Once a policy is trained, save it and reload it in a production environment. 
   You may also save intermediate policies as the training proceeds. 
-* [5. Api logging, seeding & plot clearing (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_logging.ipynb): 
+* [6. Api logging, seeding & plot clearing (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_logging.ipynb): 
   Investigate how easyagent interacts with the backend api and the gym environment; 
   how to set seeds; controlling jupyter output cell clearing
 

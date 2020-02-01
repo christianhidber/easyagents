@@ -60,10 +60,15 @@ class TestEnv(unittest.TestCase):
 
 class TestShimEnv(unittest.TestCase):
 
-    def test_register_once(self):
+    def test_register_once_no_args(self):
         register_with_gym("test_env-v0", _Env1)
         env1 = gym.make("test_env-v0")
         assert isinstance(env1.unwrapped, _Env1)
+
+    def test_register_once_with_args(self):
+        register_with_gym("test_env-v0", _Env1, a1=1, a2=2)
+        env1 = gym.make("test_env-v0")
+        assert env1.unwrapped.a1 == 1
 
     def test_register_twice(self):
         register_with_gym("test_env-v0", _Env1)
@@ -71,13 +76,21 @@ class TestShimEnv(unittest.TestCase):
         env2 = gym.make("test_env-v0")
         assert isinstance(env2.unwrapped, _Env2)
 
+    def test_register_twice_with_args(self):
+        register_with_gym("test_env-v0", _Env1, a1=1, a2=2)
+        register_with_gym("test_env-v0", _Env1, a1=3, a2=4)
+        env1 = gym.make("test_env-v0")
+        assert env1.unwrapped.a1 == 3
+
     def test_gym(self):
         gym.envs.registration.register(id="test_env-v1", entry_point=_Env1)
         gym.make("test_env-v1")
 
 
 class _Env1(gym.Env):
-    def __init__(self):
+    def __init__(self, a1=0, **kwargs):
+        self.a1 = a1
+        self.kwargs = kwargs
         pass
 
     def render(self, mode='human'):
