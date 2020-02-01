@@ -190,14 +190,17 @@ class Duration(_LogCallbackBase):
 
     def log_duration(self, agent_context: core.AgentContext):
         tc = agent_context.train
-        msg = f'#iterations={tc.num_iterations} '
+        msg = f'num_iterations={tc.num_iterations} '
         if isinstance(tc, core.EpisodesTrainContext):
             ec: core.EpisodesTrainContext = tc
-            msg = msg + f'#episodes_per_iteration={ec.num_episodes_per_iteration} '
-        msg = msg + f'#max_steps_per_episode={tc.max_steps_per_episode} '
-        msg = msg + f'#iterations_between_plot={tc.num_iterations_between_plot} '
-        msg = msg + f'#iterations_between_eval={tc.num_iterations_between_eval} '
-        msg = msg + f'#episodes_per_eval={tc.num_episodes_per_eval} '
+            msg = msg + f'num_episodes_per_iteration={ec.num_episodes_per_iteration} '
+        if isinstance(tc, core.StepsTrainContext):
+            sc: core.StepsTrainContext = tc
+            msg = msg + f'num_steps_per_iteration={sc.num_steps_per_iteration} '
+        msg = msg + f'num_max_steps_per_episode={tc.max_steps_per_episode} '
+        msg = msg + f'num_iterations_between_plot={tc.num_iterations_between_plot} '
+        msg = msg + f'num_iterations_between_eval={tc.num_iterations_between_eval} '
+        msg = msg + f'num_episodes_per_eval={tc.num_episodes_per_eval} '
         self.log(f'{"duration":<25}{msg}')
 
     def on_train_begin(self, agent_context: core.AgentContext):

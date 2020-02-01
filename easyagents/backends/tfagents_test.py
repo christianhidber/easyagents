@@ -5,7 +5,6 @@ from easyagents.backends import tfagents
 from easyagents.backends import core as bcore
 from easyagents.callbacks import duration, log
 
-
 agents.seed = 0
 _lineworld_name = env._LineWorldEnv.register_with_gym()
 _stepcount_name = env._StepCountEnv.register_with_gym()
@@ -20,8 +19,8 @@ class TfDqnAgentTest(unittest.TestCase):
     def test_train(self):
         model_config = core.ModelConfig("CartPole-v0")
         tc = core.StepsTrainContext()
-        dqnAgent = tfagents.TfDqnAgent(model_config=model_config)
-        dqnAgent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
+        dqn_agent = tfagents.TfDqnAgent(model_config=model_config)
+        dqn_agent.train(train_context=tc, callbacks=[duration.Fast(), log.Iteration()])
 
 
 class TfPpoAgentTest(unittest.TestCase):
@@ -50,6 +49,7 @@ class TfPpoAgentTest(unittest.TestCase):
         pc.num_episodes = 1
         ppo_agent.play(play_context=pc, callbacks=[])
         bcore._rmpath(tempdir)
+
 
 class TfRandomAgentTest(unittest.TestCase):
 

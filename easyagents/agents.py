@@ -16,10 +16,8 @@ from easyagents import core
 from easyagents.backends import core as bcore
 from easyagents.callbacks import plot
 import easyagents.backends.default
-# import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
-
-# import easyagents.backends.tforce
+import easyagents.backends.tforce
 
 _backends: [bcore.BackendAgentFactory] = []
 
@@ -54,6 +52,7 @@ def load(directory: str,
     result._backend_agent.load(directory=policy_directory, callbacks=callbacks)
     return result
 
+
 def register_backend(backend: bcore.BackendAgentFactory):
     """registers a backend as a factory for agent implementations.
 
@@ -69,9 +68,9 @@ def register_backend(backend: bcore.BackendAgentFactory):
 # register all backends deployed with easyagents
 register_backend(easyagents.backends.default.BackendAgentFactory())
 register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
+register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
 
 
-# register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
 # register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
 
 
@@ -194,7 +193,7 @@ class EasyAgent(ABC):
             Returns:
                 dict containing all parameters to recreate the agent (excluding a trained policy)
         """
-        result: Dict[string, object] = dict()
+        result: Dict[str, object] = dict()
         result[EasyAgent._KEY_VERSION] = easyagents.__version__
         result[EasyAgent._KEY_EASYAGENT_CLASS] = self.__class__.__name__
         result[EasyAgent._KEY_BACKEND] = self._backend_name
@@ -314,22 +313,19 @@ class EasyAgent(ABC):
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
 
-def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False):
+def get_backends(agent: Optional[Type[EasyAgent]] = None):
     """returns a list of all registered backends containing an implementation for the EasyAgent type agent.
 
     Args:
         agent: type deriving from EasyAgent for which the backend identifiers are returned.
-        skip_v1: if set only backends compatible with tensorflow v2 compatibility mode and eager execution
-            are returned.
 
     Returns:
         a list of admissible values for the 'backend' argument of EazyAgents constructors or a list of all
         available backends if agent is None.
     """
-    backends = [b for b in _backends if (not skip_v1) or b.tensorflow_v2_eager_compatible]
-    result = [b.backend_name for b in backends]
+    result = [b.backend_name for b in _backends]
     if agent:
-        result = [b.backend_name for b in backends if agent in b.get_algorithms()]
+        result = [b.backend_name for b in _backends if agent in b.get_algorithms()]
     return result
 
 
@@ -482,22 +478,9 @@ class DqnAgent(EasyAgent):
 class DoubleDqnAgent(DqnAgent):
     """Agent based on the Double Dqn algorithm (https://arxiv.org/abs/1509.06461)"""
 
-    def __init__(self,
-                 gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
-                 backend: str = None):
-        assert False, "DoubleDqnAgent is currently not available (pending migration of tensorforce/keras-rl to tf2.0)"
-
 
 class DuelingDqnAgent(DqnAgent):
     """Agent based on the Dueling Dqn algorithm (https://arxiv.org/abs/1511.06581)."""
-
-
-def __init__(self,
-             gym_env_name: str,
-             fc_layers: Optional[Tuple[int, ...]] = None,
-             backend: str = None):
-    assert False, "DuelingDqnAgent is currently not available (pending migration of tensorforce/keras-rl to tf2.0)"
 
 
 class PpoAgent(EasyAgent):

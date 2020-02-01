@@ -17,8 +17,9 @@ _mountaincart_continuous_name = "MountainCarContinuous-v0"
 easyagents.agents.seed = 0
 
 
-def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False):
-    result = [b for b in agents.get_backends(agent, skip_v1) if b != 'default']
+def get_backends(agent: Optional[Type[EasyAgent]] = None):
+    result = [b for b in agents.get_backends(agent) if b != 'default']
+    assert result, f'no backend found for agent {agent}.'
     return result
 
 
@@ -89,12 +90,9 @@ class BackendRegistrationTest(unittest.TestCase):
 
 class CemAgentTest(unittest.TestCase):
 
-    def train_and_assert(self, agent_type, is_v1: bool, num_iterations=100):
+    def train_and_assert(self, agent_type, num_iterations=100):
         logger = logging.warning
-        v2_backends = [b for b in get_backends(agent_type, skip_v1=True)]
-        v1_backends = [b for b in get_backends(agent_type) if (b not in v2_backends)]
-        backends = v1_backends if is_v1 else v2_backends
-        for backend in backends:
+        for backend in get_backends(agent_type):
             logger(f'backend={backend} agent={agent_type}, num_iterations={num_iterations}')
             cem_agent: CemAgent = agent_type('CartPole-v0', fc_layers=(100,), backend=backend)
             tc: core.TrainContext = cem_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
@@ -105,11 +103,6 @@ class CemAgentTest(unittest.TestCase):
             (min_steps, avg_steps, max_steps) = tc.eval_steps[tc.episodes_done_in_training]
             assert max_steps >= 100
             assert avg_steps >= 50
-
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
-    @pytest.mark.tfv1
-    def test_cem_v1(self):
-        self.train_and_assert(CemAgent, True)
 
     def test_create(self):
         with pytest.raises(Exception):
@@ -128,12 +121,9 @@ class DqnAgentsTest(unittest.TestCase):
                                                 default_plots=False)
         return max_avg_rewards(tc)
 
-    def train_and_assert(self, agent_type, is_v1: bool, num_iterations=1000):
+    def train_and_assert(self, agent_type, num_iterations=1000):
         logger = logging.warning
-        v2_backends = [b for b in get_backends(agent_type, skip_v1=True) if b != 'default']
-        v1_backends = [b for b in get_backends(agent_type) if (b not in v2_backends) and b != 'default']
-        backends = v1_backends if is_v1 else v2_backends
-        for backend in backends:
+        for backend in get_backends(agent_type):
             current_num_iterations = num_iterations
             if backend == 'tensorforce':
                 current_num_iterations = num_iterations * 3
@@ -141,29 +131,14 @@ class DqnAgentsTest(unittest.TestCase):
             rewards = self.train_and_eval(agent_type=agent_type, backend=backend, num_iterations=current_num_iterations)
             assert rewards >= 20, f'agent_type={agent_type} backend={backend} num_iterations={num_iterations}'
 
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
-    @pytest.mark.tfv1
-    def test_dqn_v1(self):
-        self.train_and_assert(DqnAgent, True)
+    def test_dqn(self):
+        self.train_and_assert(DqnAgent)
 
-    def test_dqn_v2(self):
-        self.train_and_assert(DqnAgent, False)
+    def test_double_dqn(self):
+        self.train_and_assert(DoubleDqnAgent)
 
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
-    @pytest.mark.tfv1
-    def test_double_dqn_v1(self):
-        self.train_and_assert(DoubleDqnAgent, True)
-
-    def test_double_dqn_v2(self):
-        self.train_and_assert(DoubleDqnAgent, False)
-
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
-    @pytest.mark.tfv1
-    def test_dueling_dqn_v1(self):
-        self.train_and_assert(DuelingDqnAgent, True)
-
-    def test_dueling_dqn_v2(self):
-        self.train_and_assert(DuelingDqnAgent, False)
+    def test_dueling_dqn(self):
+        self.train_and_assert(DuelingDqnAgent)
 
 
 class EasyAgentTest(unittest.TestCase):
@@ -199,13 +174,7 @@ class EasyAgentTest(unittest.TestCase):
         d = p1.save()
         agents.seed = oldseed
         p2: EasyAgent = agents.load(d)
-        assert p2
-        assert p2._backend_name == p1._backend_name
-        assert p2._backend_agent.__class__ == p1._backend_agent.__class__
-        assert p2._model_config.original_env_name == p1._model_config.original_env_name
-        assert p2._model_config.seed == p1._model_config.seed
-        assert p2._model_config.gym_env_name == p1._model_config.gym_env_name
-        assert p2._model_config.fc_layers == p1._model_config.fc_layers
+        self.assert_are_equal(p1, p2)
         p2.play(default_plots=False, num_episodes=1)
 
     def test_seed(self):
@@ -222,6 +191,10 @@ class EasyAgentTest(unittest.TestCase):
         d = p1._to_dict()
         agents.seed = oldseed
         p2: EasyAgent = EasyAgent._from_dict(d)
+        self.assert_are_equal(p1, p2)
+
+    def assert_are_equal(self, p1: EasyAgent, p2: EasyAgent):
+        assert p1
         assert p2
         assert p2._backend_name == p1._backend_name
         assert p2._backend_agent.__class__ == p1._backend_agent.__class__
