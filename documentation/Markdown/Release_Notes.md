@@ -2,6 +2,9 @@
 ---
 * v1.4 [20Q1]
     * 1.4.1: 
+        * tensorforce reintegrated (due to an incompatibility between tfagents and
+          tensorforce, tensorforce must be explicitely activated 
+          by a call to agents.activate_tensorforce() )
         * upgrade to tfagents 0.3, tensorflow 2.0.1
         * kwargs for register_with_gym
     * 1.4.0: agent saving & loading (see intro 

@@ -132,6 +132,8 @@ class _LineWorldEnv(gym.Env):
         if isinstance(action, np.ndarray):
             assert action.size == 1, "action of type numpy.array as invalid size"
             action = (int)(action)
+        if isinstance(action, np.int32):
+            action = (int)(action)
         assert isinstance(action, int)
         if action <= 0 and self.pos > 0:
             self.pos -= 1

@@ -75,6 +75,8 @@ def activate_tensorforce():
     """
     import easyagents.backends.tforce
 
+    global _backends
+
     assert  easyagents.backends.core._tf_eager_execution_active is None or \
             easyagents.backends.core._tf_eager_execution_active == False, \
             "tensorforce can not be activated, since tensorflow eager execution mode was already actived."
@@ -89,6 +91,8 @@ def _activate_tfagents():
     Due to an incompatibility between tensorforce and tf-agents, both libraries may not run
     in the same python instance.
     """
+    global _backends
+
     assert  easyagents.backends.core._tf_eager_execution_active is None or \
             easyagents.backends.core._tf_eager_execution_active == True, \
             "tfagents can not be activated, since tensorflow eager execution mode was already disabled."
@@ -192,7 +196,7 @@ class EasyAgent(ABC):
         mc: core.ModelConfig = core.ModelConfig._from_dict(param_dict[EasyAgent._KEY_MODEL_CONFIG])
         agent_class = globals()[param_dict[EasyAgent._KEY_EASYAGENT_CLASS]]
         backend: str = param_dict[EasyAgent._KEY_BACKEND]
-        result = agent_class(gym_env_name=mc.original_env_name)
+        result = agent_class(gym_env_name=mc.original_env_name, backend=backend)
         result._initialize(model_config=mc, backend_name=backend)
         return result
 

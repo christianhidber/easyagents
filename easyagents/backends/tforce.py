@@ -200,31 +200,35 @@ class TforceDqnAgent(TforceAgent):
         tc = train_context
         train_env = self._create_env()
         network = self._create_network_specification()
-
+        memory = tc.max_steps_in_buffer + tc.num_steps_sampled_from_buffer
+        exploration=0.1
         self.log_api('Agent.create',
                      f'(agent="{self._agent_type}", ' +
                      f'network={network}, ' +
-                     f'memory={tc.max_steps_in_buffer}, ' +
+                     f'memory={memory}, ' +
                      f'start_updating={tc.num_steps_buffer_preload},'
                      f'learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_steps_sampled_from_buffer}, ' +
                      f'update_frequeny={tc.num_steps_per_iteration}, ' +
                      f'discount={tc.reward_discount_gamma}, ' +
-                     f'exploration=0.1')
+                     f'exploration={exploration}')
         self._agent = Agent.create(
             agent=self._agent_type,
             environment=train_env,
             network=network,
-            memory=tc.max_steps_in_buffer,
+            memory=memory,
             start_updating=tc.num_steps_buffer_preload,
             learning_rate=tc.learning_rate,
             batch_size=tc.num_steps_sampled_from_buffer,
             update_frequency=tc.num_steps_per_iteration,
             discount=tc.reward_discount_gamma,
-            exploration=0.1
+            exploration=exploration,
+            preprocessing = None,
+            variable_noise = 0.0,
+            l2_regularization = 0.0,
+            entropy_regularization = 0.1
         )
         self._train_with_runner(train_env, tc)
-
 
 class TforceDuelingDqnAgent(TforceDqnAgent):
     """ Agent based on the DQN algorithm using the tensorforce implementation."""

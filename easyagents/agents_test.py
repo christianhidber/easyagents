@@ -108,7 +108,7 @@ class CemAgentTest(unittest.TestCase):
 class DqnAgentsTest(unittest.TestCase):
 
     def train_and_eval(self, agent_type, backend, num_iterations):
-        dqn_agent: DqnAgent = agent_type(_line_world_name, fc_layers=(100,), backend=backend)
+        dqn_agent: DqnAgent = agent_type(_cartpole_name, fc_layers=(100,), backend=backend)
         tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
                                                 num_iterations=num_iterations,
                                                 num_steps_buffer_preload=1000,
