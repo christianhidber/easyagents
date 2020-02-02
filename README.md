@@ -1,4 +1,4 @@
-### Reinforcement Learning for Practitioners (v1.4, 19Q4)
+### Reinforcement Learning for Practitioners (v1.4.1, 20Q1)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=master)](https://coveralls.io/github/christianhidber/easyagents?branch=master)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)
@@ -33,7 +33,7 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
   'pip install easyagents'.
 * easy to understand, **ready-made plots** and logs to investigate the algorithms and environments behaviour
 
-Note: tensorforce and keras-rl backends are suspended until support for tensorflow 2.0 is available.
+Note: keras-rl backend is suspended until support for tensorflow 2.0 is available.
 
 ### Examples
 ---
@@ -62,7 +62,7 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 ### Tutorials
 ---
 * [1. Introduction (CartPole on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_cartpole.ipynb):
-   training, plotting, switching algorithms & backends. based on the classic reinforcement learning example 
+   training, plotting, switching algorithms & backends. Based on the classic reinforcement learning example 
    balancing a stick on a cart.
 * [2. Next steps & backend switching (Orso on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_orso.ipynb):
   custom training, creating a movie & switching backends. gym environment based on a routing problem.
@@ -73,35 +73,34 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 * [5. Saving & loading (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb): 
   Once a policy is trained, save it and reload it in a production environment. 
   You may also save intermediate policies as the training proceeds. 
-* [6. Api logging, seeding & plot clearing (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_logging.ipynb): 
+* [6. Switching backends (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_switching_backends.ipynb):
+  See how you can switch between backend implementations.
+* [7. Api logging, seeding & plot clearing (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_logging.ipynb): 
   Investigate how easyagent interacts with the backend api and the gym environment; 
   how to set seeds; controlling jupyter output cell clearing
 
 ### Available Algorithms and Backends
 ---
 
-|algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce (suspended)](https://github.com/tensorforce/tensorforce) | [keras-rl (suspended)](https://github.com/keras-rl/keras-rl) | easyagents class name |
+|algorithm | [tf-Agents](https://github.com/tensorflow/agents) | [tensorforce](https://github.com/tensorforce/tensorforce) | [keras-rl (suspended)](https://github.com/keras-rl/keras-rl) | easyagents class name |
 |----------|:---------:|:-----------:|:--------:| :---: | 
 |[CEM](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf) |`not available`  |`not available`  |`yes`  | CemAgent | 
-|[Dqn](https://arxiv.org/abs/1312.5602)           |`yes`           |`yes`    |`yes`            | DqnAgent | 
-|[Double Dqn](https://arxiv.org/abs/1509.06461)   |`open`          |`not available`    |`yes`  | DoubleDqnAgent|
-|[Dueling Dqn](https://arxiv.org/abs/1511.06581)  | `not available`        |`not yet available`    |`yes`   | DuelingDqnAgent|
-|[Ppo](https://arxiv.org/abs/1707.06347)          |`yes`           |`yes`     |`not available` | PpoAgent |
-|Random                                           |`yes`           |`yes`    |`not available`  | RandomAgent |
+|[Dqn](https://arxiv.org/abs/1312.5602)           |`yes`            |`yes`    |`yes`            | DqnAgent | 
+|[Double Dqn](https://arxiv.org/abs/1509.06461)   |`open`           |`not available`    |`yes`  | DoubleDqnAgent|
+|[Dueling Dqn](https://arxiv.org/abs/1511.06581)  |`not available`  |`yes`    |`yes`            | DuelingDqnAgent|
+|[Ppo](https://arxiv.org/abs/1707.06347)          |`yes`            |`yes`    |`not available`  | PpoAgent |
+|Random                                           |`yes`            |`yes`    |`not available`  | RandomAgent |
 |[REINFORCE](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)  |`yes`  |`yes` |`not available`| ReinforceAgent | 
-|[SAC](https://arxiv.org/abs/1801.01290)          |`preview`          |`not available`|`not available`|SacAgent|
+|[SAC](https://arxiv.org/abs/1801.01290)          |`preview`        |`not available` |`not available`|SacAgent|
 
 [191001]
 
-* starting with easyagents 1.3 (191102) the backends for tensorforce and keras-rl are suspended until support for tensorflow 2.0 is available.
 * if you are interested in other algorithms, backends or hyperparameters let us know by
  [creating an issue](https://github.com/christianhidber/easyagents/issues/new/choose). 
   We'll try our best to support you.
 * for a documentation of the agents api see [here](https://christianhidber.github.io/easyagents/).
-* keras-rl is not compatible with tensorflow eager execution mode.
-Thus keras-rl based agents should run in a different python / jupyter notebook instance 
-than  tf-agents or tensorforce based agents.
-
+* starting with easyagents 1.3 (191102) the backend for keras-rl is suspended 
+  until support for tensorflow 2.0 is available.
 
 ### Industrial Application
 ---

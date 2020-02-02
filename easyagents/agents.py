@@ -16,8 +16,8 @@ from easyagents import core
 from easyagents.backends import core as bcore
 from easyagents.callbacks import plot
 import easyagents.backends.default
-# import easyagents.backends.kerasrl
 import easyagents.backends.tfagents
+import tensorflow as tf
 
 # import easyagents.backends.tforce
 
@@ -54,6 +54,7 @@ def load(directory: str,
     result._backend_agent.load(directory=policy_directory, callbacks=callbacks)
     return result
 
+
 def register_backend(backend: bcore.BackendAgentFactory):
     """registers a backend as a factory for agent implementations.
 
@@ -66,13 +67,42 @@ def register_backend(backend: bcore.BackendAgentFactory):
     _backends.append(backend)
 
 
-# register all backends deployed with easyagents
-register_backend(easyagents.backends.default.BackendAgentFactory())
-register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
+def activate_tensorforce():
+    """registers the tensorforce backend.
+
+    Due to an incompatibility between tensorforce and tf-agents, both libraries may not run
+    in the same python instance. Thus - for the time being - once this method is called,
+    the tfagents backend may not be used anymore.
+    """
+    import easyagents.backends.tforce
+
+    global _backends
+
+    assert  easyagents.backends.core._tf_eager_execution_active is None or \
+            easyagents.backends.core._tf_eager_execution_active == False, \
+            "tensorforce can not be activated, since tensorflow eager execution mode was already actived."
+
+    _backends = []
+    register_backend(easyagents.backends.default.DefaultAgentFactory(register_tensorforce=True))
+    register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
+
+def _activate_tfagents():
+    """registers the tfagents backend.
+
+    Due to an incompatibility between tensorforce and tf-agents, both libraries may not run
+    in the same python instance.
+    """
+    global _backends
+
+    assert  easyagents.backends.core._tf_eager_execution_active is None or \
+            easyagents.backends.core._tf_eager_execution_active == True, \
+            "tfagents can not be activated, since tensorflow eager execution mode was already disabled."
+    _backends = []
+    register_backend(easyagents.backends.default.DefaultAgentFactory(register_tensorforce=False))
+    register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
 
 
-# register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
-# register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
+_activate_tfagents()
 
 
 class EasyAgent(ABC):
@@ -107,7 +137,7 @@ class EasyAgent(ABC):
 
     def _initialize(self, model_config: core.ModelConfig, backend_name: str = None):
         if backend_name is None:
-            backend_name = easyagents.backends.default.BackendAgentFactory.backend_name
+            backend_name = easyagents.backends.default.DefaultAgentFactory.backend_name
         backend: bcore.BackendAgentFactory = _get_backend(backend_name)
 
         assert model_config is not None, "model_config not set."
@@ -167,7 +197,7 @@ class EasyAgent(ABC):
         mc: core.ModelConfig = core.ModelConfig._from_dict(param_dict[EasyAgent._KEY_MODEL_CONFIG])
         agent_class = globals()[param_dict[EasyAgent._KEY_EASYAGENT_CLASS]]
         backend: str = param_dict[EasyAgent._KEY_BACKEND]
-        result = agent_class(gym_env_name=mc.original_env_name)
+        result = agent_class(gym_env_name=mc.original_env_name, backend=backend)
         result._initialize(model_config=mc, backend_name=backend)
         return result
 
@@ -194,7 +224,7 @@ class EasyAgent(ABC):
             Returns:
                 dict containing all parameters to recreate the agent (excluding a trained policy)
         """
-        result: Dict[string, object] = dict()
+        result: Dict[str, object] = dict()
         result[EasyAgent._KEY_VERSION] = easyagents.__version__
         result[EasyAgent._KEY_EASYAGENT_CLASS] = self.__class__.__name__
         result[EasyAgent._KEY_BACKEND] = self._backend_name
@@ -314,22 +344,19 @@ class EasyAgent(ABC):
         self._backend_agent.train(train_context=train_context, callbacks=callbacks)
 
 
-def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False):
+def get_backends(agent: Optional[Type[EasyAgent]] = None):
     """returns a list of all registered backends containing an implementation for the EasyAgent type agent.
 
     Args:
         agent: type deriving from EasyAgent for which the backend identifiers are returned.
-        skip_v1: if set only backends compatible with tensorflow v2 compatibility mode and eager execution
-            are returned.
 
     Returns:
         a list of admissible values for the 'backend' argument of EazyAgents constructors or a list of all
         available backends if agent is None.
     """
-    backends = [b for b in _backends if (not skip_v1) or b.tensorflow_v2_eager_compatible]
-    result = [b.backend_name for b in backends]
+    result = [b.backend_name for b in _backends]
     if agent:
-        result = [b.backend_name for b in backends if agent in b.get_algorithms()]
+        result = [b.backend_name for b in _backends if agent in b.get_algorithms()]
     return result
 
 
@@ -363,10 +390,8 @@ class CemAgent(EasyAgent):
         see https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.6579&rep=rep1&type=pdf
     """
 
-    def __init__(self,
-                 gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
-                 backend: str = None):
+    def __init__(self, gym_env_name: str, fc_layers: Optional[Tuple[int, ...]] = None, backend: str = None):
+        super().__init__(gym_env_name, fc_layers, backend)
         assert False, "CemAgent is currently not available (pending migration of keras-rl to tf2.0)"
 
     def train(self,
@@ -482,22 +507,9 @@ class DqnAgent(EasyAgent):
 class DoubleDqnAgent(DqnAgent):
     """Agent based on the Double Dqn algorithm (https://arxiv.org/abs/1509.06461)"""
 
-    def __init__(self,
-                 gym_env_name: str,
-                 fc_layers: Optional[Tuple[int, ...]] = None,
-                 backend: str = None):
-        assert False, "DoubleDqnAgent is currently not available (pending migration of tensorforce/keras-rl to tf2.0)"
-
 
 class DuelingDqnAgent(DqnAgent):
     """Agent based on the Dueling Dqn algorithm (https://arxiv.org/abs/1511.06581)."""
-
-
-def __init__(self,
-             gym_env_name: str,
-             fc_layers: Optional[Tuple[int, ...]] = None,
-             backend: str = None):
-    assert False, "DuelingDqnAgent is currently not available (pending migration of tensorforce/keras-rl to tf2.0)"
 
 
 class PpoAgent(EasyAgent):

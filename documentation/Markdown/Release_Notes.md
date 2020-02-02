@@ -1,10 +1,15 @@
 ### Release notes
 ---
-* v1.4 [19Q4]
+* v1.4 [20Q1]
+    * 1.4.1: 
+        * tensorforce reintegrated (due to an incompatibility between tfagents and
+          tensorforce, tensorforce must be explicitely activated 
+          by a call to agents.activate_tensorforce() )
+        * upgrade to tfagents 0.3, tensorflow 2.0.1
+        * kwargs for register_with_gym
     * 1.4.0: agent saving & loading (see intro 
              [Saving & loading a trained policy](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb));
              lineworld as test environment included 
-
 * v1.3 [19Q4]
     * 1.3.1: agent.score substituted by agent.evalute; 
     * 1.3.0: migration to tensorflow 2.0; 
@@ -24,8 +29,7 @@
     * 1.1.18: tensorforce backend (ppo, reinforce)
     * 1.1.11:
         * plot.StepRewards, plot.Actions
-        * default_plots parameter (instead of default_callbacks)
-        
+        * default_plots parameter (instead of default_callbacks)     
 * v1.0.1 [19Q3]
     * api based on pluggable backends and callbacks (for plotting, logging, training durations)
     * backend: tf-agents, default

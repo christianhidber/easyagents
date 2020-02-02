@@ -12,17 +12,17 @@ import gym
 
 
 class DebugAgentFactory(bcore.BackendAgentFactory):
-    backend_name : str  = 'debug'
+    backend_name: str = 'debug'
 
-    def get_algorithms(self) -> Dict[Type, Type[easyagents.backends.core.BackendAgent]]:
+    def get_algorithms(self) -> Dict[Type, Type[bcore._BackendAgent]]:
         """Yields a mapping of EasyAgent types to the implementations provided by this backend."""
-        return {easyagents.agents.DqnAgent : BackendAgent,
-                easyagents.agents.PpoAgent : BackendAgent,
-                easyagents.agents.RandomAgent : BackendAgent,
-                easyagents.agents.ReinforceAgent: BackendAgent}
+        return {easyagents.agents.DqnAgent: DebugAgent,
+                easyagents.agents.PpoAgent: DebugAgent,
+                easyagents.agents.RandomAgent: DebugAgent,
+                easyagents.agents.ReinforceAgent: DebugAgent}
 
 
-class BackendAgent(bcore._BackendAgent):
+class DebugAgent(bcore._BackendAgent):
 
     def __init__(self, model_config: core.ModelConfig, action=None):
         """Simple constant action agent.
@@ -31,7 +31,7 @@ class BackendAgent(bcore._BackendAgent):
             model_config: containing the gym_env_name to "train" on
             action: the action to take in all steps or None. If None no steps are taken.
         """
-        super().__init__(model_config, backend_name= DebugAgentFactory.backend_name)
+        super().__init__(model_config, backend_name=DebugAgentFactory.backend_name, tf_eager_execution=True)
         self.action = action
 
     def play_implementation(self, play_context: core.PlayContext):
@@ -69,6 +69,7 @@ class BackendAgent(bcore._BackendAgent):
 
     def save_implementation(self, directory: str):
         pass
+
 
 class InvariantCallback(core.AgentCallback):
     """Validates the callback invariants"""

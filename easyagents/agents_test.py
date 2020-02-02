@@ -17,8 +17,9 @@ _mountaincart_continuous_name = "MountainCarContinuous-v0"
 easyagents.agents.seed = 0
 
 
-def get_backends(agent: Optional[Type[EasyAgent]] = None, skip_v1: bool = False):
-    result = [b for b in agents.get_backends(agent, skip_v1) if b != 'default']
+def get_backends(agent: Optional[Type[EasyAgent]] = None):
+    result = [b for b in agents.get_backends(agent) if b != 'default']
+    assert result, f'no backend found for agent {agent}.'
     return result
 
 
@@ -48,15 +49,11 @@ class BackendRegistrationTest(unittest.TestCase):
         assert 'default' in backends
         assert 'tfagents' in backends
 
-    #        assert 'tensorforce' in backends
-
     def test_getbackends_randomagent(self):
         assert agents._backends is not None
         backends = agents.get_backends(agents.RandomAgent)
         assert 'default' in backends
         assert 'tfagents' in backends
-
-    #        assert 'tensorforce' in backends
 
     def test_prepare_callbacks(self):
         agent = agents.PpoAgent(_line_world_name)
@@ -75,7 +72,7 @@ class BackendRegistrationTest(unittest.TestCase):
         assert BackendRegistrationTest.MyBackend.backend_name in b
 
     def test_register_backend_twice(self):
-        b2 = easyagents.backends.default.BackendAgentFactory()
+        b2 = easyagents.backends.default.DefaultAgentFactory(register_tensorforce=False)
         old_length = len(easyagents.agents.get_backends())
         assert b2 not in agents._backends
         agents.register_backend(backend=b2)
@@ -89,12 +86,9 @@ class BackendRegistrationTest(unittest.TestCase):
 
 class CemAgentTest(unittest.TestCase):
 
-    def train_and_assert(self, agent_type, is_v1: bool, num_iterations=100):
+    def train_and_assert(self, agent_type, num_iterations=100):
         logger = logging.warning
-        v2_backends = [b for b in get_backends(agent_type, skip_v1=True)]
-        v1_backends = [b for b in get_backends(agent_type) if (b not in v2_backends)]
-        backends = v1_backends if is_v1 else v2_backends
-        for backend in backends:
+        for backend in get_backends(agent_type):
             logger(f'backend={backend} agent={agent_type}, num_iterations={num_iterations}')
             cem_agent: CemAgent = agent_type('CartPole-v0', fc_layers=(100,), backend=backend)
             tc: core.TrainContext = cem_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
@@ -106,11 +100,6 @@ class CemAgentTest(unittest.TestCase):
             assert max_steps >= 100
             assert avg_steps >= 50
 
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
-    @pytest.mark.tfv1
-    def test_cem_v1(self):
-        self.train_and_assert(CemAgent, True)
-
     def test_create(self):
         with pytest.raises(Exception):
             CemAgent('LineWorld-v0', fc_layers=(100,))
@@ -119,7 +108,7 @@ class CemAgentTest(unittest.TestCase):
 class DqnAgentsTest(unittest.TestCase):
 
     def train_and_eval(self, agent_type, backend, num_iterations):
-        dqn_agent: DqnAgent = agent_type(_line_world_name, fc_layers=(100,), backend=backend)
+        dqn_agent: DqnAgent = agent_type(_cartpole_name, fc_layers=(100,), backend=backend)
         tc: core.TrainContext = dqn_agent.train([log.Duration(), log.Iteration(eval_only=True), log.Agent()],
                                                 num_iterations=num_iterations,
                                                 num_steps_buffer_preload=1000,
@@ -128,12 +117,9 @@ class DqnAgentsTest(unittest.TestCase):
                                                 default_plots=False)
         return max_avg_rewards(tc)
 
-    def train_and_assert(self, agent_type, is_v1: bool, num_iterations=1000):
+    def train_and_assert(self, agent_type, num_iterations=1000):
         logger = logging.warning
-        v2_backends = [b for b in get_backends(agent_type, skip_v1=True) if b != 'default']
-        v1_backends = [b for b in get_backends(agent_type) if (b not in v2_backends) and b != 'default']
-        backends = v1_backends if is_v1 else v2_backends
-        for backend in backends:
+        for backend in get_backends(agent_type):
             current_num_iterations = num_iterations
             if backend == 'tensorforce':
                 current_num_iterations = num_iterations * 3
@@ -141,29 +127,27 @@ class DqnAgentsTest(unittest.TestCase):
             rewards = self.train_and_eval(agent_type=agent_type, backend=backend, num_iterations=current_num_iterations)
             assert rewards >= 20, f'agent_type={agent_type} backend={backend} num_iterations={num_iterations}'
 
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
-    @pytest.mark.tfv1
-    def test_dqn_v1(self):
-        self.train_and_assert(DqnAgent, True)
+    def test_dqn(self):
+        agents._activate_tfagents()
+        self.train_and_assert(DqnAgent)
 
-    def test_dqn_v2(self):
-        self.train_and_assert(DqnAgent, False)
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_dqn_tforce(self):
+        agents.activate_tensorforce()
+        self.train_and_assert(DqnAgent)
 
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
-    @pytest.mark.tfv1
-    def test_double_dqn_v1(self):
-        self.train_and_assert(DoubleDqnAgent, True)
+    def test_double_dqn(self):
+        agents._activate_tfagents()
+        with pytest.raises(Exception):
+            self.train_and_assert(DoubleDqnAgent)
 
-    def test_double_dqn_v2(self):
-        self.train_and_assert(DoubleDqnAgent, False)
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_dueling_dqn_tforce(self):
+        agents.activate_tensorforce()
+        self.train_and_assert(DuelingDqnAgent)
 
-    @pytest.mark.skipif(easyagents.backends.core._tensorflow_v2_eager_enabled, reason="tfv2 active")
-    @pytest.mark.tfv1
-    def test_dueling_dqn_v1(self):
-        self.train_and_assert(DuelingDqnAgent, True)
-
-    def test_dueling_dqn_v2(self):
-        self.train_and_assert(DuelingDqnAgent, False)
 
 
 class EasyAgentTest(unittest.TestCase):
@@ -199,13 +183,7 @@ class EasyAgentTest(unittest.TestCase):
         d = p1.save()
         agents.seed = oldseed
         p2: EasyAgent = agents.load(d)
-        assert p2
-        assert p2._backend_name == p1._backend_name
-        assert p2._backend_agent.__class__ == p1._backend_agent.__class__
-        assert p2._model_config.original_env_name == p1._model_config.original_env_name
-        assert p2._model_config.seed == p1._model_config.seed
-        assert p2._model_config.gym_env_name == p1._model_config.gym_env_name
-        assert p2._model_config.fc_layers == p1._model_config.fc_layers
+        self.assert_are_equal(p1, p2)
         p2.play(default_plots=False, num_episodes=1)
 
     def test_seed(self):
@@ -222,6 +200,10 @@ class EasyAgentTest(unittest.TestCase):
         d = p1._to_dict()
         agents.seed = oldseed
         p2: EasyAgent = EasyAgent._from_dict(d)
+        self.assert_are_equal(p1, p2)
+
+    def assert_are_equal(self, p1: EasyAgent, p2: EasyAgent):
+        assert p1
         assert p2
         assert p2._backend_name == p1._backend_name
         assert p2._backend_agent.__class__ == p1._backend_agent.__class__
@@ -241,7 +223,7 @@ class PpoAgentTest(unittest.TestCase):
             agent.train(duration._SingleEpisode())
             assert env._StepCountEnv.reset_count <= 2
 
-    def test_train_CartPole(self):
+    def test_train(self):
         agents.seed = 0
         for backend in get_backends(PpoAgent):
             ppo = PpoAgent(gym_env_name=_cartpole_name, backend=backend)
@@ -254,6 +236,12 @@ class PpoAgentTest(unittest.TestCase):
             tc.num_episodes_per_eval = 5
             ppo.train([log.Iteration()], train_context=tc, default_plots=False)
             assert max_avg_rewards(tc) >= 50
+
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_train_tforce(self):
+        agents.activate_tensorforce()
+        self.test_train()
 
     def test_train_single_episode(self):
         for backend in get_backends(PpoAgent):
@@ -283,6 +271,12 @@ class PpoAgentTest(unittest.TestCase):
             ppo.play(default_plots=False, num_episodes=1, callbacks=[])
             easyagents.backends.core._rmpath(temp_dir)
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_save_load_tforce(self):
+        agents.activate_tensorforce()
+        self.test_save_load()
+
 
 class RandomAgentTest(unittest.TestCase):
 
@@ -296,6 +290,12 @@ class RandomAgentTest(unittest.TestCase):
             r = max_avg_rewards(tc)
             assert r >= 0
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_train_tforce(self):
+        agents.activate_tensorforce()
+        self.test_train()
+
 
 class ReinforceAgentTest(unittest.TestCase):
 
@@ -308,6 +308,12 @@ class ReinforceAgentTest(unittest.TestCase):
                                                           default_plots=False)
             r = max_avg_rewards(tc)
             assert r >= 5
+
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_train_tforce(self):
+        agents.activate_tensorforce()
+        self.test_train()
 
 
 class SacAgentTest(unittest.TestCase):

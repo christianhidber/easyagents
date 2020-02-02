@@ -1,5 +1,4 @@
 import unittest
-import os
 import pytest
 from typing import Dict, Type
 
@@ -23,7 +22,7 @@ class BackendAgentTest(unittest.TestCase):
         self.tc.max_steps_per_episode = 5
         self.pc = core.PlayContext(self.tc)
 
-    class DebugAgent(debug.BackendAgent):
+    class DebugAgent(debug.DebugAgent):
         def __init__(self):
             super().__init__(core.ModelConfig(gym_env_name=BackendAgentTest.env_name), action=1)
 
@@ -105,7 +104,7 @@ class BackendAgentTest(unittest.TestCase):
 
 class BackendAgentFactoryTest(unittest.TestCase):
     class DebugAgentFactory(bcore.BackendAgentFactory):
-        class DebugAgent(debug.BackendAgent):
+        class DebugAgent(debug.DebugAgent):
             def __init__(self, model_config: core.ModelConfig):
                 super().__init__(model_config=model_config, action=1)
 

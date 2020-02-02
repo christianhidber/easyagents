@@ -18,8 +18,7 @@ from easyagents import core
 from easyagents.backends import monitor
 from easyagents.callbacks import plot
 
-_tensorflow_v2_eager_enabled: Optional[bool] = None
-
+_tf_eager_execution_active : Optional[bool] = None
 
 def _get_temp_path():
     """Yields a path to a non-existent temporary directory inside the systems temp path."""
@@ -82,18 +81,24 @@ class _BackendAgent(ABC):
         Implements the train loop and calls the Callbacks.
     """
 
-    def __init__(self, model_config: core.ModelConfig, backend_name: str, tensorflow_v2_eager: bool = True):
+    def __init__(self, model_config: core.ModelConfig, backend_name: str, tf_eager_execution: bool):
         """
         Args:
             model_config: defines the model and environment to be used
             backend_name: id of the backend to which this agent belongs to.
-            tensorflow_v2_eager: the execution mode, enforced for this and all other backend agents.
         """
+        global _tf_eager_execution_active
+
         assert model_config is not None, "model_config not set."
         assert backend_name
 
+        if _tf_eager_execution_active is None:
+            _tf_eager_execution_active = tf_eager_execution
+        assert _tf_eager_execution_active == tf_eager_execution, \
+            "Due to an incompatibility between tensorforce and tfagents their agents can not be instantiated in the" +\
+            "same python runtime instance (conflicting excpectations on tensorflows eager execution mode)."
+
         self._backend_name: str = backend_name
-        self._tensorflow_v2_eager = tensorflow_v2_eager
         self.model_config = model_config
         self._agent_context: core.AgentContext = core.AgentContext(self.model_config)
         self._agent_context.gym._totals = monitor._register_gym_monitor(self.model_config.original_env_name)
@@ -104,25 +109,6 @@ class _BackendAgent(ABC):
         self._postprocess_callbacks: List[core._PostProcessCallback] = [plot._PostProcess()]
 
         self._train_total_episodes_on_iteration_begin: int = 0
-        self._initialize_tensorflow()
-
-    def _initialize_tensorflow(self):
-        """ v2 behavior and eager execution mode. if a previous backend selected a different mode an
-            exceptionis raised."""
-        global _tensorflow_v2_eager_enabled
-
-        if _tensorflow_v2_eager_enabled is None:
-            _tensorflow_v2_eager_enabled = self._tensorflow_v2_eager
-            if _tensorflow_v2_eager_enabled:
-                self.log_api('tf.compat.v1.enable_v2_behavior')
-                tensorflow.compat.v1.enable_v2_behavior()
-                self.log_api('tf.compat.v1.enable_eager_execution')
-                tensorflow.compat.v1.enable_eager_execution()
-        assert _tensorflow_v2_eager_enabled == self._tensorflow_v2_eager, \
-            "v2 behavior and eager execution mode already selected by another backend does not match " + \
-            "the requirements of this backend. " + \
-            "To avoid the conflict, do not combine both backend types in the same python / jupyter kernel instance. "
-        return
 
     def _set_seed(self):
         """ sets the random seeds for all dependent packages """
@@ -519,7 +505,7 @@ class _BackendAgent(ABC):
         The implementation may write multiple files with fixed filenames.
 
         Args:
-             directory: the directory to save the policy weights to.
+             directory: the (existing) directory to save the policy weights to.
         """
 
 
@@ -528,6 +514,16 @@ class BackendAgent(_BackendAgent, metaclass=ABCMeta):
 
         Explicitely exhibits all methods that should be overriden by an implementing agent.
     """
+
+    @abstractmethod
+    def load_implementation(self, directory: str):
+        """Loads a previously trained and saved actor policy from directory.
+
+        The loaded policy may afterwards be used by calling play().
+
+        Args:
+            directory: the directory containing the trained policy.
+        """
 
     @abstractmethod
     def play_implementation(self, play_context: core.PlayContext):
@@ -549,6 +545,17 @@ class BackendAgent(_BackendAgent, metaclass=ABCMeta):
 
             Args:
                 play_context: play configuration to be used
+        """
+
+    @abstractmethod
+    def save_implementation(self, directory: str):
+        """Agent speecific implementation of saving the weights for the actor policy.
+
+        Save must only guarantee to persist the weights of the actor policy.
+        The implementation may write multiple files with fixed filenames.
+
+        Args:
+             directory: the directory to save the policy weights to.
         """
 
     @abstractmethod
@@ -580,8 +587,6 @@ class BackendAgentFactory(ABC):
     """
 
     backend_name: str = 'abstract_BackendAgentFactory'
-
-    tensorflow_v2_eager_compatible: bool = True
 
     def create_agent(self, easyagent_type: Type, model_config: core.ModelConfig) \
             -> Optional[_BackendAgent]:
