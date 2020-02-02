@@ -2,7 +2,7 @@
 docs_dir="documentation\\Markdown"
 modules=[
     "easyagents.agents",
-    "easyagents.agents",
+    "easyagents.env",
     "easyagents.core",
     "easyagents.backends.core",
     "easyagents.backends.tfagents",
