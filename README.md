@@ -73,7 +73,9 @@ ppoAgent.train([plot.State(), plot.Loss(), plot.Rewards(), plot.Actions(),
 * [5. Saving & loading (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb): 
   Once a policy is trained, save it and reload it in a production environment. 
   You may also save intermediate policies as the training proceeds. 
-* [6. Api logging, seeding & plot clearing (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_logging.ipynb): 
+* [6. Switching backends (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_switching_backends.ipynb):
+  See how you can switch between backend implementations.
+* [7. Api logging, seeding & plot clearing (on colab)](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_logging.ipynb): 
   Investigate how easyagent interacts with the backend api and the gym environment; 
   how to set seeds; controlling jupyter output cell clearing
 

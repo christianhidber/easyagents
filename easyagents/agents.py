@@ -71,7 +71,8 @@ def activate_tensorforce():
     """registers the tensorforce backend.
 
     Due to an incompatibility between tensorforce and tf-agents, both libraries may not run
-    in the same python instance.
+    in the same python instance. Thus - for the time being - once this method is called,
+    the tfagents backend may not be used anymore.
     """
     import easyagents.backends.tforce
 
