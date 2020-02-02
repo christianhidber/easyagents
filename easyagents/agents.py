@@ -73,9 +73,12 @@ def activate_tensorforce():
     Due to an incompatibility between tensorforce and tf-agents, both libraries may not run
     in the same python instance.
     """
+    import easyagents.backends.tforce
+
     assert  easyagents.backends.core._tf_eager_execution_active is None or \
             easyagents.backends.core._tf_eager_execution_active == False, \
             "tensorforce can not be activated, since tensorflow eager execution mode was already actived."
+
     _backends = []
     register_backend(easyagents.backends.default.DefaultAgentFactory(register_tensorforce=True))
     register_backend(easyagents.backends.tforce.TensorforceAgentFactory())

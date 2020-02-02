@@ -326,12 +326,6 @@ class SacAgentTest(unittest.TestCase):
             r = max_avg_rewards(tc)
             assert r >= -1
 
-    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
-    @pytest.mark.tforce
-    def test_train_tforce(self):
-        agents.activate_tensorforce()
-        self.test_train()
-
 
 if __name__ == '__main__':
     unittest.main()
