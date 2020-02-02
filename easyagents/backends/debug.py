@@ -31,7 +31,7 @@ class DebugAgent(bcore._BackendAgent):
             model_config: containing the gym_env_name to "train" on
             action: the action to take in all steps or None. If None no steps are taken.
         """
-        super().__init__(model_config, backend_name=DebugAgentFactory.backend_name, tf_eager_execution=False)
+        super().__init__(model_config, backend_name=DebugAgentFactory.backend_name, tf_eager_execution=True)
         self.action = action
 
     def play_implementation(self, play_context: core.PlayContext):
