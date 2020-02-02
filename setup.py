@@ -32,7 +32,7 @@ setup(
         "gym==0.15.4",
         "imageio==2.6.1",
         "imageio-ffmpeg==0.3.0",
-        "matplotlib==3.1.1"
+        "matplotlib==3.1.2"
     ],
     include_package_data=True,
     entry_points={
