@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,7 +40,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/application.1b62728e.css">
       
         <link rel="stylesheet" href="../../../../assets/stylesheets/application-palette.a8b3c06d.css">
       
@@ -51,12 +51,12 @@
       
     
     
-      <script src="../../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -991,7 +991,7 @@
 
 <span class="kn">from</span> <span class="nn">easyagents.callbacks</span> <span class="kn">import</span> <span class="n">plot</span>
 
-<span class="n">_tensorflow_v2_eager_enabled</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">_tf_eager_execution_active</span> <span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="k">def</span> <span class="nf">_get_temp_path</span><span class="p">():</span>
 
@@ -1001,9 +1001,9 @@
 
     <span class="n">n</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
-    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-{n.year % 100:2}{n.month:02}{n.day:02}-{n.hour:02}{n.minute:02}{n.second:02}-&#39;</span> <span class="o">+</span> \
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;-{n.year % 100:2}</span><span class="si">{n.month:02}{n.day:02}</span><span class="s1">-</span><span class="si">{n.hour:02}{n.minute:02}{n.second:02}</span><span class="s1">-&#39;</span> <span class="o">+</span> \
 
-             <span class="n">f</span><span class="s1">&#39;{n.microsecond:06}&#39;</span>
+             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{n.microsecond:06}</span><span class="s1">&#39;</span>
 
     <span class="k">return</span> <span class="n">result</span>
 
@@ -1025,7 +1025,7 @@
 
         <span class="n">_rmpath</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
 
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">directory</span>
 
@@ -1041,7 +1041,7 @@
 
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
 
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
 
@@ -1083,7 +1083,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_config</span><span class="p">:</span> <span class="n">core</span><span class="o">.</span><span class="n">ModelConfig</span><span class="p">,</span> <span class="n">backend_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tensorflow_v2_eager</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_config</span><span class="p">:</span> <span class="n">core</span><span class="o">.</span><span class="n">ModelConfig</span><span class="p">,</span> <span class="n">backend_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tf_eager_execution</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1093,17 +1093,25 @@
 
 <span class="sd">            backend_name: id of the backend to which this agent belongs to.</span>
 
-<span class="sd">            tensorflow_v2_eager: the execution mode, enforced for this and all other backend agents.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="n">model_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;model_config not set.&quot;</span>
+        <span class="k">global</span> <span class="n">_tf_eager_execution_active</span>
+
+        <span class="k">assert</span> <span class="n">model_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;model_config not set.&quot;</span>
 
         <span class="k">assert</span> <span class="n">backend_name</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">backend_name</span>
+        <span class="k">if</span> <span class="n">_tf_eager_execution_active</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tensorflow_v2_eager</span> <span class="o">=</span> <span class="n">tensorflow_v2_eager</span>
+            <span class="n">_tf_eager_execution_active</span> <span class="o">=</span> <span class="n">tf_eager_execution</span>
+
+        <span class="k">assert</span> <span class="n">_tf_eager_execution_active</span> <span class="o">==</span> <span class="n">tf_eager_execution</span><span class="p">,</span> \
+
+            <span class="s2">&quot;Due to an incompatibility between tensorforce and tfagents their agents can not be instantiated in the&quot;</span> <span class="o">+</span>\
+
+            <span class="s2">&quot;same python runtime instance (conflicting excpectations on tensorflows eager execution mode).&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">backend_name</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span> <span class="o">=</span> <span class="n">model_config</span>
 
@@ -1121,57 +1129,23 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_train_total_episodes_on_iteration_begin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_tensorflow</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_initialize_tensorflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&quot;&quot;&quot; v2 behavior and eager execution mode. if a previous backend selected a different mode an</span>
-
-<span class="sd">            exceptionis raised.&quot;&quot;&quot;</span>
-
-        <span class="k">global</span> <span class="n">_tensorflow_v2_eager_enabled</span>
-
-        <span class="k">if</span> <span class="n">_tensorflow_v2_eager_enabled</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-
-            <span class="n">_tensorflow_v2_eager_enabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tensorflow_v2_eager</span>
-
-            <span class="k">if</span> <span class="n">_tensorflow_v2_eager_enabled</span><span class="p">:</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="s1">&#39;tf.compat.v1.enable_v2_behavior&#39;</span><span class="p">)</span>
-
-                <span class="n">tensorflow</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">enable_v2_behavior</span><span class="p">()</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="s1">&#39;tf.compat.v1.enable_eager_execution&#39;</span><span class="p">)</span>
-
-                <span class="n">tensorflow</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">enable_eager_execution</span><span class="p">()</span>
-
-        <span class="k">assert</span> <span class="n">_tensorflow_v2_eager_enabled</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tensorflow_v2_eager</span><span class="p">,</span> \
-
-            <span class="s2">&quot;v2 behavior and eager execution mode already selected by another backend does not match &quot;</span> <span class="o">+</span> \
-
-            <span class="s2">&quot;the requirements of this backend. &quot;</span> <span class="o">+</span> \
-
-            <span class="s2">&quot;To avoid the conflict, do not combine both backend types in the same python / jupyter kernel instance. &quot;</span>
-
-        <span class="k">return</span>
-
     <span class="k">def</span> <span class="nf">_set_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot; sets the random seeds for all dependent packages &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span><span class="o">.</span><span class="kp">seed</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span><span class="o">.</span><span class="kp">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="kp">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span><span class="o">.</span><span class="kp">seed</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;tf.random.set_seed&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;(seed={seed})&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;tf.random.set_seed&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;(seed=</span><span class="si">{seed}</span><span class="s1">)&#39;</span><span class="p">)</span>
 
             <span class="n">tensorflow</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="kp">seed</span><span class="o">=</span><span class="kp">seed</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;numpy.random.seed&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;({seed})&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;numpy.random.seed&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{seed}</span><span class="s1">)&#39;</span><span class="p">)</span>
 
             <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="kp">seed</span><span class="p">(</span><span class="kp">seed</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;random.seed&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;({seed})&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;random.seed&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{seed}</span><span class="s1">)&#39;</span><span class="p">)</span>
 
             <span class="n">random</span><span class="o">.</span><span class="kp">seed</span><span class="p">(</span><span class="kp">seed</span><span class="p">)</span>
 
@@ -1195,17 +1169,17 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">play_context</span><span class="o">=</span><span class="n">core</span><span class="o">.</span><span class="n">PlayContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">train</span><span class="p">),</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">log_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_msg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">log_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_msg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;Logs a call to api_target with additional log_msg.&quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">api_target</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">api_target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="n">api_target</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">log_msg</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">log_msg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="n">log_msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
@@ -1217,9 +1191,9 @@
 
         <span class="sd">&quot;&quot;&quot;Logs msg.&quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">log_msg</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">log_msg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="n">log_msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
@@ -1235,13 +1209,13 @@
 
 <span class="sd">            the total instances count is not incremented yet.&quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">:</span>
 
             <span class="n">c</span><span class="o">.</span><span class="n">on_gym_init_begin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_on_gym_init_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">monitor</span><span class="o">.</span><span class="n">_MonitorEnv</span><span class="p">):</span>
 
@@ -1257,7 +1231,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="n">env</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="kp">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="kp">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">gym_env</span>
 
@@ -1269,7 +1243,7 @@
 
             <span class="n">c</span><span class="o">.</span><span class="n">on_gym_init_end</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_on_gym_reset_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">monitor</span><span class="o">.</span><span class="n">_MonitorEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -1285,7 +1259,7 @@
 
             <span class="n">c</span><span class="o">.</span><span class="n">on_gym_reset_begin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_on_gym_reset_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">monitor</span><span class="o">.</span><span class="n">_MonitorEnv</span><span class="p">,</span> <span class="n">reset_result</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -1301,7 +1275,7 @@
 
             <span class="n">c</span><span class="o">.</span><span class="n">on_gym_reset_end</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="p">,</span> <span class="n">reset_result</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_on_gym_step_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">monitor</span><span class="o">.</span><span class="n">_MonitorEnv</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
 
@@ -1319,7 +1293,7 @@
 
         <span class="n">ac</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="n">env</span>
 
-        <span class="n">env</span><span class="o">.</span><span class="n">max_steps_per_episode</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">max_steps_per_episode</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">ac</span><span class="o">.</span><span class="n">is_play</span> <span class="ow">or</span> <span class="n">ac</span><span class="o">.</span><span class="n">is_eval</span><span class="p">:</span>
 
@@ -1337,7 +1311,7 @@
 
             <span class="n">c</span><span class="o">.</span><span class="n">on_gym_step_begin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_on_gym_step_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">monitor</span><span class="o">.</span><span class="n">_MonitorEnv</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">step_result</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">):</span>
 
@@ -1367,9 +1341,9 @@
 
             <span class="n">c</span><span class="o">.</span><span class="n">on_gym_step_end</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">step_result</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">gym</span><span class="o">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="n">env</span><span class="o">.</span><span class="n">max_steps_per_episode</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">max_steps_per_episode</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_on_play_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -1387,7 +1361,7 @@
 
             <span class="n">c</span><span class="o">.</span><span class="n">on_play_end</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span><span class="o">.</span><span class="n">gym_env</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span><span class="o">.</span><span class="n">gym_env</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">on_play_episode_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">gym</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
 
@@ -1429,7 +1403,7 @@
 
         <span class="k">if</span> <span class="n">pc</span><span class="o">.</span><span class="n">num_episodes</span> <span class="ow">and</span> <span class="n">pc</span><span class="o">.</span><span class="n">episodes_done</span> <span class="o">&gt;=</span> <span class="n">pc</span><span class="o">.</span><span class="n">num_episodes</span><span class="p">:</span>
 
-            <span class="n">pc</span><span class="o">.</span><span class="n">play_done</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">pc</span><span class="o">.</span><span class="n">play_done</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">:</span>
 
@@ -1553,17 +1527,17 @@
 
         <span class="k">for</span> <span class="n">prop_name</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
 
-            <span class="n">prop_instance</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span> <span class="n">prop_name</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">prop_instance</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span> <span class="n">prop_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
             <span class="n">prop_value</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">prop_name</span><span class="p">]</span>
 
-            <span class="k">if</span> <span class="n">prop_instance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prop_instance</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">prop_instance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prop_instance</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
 
                 <span class="n">prop_instance</span><span class="p">[</span><span class="n">tc</span><span class="o">.</span><span class="n">episodes_done_in_training</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop_value</span>
 
         <span class="n">tc</span><span class="o">.</span><span class="n">iterations_done_in_training</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">if</span> <span class="n">tc</span><span class="o">.</span><span class="n">num_iterations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tc</span><span class="o">.</span><span class="n">num_iterations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="n">tc</span><span class="o">.</span><span class="n">training_done</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">iterations_done_in_training</span> <span class="o">&gt;=</span> <span class="n">tc</span><span class="o">.</span><span class="n">num_iterations</span>
 
@@ -1603,7 +1577,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
+        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
 
         <span class="k">assert</span> <span class="n">directory</span>
 
@@ -1613,9 +1587,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">load_implementation</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">_is_policy_trained</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">_is_policy_trained</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@abstractmethod</span>
 
@@ -1661,11 +1635,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
+        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
 
         <span class="k">assert</span> <span class="n">play_context</span><span class="p">,</span> <span class="s2">&quot;play_context not set&quot;</span>
 
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;play_context already set in agent_context&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;play_context already set in agent_context&quot;</span>
 
         <span class="n">play_context</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span>
 
@@ -1689,11 +1663,11 @@
 
         <span class="k">finally</span><span class="p">:</span>
 
-            <span class="n">monitor</span><span class="o">.</span><span class="n">_MonitorEnv</span><span class="o">.</span><span class="n">_register_backend_agent</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+            <span class="n">monitor</span><span class="o">.</span><span class="n">_MonitorEnv</span><span class="o">.</span><span class="n">_register_backend_agent</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="n">old_callbacks</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@abstractmethod</span>
 
@@ -1717,7 +1691,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
+        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
 
         <span class="k">assert</span> <span class="n">train_context</span><span class="p">,</span> <span class="s2">&quot;train_context not set&quot;</span>
 
@@ -1727,13 +1701,13 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="n">train_context</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="n">callbacks</span>
 
         <span class="k">try</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;backend_name&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;{self._backend_name}&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_api</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;backend_name&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{self._backend_name}</span><span class="s1">&#39;</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_seed</span><span class="p">()</span>
 
@@ -1741,7 +1715,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_on_train_begin</span><span class="p">()</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">_is_policy_trained</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">_is_policy_trained</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">train_implementation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">train</span><span class="p">)</span>
 
@@ -1749,13 +1723,13 @@
 
         <span class="k">finally</span><span class="p">:</span>
 
-            <span class="n">monitor</span><span class="o">.</span><span class="n">_MonitorEnv</span><span class="o">.</span><span class="n">_register_backend_agent</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+            <span class="n">monitor</span><span class="o">.</span><span class="n">_MonitorEnv</span><span class="o">.</span><span class="n">_register_backend_agent</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">play</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_agent_context</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@abstractmethod</span>
 
@@ -1783,7 +1757,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
+        <span class="k">assert</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;callbacks not set&quot;</span>
 
         <span class="k">assert</span> <span class="n">directory</span>
 
@@ -1795,7 +1769,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">save_implementation</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@abstractmethod</span>
 
@@ -1809,7 +1783,7 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">             directory: the directory to save the policy weights to.</span>
+<span class="sd">             directory: the (existing) directory to save the policy weights to.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1820,6 +1794,20 @@
 <span class="sd">        Explicitely exhibits all methods that should be overriden by an implementing agent.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+
+    <span class="k">def</span> <span class="nf">load_implementation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Loads a previously trained and saved actor policy from directory.</span>
+
+<span class="sd">        The loaded policy may afterwards be used by calling play().</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            directory: the directory containing the trained policy.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
 
@@ -1854,6 +1842,22 @@
 <span class="sd">            Args:</span>
 
 <span class="sd">                play_context: play configuration to be used</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+
+    <span class="k">def</span> <span class="nf">save_implementation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Agent speecific implementation of saving the weights for the actor policy.</span>
+
+<span class="sd">        Save must only guarantee to persist the weights of the actor policy.</span>
+
+<span class="sd">        The implementation may write multiple files with fixed filenames.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">             directory: the directory to save the policy weights to.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1901,8 +1905,6 @@
 
     <span class="n">backend_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;abstract_BackendAgentFactory&#39;</span>
 
-    <span class="n">tensorflow_v2_eager_compatible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">True</span>
-
     <span class="k">def</span> <span class="nf">create_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">easyagent_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">,</span> <span class="n">model_config</span><span class="p">:</span> <span class="n">core</span><span class="o">.</span><span class="n">ModelConfig</span><span class="p">)</span> \
 
             <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_BackendAgent</span><span class="p">]:</span>
@@ -1921,7 +1923,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">result</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_BackendAgent</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">result</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_BackendAgent</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">algorithms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_algorithms</span><span class="p">()</span>
 
@@ -1945,92 +1947,122 @@
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BackendAgent</span><span class="p">(</span>
     <span class="n">model_config</span><span class="p">:</span> <span class="n">easyagents</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">ModelConfig</span><span class="p">,</span>
     <span class="n">backend_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">tensorflow_v2_eager</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">tf_eager_execution</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Base class for all BackendAgent implementation.</p>
 <p>Explicitely exhibits all methods that should be overriden by an implementing agent.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">BackendAgent</span><span class="ss">(</span><span class="nv">_BackendAgent</span>, <span class="nv">metaclass</span><span class="o">=</span><span class="nv">ABCMeta</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="n">BackendAgent</span><span class="p">(</span><span class="n">_BackendAgent</span><span class="p">,</span><span class="w"> </span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-    <span class="s2">&quot;&quot;&quot;</span><span class="s">Base class for all BackendAgent implementation.</span>
+<span class="w">    </span><span class="ss">&quot;&quot;&quot;Base class for all BackendAgent implementation.</span>
 
-        <span class="nv">Explicitely</span> <span class="nv">exhibits</span> <span class="nv">all</span> <span class="nv">methods</span> <span class="nv">that</span> <span class="nv">should</span> <span class="nv">be</span> <span class="nv">overriden</span> <span class="nv">by</span> <span class="nv">an</span> <span class="nv">implementing</span> <span class="nv">agent</span>.
+<span class="ss">        Explicitely exhibits all methods that should be overriden by an implementing agent.</span>
 
-    <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">    &quot;&quot;&quot;</span><span class="w"></span>
 
-    @<span class="nv">abstractmethod</span>
+<span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">play_implementation</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">play_context</span>: <span class="nv">core</span>.<span class="nv">PlayContext</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">load_implementation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">directory</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Agent specific implementation of playing a number of episodes with the current policy.</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Loads a previously trained and saved actor policy from directory.</span>
 
-            <span class="nv">The</span> <span class="nv">implementation</span> <span class="nv">should</span> <span class="nv">have</span> <span class="nv">the</span> <span class="nv">form</span>:
+<span class="ss">        The loaded policy may afterwards be used by calling play().</span>
 
-            <span class="k">while</span> <span class="nv">True</span>:
+<span class="ss">        Args:</span>
 
-                <span class="nv">on_play_episode_begin</span><span class="ss">(</span><span class="nv">env</span><span class="ss">)</span>
+<span class="ss">            directory: the directory containing the trained policy.</span>
 
-                <span class="nv">state</span> <span class="o">=</span> <span class="nv">env</span>.<span class="nv">reset</span><span class="ss">()</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-                <span class="k">while</span> <span class="nv">True</span>:
+<span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-                    <span class="nv">action</span> <span class="o">=</span> <span class="nv">_trained_policy</span>.<span class="nv">action</span><span class="ss">(</span><span class="nv">state</span><span class="ss">)</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">play_implementation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">play_context</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">PlayContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-                    <span class="ss">(</span><span class="nv">state</span>, <span class="nv">reward</span>, <span class="nv">done</span>, <span class="nv">info</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">env</span>.<span class="nv">step</span><span class="ss">(</span><span class="nv">action</span><span class="ss">)</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Agent specific implementation of playing a number of episodes with the current policy.</span>
 
-                    <span class="k">if</span> <span class="nv">done</span>:
+<span class="ss">            The implementation should have the form:</span>
 
-                        <span class="k">break</span>
+<span class="ss">            while True:</span>
 
-                <span class="nv">on_play_episode_end</span><span class="ss">()</span>
+<span class="ss">                on_play_episode_begin(env)</span>
 
-                <span class="k">if</span> <span class="nv">play_context</span>.<span class="nv">play_done</span>:
+<span class="ss">                state = env.reset()</span>
 
-                    <span class="k">break</span>
+<span class="ss">                while True:</span>
 
-            <span class="nv">Args</span>:
+<span class="ss">                    action = _trained_policy.action(state)</span>
 
-                <span class="nv">play_context</span>: <span class="nv">play</span> <span class="nv">configuration</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">used</span>
+<span class="ss">                    (state, reward, done, info) = env.step(action)</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">                    if done:</span>
 
-    @<span class="nv">abstractmethod</span>
+<span class="ss">                        break</span>
 
-    <span class="nv">def</span> <span class="nv">train_implementation</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">train_context</span>: <span class="nv">core</span>.<span class="nv">TrainContext</span><span class="ss">)</span>:
+<span class="ss">                on_play_episode_end()</span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Agent specific implementation of the train loop.</span>
+<span class="ss">                if play_context.play_done:</span>
 
-            <span class="nv">The</span> <span class="nv">implementation</span> <span class="nv">should</span> <span class="nv">have</span> <span class="nv">the</span> <span class="nv">form</span>:
+<span class="ss">                    break</span>
 
-            <span class="k">while</span> <span class="nv">True</span>:
+<span class="ss">            Args:</span>
 
-                <span class="nv">on_iteration_begin</span>
+<span class="ss">                play_context: play configuration to be used</span>
 
-                <span class="k">for</span> <span class="nv">e</span> <span class="nv">in</span> <span class="nv">num_episodes_per_iterations</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-                    <span class="nv">play</span> <span class="nv">episode</span> <span class="nv">and</span> <span class="nv">record</span> <span class="nv">steps</span> <span class="ss">(</span><span class="k">while</span> <span class="nv">steps_in_episode</span> <span class="o">&lt;</span> <span class="nv">max_steps_per_episode</span> <span class="nv">and</span><span class="ss">)</span>
+<span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-                <span class="nv">train</span> <span class="nv">policy</span> <span class="k">for</span> <span class="nv">num_epochs_per_iteration</span> <span class="nv">epochs</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">save_implementation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">directory</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-                <span class="nv">on_iteration_end</span><span class="ss">(</span> <span class="nv">loss</span> <span class="ss">)</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Agent speecific implementation of saving the weights for the actor policy.</span>
 
-                <span class="k">if</span> <span class="nv">training_done</span>
+<span class="ss">        Save must only guarantee to persist the weights of the actor policy.</span>
 
-                    <span class="k">break</span>
+<span class="ss">        The implementation may write multiple files with fixed filenames.</span>
 
-            <span class="nv">Args</span>:
+<span class="ss">        Args:</span>
 
-                <span class="nv">train_context</span>: <span class="nv">context</span> <span class="nv">configuring</span> <span class="nv">the</span> <span class="nv">train</span> <span class="k">loop</span>
+<span class="ss">             directory: the directory to save the policy weights to.</span>
 
-            <span class="nv">Hints</span>:
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-            <span class="nv">o</span> <span class="nv">the</span> <span class="nv">subclasses</span> <span class="nv">training</span> <span class="nv">loss</span> <span class="nv">is</span> <span class="nv">passed</span> <span class="nv">through</span> <span class="nv">to</span> <span class="nv">BackendAgent</span> <span class="nv">by</span> <span class="nv">on_iteration_end</span>.
+<span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-              <span class="nv">Thus</span> <span class="nv">the</span> <span class="nv">subclass</span> <span class="nv">must</span> <span class="nv">not</span> <span class="nv">add</span> <span class="nv">the</span> <span class="nv">experienced</span> <span class="nv">loss</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">TrainContext</span>.
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">train_implementation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">train_context</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">TrainContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Agent specific implementation of the train loop.</span>
+
+<span class="ss">            The implementation should have the form:</span>
+
+<span class="ss">            while True:</span>
+
+<span class="ss">                on_iteration_begin</span>
+
+<span class="ss">                for e in num_episodes_per_iterations</span>
+
+<span class="ss">                    play episode and record steps (while steps_in_episode &lt; max_steps_per_episode and)</span>
+
+<span class="ss">                train policy for num_epochs_per_iteration epochs</span>
+
+<span class="ss">                on_iteration_end( loss )</span>
+
+<span class="ss">                if training_done</span>
+
+<span class="ss">                    break</span>
+
+<span class="ss">            Args:</span>
+
+<span class="ss">                train_context: context configuring the train loop</span>
+
+<span class="ss">            Hints:</span>
+
+<span class="ss">            o the subclasses training loss is passed through to BackendAgent by on_iteration_end.</span>
+
+<span class="ss">              Thus the subclass must not add the experienced loss to the TrainContext.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 </pre></div>
 
 
@@ -2043,6 +2075,10 @@
 </ul>
 <h4 id="descendants">Descendants</h4>
 <ul>
+<li>easyagents.backends.default.TensorforceNotActiveAgent</li>
+<li>easyagents.backends.default.TfAgentsNotActiveAgent</li>
+<li>easyagents.backends.default.SetTensorforceBackendAgent</li>
+<li>easyagents.backends.default.NotImplementedYetAgent</li>
 <li>easyagents.backends.tfagents.TfAgent</li>
 </ul>
 <h4 id="methods">Methods</h4>
@@ -2129,19 +2165,19 @@
 
 
 <p>Logs msg.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">log</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">log_msg</span>: <span class="nv">str</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">log</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">log_msg</span><span class="p">:</span> <span class="n">str</span><span class="p">):</span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Logs msg.</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="ss">&quot;&quot;&quot;Logs msg.&quot;&quot;&quot;</span>
 
-        <span class="nv">self</span>.<span class="nv">_agent_context</span>.<span class="nv">gym</span>.<span class="nv">_monitor_env</span> <span class="o">=</span> <span class="nv">None</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">gym</span><span class="p">.</span><span class="n">_monitor_env</span> <span class="o">=</span> <span class="k">None</span>
 
-        <span class="k">if</span> <span class="nv">log_msg</span> <span class="nv">is</span> <span class="nv">None</span>:
+        <span class="k">if</span> <span class="n">log_msg</span> <span class="k">is</span> <span class="k">None</span><span class="p">:</span>
 
-            <span class="nv">log_msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">log_msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-        <span class="k">for</span> <span class="nv">c</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_callbacks</span>:
+        <span class="k">for</span> <span class="k">c</span> <span class="k">in</span> <span class="k">self</span><span class="p">.</span><span class="n">_callbacks</span><span class="p">:</span>
 
-            <span class="nv">c</span>.<span class="nv">on_log</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_agent_context</span>, <span class="nv">log_msg</span><span class="o">=</span><span class="nv">log_msg</span><span class="ss">)</span>
+            <span class="k">c</span><span class="p">.</span><span class="n">on_log</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">,</span> <span class="n">log_msg</span><span class="o">=</span><span class="n">log_msg</span><span class="p">)</span>
 </pre></div>
 
 
@@ -2156,23 +2192,23 @@
 
 
 <p>Logs a call to api_target with additional log_msg.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">log_api</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">api_target</span>: <span class="nv">str</span>, <span class="nv">log_msg</span>: <span class="nv">Optional</span>[<span class="nv">str</span>] <span class="o">=</span> <span class="nv">None</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">log_api</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">api_target</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">,</span><span class="w"> </span><span class="nl">log_msg</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">str</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Logs a call to api_target with additional log_msg.</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Logs a call to api_target with additional log_msg.&quot;&quot;&quot;</span><span class="w"></span>
 
-        <span class="nv">self</span>.<span class="nv">_agent_context</span>.<span class="nv">gym</span>.<span class="nv">_monitor_env</span> <span class="o">=</span> <span class="nv">None</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">gym</span><span class="p">.</span><span class="n">_monitor_env</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">api_target</span> <span class="nv">is</span> <span class="nv">None</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">api_target</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">api_target</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<span class="w">            </span><span class="n">api_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">log_msg</span> <span class="nv">is</span> <span class="nv">None</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">log_msg</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">log_msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<span class="w">            </span><span class="n">log_msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">c</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_callbacks</span>:
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">_callbacks</span><span class="p">:</span><span class="w"></span>
 
-            <span class="nv">c</span>.<span class="nv">on_api_log</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_agent_context</span>, <span class="nv">api_target</span>, <span class="nv">log_msg</span><span class="o">=</span><span class="nv">log_msg</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">c</span><span class="p">.</span><span class="n">on_api_log</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">,</span><span class="w"> </span><span class="n">api_target</span><span class="p">,</span><span class="w"> </span><span class="n">log_msg</span><span class="o">=</span><span class="n">log_msg</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 
 
@@ -2188,35 +2224,35 @@
 <p>Must be called by play_implementation at the beginning of a new episode</p>
 <p>Args:
     env: the gym environment used to play the episode.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_play_episode_begin</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">env</span>: <span class="nv">gym</span>.<span class="nv">core</span>.<span class="nv">Env</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">on_play_episode_begin</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">gym</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">Env</span><span class="p">):</span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Must be called by play_implementation at the beginning of a new episode</span>
+        <span class="ss">&quot;&quot;&quot;Must be called by play_implementation at the beginning of a new episode</span>
 
-        <span class="nv">Args</span>:
+<span class="ss">        Args:</span>
 
-            <span class="nv">env</span>: <span class="nv">the</span> <span class="nv">gym</span> <span class="nv">environment</span> <span class="nv">used</span> <span class="nv">to</span> <span class="nv">play</span> <span class="nv">the</span> <span class="nv">episode</span>.
+<span class="ss">            env: the gym environment used to play the episode.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span>
 
-        <span class="nv">assert</span> <span class="nv">env</span>, <span class="s2">&quot;</span><span class="s">env not set.</span><span class="s2">&quot;</span>
+        <span class="n">assert</span> <span class="n">env</span><span class="p">,</span> <span class="ss">&quot;env not set.&quot;</span>
 
-        <span class="nv">assert</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">env</span>, <span class="nv">gym</span>.<span class="nv">core</span>.<span class="nv">Env</span><span class="ss">)</span>, <span class="s2">&quot;</span><span class="s">env not an an instance of gym.Env.</span><span class="s2">&quot;</span>
+        <span class="n">assert</span> <span class="n">isinstance</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">gym</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">Env</span><span class="p">),</span> <span class="ss">&quot;env not an an instance of gym.Env.&quot;</span>
 
-        <span class="nv">pc</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_agent_context</span>.<span class="nv">play</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">play</span>
 
-        <span class="nv">pc</span>.<span class="nv">gym_env</span> <span class="o">=</span> <span class="nv">env</span>
+        <span class="n">pc</span><span class="p">.</span><span class="n">gym_env</span> <span class="o">=</span> <span class="n">env</span>
 
-        <span class="nv">pc</span>.<span class="nv">steps_done_in_episode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pc</span><span class="p">.</span><span class="n">steps_done_in_episode</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="nv">pc</span>.<span class="nv">actions</span>[<span class="nv">pc</span>.<span class="nv">episodes_done</span> <span class="o">+</span> <span class="mi">1</span>] <span class="o">=</span> []
+        <span class="n">pc</span><span class="p">.</span><span class="n">actions</span><span class="p">[</span><span class="n">pc</span><span class="p">.</span><span class="n">episodes_done</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="nv">pc</span>.<span class="nv">rewards</span>[<span class="nv">pc</span>.<span class="nv">episodes_done</span> <span class="o">+</span> <span class="mi">1</span>] <span class="o">=</span> []
+        <span class="n">pc</span><span class="p">.</span><span class="n">rewards</span><span class="p">[</span><span class="n">pc</span><span class="p">.</span><span class="n">episodes_done</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="nv">pc</span>.<span class="nv">sum_of_rewards</span>[<span class="nv">pc</span>.<span class="nv">episodes_done</span> <span class="o">+</span> <span class="mi">1</span>] <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pc</span><span class="p">.</span><span class="n">sum_of_rewards</span><span class="p">[</span><span class="n">pc</span><span class="p">.</span><span class="n">episodes_done</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="k">for</span> <span class="nv">c</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_callbacks</span>:
+        <span class="k">for</span> <span class="k">c</span> <span class="k">in</span> <span class="k">self</span><span class="p">.</span><span class="n">_callbacks</span><span class="p">:</span>
 
-            <span class="nv">c</span>.<span class="nv">on_play_episode_begin</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_agent_context</span><span class="ss">)</span>
+            <span class="k">c</span><span class="p">.</span><span class="n">on_play_episode_begin</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">)</span>
 </pre></div>
 
 
@@ -2229,21 +2265,21 @@
 
 
 <p>Must be called by play_implementation at the end of an episode</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_play_episode_end</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">on_play_episode_end</span><span class="p">(</span><span class="k">self</span><span class="p">):</span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Must be called by play_implementation at the end of an episode</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="ss">&quot;&quot;&quot;Must be called by play_implementation at the end of an episode&quot;&quot;&quot;</span>
 
-        <span class="nv">pc</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_agent_context</span>.<span class="nv">play</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">play</span>
 
-        <span class="nv">pc</span>.<span class="nv">episodes_done</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">pc</span><span class="p">.</span><span class="n">episodes_done</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">if</span> <span class="nv">pc</span>.<span class="nv">num_episodes</span> <span class="nv">and</span> <span class="nv">pc</span>.<span class="nv">episodes_done</span> <span class="o">&gt;=</span> <span class="nv">pc</span>.<span class="nv">num_episodes</span>:
+        <span class="k">if</span> <span class="n">pc</span><span class="p">.</span><span class="n">num_episodes</span> <span class="k">and</span> <span class="n">pc</span><span class="p">.</span><span class="n">episodes_done</span> <span class="o">&gt;=</span> <span class="n">pc</span><span class="p">.</span><span class="n">num_episodes</span><span class="p">:</span>
 
-            <span class="nv">pc</span>.<span class="nv">play_done</span> <span class="o">=</span> <span class="nv">True</span>
+            <span class="n">pc</span><span class="p">.</span><span class="n">play_done</span> <span class="o">=</span> <span class="k">True</span>
 
-        <span class="k">for</span> <span class="nv">c</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_callbacks</span>:
+        <span class="k">for</span> <span class="k">c</span> <span class="k">in</span> <span class="k">self</span><span class="p">.</span><span class="n">_callbacks</span><span class="p">:</span>
 
-            <span class="nv">c</span>.<span class="nv">on_play_episode_end</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_agent_context</span><span class="ss">)</span>
+            <span class="k">c</span><span class="p">.</span><span class="n">on_play_episode_end</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">)</span>
 </pre></div>
 
 
@@ -2256,25 +2292,25 @@
 
 
 <p>Must be called by train_implementation at the begining of a new iteration</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_train_iteration_begin</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">on_train_iteration_begin</span><span class="p">(</span><span class="k">self</span><span class="p">):</span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Must be called by train_implementation at the begining of a new iteration</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="ss">&quot;&quot;&quot;Must be called by train_implementation at the begining of a new iteration&quot;&quot;&quot;</span>
 
-        <span class="nv">tc</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_agent_context</span>.<span class="nv">train</span>
+        <span class="n">tc</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">train</span>
 
-        <span class="nv">tc</span>.<span class="nv">episodes_done_in_iteration</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tc</span><span class="p">.</span><span class="n">episodes_done_in_iteration</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="nv">tc</span>.<span class="nv">steps_done_in_iteration</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tc</span><span class="p">.</span><span class="n">steps_done_in_iteration</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="k">if</span> <span class="nv">tc</span>.<span class="nv">iterations_done_in_training</span> <span class="o">==</span> <span class="mi">0</span>:
+        <span class="k">if</span> <span class="n">tc</span><span class="p">.</span><span class="n">iterations_done_in_training</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
 
-            <span class="nv">self</span>.<span class="nv">_eval_current_policy</span><span class="ss">()</span>
+            <span class="k">self</span><span class="p">.</span><span class="n">_eval_current_policy</span><span class="p">()</span>
 
-        <span class="nv">self</span>.<span class="nv">_train_total_episodes_on_iteration_begin</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_agent_context</span>.<span class="nv">gym</span>.<span class="nv">_totals</span>.<span class="nv">episodes_done</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_train_total_episodes_on_iteration_begin</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">gym</span><span class="p">.</span><span class="n">_totals</span><span class="p">.</span><span class="n">episodes_done</span>
 
-        <span class="k">for</span> <span class="nv">c</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_callbacks</span>:
+        <span class="k">for</span> <span class="k">c</span> <span class="k">in</span> <span class="k">self</span><span class="p">.</span><span class="n">_callbacks</span><span class="p">:</span>
 
-            <span class="nv">c</span>.<span class="nv">on_train_iteration_begin</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_agent_context</span><span class="ss">)</span>
+            <span class="k">c</span><span class="p">.</span><span class="n">on_train_iteration_begin</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">)</span>
 </pre></div>
 
 
@@ -2296,63 +2332,63 @@ Eg for an ActorCriticTrainContext the losses may be set like this:
     loss: loss after the training of the model in this iteration or math.nan if the loss is not available
     **kwargs: if a keyword matches a dict property of the TrainContext instance, then
                 the dict[episodes_done_in_training] is set to the arg.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_train_iteration_end</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">loss</span>: <span class="nv">float</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_train_iteration_end</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">loss</span><span class="p">:</span><span class="w"> </span><span class="nc">float</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Must be called by train_implementation at the end of an iteration</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Must be called by train_implementation at the end of an iteration</span>
 
-        <span class="nv">Evaluates</span> <span class="nv">the</span> <span class="nv">current</span> <span class="nv">policy</span>. <span class="nv">Use</span> <span class="nv">kwargs</span> <span class="nv">to</span> <span class="nv">set</span> <span class="nv">additional</span> <span class="nv">dict</span> <span class="nv">values</span> <span class="nv">in</span> <span class="nv">train</span> <span class="nv">context</span>.
+<span class="ss">        Evaluates the current policy. Use kwargs to set additional dict values in train context.</span>
 
-        <span class="nv">Eg</span> <span class="k">for</span> <span class="nv">an</span> <span class="nv">ActorCriticTrainContext</span> <span class="nv">the</span> <span class="nv">losses</span> <span class="nv">may</span> <span class="nv">be</span> <span class="nv">set</span> <span class="nv">like</span> <span class="nv">this</span>:
+<span class="ss">        Eg for an ActorCriticTrainContext the losses may be set like this:</span>
 
-            <span class="nv">on_train_iteration</span><span class="ss">(</span><span class="nv">loss</span><span class="o">=</span><span class="mi">123</span>,<span class="nv">actor_loss</span><span class="o">=</span><span class="mi">456</span>,<span class="nv">critic_loss</span><span class="o">=</span><span class="mi">789</span><span class="ss">)</span>
+<span class="ss">            on_train_iteration(loss=123,actor_loss=456,critic_loss=789)</span>
 
-        <span class="nv">Args</span>:
+<span class="ss">        Args:</span>
 
-            <span class="nv">loss</span>: <span class="nv">loss</span> <span class="nv">after</span> <span class="nv">the</span> <span class="nv">training</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">model</span> <span class="nv">in</span> <span class="nv">this</span> <span class="nv">iteration</span> <span class="nv">or</span> <span class="nv">math</span>.<span class="nv">nan</span> <span class="k">if</span> <span class="nv">the</span> <span class="nv">loss</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">available</span>
+<span class="ss">            loss: loss after the training of the model in this iteration or math.nan if the loss is not available</span>
 
-            <span class="o">**</span><span class="nv">kwargs</span>: <span class="k">if</span> <span class="nv">a</span> <span class="nv">keyword</span> <span class="nv">matches</span> <span class="nv">a</span> <span class="nv">dict</span> <span class="nv">property</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">TrainContext</span> <span class="nv">instance</span>, <span class="k">then</span>
+<span class="ss">            **kwargs: if a keyword matches a dict property of the TrainContext instance, then</span>
 
-                        <span class="nv">the</span> <span class="nv">dict</span>[<span class="nv">episodes_done_in_training</span>] <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">arg</span>.
+<span class="ss">                        the dict[episodes_done_in_training] is set to the arg.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-        <span class="nv">tc</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_agent_context</span>.<span class="nv">train</span>
+<span class="w">        </span><span class="n">tc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">train</span><span class="w"></span>
 
-        <span class="nv">totals</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_agent_context</span>.<span class="nv">gym</span>.<span class="nv">_totals</span>
+<span class="w">        </span><span class="n">totals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">.</span><span class="n">gym</span><span class="p">.</span><span class="n">_totals</span><span class="w"></span>
 
-        <span class="nv">tc</span>.<span class="nv">episodes_done_in_iteration</span> <span class="o">=</span> <span class="ss">(</span><span class="nv">totals</span>.<span class="nv">episodes_done</span> <span class="o">-</span> <span class="nv">self</span>.<span class="nv">_train_total_episodes_on_iteration_begin</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">tc</span><span class="p">.</span><span class="n">episodes_done_in_iteration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">totals</span><span class="p">.</span><span class="n">episodes_done</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_train_total_episodes_on_iteration_begin</span><span class="p">)</span><span class="w"></span>
 
-        <span class="nv">tc</span>.<span class="nv">episodes_done_in_training</span> <span class="o">+=</span> <span class="nv">tc</span>.<span class="nv">episodes_done_in_iteration</span>
+<span class="w">        </span><span class="n">tc</span><span class="p">.</span><span class="n">episodes_done_in_training</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">episodes_done_in_iteration</span><span class="w"></span>
 
-        <span class="nv">tc</span>.<span class="nv">loss</span>[<span class="nv">tc</span>.<span class="nv">episodes_done_in_training</span>] <span class="o">=</span> <span class="nv">loss</span>
+<span class="w">        </span><span class="n">tc</span><span class="p">.</span><span class="n">loss</span><span class="o">[</span><span class="n">tc.episodes_done_in_training</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">loss</span><span class="w"></span>
 
-        # <span class="nv">set</span> <span class="nv">traincontext</span> <span class="nv">dict</span> <span class="nv">from</span> <span class="nv">kwargs</span>:
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">traincontext</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="nl">kwargs</span><span class="p">:</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">prop_name</span> <span class="nv">in</span> <span class="nv">kwargs</span>:
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">prop_name</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">kwargs</span><span class="p">:</span><span class="w"></span>
 
-            <span class="nv">prop_instance</span> <span class="o">=</span> <span class="nv">getattr</span><span class="ss">(</span><span class="nv">tc</span>, <span class="nv">prop_name</span>, <span class="nv">None</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">prop_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getattr</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span><span class="w"> </span><span class="n">prop_name</span><span class="p">,</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="w"></span>
 
-            <span class="nv">prop_value</span> <span class="o">=</span> <span class="nv">kwargs</span>[<span class="nv">prop_name</span>]
+<span class="w">            </span><span class="n">prop_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kwargs</span><span class="o">[</span><span class="n">prop_name</span><span class="o">]</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">prop_instance</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span> <span class="nv">and</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">prop_instance</span>, <span class="nv">dict</span><span class="ss">)</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">prop_instance</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">isinstance</span><span class="p">(</span><span class="n">prop_instance</span><span class="p">,</span><span class="w"> </span><span class="n">dict</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-                <span class="nv">prop_instance</span>[<span class="nv">tc</span>.<span class="nv">episodes_done_in_training</span>] <span class="o">=</span> <span class="nv">prop_value</span>
+<span class="w">                </span><span class="n">prop_instance</span><span class="o">[</span><span class="n">tc.episodes_done_in_training</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prop_value</span><span class="w"></span>
 
-        <span class="nv">tc</span>.<span class="nv">iterations_done_in_training</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="w">        </span><span class="n">tc</span><span class="p">.</span><span class="n">iterations_done_in_training</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">tc</span>.<span class="nv">num_iterations</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">num_iterations</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">tc</span>.<span class="nv">training_done</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">iterations_done_in_training</span> <span class="o">&gt;=</span> <span class="nv">tc</span>.<span class="nv">num_iterations</span>
+<span class="w">            </span><span class="n">tc</span><span class="p">.</span><span class="n">training_done</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">iterations_done_in_training</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">num_iterations</span><span class="w"></span>
 
-        <span class="nv">self</span>.<span class="nv">_train_total_episodes_on_iteration_begin</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_train_total_episodes_on_iteration_begin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span> <span class="nv">and</span> <span class="ss">(</span><span class="nv">tc</span>.<span class="nv">iterations_done_in_training</span> <span class="o">%</span> <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span> <span class="o">==</span> <span class="mi">0</span><span class="ss">)</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">num_iterations_between_eval</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">iterations_done_in_training</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">num_iterations_between_eval</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">self</span>.<span class="nv">_eval_current_policy</span><span class="ss">()</span>
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_eval_current_policy</span><span class="p">()</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">c</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_callbacks</span>:
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">_callbacks</span><span class="p">:</span><span class="w"></span>
 
-            <span class="nv">c</span>.<span class="nv">on_train_iteration_end</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_agent_context</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">c</span><span class="p">.</span><span class="n">on_train_iteration_end</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_agent_context</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 
 
@@ -2442,41 +2478,41 @@ Eg for an ActorCriticTrainContext the losses may be set like this:
         break</p>
 <p>Args:
     play_context: play configuration to be used</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">abstractmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">play_implementation</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">play_context</span>: <span class="nv">core</span>.<span class="nv">PlayContext</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">play_implementation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">play_context</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">PlayContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Agent specific implementation of playing a number of episodes with the current policy.</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Agent specific implementation of playing a number of episodes with the current policy.</span>
 
-            <span class="nv">The</span> <span class="nv">implementation</span> <span class="nv">should</span> <span class="nv">have</span> <span class="nv">the</span> <span class="nv">form</span>:
+<span class="ss">            The implementation should have the form:</span>
 
-            <span class="k">while</span> <span class="nv">True</span>:
+<span class="ss">            while True:</span>
 
-                <span class="nv">on_play_episode_begin</span><span class="ss">(</span><span class="nv">env</span><span class="ss">)</span>
+<span class="ss">                on_play_episode_begin(env)</span>
 
-                <span class="nv">state</span> <span class="o">=</span> <span class="nv">env</span>.<span class="nv">reset</span><span class="ss">()</span>
+<span class="ss">                state = env.reset()</span>
 
-                <span class="k">while</span> <span class="nv">True</span>:
+<span class="ss">                while True:</span>
 
-                    <span class="nv">action</span> <span class="o">=</span> <span class="nv">_trained_policy</span>.<span class="nv">action</span><span class="ss">(</span><span class="nv">state</span><span class="ss">)</span>
+<span class="ss">                    action = _trained_policy.action(state)</span>
 
-                    <span class="ss">(</span><span class="nv">state</span>, <span class="nv">reward</span>, <span class="nv">done</span>, <span class="nv">info</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">env</span>.<span class="nv">step</span><span class="ss">(</span><span class="nv">action</span><span class="ss">)</span>
+<span class="ss">                    (state, reward, done, info) = env.step(action)</span>
 
-                    <span class="k">if</span> <span class="nv">done</span>:
+<span class="ss">                    if done:</span>
 
-                        <span class="k">break</span>
+<span class="ss">                        break</span>
 
-                <span class="nv">on_play_episode_end</span><span class="ss">()</span>
+<span class="ss">                on_play_episode_end()</span>
 
-                <span class="k">if</span> <span class="nv">play_context</span>.<span class="nv">play_done</span>:
+<span class="ss">                if play_context.play_done:</span>
 
-                    <span class="k">break</span>
+<span class="ss">                    break</span>
 
-            <span class="nv">Args</span>:
+<span class="ss">            Args:</span>
 
-                <span class="nv">play_context</span>: <span class="nv">play</span> <span class="nv">configuration</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">used</span>
+<span class="ss">                play_context: play configuration to be used</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 </pre></div>
 
 
@@ -2542,21 +2578,21 @@ Thus after a call to load resuming training is not supported.</p>
 The implementation may write multiple files with fixed filenames.</p>
 <p>Args:
      directory: the directory to save the policy weights to.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">abstractmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">save_implementation</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">directory</span>: <span class="nv">str</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">save_implementation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">directory</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Agent speecific implementation of saving the weights for the actor policy.</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Agent speecific implementation of saving the weights for the actor policy.</span>
 
-        <span class="nv">Save</span> <span class="nv">must</span> <span class="nv">only</span> <span class="nv">guarantee</span> <span class="nv">to</span> <span class="nv">persist</span> <span class="nv">the</span> <span class="nv">weights</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">actor</span> <span class="nv">policy</span>.
+<span class="ss">        Save must only guarantee to persist the weights of the actor policy.</span>
 
-        <span class="nv">The</span> <span class="nv">implementation</span> <span class="nv">may</span> <span class="nv">write</span> <span class="nv">multiple</span> <span class="nv">files</span> <span class="nv">with</span> <span class="nv">fixed</span> <span class="nv">filenames</span>.
+<span class="ss">        The implementation may write multiple files with fixed filenames.</span>
 
-        <span class="nv">Args</span>:
+<span class="ss">        Args:</span>
 
-             <span class="nv">directory</span>: <span class="nv">the</span> <span class="nv">directory</span> <span class="nv">to</span> <span class="nv">save</span> <span class="nv">the</span> <span class="nv">policy</span> <span class="nv">weights</span> <span class="nv">to</span>.
+<span class="ss">             directory: the directory to save the policy weights to.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 </pre></div>
 
 
@@ -2652,41 +2688,41 @@ The implementation may write multiple files with fixed filenames.</p>
 <p>Hints:
 o the subclasses training loss is passed through to BackendAgent by on_iteration_end.
   Thus the subclass must not add the experienced loss to the TrainContext.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">abstractmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">train_implementation</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">train_context</span>: <span class="nv">core</span>.<span class="nv">TrainContext</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">train_implementation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">train_context</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">TrainContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Agent specific implementation of the train loop.</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Agent specific implementation of the train loop.</span>
 
-            <span class="nv">The</span> <span class="nv">implementation</span> <span class="nv">should</span> <span class="nv">have</span> <span class="nv">the</span> <span class="nv">form</span>:
+<span class="ss">            The implementation should have the form:</span>
 
-            <span class="k">while</span> <span class="nv">True</span>:
+<span class="ss">            while True:</span>
 
-                <span class="nv">on_iteration_begin</span>
+<span class="ss">                on_iteration_begin</span>
 
-                <span class="k">for</span> <span class="nv">e</span> <span class="nv">in</span> <span class="nv">num_episodes_per_iterations</span>
+<span class="ss">                for e in num_episodes_per_iterations</span>
 
-                    <span class="nv">play</span> <span class="nv">episode</span> <span class="nv">and</span> <span class="nv">record</span> <span class="nv">steps</span> <span class="ss">(</span><span class="k">while</span> <span class="nv">steps_in_episode</span> <span class="o">&lt;</span> <span class="nv">max_steps_per_episode</span> <span class="nv">and</span><span class="ss">)</span>
+<span class="ss">                    play episode and record steps (while steps_in_episode &lt; max_steps_per_episode and)</span>
 
-                <span class="nv">train</span> <span class="nv">policy</span> <span class="k">for</span> <span class="nv">num_epochs_per_iteration</span> <span class="nv">epochs</span>
+<span class="ss">                train policy for num_epochs_per_iteration epochs</span>
 
-                <span class="nv">on_iteration_end</span><span class="ss">(</span> <span class="nv">loss</span> <span class="ss">)</span>
+<span class="ss">                on_iteration_end( loss )</span>
 
-                <span class="k">if</span> <span class="nv">training_done</span>
+<span class="ss">                if training_done</span>
 
-                    <span class="k">break</span>
+<span class="ss">                    break</span>
 
-            <span class="nv">Args</span>:
+<span class="ss">            Args:</span>
 
-                <span class="nv">train_context</span>: <span class="nv">context</span> <span class="nv">configuring</span> <span class="nv">the</span> <span class="nv">train</span> <span class="k">loop</span>
+<span class="ss">                train_context: context configuring the train loop</span>
 
-            <span class="nv">Hints</span>:
+<span class="ss">            Hints:</span>
 
-            <span class="nv">o</span> <span class="nv">the</span> <span class="nv">subclasses</span> <span class="nv">training</span> <span class="nv">loss</span> <span class="nv">is</span> <span class="nv">passed</span> <span class="nv">through</span> <span class="nv">to</span> <span class="nv">BackendAgent</span> <span class="nv">by</span> <span class="nv">on_iteration_end</span>.
+<span class="ss">            o the subclasses training loss is passed through to BackendAgent by on_iteration_end.</span>
 
-              <span class="nv">Thus</span> <span class="nv">the</span> <span class="nv">subclass</span> <span class="nv">must</span> <span class="nv">not</span> <span class="nv">add</span> <span class="nv">the</span> <span class="nv">experienced</span> <span class="nv">loss</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">TrainContext</span>.
+<span class="ss">              Thus the subclass must not add the experienced loss to the TrainContext.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 </pre></div>
 
 
@@ -2701,49 +2737,47 @@ o the subclasses training loss is passed through to BackendAgent by on_iteration
 
 
 <p>Backend agent factory defining the currently available agents (algorithms).</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">BackendAgentFactory</span><span class="ss">(</span><span class="nv">ABC</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="n">BackendAgentFactory</span><span class="p">(</span><span class="n">ABC</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-    <span class="s2">&quot;&quot;&quot;</span><span class="s">Backend agent factory defining the currently available agents (algorithms).</span>
+<span class="w">    </span><span class="ss">&quot;&quot;&quot;Backend agent factory defining the currently available agents (algorithms).</span>
 
-    <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">    &quot;&quot;&quot;</span><span class="w"></span>
 
-    <span class="nv">backend_name</span>: <span class="nv">str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="s">abstract_BackendAgentFactory</span><span class="s1">&#39;</span>
+<span class="w">    </span><span class="nl">backend_name</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;abstract_BackendAgentFactory&#39;</span><span class="w"></span>
 
-    <span class="nv">tensorflow_v2_eager_compatible</span>: <span class="nv">bool</span> <span class="o">=</span> <span class="nv">True</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">create_agent</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">easyagent_type</span><span class="p">:</span><span class="w"> </span><span class="n">Type</span><span class="p">,</span><span class="w"> </span><span class="nl">model_config</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">ModelConfig</span><span class="p">)</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">create_agent</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">easyagent_type</span>: <span class="nv">Type</span>, <span class="nv">model_config</span>: <span class="nv">core</span>.<span class="nv">ModelConfig</span><span class="ss">)</span> \
+<span class="w">            </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">_BackendAgent</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
 
-            <span class="o">-&gt;</span> <span class="nv">Optional</span>[<span class="nv">_BackendAgent</span>]:
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Creates a backend agent instance implementing the algorithm given by agent_type.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Creates a backend agent instance implementing the algorithm given by agent_type.</span>
+<span class="ss">        Args:</span>
 
-        <span class="nv">Args</span>:
+<span class="ss">            easyagent_type: the EasyAgent derived type for which an implementing backend instance will be created</span>
 
-            <span class="nv">easyagent_type</span>: <span class="nv">the</span> <span class="nv">EasyAgent</span> <span class="nv">derived</span> <span class="nv">type</span> <span class="k">for</span> <span class="nv">which</span> <span class="nv">an</span> <span class="nv">implementing</span> <span class="nv">backend</span> <span class="nv">instance</span> <span class="nv">will</span> <span class="nv">be</span> <span class="nv">created</span>
+<span class="ss">            model_config: the model_config passed to the constructor of the backend instance.</span>
 
-            <span class="nv">model_config</span>: <span class="nv">the</span> <span class="nv">model_config</span> <span class="nv">passed</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">constructor</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">backend</span> <span class="nv">instance</span>.
+<span class="ss">        Returns:</span>
 
-        <span class="nv">Returns</span>:
+<span class="ss">            instance of the agent or None if not implemented by this backend.</span>
 
-            <span class="nv">instance</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">agent</span> <span class="nv">or</span> <span class="nv">None</span> <span class="k">if</span> <span class="nv">not</span> <span class="nv">implemented</span> <span class="nv">by</span> <span class="nv">this</span> <span class="nv">backend</span>.
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="k">result</span><span class="err">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">_BackendAgent</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="w"></span>
 
-        <span class="nb">result</span>: <span class="nv">Optional</span>[<span class="nv">_BackendAgent</span>] <span class="o">=</span> <span class="nv">None</span>
+<span class="w">        </span><span class="n">algorithms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_algorithms</span><span class="p">()</span><span class="w"></span>
 
-        <span class="nv">algorithms</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">get_algorithms</span><span class="ss">()</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">easyagent_type</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">algorithms</span><span class="p">:</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">easyagent_type</span> <span class="nv">in</span> <span class="nv">algorithms</span>:
+<span class="w">            </span><span class="k">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">algorithms</span><span class="o">[</span><span class="n">easyagent_type</span><span class="o">]</span><span class="p">(</span><span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">)</span><span class="w"></span>
 
-            <span class="nb">result</span> <span class="o">=</span> <span class="nv">algorithms</span>[<span class="nv">easyagent_type</span>]<span class="ss">(</span><span class="nv">model_config</span><span class="o">=</span><span class="nv">model_config</span><span class="ss">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">result</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nb">result</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_algorithms</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">Type, Type[_BackendAgent</span><span class="o">]</span><span class="err">]:</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_algorithms</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">Dict</span>[<span class="nv">Type</span>, <span class="nv">Type</span>[<span class="nv">_BackendAgent</span>]]:
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Yields a mapping of EasyAgent types to the implementations provided by this backend.&quot;&quot;&quot;</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Yields a mapping of EasyAgent types to the implementations provided by this backend.</span><span class="s2">&quot;&quot;&quot;</span>
-
-        <span class="k">return</span> {}
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
 </pre></div>
 
 
@@ -2755,15 +2789,11 @@ o the subclasses training loss is passed through to BackendAgent by on_iteration
 </ul>
 <h4 id="descendants_1">Descendants</h4>
 <ul>
+<li>easyagents.backends.default.DefaultAgentFactory</li>
 <li>easyagents.backends.tfagents.TfAgentAgentFactory</li>
-<li>easyagents.backends.default.BackendAgentFactory</li>
 </ul>
 <h4 id="class-variables">Class variables</h4>
 <div class="codehilite"><pre><span></span><span class="n">backend_name</span>
-</pre></div>
-
-
-<div class="codehilite"><pre><span></span><span class="n">tensorflow_v2_eager_compatible</span>
 </pre></div>
 
 
@@ -2783,33 +2813,33 @@ o the subclasses training loss is passed through to BackendAgent by on_iteration
     model_config: the model_config passed to the constructor of the backend instance.</p>
 <p>Returns:
     instance of the agent or None if not implemented by this backend.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">create_agent</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">easyagent_type</span>: <span class="nv">Type</span>, <span class="nv">model_config</span>: <span class="nv">core</span>.<span class="nv">ModelConfig</span><span class="ss">)</span> \
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">create_agent</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">easyagent_type</span><span class="p">:</span><span class="w"> </span><span class="n">Type</span><span class="p">,</span><span class="w"> </span><span class="nl">model_config</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">ModelConfig</span><span class="p">)</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
 
-            <span class="o">-&gt;</span> <span class="nv">Optional</span>[<span class="nv">_BackendAgent</span>]:
+<span class="w">            </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">_BackendAgent</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Creates a backend agent instance implementing the algorithm given by agent_type.</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Creates a backend agent instance implementing the algorithm given by agent_type.</span>
 
-        <span class="nv">Args</span>:
+<span class="ss">        Args:</span>
 
-            <span class="nv">easyagent_type</span>: <span class="nv">the</span> <span class="nv">EasyAgent</span> <span class="nv">derived</span> <span class="nv">type</span> <span class="k">for</span> <span class="nv">which</span> <span class="nv">an</span> <span class="nv">implementing</span> <span class="nv">backend</span> <span class="nv">instance</span> <span class="nv">will</span> <span class="nv">be</span> <span class="nv">created</span>
+<span class="ss">            easyagent_type: the EasyAgent derived type for which an implementing backend instance will be created</span>
 
-            <span class="nv">model_config</span>: <span class="nv">the</span> <span class="nv">model_config</span> <span class="nv">passed</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">constructor</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">backend</span> <span class="nv">instance</span>.
+<span class="ss">            model_config: the model_config passed to the constructor of the backend instance.</span>
 
-        <span class="nv">Returns</span>:
+<span class="ss">        Returns:</span>
 
-            <span class="nv">instance</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">agent</span> <span class="nv">or</span> <span class="nv">None</span> <span class="k">if</span> <span class="nv">not</span> <span class="nv">implemented</span> <span class="nv">by</span> <span class="nv">this</span> <span class="nv">backend</span>.
+<span class="ss">            instance of the agent or None if not implemented by this backend.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-        <span class="nb">result</span>: <span class="nv">Optional</span>[<span class="nv">_BackendAgent</span>] <span class="o">=</span> <span class="nv">None</span>
+<span class="w">        </span><span class="k">result</span><span class="err">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">_BackendAgent</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="w"></span>
 
-        <span class="nv">algorithms</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">get_algorithms</span><span class="ss">()</span>
+<span class="w">        </span><span class="n">algorithms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_algorithms</span><span class="p">()</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">easyagent_type</span> <span class="nv">in</span> <span class="nv">algorithms</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">easyagent_type</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">algorithms</span><span class="p">:</span><span class="w"></span>
 
-            <span class="nb">result</span> <span class="o">=</span> <span class="nv">algorithms</span>[<span class="nv">easyagent_type</span>]<span class="ss">(</span><span class="nv">model_config</span><span class="o">=</span><span class="nv">model_config</span><span class="ss">)</span>
+<span class="w">            </span><span class="k">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">algorithms</span><span class="o">[</span><span class="n">easyagent_type</span><span class="o">]</span><span class="p">(</span><span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nb">result</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">result</span><span class="w"></span>
 </pre></div>
 
 
@@ -2822,17 +2852,18 @@ o the subclasses training loss is passed through to BackendAgent by on_iteration
 
 
 <p>Yields a mapping of EasyAgent types to the implementations provided by this backend.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_algorithms</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">Dict</span>[<span class="nv">Type</span>, <span class="nv">Type</span>[<span class="nv">_BackendAgent</span>]]:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_algorithms</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">Type, Type[_BackendAgent</span><span class="o">]</span><span class="err">]:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Yields a mapping of EasyAgent types to the implementations provided by this backend.</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Yields a mapping of EasyAgent types to the implementations provided by this backend.&quot;&quot;&quot;</span><span class="w"></span>
 
-        <span class="k">return</span> {}
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
 </pre></div>
 
 
 </details>
                 
                   
+                
                 
               
               
@@ -2901,7 +2932,7 @@ o the subclasses training loss is passed through to BackendAgent by on_iteration
       
     </div>
     
-      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
       

@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,7 +40,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/application.1b62728e.css">
       
         <link rel="stylesheet" href="../../../../assets/stylesheets/application-palette.a8b3c06d.css">
       
@@ -51,12 +51,12 @@
       
     
     
-      <script src="../../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -995,59 +995,59 @@
 
 
 <p>Train for small number of episodes / steps in order to do a dry run of the algorithms or callbacks.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Fast</span><span class="ss">(</span><span class="nv">core</span>.<span class="nv">AgentCallback</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span> <span class="n">Fast</span>(<span class="n">core</span>.<span class="n">AgentCallback</span>):
 
-    <span class="s2">&quot;&quot;&quot;</span><span class="s">Train for small number of episodes / steps in order to do a dry run of the algorithms or callbacks.</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="s">&quot;&quot;&quot;Train for small number of episodes / steps in order to do a dry run of the algorithms or callbacks.&quot;&quot;&quot;</span>
 
-    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">num_iterations</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">__init__</span>(<span class="k">self</span>, <span class="n">num_iterations</span>=<span class="n">None</span>):
 
-        <span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="o">=</span> <span class="nv">num_iterations</span>
+        <span class="k">self</span>.<span class="n">_num_iterations</span> = <span class="n">num_iterations</span>
 
-        <span class="nv">self</span>.<span class="nv">_num_episodes_per_iteration</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">self</span>.<span class="n">_num_episodes_per_iteration</span> = <span class="mi">3</span>
 
-        <span class="nv">self</span>.<span class="nv">_max_steps_per_episode</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="k">self</span>.<span class="n">_max_steps_per_episode</span> = <span class="mi">50</span>
 
-    <span class="nv">def</span> <span class="nv">on_play_begin</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">on_play_begin</span>(<span class="k">self</span>, <span class="n">agent_context:</span> <span class="n">core</span>.<span class="n">AgentContext</span>):
 
-        <span class="nv">agent_context</span>.<span class="nv">play</span>.<span class="nv">max_steps_per_episode</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_max_steps_per_episode</span>
+        <span class="n">agent_context</span>.<span class="n">play</span>.<span class="n">max_steps_per_episode</span> = <span class="k">self</span>.<span class="n">_max_steps_per_episode</span>
 
-        <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">agent_context</span>, <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span><span class="ss">)</span>:
+        <span class="k">if</span> <span class="n">isinstance</span>(<span class="n">agent_context</span>, <span class="n">core</span>.<span class="n">EpisodesTrainContext</span>):
 
-            <span class="nv">agent_context</span>.<span class="nv">num_episodes_per_iteration</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_num_episodes_per_iteration</span>
+            <span class="n">agent_context</span>.<span class="n">num_episodes_per_iteration</span> = <span class="k">self</span>.<span class="n">_num_episodes_per_iteration</span>
 
-    <span class="nv">def</span> <span class="nv">on_train_begin</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">on_train_begin</span>(<span class="k">self</span>, <span class="n">agent_context:</span> <span class="n">core</span>.<span class="n">AgentContext</span>):
 
-        <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+        <span class="n">tc</span> = <span class="n">agent_context</span>.<span class="n">train</span>
 
-        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="nv">is</span> <span class="nv">None</span>:
+        <span class="k">if</span> <span class="k">self</span>.<span class="n">_num_iterations</span> <span class="k">is</span> <span class="n">None:</span>
 
-            <span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="o">=</span> <span class="mi">10</span>
+            <span class="k">self</span>.<span class="n">_num_iterations</span> = <span class="mi">10</span>
 
-        <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">tc</span>, <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span><span class="ss">)</span>:
+        <span class="k">if</span> <span class="n">isinstance</span>(<span class="n">tc</span>, <span class="n">core</span>.<span class="n">EpisodesTrainContext</span>):
 
-            <span class="nv">ec</span>: <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span> <span class="o">=</span> <span class="nv">tc</span>
+            <span class="n">ec:</span> <span class="n">core</span>.<span class="n">EpisodesTrainContext</span> = <span class="n">tc</span>
 
-            <span class="nv">ec</span>.<span class="nv">num_episodes_per_iteration</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_num_episodes_per_iteration</span>
+            <span class="n">ec</span>.<span class="n">num_episodes_per_iteration</span> = <span class="k">self</span>.<span class="n">_num_episodes_per_iteration</span>
 
-            <span class="nv">ec</span>.<span class="nv">num_epochs_per_iteration</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">ec</span>.<span class="n">num_epochs_per_iteration</span> = <span class="mi">1</span>
 
-        <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">tc</span>, <span class="nv">core</span>.<span class="nv">StepsTrainContext</span><span class="ss">)</span>:
+        <span class="k">if</span> <span class="n">isinstance</span>(<span class="n">tc</span>, <span class="n">core</span>.<span class="n">StepsTrainContext</span>):
 
-            <span class="nv">dc</span>: <span class="nv">core</span>.<span class="nv">StepsTrainContext</span> <span class="o">=</span> <span class="nv">tc</span>
+            <span class="n">dc:</span> <span class="n">core</span>.<span class="n">StepsTrainContext</span> = <span class="n">tc</span>
 
-            <span class="k">if</span> <span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="nv">is</span> <span class="nv">None</span>:
+            <span class="k">if</span> <span class="k">self</span>.<span class="n">_num_iterations</span> <span class="k">is</span> <span class="n">None:</span>
 
-                <span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="nv">self</span>.<span class="nv">_num_episodes_per_iteration</span> <span class="o">*</span> <span class="nv">self</span>.<span class="nv">_max_steps_per_episode</span>
+                <span class="k">self</span>.<span class="n">_num_iterations</span> = <span class="mi">5</span> * <span class="k">self</span>.<span class="n">_num_episodes_per_iteration</span> * <span class="k">self</span>.<span class="n">_max_steps_per_episode</span>
 
-            <span class="nv">dc</span>.<span class="nv">num_steps_buffer_preload</span> <span class="o">=</span> <span class="nv">math</span>.<span class="nv">ceil</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="o">/</span> <span class="mi">10</span><span class="ss">)</span>
+            <span class="n">dc</span>.<span class="n">num_steps_buffer_preload</span> = <span class="n">math</span>.<span class="n">ceil</span>(<span class="k">self</span>.<span class="n">_num_iterations</span> / <span class="mi">10</span>)
 
-        <span class="nv">tc</span>.<span class="nv">num_iterations</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_num_iterations</span>
+        <span class="n">tc</span>.<span class="n">num_iterations</span> = <span class="k">self</span>.<span class="n">_num_iterations</span>
 
-        <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span> <span class="o">=</span> <span class="nv">math</span>.<span class="nv">ceil</span><span class="ss">(</span><span class="nv">tc</span>.<span class="nv">num_iterations</span><span class="o">/</span><span class="mi">3</span><span class="ss">)</span>
+        <span class="n">tc</span>.<span class="n">num_iterations_between_eval</span> = <span class="n">math</span>.<span class="n">ceil</span>(<span class="n">tc</span>.<span class="n">num_iterations</span><span class="o">/</span><span class="mi">3</span>)
 
-        <span class="nv">tc</span>.<span class="nv">num_episodes_per_eval</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_num_episodes_per_iteration</span>
+        <span class="n">tc</span>.<span class="n">num_episodes_per_eval</span> = <span class="k">self</span>.<span class="n">_num_episodes_per_iteration</span>
 
-        <span class="nv">tc</span>.<span class="nv">max_steps_per_episode</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_max_steps_per_episode</span>
+        <span class="n">tc</span>.<span class="n">max_steps_per_episode</span> = <span class="k">self</span>.<span class="n">_max_steps_per_episode</span>
 </pre></div>
 
 
@@ -1288,13 +1288,13 @@
 
 
 <p>Called once at the entry of an agent.play() call (during play or eval, but not during train). </p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_play_begin</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">on_play_begin</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">agent_context</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">):</span>
 
-        <span class="nv">agent_context</span>.<span class="nv">play</span>.<span class="nv">max_steps_per_episode</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_max_steps_per_episode</span>
+        <span class="n">agent_context</span><span class="p">.</span><span class="n">play</span><span class="p">.</span><span class="n">max_steps_per_episode</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_max_steps_per_episode</span>
 
-        <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">agent_context</span>, <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span><span class="ss">)</span>:
+        <span class="k">if</span> <span class="n">isinstance</span><span class="p">(</span><span class="n">agent_context</span><span class="p">,</span> <span class="n">core</span><span class="p">.</span><span class="n">EpisodesTrainContext</span><span class="p">):</span>
 
-            <span class="nv">agent_context</span>.<span class="nv">num_episodes_per_iteration</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_num_episodes_per_iteration</span>
+            <span class="n">agent_context</span><span class="p">.</span><span class="n">num_episodes_per_iteration</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_num_episodes_per_iteration</span>
 </pre></div>
 
 
@@ -1402,39 +1402,39 @@
 
 
 <p>Called once at the entry of an agent.train() call. </p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_train_begin</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">on_train_begin</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">agent_context</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">):</span>
 
-        <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+        <span class="n">tc</span> <span class="o">=</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">train</span>
 
-        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="nv">is</span> <span class="nv">None</span>:
+        <span class="k">if</span> <span class="k">self</span><span class="p">.</span><span class="n">_num_iterations</span> <span class="k">is</span> <span class="k">None</span><span class="p">:</span>
 
-            <span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="o">=</span> <span class="mi">10</span>
+            <span class="k">self</span><span class="p">.</span><span class="n">_num_iterations</span> <span class="o">=</span> <span class="mi">10</span>
 
-        <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">tc</span>, <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span><span class="ss">)</span>:
+        <span class="k">if</span> <span class="n">isinstance</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span> <span class="n">core</span><span class="p">.</span><span class="n">EpisodesTrainContext</span><span class="p">):</span>
 
-            <span class="nv">ec</span>: <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span> <span class="o">=</span> <span class="nv">tc</span>
+            <span class="n">ec</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">EpisodesTrainContext</span> <span class="o">=</span> <span class="n">tc</span>
 
-            <span class="nv">ec</span>.<span class="nv">num_episodes_per_iteration</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_num_episodes_per_iteration</span>
+            <span class="n">ec</span><span class="p">.</span><span class="n">num_episodes_per_iteration</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_num_episodes_per_iteration</span>
 
-            <span class="nv">ec</span>.<span class="nv">num_epochs_per_iteration</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">ec</span><span class="p">.</span><span class="n">num_epochs_per_iteration</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">tc</span>, <span class="nv">core</span>.<span class="nv">StepsTrainContext</span><span class="ss">)</span>:
+        <span class="k">if</span> <span class="n">isinstance</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span> <span class="n">core</span><span class="p">.</span><span class="n">StepsTrainContext</span><span class="p">):</span>
 
-            <span class="nv">dc</span>: <span class="nv">core</span>.<span class="nv">StepsTrainContext</span> <span class="o">=</span> <span class="nv">tc</span>
+            <span class="n">dc</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">StepsTrainContext</span> <span class="o">=</span> <span class="n">tc</span>
 
-            <span class="k">if</span> <span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="nv">is</span> <span class="nv">None</span>:
+            <span class="k">if</span> <span class="k">self</span><span class="p">.</span><span class="n">_num_iterations</span> <span class="k">is</span> <span class="k">None</span><span class="p">:</span>
 
-                <span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="nv">self</span>.<span class="nv">_num_episodes_per_iteration</span> <span class="o">*</span> <span class="nv">self</span>.<span class="nv">_max_steps_per_episode</span>
+                <span class="k">self</span><span class="p">.</span><span class="n">_num_iterations</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="k">self</span><span class="p">.</span><span class="n">_num_episodes_per_iteration</span> <span class="o">*</span> <span class="k">self</span><span class="p">.</span><span class="n">_max_steps_per_episode</span>
 
-            <span class="nv">dc</span>.<span class="nv">num_steps_buffer_preload</span> <span class="o">=</span> <span class="nv">math</span>.<span class="nv">ceil</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_num_iterations</span> <span class="o">/</span> <span class="mi">10</span><span class="ss">)</span>
+            <span class="n">dc</span><span class="p">.</span><span class="n">num_steps_buffer_preload</span> <span class="o">=</span> <span class="n">math</span><span class="p">.</span><span class="n">ceil</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">_num_iterations</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
 
-        <span class="nv">tc</span>.<span class="nv">num_iterations</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_num_iterations</span>
+        <span class="n">tc</span><span class="p">.</span><span class="n">num_iterations</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_num_iterations</span>
 
-        <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span> <span class="o">=</span> <span class="nv">math</span>.<span class="nv">ceil</span><span class="ss">(</span><span class="nv">tc</span>.<span class="nv">num_iterations</span><span class="o">/</span><span class="mi">3</span><span class="ss">)</span>
+        <span class="n">tc</span><span class="p">.</span><span class="n">num_iterations_between_eval</span> <span class="o">=</span> <span class="n">math</span><span class="p">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">num_iterations</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
 
-        <span class="nv">tc</span>.<span class="nv">num_episodes_per_eval</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_num_episodes_per_iteration</span>
+        <span class="n">tc</span><span class="p">.</span><span class="n">num_episodes_per_eval</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_num_episodes_per_iteration</span>
 
-        <span class="nv">tc</span>.<span class="nv">max_steps_per_episode</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_max_steps_per_episode</span>
+        <span class="n">tc</span><span class="p">.</span><span class="n">max_steps_per_episode</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_max_steps_per_episode</span>
 </pre></div>
 
 
@@ -1489,6 +1489,7 @@
 </details>
                 
                   
+                
                 
               
               
@@ -1557,7 +1558,7 @@
       
     </div>
     
-      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
       

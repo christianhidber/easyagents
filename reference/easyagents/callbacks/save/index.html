@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,7 +40,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/application.1b62728e.css">
       
         <link rel="stylesheet" href="../../../../assets/stylesheets/application-palette.a8b3c06d.css">
       
@@ -51,12 +51,12 @@
       
     
     
-      <script src="../../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -1305,7 +1305,7 @@
 
 <span class="k">class</span> <span class="nc">Every</span><span class="p">(</span><span class="n">_SaveCallback</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;Saves the current policy every n iterations.</span>
+    <span class="sd">&quot;&quot;&quot;Saves the current policy every n evaluations.</span>
 
 <span class="sd">        Attributes:</span>
 
@@ -1363,49 +1363,49 @@ rewards. The policies can then be loaded using agents.load()</p>
 <p>Attributes:
     directory: the absolute path of the directory containing the persisted policies.
     saved_agents: list of tuples (episode, avg_rewards, directory) for each saved agent</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Best</span><span class="ss">(</span><span class="nv">_SaveCallback</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span> <span class="n">Best</span>(<span class="n">_SaveCallback</span>):
 
-    <span class="s2">&quot;&quot;&quot;</span><span class="s">After each policy evaluation the policy is saved if average reward is larger than all previous average</span>
+    <span class="s">&quot;&quot;&quot;After each policy evaluation the policy is saved if average reward is larger than all previous average</span>
 
-        <span class="nv">rewards</span>. <span class="nv">The</span> <span class="nv">policies</span> <span class="nv">can</span> <span class="k">then</span> <span class="nv">be</span> <span class="nv">loaded</span> <span class="nv">using</span> <span class="nv">agents</span>.<span class="nv">load</span><span class="ss">()</span>
+<span class="s">        rewards. The policies can then be loaded using agents.load()</span>
 
-        <span class="nv">Attributes</span>:
+<span class="s">        Attributes:</span>
 
-            <span class="nv">directory</span>: <span class="nv">the</span> <span class="nv">absolute</span> <span class="nv">path</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">directory</span> <span class="nv">containing</span> <span class="nv">the</span> <span class="nv">persisted</span> <span class="nv">policies</span>.
+<span class="s">            directory: the absolute path of the directory containing the persisted policies.</span>
 
-            <span class="nv">saved_agents</span>: <span class="nv">list</span> <span class="nv">of</span> <span class="nv">tuples</span> <span class="ss">(</span><span class="nv">episode</span>, <span class="nv">avg_rewards</span>, <span class="nv">directory</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">each</span> <span class="nv">saved</span> <span class="nv">agent</span>
+<span class="s">            saved_agents: list of tuples (episode, avg_rewards, directory) for each saved agent</span>
 
-    <span class="s2">&quot;&quot;&quot;</span>
+<span class="s">    &quot;&quot;&quot;</span>
 
-    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">directory</span>: <span class="nv">str</span> <span class="o">=</span> <span class="nv">None</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">__init__</span>(<span class="k">self</span>, <span class="n">directory:</span> <span class="n">str</span> = <span class="n">None</span>):
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Saves the best policies (along with the agent definition) in directory.</span>
+        <span class="s">&quot;&quot;&quot;Saves the best policies (along with the agent definition) in directory.</span>
 
-        <span class="k">If</span> <span class="nv">directory</span> <span class="nv">is</span> <span class="nv">None</span> <span class="nv">the</span> <span class="nv">policies</span> <span class="nv">are</span> <span class="nv">written</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">temp</span> <span class="nv">directory</span>.
+<span class="s">        If directory is None the policies are written in a temp directory.</span>
 
-        <span class="nv">Args</span>:
+<span class="s">        Args:</span>
 
-            <span class="nv">directory</span>: <span class="nv">the</span> <span class="nv">directory</span> <span class="nv">to</span> <span class="nv">save</span> <span class="nv">to</span>, <span class="k">if</span> <span class="nv">None</span> <span class="nv">a</span> <span class="nv">temp</span> <span class="nv">directory</span> <span class="nv">is</span> <span class="nv">created</span>.
+<span class="s">            directory: the directory to save to, if None a temp directory is created.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="s">        &quot;&quot;&quot;</span>
 
-        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">__init__</span><span class="ss">(</span><span class="nv">directory</span><span class="o">=</span><span class="nv">directory</span><span class="ss">)</span>
+        <span class="n">super</span>().<span class="n">__init__</span>(<span class="n">directory</span>=<span class="n">directory</span>)
 
-        <span class="nv">self</span>.<span class="nv">_best_avg_reward</span> <span class="o">=</span> <span class="o">-</span><span class="nv">sys</span>.<span class="nv">float_info</span>.<span class="nv">max</span>
+        <span class="k">self</span>.<span class="n">_best_avg_reward</span> = -<span class="n">sys</span>.<span class="n">float_info</span>.<span class="nb">max</span>
 
-    <span class="nv">def</span> <span class="nv">on_play_end</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">on_play_end</span>(<span class="k">self</span>, <span class="n">agent_context:</span> <span class="n">core</span>.<span class="n">AgentContext</span>):
 
-        <span class="k">if</span> <span class="nv">agent_context</span>.<span class="nv">is_eval</span>:
+        <span class="k">if</span> <span class="n">agent_context</span>.<span class="n">is_eval:</span>
 
-            <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+            <span class="n">tc</span> = <span class="n">agent_context</span>.<span class="n">train</span>
 
-            <span class="nv">min_rewards</span>, <span class="nv">avg_reward</span>, <span class="nv">max_rewards</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">eval_rewards</span>[<span class="nv">tc</span>.<span class="nv">episodes_done_in_training</span>]
+            <span class="n">min_rewards</span>, <span class="n">avg_reward</span>, <span class="n">max_rewards</span> = <span class="n">tc</span>.<span class="n">eval_rewards</span>[<span class="n">tc</span>.<span class="n">episodes_done_in_training</span>]
 
-            <span class="k">if</span> <span class="nv">avg_reward</span> <span class="o">&gt;</span> <span class="nv">self</span>.<span class="nv">_best_avg_reward</span>:
+            <span class="k">if</span> <span class="n">avg_reward</span> &gt; <span class="k">self</span>.<span class="n">_best_avg_reward:</span>
 
-                <span class="nv">self</span>.<span class="nv">_save</span><span class="ss">(</span><span class="nv">agent_context</span><span class="o">=</span><span class="nv">agent_context</span><span class="ss">)</span>
+                <span class="k">self</span>.<span class="n">_save</span>(<span class="n">agent_context</span>=<span class="n">agent_context</span>)
 
-                <span class="nv">self</span>.<span class="nv">_best_avg_reward</span> <span class="o">=</span> <span class="nv">avg_reward</span>
+                <span class="k">self</span>.<span class="n">_best_avg_reward</span> = <span class="n">avg_reward</span>
 </pre></div>
 
 
@@ -1658,19 +1658,19 @@ rewards. The policies can then be loaded using agents.load()</p>
 
 
 <p>Called once before exiting an agent.play() call (during play or eval, but not during train)</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_play_end</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">on_play_end</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">agent_context</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">):</span>
 
-        <span class="k">if</span> <span class="nv">agent_context</span>.<span class="nv">is_eval</span>:
+        <span class="k">if</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">is_eval</span><span class="p">:</span>
 
-            <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+            <span class="n">tc</span> <span class="o">=</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">train</span>
 
-            <span class="nv">min_rewards</span>, <span class="nv">avg_reward</span>, <span class="nv">max_rewards</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">eval_rewards</span>[<span class="nv">tc</span>.<span class="nv">episodes_done_in_training</span>]
+            <span class="n">min_rewards</span><span class="p">,</span> <span class="n">avg_reward</span><span class="p">,</span> <span class="n">max_rewards</span> <span class="o">=</span> <span class="n">tc</span><span class="p">.</span><span class="n">eval_rewards</span><span class="p">[</span><span class="n">tc</span><span class="p">.</span><span class="n">episodes_done_in_training</span><span class="p">]</span>
 
-            <span class="k">if</span> <span class="nv">avg_reward</span> <span class="o">&gt;</span> <span class="nv">self</span>.<span class="nv">_best_avg_reward</span>:
+            <span class="k">if</span> <span class="n">avg_reward</span> <span class="o">&gt;</span> <span class="k">self</span><span class="p">.</span><span class="n">_best_avg_reward</span><span class="p">:</span>
 
-                <span class="nv">self</span>.<span class="nv">_save</span><span class="ss">(</span><span class="nv">agent_context</span><span class="o">=</span><span class="nv">agent_context</span><span class="ss">)</span>
+                <span class="k">self</span><span class="p">.</span><span class="n">_save</span><span class="p">(</span><span class="n">agent_context</span><span class="o">=</span><span class="n">agent_context</span><span class="p">)</span>
 
-                <span class="nv">self</span>.<span class="nv">_best_avg_reward</span> <span class="o">=</span> <span class="nv">avg_reward</span>
+                <span class="k">self</span><span class="p">.</span><span class="n">_best_avg_reward</span> <span class="o">=</span> <span class="n">avg_reward</span>
 </pre></div>
 
 
@@ -1825,53 +1825,53 @@ rewards. The policies can then be loaded using agents.load()</p>
 </pre></div>
 
 
-<p>Saves the current policy every n iterations.</p>
+<p>Saves the current policy every n evaluations.</p>
 <p>Attributes:
     directory: the absolute path of the directory containing the persisted policies.
     saved_agents: list of tuples (episode, avg_rewards, directory) for each saved agent</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Every</span><span class="ss">(</span><span class="nv">_SaveCallback</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span> <span class="n">Every</span>(<span class="n">_SaveCallback</span>):
 
-    <span class="s2">&quot;&quot;&quot;</span><span class="s">Saves the current policy every n iterations.</span>
+    <span class="s">&quot;&quot;&quot;Saves the current policy every n evaluations.</span>
 
-        <span class="nv">Attributes</span>:
+<span class="s">        Attributes:</span>
 
-            <span class="nv">directory</span>: <span class="nv">the</span> <span class="nv">absolute</span> <span class="nv">path</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">directory</span> <span class="nv">containing</span> <span class="nv">the</span> <span class="nv">persisted</span> <span class="nv">policies</span>.
+<span class="s">            directory: the absolute path of the directory containing the persisted policies.</span>
 
-            <span class="nv">saved_agents</span>: <span class="nv">list</span> <span class="nv">of</span> <span class="nv">tuples</span> <span class="ss">(</span><span class="nv">episode</span>, <span class="nv">avg_rewards</span>, <span class="nv">directory</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">each</span> <span class="nv">saved</span> <span class="nv">agent</span>
+<span class="s">            saved_agents: list of tuples (episode, avg_rewards, directory) for each saved agent</span>
 
-    <span class="s2">&quot;&quot;&quot;</span>
+<span class="s">    &quot;&quot;&quot;</span>
 
-    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">num_evals_between_save</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">1</span>, <span class="nv">directory</span>: <span class="nv">str</span> <span class="o">=</span> <span class="nv">None</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">__init__</span>(<span class="k">self</span>, <span class="n">num_evals_between_save:</span> <span class="nb">int</span> = <span class="mi">1</span>, <span class="n">directory:</span> <span class="n">str</span> = <span class="n">None</span>):
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Saves the current policy every n evaluations. In terms of episodes: the policy is saved every</span>
+        <span class="s">&quot;&quot;&quot;Saves the current policy every n evaluations. In terms of episodes: the policy is saved every</span>
 
-        <span class="nv">num_eval_between_saves</span> <span class="o">*</span> <span class="nv">num_iterations_between_eval</span> <span class="o">*</span> <span class="nv">num_episodes_per_iteration</span>
+<span class="s">        num_eval_between_saves * num_iterations_between_eval * num_episodes_per_iteration</span>
 
-        <span class="nv">Args</span>:
+<span class="s">        Args:</span>
 
-            <span class="nv">num_evals_between_save</span>: <span class="nv">the</span> <span class="nv">number</span> <span class="nv">of</span> <span class="nv">evaluations</span> <span class="nv">between</span> <span class="nv">saves</span>.
+<span class="s">            num_evals_between_save: the number of evaluations between saves.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="s">        &quot;&quot;&quot;</span>
 
-        <span class="nv">assert</span> <span class="nv">num_evals_between_save</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">assert</span> <span class="n">num_evals_between_save</span> &gt; <span class="mi">0</span>
 
-        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">__init__</span><span class="ss">(</span><span class="nv">directory</span><span class="o">=</span><span class="nv">directory</span><span class="ss">)</span>
+        <span class="n">super</span>().<span class="n">__init__</span>(<span class="n">directory</span>=<span class="n">directory</span>)
 
-        <span class="nv">self</span>.<span class="nv">num_evals_between_save</span>: <span class="nv">int</span> <span class="o">=</span> <span class="nv">num_evals_between_save</span>
+        <span class="k">self</span>.<span class="n">num_evals_between_save:</span> <span class="nb">int</span> = <span class="n">num_evals_between_save</span>
 
-    <span class="nv">def</span> <span class="nv">on_play_end</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">on_play_end</span>(<span class="k">self</span>, <span class="n">agent_context:</span> <span class="n">core</span>.<span class="n">AgentContext</span>):
 
-        <span class="k">if</span> <span class="nv">agent_context</span>.<span class="nv">is_eval</span>:
+        <span class="k">if</span> <span class="n">agent_context</span>.<span class="n">is_eval:</span>
 
-            <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+            <span class="n">tc</span> = <span class="n">agent_context</span>.<span class="n">train</span>
 
-            <span class="k">if</span> <span class="nv">tc</span>.<span class="nv">num_iterations</span> <span class="o">%</span> <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span> <span class="o">==</span> <span class="mi">0</span>:
+            <span class="k">if</span> <span class="n">tc</span>.<span class="n">num_iterations</span> % <span class="n">tc</span>.<span class="n">num_iterations_between_eval</span> == <span class="mi">0</span>:
 
-                <span class="nv">evals</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">num_iterations</span> <span class="o">/</span> <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span>
+                <span class="n">evals</span> = <span class="n">tc</span>.<span class="n">num_iterations</span> / <span class="n">tc</span>.<span class="n">num_iterations_between_eval</span>
 
-                <span class="k">if</span> <span class="nv">evals</span> <span class="o">%</span> <span class="nv">self</span>.<span class="nv">num_evals_between_save</span> <span class="o">==</span> <span class="mi">0</span>:
+                <span class="k">if</span> <span class="n">evals</span> % <span class="k">self</span>.<span class="n">num_evals_between_save</span> == <span class="mi">0</span>:
 
-                    <span class="nv">self</span>.<span class="nv">_save</span><span class="ss">(</span><span class="nv">agent_context</span><span class="o">=</span><span class="nv">agent_context</span><span class="ss">)</span>
+                    <span class="k">self</span>.<span class="n">_save</span>(<span class="n">agent_context</span>=<span class="n">agent_context</span>)
 </pre></div>
 
 
@@ -2124,19 +2124,19 @@ rewards. The policies can then be loaded using agents.load()</p>
 
 
 <p>Called once before exiting an agent.play() call (during play or eval, but not during train)</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_play_end</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">on_play_end</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">agent_context</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">):</span>
 
-        <span class="k">if</span> <span class="nv">agent_context</span>.<span class="nv">is_eval</span>:
+        <span class="k">if</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">is_eval</span><span class="p">:</span>
 
-            <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+            <span class="n">tc</span> <span class="o">=</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">train</span>
 
-            <span class="k">if</span> <span class="nv">tc</span>.<span class="nv">num_iterations</span> <span class="o">%</span> <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span> <span class="o">==</span> <span class="mi">0</span>:
+            <span class="k">if</span> <span class="n">tc</span><span class="p">.</span><span class="n">num_iterations</span> <span class="o">%</span> <span class="n">tc</span><span class="p">.</span><span class="n">num_iterations_between_eval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
 
-                <span class="nv">evals</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">num_iterations</span> <span class="o">/</span> <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span>
+                <span class="n">evals</span> <span class="o">=</span> <span class="n">tc</span><span class="p">.</span><span class="n">num_iterations</span> <span class="o">/</span> <span class="n">tc</span><span class="p">.</span><span class="n">num_iterations_between_eval</span>
 
-                <span class="k">if</span> <span class="nv">evals</span> <span class="o">%</span> <span class="nv">self</span>.<span class="nv">num_evals_between_save</span> <span class="o">==</span> <span class="mi">0</span>:
+                <span class="k">if</span> <span class="n">evals</span> <span class="o">%</span> <span class="k">self</span><span class="p">.</span><span class="n">num_evals_between_save</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
 
-                    <span class="nv">self</span>.<span class="nv">_save</span><span class="ss">(</span><span class="nv">agent_context</span><span class="o">=</span><span class="nv">agent_context</span><span class="ss">)</span>
+                    <span class="k">self</span><span class="p">.</span><span class="n">_save</span><span class="p">(</span><span class="n">agent_context</span><span class="o">=</span><span class="n">agent_context</span><span class="p">)</span>
 </pre></div>
 
 
@@ -2286,6 +2286,7 @@ rewards. The policies can then be loaded using agents.load()</p>
                 
                   
                 
+                
               
               
                 
@@ -2339,7 +2340,7 @@ rewards. The policies can then be loaded using agents.load()</p>
       
     </div>
     
-      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
       

@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,7 +40,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/application.1b62728e.css">
       
         <link rel="stylesheet" href="../../../../assets/stylesheets/application-palette.a8b3c06d.css">
       
@@ -51,12 +51,12 @@
       
     
     
-      <script src="../../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -2189,21 +2189,27 @@
 
         <span class="n">tc</span> <span class="o">=</span> <span class="n">agent_context</span><span class="o">.</span><span class="n">train</span>
 
-        <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;#iterations={tc.num_iterations} &#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;num_iterations={tc.num_iterations} &#39;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span> <span class="n">core</span><span class="o">.</span><span class="n">EpisodesTrainContext</span><span class="p">):</span>
 
             <span class="n">ec</span><span class="p">:</span> <span class="n">core</span><span class="o">.</span><span class="n">EpisodesTrainContext</span> <span class="o">=</span> <span class="n">tc</span>
 
-            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;#episodes_per_iteration={ec.num_episodes_per_iteration} &#39;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_episodes_per_iteration={ec.num_episodes_per_iteration} &#39;</span>
 
-        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;#max_steps_per_episode={tc.max_steps_per_episode} &#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span> <span class="n">core</span><span class="o">.</span><span class="n">StepsTrainContext</span><span class="p">):</span>
 
-        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;#iterations_between_plot={tc.num_iterations_between_plot} &#39;</span>
+            <span class="n">sc</span><span class="p">:</span> <span class="n">core</span><span class="o">.</span><span class="n">StepsTrainContext</span> <span class="o">=</span> <span class="n">tc</span>
 
-        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;#iterations_between_eval={tc.num_iterations_between_eval} &#39;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_steps_per_iteration={sc.num_steps_per_iteration} &#39;</span>
 
-        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;#episodes_per_eval={tc.num_episodes_per_eval} &#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_max_steps_per_episode={tc.max_steps_per_episode} &#39;</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_iterations_between_plot={tc.num_iterations_between_plot} &#39;</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_iterations_between_eval={tc.num_iterations_between_eval} &#39;</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_episodes_per_eval={tc.num_episodes_per_eval} &#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot;duration&quot;:&lt;25}{msg}&#39;</span><span class="p">)</span>
 
@@ -2378,17 +2384,17 @@
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">log</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">msg_id</span>: <span class="nv">str</span>, <span class="o">*</span><span class="nv">args</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">log</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="n">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_prefix</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">{msg_id:&lt;25}</span><span class="s1">&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_prefix</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;{msg_id:&lt;25}&#39;</span>
 
-        <span class="k">for</span> <span class="nv">arg</span> <span class="nv">in</span> <span class="nv">args</span>:
+        <span class="k">for</span> <span class="n">arg</span> <span class="k">in</span> <span class="n">args</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="nv">arg</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
+            <span class="k">if</span> <span class="n">arg</span> <span class="k">is</span> <span class="k">not</span> <span class="k">None</span><span class="p">:</span>
 
-                <span class="nv">msg</span> <span class="o">+=</span> <span class="nv">str</span><span class="ss">(</span><span class="nv">arg</span><span class="ss">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="s"> </span><span class="s1">&#39;</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
 
-        <span class="nv">self</span>.<span class="nv">_logger</span>.<span class="nv">warning</span><span class="ss">(</span><span class="nv">msg</span><span class="ss">)</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_logger</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </pre></div>
 
 
@@ -2787,35 +2793,41 @@
 
 
 <p>Logs training / play duration definition summary to a logger.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Duration</span><span class="ss">(</span><span class="nv">_LogCallbackBase</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span> <span class="n">Duration</span>(<span class="n">_LogCallbackBase</span>):
 
-    <span class="s2">&quot;&quot;&quot;</span><span class="s">Logs training / play duration definition summary to a logger.</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="s">&quot;&quot;&quot;Logs training / play duration definition summary to a logger.&quot;&quot;&quot;</span>
 
-    <span class="nv">def</span> <span class="nv">log_duration</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">log_duration</span>(<span class="k">self</span>, <span class="n">agent_context:</span> <span class="n">core</span>.<span class="n">AgentContext</span>):
 
-        <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+        <span class="n">tc</span> = <span class="n">agent_context</span>.<span class="n">train</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#iterations={tc.num_iterations} </span><span class="s1">&#39;</span>
+        <span class="n">msg</span> = <span class="n">f&#39;num_iterations</span>={<span class="n">tc</span>.<span class="n">num_iterations</span>} <span class="s">&#39;</span>
 
-        <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">tc</span>, <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span><span class="ss">)</span>:
+<span class="s">        if isinstance(tc, core.EpisodesTrainContext):</span>
 
-            <span class="nv">ec</span>: <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span> <span class="o">=</span> <span class="nv">tc</span>
+<span class="s">            ec: core.EpisodesTrainContext = tc</span>
 
-            <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#episodes_per_iteration={ec.num_episodes_per_iteration} </span><span class="s1">&#39;</span>
+<span class="s">            msg = msg + f&#39;</span><span class="n">num_episodes_per_iteration</span>={<span class="n">ec</span>.<span class="n">num_episodes_per_iteration</span>} <span class="s">&#39;</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#max_steps_per_episode={tc.max_steps_per_episode} </span><span class="s1">&#39;</span>
+<span class="s">        if isinstance(tc, core.StepsTrainContext):</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#iterations_between_plot={tc.num_iterations_between_plot} </span><span class="s1">&#39;</span>
+<span class="s">            sc: core.StepsTrainContext = tc</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#iterations_between_eval={tc.num_iterations_between_eval} </span><span class="s1">&#39;</span>
+<span class="s">            msg = msg + f&#39;</span><span class="n">num_steps_per_iteration</span>={<span class="n">sc</span>.<span class="n">num_steps_per_iteration</span>} <span class="s">&#39;</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#episodes_per_eval={tc.num_episodes_per_eval} </span><span class="s1">&#39;</span>
+<span class="s">        msg = msg + f&#39;</span><span class="n">num_max_steps_per_episode</span>={<span class="n">tc</span>.<span class="n">max_steps_per_episode</span>} <span class="s">&#39;</span>
 
-        <span class="nv">self</span>.<span class="nv">log</span><span class="ss">(</span><span class="nv">f</span><span class="s1">&#39;</span><span class="s">{&quot;duration&quot;:&lt;25}{msg}</span><span class="s1">&#39;</span><span class="ss">)</span>
+<span class="s">        msg = msg + f&#39;</span><span class="n">num_iterations_between_plot</span>={<span class="n">tc</span>.<span class="n">num_iterations_between_plot</span>} <span class="s">&#39;</span>
 
-    <span class="nv">def</span> <span class="nv">on_train_begin</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<span class="s">        msg = msg + f&#39;</span><span class="n">num_iterations_between_eval</span>={<span class="n">tc</span>.<span class="n">num_iterations_between_eval</span>} <span class="s">&#39;</span>
 
-        <span class="nv">self</span>.<span class="nv">log_duration</span><span class="ss">(</span><span class="nv">agent_context</span><span class="ss">)</span>
+<span class="s">        msg = msg + f&#39;</span><span class="n">num_episodes_per_eval</span>={<span class="n">tc</span>.<span class="n">num_episodes_per_eval</span>} <span class="s">&#39;</span>
+
+<span class="s">        self.log(f&#39;</span>{<span class="s">&quot;duration&quot;</span>:&lt;<span class="mi">25</span>}{<span class="n">msg</span>}&#39;)
+
+    <span class="n">def</span> <span class="n">on_train_begin</span>(<span class="k">self</span>, <span class="n">agent_context:</span> <span class="n">core</span>.<span class="n">AgentContext</span>):
+
+        <span class="k">self</span>.<span class="n">log_duration</span>(<span class="n">agent_context</span>)
 </pre></div>
 
 
@@ -2837,17 +2849,17 @@
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">log</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">msg_id</span>: <span class="nv">str</span>, <span class="o">*</span><span class="nv">args</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">log</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="n">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_prefix</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">{msg_id:&lt;25}</span><span class="s1">&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_prefix</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;{msg_id:&lt;25}&#39;</span>
 
-        <span class="k">for</span> <span class="nv">arg</span> <span class="nv">in</span> <span class="nv">args</span>:
+        <span class="k">for</span> <span class="n">arg</span> <span class="k">in</span> <span class="n">args</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="nv">arg</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
+            <span class="k">if</span> <span class="n">arg</span> <span class="k">is</span> <span class="k">not</span> <span class="k">None</span><span class="p">:</span>
 
-                <span class="nv">msg</span> <span class="o">+=</span> <span class="nv">str</span><span class="ss">(</span><span class="nv">arg</span><span class="ss">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="s"> </span><span class="s1">&#39;</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
 
-        <span class="nv">self</span>.<span class="nv">_logger</span>.<span class="nv">warning</span><span class="ss">(</span><span class="nv">msg</span><span class="ss">)</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_logger</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </pre></div>
 
 
@@ -2860,27 +2872,33 @@
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">log_duration</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">log_duration</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">agent_context</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">):</span>
 
-        <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+        <span class="n">tc</span> <span class="o">=</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">train</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#iterations={tc.num_iterations} </span><span class="s1">&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;num_iterations={tc.num_iterations} &#39;</span>
 
-        <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">tc</span>, <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span><span class="ss">)</span>:
+        <span class="k">if</span> <span class="n">isinstance</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span> <span class="n">core</span><span class="p">.</span><span class="n">EpisodesTrainContext</span><span class="p">):</span>
 
-            <span class="nv">ec</span>: <span class="nv">core</span>.<span class="nv">EpisodesTrainContext</span> <span class="o">=</span> <span class="nv">tc</span>
+            <span class="n">ec</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">EpisodesTrainContext</span> <span class="o">=</span> <span class="n">tc</span>
 
-            <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#episodes_per_iteration={ec.num_episodes_per_iteration} </span><span class="s1">&#39;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_episodes_per_iteration={ec.num_episodes_per_iteration} &#39;</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#max_steps_per_episode={tc.max_steps_per_episode} </span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="n">isinstance</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span> <span class="n">core</span><span class="p">.</span><span class="n">StepsTrainContext</span><span class="p">):</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#iterations_between_plot={tc.num_iterations_between_plot} </span><span class="s1">&#39;</span>
+            <span class="n">sc</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">StepsTrainContext</span> <span class="o">=</span> <span class="n">tc</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#iterations_between_eval={tc.num_iterations_between_eval} </span><span class="s1">&#39;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_steps_per_iteration={sc.num_steps_per_iteration} &#39;</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">#episodes_per_eval={tc.num_episodes_per_eval} </span><span class="s1">&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_max_steps_per_episode={tc.max_steps_per_episode} &#39;</span>
 
-        <span class="nv">self</span>.<span class="nv">log</span><span class="ss">(</span><span class="nv">f</span><span class="s1">&#39;</span><span class="s">{&quot;duration&quot;:&lt;25}{msg}</span><span class="s1">&#39;</span><span class="ss">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_iterations_between_plot={tc.num_iterations_between_plot} &#39;</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_iterations_between_eval={tc.num_iterations_between_eval} &#39;</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;num_episodes_per_eval={tc.num_episodes_per_eval} &#39;</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{&quot;duration&quot;:&lt;25}{msg}&#39;</span><span class="p">)</span>
 </pre></div>
 
 
@@ -3284,87 +3302,87 @@
 
 
 <p>Logs training iteration summaries to a python logger.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Iteration</span><span class="ss">(</span><span class="nv">_LogCallbackBase</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="n">Iteration</span><span class="p">(</span><span class="n">_LogCallbackBase</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-    <span class="s2">&quot;&quot;&quot;</span><span class="s">Logs training iteration summaries to a python logger.</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="ss">&quot;&quot;&quot;Logs training iteration summaries to a python logger.&quot;&quot;&quot;</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">eval_only</span>:<span class="nv">bool</span><span class="o">=</span><span class="nv">False</span>, <span class="nv">logger</span>: <span class="nv">logging</span>.<span class="nv">Logger</span> <span class="o">=</span> <span class="nv">None</span>, <span class="nv">prefix</span>: <span class="nv">str</span> <span class="o">=</span> <span class="nv">None</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">eval_only</span><span class="p">:</span><span class="n">bool</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"> </span><span class="nl">logger</span><span class="p">:</span><span class="w"> </span><span class="n">logging</span><span class="p">.</span><span class="n">Logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="k">prefix</span><span class="err">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Logs the completion of each training iteration. On an iteration with policy evaluation the</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;Logs the completion of each training iteration. On an iteration with policy evaluation the</span>
 
-            <span class="nv">current</span> <span class="nv">average</span> <span class="nv">reward</span><span class="o">/</span><span class="nv">episode</span> <span class="nv">and</span> <span class="nv">steps</span><span class="o">/</span><span class="nv">episode</span> <span class="nv">is</span> <span class="nv">logged</span> <span class="nv">as</span> <span class="nv">well</span>.
+<span class="ss">            current average reward/episode and steps/episode is logged as well.</span>
 
-            <span class="nv">Args</span>:
+<span class="ss">            Args:</span>
 
-                <span class="nv">eval_only</span>: <span class="k">if</span> <span class="nv">set</span> <span class="nv">a</span> <span class="nv">log</span> <span class="nv">is</span> <span class="nv">only</span> <span class="nv">created</span> <span class="k">if</span> <span class="nv">the</span> <span class="nv">policy</span> <span class="nv">was</span> <span class="nv">re</span><span class="o">-</span><span class="nv">evaluated</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">current</span> <span class="nv">iteration</span>.
+<span class="ss">                eval_only: if set a log is only created if the policy was re-evaluated in the current iteration.</span>
 
-                <span class="nv">logger</span>: <span class="nv">the</span> <span class="nv">logger</span> <span class="nv">to</span> <span class="nv">log</span> <span class="ss">(</span><span class="k">if</span> <span class="nv">None</span> <span class="nv">a</span> <span class="nv">new</span> <span class="nv">logger</span> <span class="nv">with</span> <span class="nv">level</span> <span class="nv">debug</span> <span class="nv">is</span> <span class="nv">created</span><span class="ss">)</span>
+<span class="ss">                logger: the logger to log (if None a new logger with level debug is created)</span>
 
-                <span class="nv">prefix</span>: <span class="nv">a</span> <span class="nv">string</span> <span class="nv">written</span> <span class="nv">in</span> <span class="nv">front</span> <span class="nv">of</span> <span class="nv">each</span> <span class="nv">log</span> <span class="nv">msg</span>
+<span class="ss">                prefix: a string written in front of each log msg</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-        <span class="nv">self</span>.<span class="nv">_eval_only</span>:<span class="nv">bool</span><span class="o">=</span><span class="nv">eval_only</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="nl">_eval_only</span><span class="p">:</span><span class="n">bool</span><span class="o">=</span><span class="n">eval_only</span><span class="w"></span>
 
-        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">__init__</span><span class="ss">(</span><span class="nv">logger</span><span class="o">=</span><span class="nv">logger</span>,<span class="nv">prefix</span><span class="o">=</span><span class="nv">prefix</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span><span class="k">prefix</span><span class="o">=</span><span class="k">prefix</span><span class="p">)</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">log_iteration</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">log_iteration</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">agent_context</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+<span class="w">        </span><span class="n">tc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">agent_context</span><span class="p">.</span><span class="n">train</span><span class="w"></span>
 
-        <span class="nv">e</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">episodes_done_in_training</span>
+<span class="w">        </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">episodes_done_in_training</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">not</span> <span class="nv">self</span>.<span class="nv">_eval_only</span> <span class="nv">or</span> <span class="ss">(</span><span class="nv">tc</span>.<span class="nv">iterations_done_in_training</span> <span class="o">%</span> <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span> <span class="o">==</span> <span class="mi">0</span><span class="ss">)</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_eval_only</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">iterations_done_in_training</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">num_iterations_between_eval</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">msg</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">episodes_done={e:&lt;3} steps_done={tc.steps_done_in_training:&lt;5} </span><span class="s1">&#39;</span>
+<span class="w">            </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;episodes_done={e:&lt;3} steps_done={tc.steps_done_in_training:&lt;5} &#39;</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">e</span> <span class="nv">in</span> <span class="nv">tc</span>.<span class="nv">loss</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="nl">loss</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">loss</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">loss</span>[<span class="nv">e</span>]
+<span class="w">                </span><span class="n">loss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">loss</span><span class="o">[</span><span class="n">e</span><span class="o">]</span><span class="w"></span>
 
-                <span class="k">if</span> <span class="nv">not</span> <span class="ss">(</span><span class="nv">isinstance</span><span class="ss">(</span><span class="nv">loss</span>, <span class="nv">float</span><span class="ss">)</span> <span class="nv">and</span> <span class="nv">math</span>.<span class="nv">isnan</span><span class="ss">(</span><span class="nv">loss</span><span class="ss">))</span>:
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="p">(</span><span class="n">isinstance</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span><span class="w"> </span><span class="nc">float</span><span class="p">)</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">math</span><span class="p">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss</span><span class="p">))</span><span class="err">:</span><span class="w"></span>
 
-                    <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">loss={tc.loss[e]:&lt;7.1f} </span><span class="s1">&#39;</span>
+<span class="w">                    </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;loss={tc.loss[e]:&lt;7.1f} &#39;</span><span class="w"></span>
 
-                <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">tc</span>, <span class="nv">core</span>.<span class="nv">PpoTrainContext</span><span class="ss">)</span>:
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">isinstance</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">PpoTrainContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-                    <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">[actor={tc.actor_loss[e]:&lt;7.1f} </span><span class="s1">&#39;</span>
+<span class="w">                    </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;[actor={tc.actor_loss[e]:&lt;7.1f} &#39;</span><span class="w"></span>
 
-                    <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">critic={tc.critic_loss[e]:&lt;7.1f}] </span><span class="s1">&#39;</span>
+<span class="w">                    </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;critic={tc.critic_loss[e]:&lt;7.1f}] &#39;</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">e</span> <span class="nv">in</span> <span class="nv">tc</span>.<span class="nv">eval_rewards</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="nl">eval_rewards</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">r</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">eval_rewards</span>[<span class="nv">e</span>]
+<span class="w">                </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">eval_rewards</span><span class="o">[</span><span class="n">e</span><span class="o">]</span><span class="w"></span>
 
-                <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">rewards=({r[0]:.1f},{r[1]:.1f},{r[2]:.1f}) </span><span class="s1">&#39;</span>
+<span class="w">                </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;rewards=({r[0]:.1f},{r[1]:.1f},{r[2]:.1f}) &#39;</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">e</span> <span class="nv">in</span> <span class="nv">tc</span>.<span class="nv">eval_steps</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="nl">eval_steps</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">s</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">eval_steps</span>[<span class="nv">e</span>]
+<span class="w">                </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">eval_steps</span><span class="o">[</span><span class="n">e</span><span class="o">]</span><span class="w"></span>
 
-                <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">steps=({s[0]:.1f},{s[1]:.1f},{s[2]:.1f}) </span><span class="s1">&#39;</span>
+<span class="w">                </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;steps=({s[0]:.1f},{s[1]:.1f},{s[2]:.1f}) &#39;</span><span class="w"></span>
 
-            <span class="nv">prefix</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">iteration {tc.iterations_done_in_training:&lt;2} of {tc.num_iterations} </span><span class="s1">&#39;</span>
+<span class="w">            </span><span class="k">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;iteration {tc.iterations_done_in_training:&lt;2} of {tc.num_iterations} &#39;</span><span class="w"></span>
 
-            <span class="nv">self</span>.<span class="nv">log</span><span class="ss">(</span><span class="nv">f</span><span class="s1">&#39;</span><span class="s">{prefix:&lt;25}{msg}</span><span class="s1">&#39;</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{prefix:&lt;25}{msg}&#39;</span><span class="p">)</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">on_train_iteration_begin</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_train_iteration_begin</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">agent_context</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">tc</span>: <span class="nv">core</span>.<span class="nv">TrainContext</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+<span class="w">        </span><span class="nl">tc</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">TrainContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">agent_context</span><span class="p">.</span><span class="n">train</span><span class="w"></span>
 
-        # <span class="nv">log</span> <span class="nv">the</span> <span class="nv">results</span> <span class="nv">of</span> <span class="nv">a</span> <span class="nv">pre</span><span class="o">-</span><span class="nv">train</span> <span class="nv">evaluation</span> <span class="ss">(</span><span class="k">if</span> <span class="nv">existing</span><span class="ss">)</span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nf">log</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">results</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">pre</span><span class="o">-</span><span class="n">train</span><span class="w"> </span><span class="n">evaluation</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="n">existing</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="ss">(</span><span class="mi">0</span> <span class="nv">in</span> <span class="nv">tc</span>.<span class="nv">eval_rewards</span><span class="ss">)</span> <span class="nv">and</span> \
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">eval_rewards</span><span class="p">)</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
 
-            <span class="ss">(</span><span class="nv">tc</span>.<span class="nv">episodes_done_in_training</span> <span class="o">==</span> <span class="mi">0</span><span class="ss">)</span> <span class="nv">and</span> \
+<span class="w">            </span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">episodes_done_in_training</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
 
-            <span class="ss">(</span><span class="nv">tc</span>.<span class="nv">iterations_done_in_training</span> <span class="o">==</span> <span class="mi">0</span><span class="ss">)</span>:
+<span class="w">            </span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">iterations_done_in_training</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">self</span>.<span class="nv">log_iteration</span><span class="ss">(</span><span class="nv">agent_context</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">log_iteration</span><span class="p">(</span><span class="n">agent_context</span><span class="p">)</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">on_train_iteration_end</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_train_iteration_end</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">agent_context</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">self</span>.<span class="nv">log_iteration</span><span class="ss">(</span><span class="nv">agent_context</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">log_iteration</span><span class="p">(</span><span class="n">agent_context</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 
 
@@ -3386,17 +3404,17 @@
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">log</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">msg_id</span>: <span class="nv">str</span>, <span class="o">*</span><span class="nv">args</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">log</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="n">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_prefix</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">{msg_id:&lt;25}</span><span class="s1">&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_prefix</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;{msg_id:&lt;25}&#39;</span>
 
-        <span class="k">for</span> <span class="nv">arg</span> <span class="nv">in</span> <span class="nv">args</span>:
+        <span class="k">for</span> <span class="n">arg</span> <span class="k">in</span> <span class="n">args</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="nv">arg</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
+            <span class="k">if</span> <span class="n">arg</span> <span class="k">is</span> <span class="k">not</span> <span class="k">None</span><span class="p">:</span>
 
-                <span class="nv">msg</span> <span class="o">+=</span> <span class="nv">str</span><span class="ss">(</span><span class="nv">arg</span><span class="ss">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="s"> </span><span class="s1">&#39;</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
 
-        <span class="nv">self</span>.<span class="nv">_logger</span>.<span class="nv">warning</span><span class="ss">(</span><span class="nv">msg</span><span class="ss">)</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_logger</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </pre></div>
 
 
@@ -3409,45 +3427,45 @@
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">log_iteration</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">log_iteration</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">agent_context</span><span class="p">:</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">tc</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+<span class="w">        </span><span class="n">tc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">agent_context</span><span class="p">.</span><span class="n">train</span><span class="w"></span>
 
-        <span class="nv">e</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">episodes_done_in_training</span>
+<span class="w">        </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">episodes_done_in_training</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">not</span> <span class="nv">self</span>.<span class="nv">_eval_only</span> <span class="nv">or</span> <span class="ss">(</span><span class="nv">tc</span>.<span class="nv">iterations_done_in_training</span> <span class="o">%</span> <span class="nv">tc</span>.<span class="nv">num_iterations_between_eval</span> <span class="o">==</span> <span class="mi">0</span><span class="ss">)</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_eval_only</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">iterations_done_in_training</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">num_iterations_between_eval</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">msg</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">episodes_done={e:&lt;3} steps_done={tc.steps_done_in_training:&lt;5} </span><span class="s1">&#39;</span>
+<span class="w">            </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;episodes_done={e:&lt;3} steps_done={tc.steps_done_in_training:&lt;5} &#39;</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">e</span> <span class="nv">in</span> <span class="nv">tc</span>.<span class="nv">loss</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="nl">loss</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">loss</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">loss</span>[<span class="nv">e</span>]
+<span class="w">                </span><span class="n">loss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">loss</span><span class="o">[</span><span class="n">e</span><span class="o">]</span><span class="w"></span>
 
-                <span class="k">if</span> <span class="nv">not</span> <span class="ss">(</span><span class="nv">isinstance</span><span class="ss">(</span><span class="nv">loss</span>, <span class="nv">float</span><span class="ss">)</span> <span class="nv">and</span> <span class="nv">math</span>.<span class="nv">isnan</span><span class="ss">(</span><span class="nv">loss</span><span class="ss">))</span>:
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="p">(</span><span class="n">isinstance</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span><span class="w"> </span><span class="nc">float</span><span class="p">)</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">math</span><span class="p">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss</span><span class="p">))</span><span class="err">:</span><span class="w"></span>
 
-                    <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">loss={tc.loss[e]:&lt;7.1f} </span><span class="s1">&#39;</span>
+<span class="w">                    </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;loss={tc.loss[e]:&lt;7.1f} &#39;</span><span class="w"></span>
 
-                <span class="k">if</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">tc</span>, <span class="nv">core</span>.<span class="nv">PpoTrainContext</span><span class="ss">)</span>:
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">isinstance</span><span class="p">(</span><span class="n">tc</span><span class="p">,</span><span class="w"> </span><span class="n">core</span><span class="p">.</span><span class="n">PpoTrainContext</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-                    <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">[actor={tc.actor_loss[e]:&lt;7.1f} </span><span class="s1">&#39;</span>
+<span class="w">                    </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;[actor={tc.actor_loss[e]:&lt;7.1f} &#39;</span><span class="w"></span>
 
-                    <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">critic={tc.critic_loss[e]:&lt;7.1f}] </span><span class="s1">&#39;</span>
+<span class="w">                    </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;critic={tc.critic_loss[e]:&lt;7.1f}] &#39;</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">e</span> <span class="nv">in</span> <span class="nv">tc</span>.<span class="nv">eval_rewards</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="nl">eval_rewards</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">r</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">eval_rewards</span>[<span class="nv">e</span>]
+<span class="w">                </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">eval_rewards</span><span class="o">[</span><span class="n">e</span><span class="o">]</span><span class="w"></span>
 
-                <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">rewards=({r[0]:.1f},{r[1]:.1f},{r[2]:.1f}) </span><span class="s1">&#39;</span>
+<span class="w">                </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;rewards=({r[0]:.1f},{r[1]:.1f},{r[2]:.1f}) &#39;</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">e</span> <span class="nv">in</span> <span class="nv">tc</span>.<span class="nv">eval_steps</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="nl">eval_steps</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">s</span> <span class="o">=</span> <span class="nv">tc</span>.<span class="nv">eval_steps</span>[<span class="nv">e</span>]
+<span class="w">                </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">eval_steps</span><span class="o">[</span><span class="n">e</span><span class="o">]</span><span class="w"></span>
 
-                <span class="nv">msg</span> <span class="o">=</span> <span class="nv">msg</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">steps=({s[0]:.1f},{s[1]:.1f},{s[2]:.1f}) </span><span class="s1">&#39;</span>
+<span class="w">                </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;steps=({s[0]:.1f},{s[1]:.1f},{s[2]:.1f}) &#39;</span><span class="w"></span>
 
-            <span class="nv">prefix</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">iteration {tc.iterations_done_in_training:&lt;2} of {tc.num_iterations} </span><span class="s1">&#39;</span>
+<span class="w">            </span><span class="k">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;iteration {tc.iterations_done_in_training:&lt;2} of {tc.num_iterations} &#39;</span><span class="w"></span>
 
-            <span class="nv">self</span>.<span class="nv">log</span><span class="ss">(</span><span class="nv">f</span><span class="s1">&#39;</span><span class="s">{prefix:&lt;25}{msg}</span><span class="s1">&#39;</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{prefix:&lt;25}{msg}&#39;</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 
 
@@ -3818,19 +3836,19 @@
 
 
 <p>Called once at the start of a new iteration. </p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_train_iteration_begin</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">on_train_iteration_begin</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">agent_context</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">):</span>
 
-        <span class="nv">tc</span>: <span class="nv">core</span>.<span class="nv">TrainContext</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+        <span class="n">tc</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">TrainContext</span> <span class="o">=</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">train</span>
 
-        # <span class="nv">log</span> <span class="nv">the</span> <span class="nv">results</span> <span class="nv">of</span> <span class="nv">a</span> <span class="nv">pre</span><span class="o">-</span><span class="nv">train</span> <span class="nv">evaluation</span> <span class="ss">(</span><span class="k">if</span> <span class="nv">existing</span><span class="ss">)</span>
+        <span class="o">#</span> <span class="n">log</span> <span class="n">the</span> <span class="n">results</span> <span class="k">of</span> <span class="n">a</span> <span class="n">pre</span><span class="o">-</span><span class="n">train</span> <span class="n">evaluation</span> <span class="p">(</span><span class="k">if</span> <span class="k">existing</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ss">(</span><span class="mi">0</span> <span class="nv">in</span> <span class="nv">tc</span>.<span class="nv">eval_rewards</span><span class="ss">)</span> <span class="nv">and</span> \
+        <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="k">in</span> <span class="n">tc</span><span class="p">.</span><span class="n">eval_rewards</span><span class="p">)</span> <span class="k">and</span> <span class="err">\</span>
 
-            <span class="ss">(</span><span class="nv">tc</span>.<span class="nv">episodes_done_in_training</span> <span class="o">==</span> <span class="mi">0</span><span class="ss">)</span> <span class="nv">and</span> \
+            <span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">episodes_done_in_training</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">and</span> <span class="err">\</span>
 
-            <span class="ss">(</span><span class="nv">tc</span>.<span class="nv">iterations_done_in_training</span> <span class="o">==</span> <span class="mi">0</span><span class="ss">)</span>:
+            <span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">iterations_done_in_training</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
 
-            <span class="nv">self</span>.<span class="nv">log_iteration</span><span class="ss">(</span><span class="nv">agent_context</span><span class="ss">)</span>
+            <span class="k">self</span><span class="p">.</span><span class="n">log_iteration</span><span class="p">(</span><span class="n">agent_context</span><span class="p">)</span>
 </pre></div>
 
 
@@ -3860,45 +3878,45 @@
 
 
 <p>Logs each environment step to a python logger.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Step</span><span class="ss">(</span><span class="nv">_LogCallbackBase</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span> <span class="n">Step</span>(<span class="n">_LogCallbackBase</span>):
 
-    <span class="s2">&quot;&quot;&quot;</span><span class="s">Logs each environment step to a python logger.</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="s">&quot;&quot;&quot;Logs each environment step to a python logger.&quot;&quot;&quot;</span>
 
-    <span class="nv">def</span> <span class="nv">on_gym_step_end</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span>, <span class="nv">action</span>, <span class="nv">step_result</span>: <span class="nv">Tuple</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">on_gym_step_end</span>(<span class="k">self</span>, <span class="n">agent_context:</span> <span class="n">core</span>.<span class="n">AgentContext</span>, <span class="n">action</span>, <span class="n">step_result:</span> <span class="n">Tuple</span>):
 
-        <span class="nv">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="nb">prefix</span> = <span class="s">&#39;&#39;</span>
 
-        <span class="nv">monitor</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">gym</span>.<span class="nv">_monitor_env</span>
+        <span class="n">monitor</span> = <span class="n">agent_context</span>.<span class="n">gym</span>.<span class="n">_monitor_env</span>
 
-        <span class="k">if</span> <span class="nv">monitor</span>:
+        <span class="k">if</span> <span class="n">monitor:</span>
 
-            <span class="nv">prefix</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">[{monitor.gym_env_name} {monitor.instance_id}:{monitor.episodes_done:&lt;3}:</span><span class="s1">&#39;</span> <span class="o">+</span> \
+            <span class="nb">prefix</span> = <span class="n">f&#39;</span>[{<span class="n">monitor</span>.<span class="n">gym_env_name</span>} {<span class="n">monitor</span>.<span class="n">instance_id</span>}:{<span class="n">monitor</span>.<span class="n">episodes_done:</span>&lt;<span class="mi">3</span>}:<span class="s">&#39; + \</span>
 
-                     <span class="nv">f</span><span class="s1">&#39;</span><span class="s">{monitor.steps_done_in_episode:&lt;3}] </span><span class="s1">&#39;</span>
+<span class="s">                     f&#39;</span>{<span class="n">monitor</span>.<span class="n">steps_done_in_episode:</span>&lt;<span class="mi">3</span>}] <span class="s">&#39;</span>
 
-        <span class="nv">tc</span>: <span class="nv">core</span>.<span class="nv">TrainContext</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+<span class="s">        tc: core.TrainContext = agent_context.train</span>
 
-        <span class="k">if</span> <span class="nv">tc</span>:
+<span class="s">        if tc:</span>
 
-            <span class="nv">prefix</span> <span class="o">+=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">train iteration={tc.iterations_done_in_training:&lt;2} step={tc.steps_done_in_iteration:&lt;4}</span><span class="s1">&#39;</span>
+<span class="s">            prefix += f&#39;</span><span class="n">train</span> <span class="n">iteration</span>={<span class="n">tc</span>.<span class="n">iterations_done_in_training:</span>&lt;<span class="mi">2</span>} <span class="n">step</span>={<span class="n">tc</span>.<span class="n">steps_done_in_iteration:</span>&lt;<span class="mi">4</span>}<span class="s">&#39;</span>
 
-        <span class="nv">pc</span>: <span class="nv">core</span>.<span class="nv">PlayContext</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">play</span>
+<span class="s">        pc: core.PlayContext = agent_context.play</span>
 
-        <span class="k">if</span> <span class="nv">pc</span>:
+<span class="s">        if pc:</span>
 
-            <span class="nv">prefix</span> <span class="o">+=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">play  episode={pc.episodes_done:&lt;2} step={pc.steps_done_in_episode:&lt;5} </span><span class="s1">&#39;</span> <span class="o">+</span> \
+<span class="s">            prefix += f&#39;</span><span class="n">play</span>  <span class="n">episode</span>={<span class="n">pc</span>.<span class="n">episodes_done:</span>&lt;<span class="mi">2</span>} <span class="n">step</span>={<span class="n">pc</span>.<span class="n">steps_done_in_episode:</span>&lt;<span class="mi">5</span>} <span class="s">&#39; + \</span>
 
-                      <span class="nv">f</span><span class="s1">&#39;</span><span class="s">sum_of_rewards={pc.sum_of_rewards[pc.episodes_done + 1]:&lt;7.1f}</span><span class="s1">&#39;</span>
+<span class="s">                      f&#39;</span><span class="n">sum_of_rewards</span>={<span class="n">pc</span>.<span class="n">sum_of_rewards</span>[<span class="n">pc</span>.<span class="n">episodes_done</span> + <span class="mi">1</span>]:&lt;<span class="mf">7.1</span><span class="n">f</span>}<span class="s">&#39;</span>
 
-        <span class="ss">(</span><span class="nv">observation</span>, <span class="nv">reward</span>, <span class="nv">done</span>, <span class="nv">info</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">step_result</span>
+<span class="s">        (observation, reward, done, info) = step_result</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<span class="s">        msg = &#39;&#39;</span>
 
-        <span class="k">if</span> <span class="nv">info</span>:
+<span class="s">        if info:</span>
 
-            <span class="nv">msg</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s"> info={msg}</span><span class="s1">&#39;</span>
+<span class="s">            msg = f&#39;</span> <span class="n">info</span>={<span class="n">msg</span>}<span class="s">&#39;</span>
 
-        <span class="nv">self</span>.<span class="nv">log</span><span class="ss">(</span><span class="nv">f</span><span class="s1">&#39;</span><span class="s">{prefix} reward={reward:&lt;5.1f} done={str(done):5} action={action} observation={observation}{msg}</span><span class="s1">&#39;</span><span class="ss">)</span>
+<span class="s">        self.log(f&#39;</span>{<span class="nb">prefix</span>} <span class="n">reward</span>={<span class="n">reward:</span>&lt;<span class="mf">5.1</span><span class="n">f</span>} <span class="n">done</span>={<span class="n">str</span>(<span class="n">done</span>):<span class="mi">5</span>} <span class="n">action</span>={<span class="n">action</span>} <span class="n">observation</span>={<span class="n">observation</span>}{<span class="n">msg</span>}&#39;)
 </pre></div>
 
 
@@ -3920,17 +3938,17 @@
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">log</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">msg_id</span>: <span class="nv">str</span>, <span class="o">*</span><span class="nv">args</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">log</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="n">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_prefix</span> <span class="o">+</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">{msg_id:&lt;25}</span><span class="s1">&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_prefix</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;{msg_id:&lt;25}&#39;</span>
 
-        <span class="k">for</span> <span class="nv">arg</span> <span class="nv">in</span> <span class="nv">args</span>:
+        <span class="k">for</span> <span class="n">arg</span> <span class="k">in</span> <span class="n">args</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="nv">arg</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
+            <span class="k">if</span> <span class="n">arg</span> <span class="k">is</span> <span class="k">not</span> <span class="k">None</span><span class="p">:</span>
 
-                <span class="nv">msg</span> <span class="o">+=</span> <span class="nv">str</span><span class="ss">(</span><span class="nv">arg</span><span class="ss">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="s"> </span><span class="s1">&#39;</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
 
-        <span class="nv">self</span>.<span class="nv">_logger</span>.<span class="nv">warning</span><span class="ss">(</span><span class="nv">msg</span><span class="ss">)</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_logger</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </pre></div>
 
 
@@ -4112,41 +4130,41 @@
     agent_context: api_context passed to calling agent
     action: the action to be passed to the underlying environment
     step_result: (observation,reward,done,info) tuple returned by gym.step</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">on_gym_step_end</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">agent_context</span>: <span class="nv">core</span>.<span class="nv">AgentContext</span>, <span class="nv">action</span>, <span class="nv">step_result</span>: <span class="nv">Tuple</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">on_gym_step_end</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">agent_context</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">AgentContext</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">step_result</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">):</span>
 
-        <span class="nv">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-        <span class="nv">monitor</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">gym</span>.<span class="nv">_monitor_env</span>
+        <span class="n">monitor</span> <span class="o">=</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">gym</span><span class="p">.</span><span class="n">_monitor_env</span>
 
-        <span class="k">if</span> <span class="nv">monitor</span>:
+        <span class="k">if</span> <span class="n">monitor</span><span class="p">:</span>
 
-            <span class="nv">prefix</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">[{monitor.gym_env_name} {monitor.instance_id}:{monitor.episodes_done:&lt;3}:</span><span class="s1">&#39;</span> <span class="o">+</span> \
+            <span class="k">prefix</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;[{monitor.gym_env_name} {monitor.instance_id}:{monitor.episodes_done:&lt;3}:&#39;</span> <span class="o">+</span> <span class="err">\</span>
 
-                     <span class="nv">f</span><span class="s1">&#39;</span><span class="s">{monitor.steps_done_in_episode:&lt;3}] </span><span class="s1">&#39;</span>
+                     <span class="n">f</span><span class="s1">&#39;{monitor.steps_done_in_episode:&lt;3}] &#39;</span>
 
-        <span class="nv">tc</span>: <span class="nv">core</span>.<span class="nv">TrainContext</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">train</span>
+        <span class="n">tc</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">TrainContext</span> <span class="o">=</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">train</span>
 
-        <span class="k">if</span> <span class="nv">tc</span>:
+        <span class="k">if</span> <span class="n">tc</span><span class="p">:</span>
 
-            <span class="nv">prefix</span> <span class="o">+=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">train iteration={tc.iterations_done_in_training:&lt;2} step={tc.steps_done_in_iteration:&lt;4}</span><span class="s1">&#39;</span>
+            <span class="k">prefix</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;train iteration={tc.iterations_done_in_training:&lt;2} step={tc.steps_done_in_iteration:&lt;4}&#39;</span>
 
-        <span class="nv">pc</span>: <span class="nv">core</span>.<span class="nv">PlayContext</span> <span class="o">=</span> <span class="nv">agent_context</span>.<span class="nv">play</span>
+        <span class="n">pc</span><span class="p">:</span> <span class="n">core</span><span class="p">.</span><span class="n">PlayContext</span> <span class="o">=</span> <span class="n">agent_context</span><span class="p">.</span><span class="n">play</span>
 
-        <span class="k">if</span> <span class="nv">pc</span>:
+        <span class="k">if</span> <span class="n">pc</span><span class="p">:</span>
 
-            <span class="nv">prefix</span> <span class="o">+=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s">play  episode={pc.episodes_done:&lt;2} step={pc.steps_done_in_episode:&lt;5} </span><span class="s1">&#39;</span> <span class="o">+</span> \
+            <span class="k">prefix</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;play  episode={pc.episodes_done:&lt;2} step={pc.steps_done_in_episode:&lt;5} &#39;</span> <span class="o">+</span> <span class="err">\</span>
 
-                      <span class="nv">f</span><span class="s1">&#39;</span><span class="s">sum_of_rewards={pc.sum_of_rewards[pc.episodes_done + 1]:&lt;7.1f}</span><span class="s1">&#39;</span>
+                      <span class="n">f</span><span class="s1">&#39;sum_of_rewards={pc.sum_of_rewards[pc.episodes_done + 1]:&lt;7.1f}&#39;</span>
 
-        <span class="ss">(</span><span class="nv">observation</span>, <span class="nv">reward</span>, <span class="nv">done</span>, <span class="nv">info</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">step_result</span>
+        <span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span> <span class="o">=</span> <span class="n">step_result</span>
 
-        <span class="nv">msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="nv">info</span>:
+        <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
 
-            <span class="nv">msg</span> <span class="o">=</span> <span class="nv">f</span><span class="s1">&#39;</span><span class="s"> info={msg}</span><span class="s1">&#39;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39; info={msg}&#39;</span>
 
-        <span class="nv">self</span>.<span class="nv">log</span><span class="ss">(</span><span class="nv">f</span><span class="s1">&#39;</span><span class="s">{prefix} reward={reward:&lt;5.1f} done={str(done):5} action={action} observation={observation}{msg}</span><span class="s1">&#39;</span><span class="ss">)</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{prefix} reward={reward:&lt;5.1f} done={str(done):5} action={action} observation={observation}{msg}&#39;</span><span class="p">)</span>
 </pre></div>
 
 
@@ -4347,6 +4365,7 @@
                 
                   
                 
+                
               
               
                 
@@ -4414,7 +4433,7 @@
       
     </div>
     
-      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
       
