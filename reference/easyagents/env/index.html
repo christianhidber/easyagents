@@ -1,0 +1,1159 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
+    
+    
+      
+        <title>Env - easyagents</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.1b62728e.css">
+      
+        <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.a8b3c06d.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#4caf50">
+      
+    
+    
+      <script src="../../../assets/javascripts/modernizr.268332fc.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="green" data-md-color-accent="lightgreen">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#module-easyagentsenv" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../../.." title="easyagents" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              easyagents
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Env
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/christianhidber/easyagents/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    easyagents
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../../.." title="easyagents" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    easyagents
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/christianhidber/easyagents/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    easyagents
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../CODE_OF_CONDUCT/" title="Code Of Conduct" class="md-nav__link">
+      Code Of Conduct
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../CONTRIBUTING/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../documentation/Markdown/Release_Notes/" title="Release Notes" class="md-nav__link">
+      Release Notes
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+    
+    <label class="md-nav__link" for="nav-5">
+      Reference
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5-1" type="checkbox" id="nav-5-1" checked>
+    
+    <label class="md-nav__link" for="nav-5-1">
+      Easyagents
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-5-1">
+        Easyagents
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../agents/" title="Agents" class="md-nav__link">
+      Agents
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../core/" title="Core" class="md-nav__link">
+      Core
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Env
+      </label>
+    
+    <a href="./" title="Env" class="md-nav__link md-nav__link--active">
+      Env
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#register_with_gym" class="md-nav__link">
+    register_with_gym
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5-1-4" type="checkbox" id="nav-5-1-4">
+    
+    <label class="md-nav__link" for="nav-5-1-4">
+      Backends
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-5-1-4">
+        Backends
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../backends/core/" title="Core" class="md-nav__link">
+      Core
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../backends/tfagents/" title="Tfagents" class="md-nav__link">
+      Tfagents
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5-1-5" type="checkbox" id="nav-5-1-5">
+    
+    <label class="md-nav__link" for="nav-5-1-5">
+      Callbacks
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-5-1-5">
+        Callbacks
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../callbacks/duration/" title="Duration" class="md-nav__link">
+      Duration
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../callbacks/log/" title="Log" class="md-nav__link">
+      Log
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../callbacks/plot/" title="Plot" class="md-nav__link">
+      Plot
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../callbacks/save/" title="Save" class="md-nav__link">
+      Save
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#register_with_gym" class="md-nav__link">
+    register_with_gym
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/christianhidber/easyagents/edit/master/reference/easyagents/env.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="module-easyagentsenv">Module easyagents.env</h1>
+<p>This module contains support classes and methods to interact with OpenAI gym environments
+as well as a gym env implementation for unit tests (linewordl)</p>
+<p>see https://github.com/openai/gym</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;This module contains support classes and methods to interact with OpenAI gym environments</span>
+
+<span class="sd">    as well as a gym env implementation for unit tests (linewordl)</span>
+
+<span class="sd">    see https://github.com/openai/gym</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">gym</span><span class="o">,</span> <span class="nn">gym.envs</span><span class="o">,</span> <span class="nn">gym.error</span><span class="o">,</span> <span class="nn">gym.spaces</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="k">def</span> <span class="nf">_is_registered_with_gym</span><span class="p">(</span><span class="n">gym_env_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;Determines if a gym environment with the name id exists.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            gym_env_name: gym id to test.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            True if it exists, false otherwise</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">try</span><span class="p">:</span>
+
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">envs</span><span class="o">.</span><span class="n">registration</span><span class="o">.</span><span class="n">spec</span><span class="p">(</span><span class="n">gym_env_name</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">except</span> <span class="n">gym</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">UnregisteredEnv</span><span class="p">:</span>
+
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+<span class="c1"># noinspection DuplicatedCode</span>
+
+<span class="k">def</span> <span class="nf">register_with_gym</span><span class="p">(</span><span class="n">gym_env_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entry_point</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="n">max_episode_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Registers the class entry_point in gym by the name gym_env_name allowing overriding registrations.</span>
+
+<span class="sd">    Thus different implementations of the same class (and the same name) maybe registered consecutively.</span>
+
+<span class="sd">    The latest registrated version is used for instantiation.</span>
+
+<span class="sd">    This facilitates developing an environment in a jupyter notebook without haveing to</span>
+
+<span class="sd">    reregister a modified class under a new name.</span>
+
+<span class="sd">    limitation: the max_episode_steps value of the first registration holds for all registrations</span>
+
+<span class="sd">        with the same gym_env_name</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        gym_env_name: the gym environment name to be used as argument with gym.make</span>
+
+<span class="sd">        max_episode_steps: all episodes end latest after this number of steps</span>
+
+<span class="sd">        entry_point: the class to be registed with gym id gym_env_name</span>
+
+<span class="sd">        kwargs: the args passed to the entry_point constructor call</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">gym_env_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;None is not an admissible environment name&quot;</span>
+
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">gym_env_name</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;gym_env_name is not a str&quot;</span>
+
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">gym_env_name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;empty string is not an admissible environment name&quot;</span>
+
+    <span class="k">assert</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">entry_point</span><span class="p">),</span> <span class="s2">&quot;entry_point not a class&quot;</span>
+
+    <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">entry_point</span><span class="p">,</span> <span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">),</span> <span class="s2">&quot;entry_point not a subclass of gym.Env&quot;</span>
+
+    <span class="k">assert</span> <span class="n">callable</span><span class="p">(</span><span class="n">entry_point</span><span class="p">),</span> <span class="s2">&quot;entry_point not callable&quot;</span>
+
+    <span class="k">if</span> <span class="n">gym_env_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ShimEnv</span><span class="o">.</span><span class="n">_entry_points</span><span class="p">:</span>
+
+        <span class="n">gym</span><span class="o">.</span><span class="n">envs</span><span class="o">.</span><span class="n">registration</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">gym_env_name</span><span class="p">,</span>
+
+                                       <span class="n">entry_point</span><span class="o">=</span><span class="n">_ShimEnv</span><span class="p">,</span>
+
+                                       <span class="n">max_episode_steps</span><span class="o">=</span><span class="n">max_episode_steps</span><span class="p">,</span>
+
+                                       <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="n">_ShimEnv</span><span class="o">.</span><span class="n">_KWARG_GYM_NAME</span><span class="p">:</span> <span class="n">gym_env_name</span><span class="p">})</span>
+
+    <span class="n">_ShimEnv</span><span class="o">.</span><span class="n">_entry_points</span><span class="p">[</span><span class="n">gym_env_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">entry_point</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">_LineWorldEnv</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Simple environment for fast unittest, registered as &#39;LineWorld-v0&#39;</span>
+
+<span class="sd">        * an agent lives in a finite linear world of uneven elements</span>
+
+<span class="sd">        * at each moment it is in a certain position</span>
+
+<span class="sd">        * initial position is the middle</span>
+
+<span class="sd">        * some positions gain rewards, some don&#39;t</span>
+
+<span class="sd">        * rewards are between 0 and 15</span>
+
+<span class="sd">        * agent can either move left or right</span>
+
+<span class="sd">        * objective: maximize total reward = sum(rewards) + sum(steps)</span>
+
+<span class="sd">        * Cost per step: -1</span>
+
+<span class="sd">        * Done Condition: agent is at pos 0 or total reward &lt;= -20</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">register_with_gym</span><span class="p">():</span>
+
+        <span class="sd">&quot;&quot;&quot;Register this environment with gym and yields the gym environment name.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;LineWorld-v0&quot;</span>
+
+        <span class="n">register_with_gym</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_LineWorldEnv</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Creates the lineword, size and rewards are given by the world arg.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            world: list of rewards to collect in each position of the lineworld.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">world</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">world</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">world</span><span class="p">,</span> <span class="s2">&quot;world must not be None or empty.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">world</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="kp">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">array</span><span class="p">(</span><span class="n">world</span><span class="p">)</span>
+
+        <span class="n">number_of_actions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">:</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="n">number_of_actions</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">size_of_world</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">world</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_reward</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">world</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_reward</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">world</span><span class="p">)</span>
+
+        <span class="c1"># the environment&#39;s current state is described by the position of the agent and the remaining rewards</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_of_world</span>
+
+        <span class="n">low</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="kp">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_reward</span><span class="p">)</span>
+
+        <span class="n">high</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="kp">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_reward</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="p">:</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">high</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_reward</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_observation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="kp">append</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_rewards</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="kp">floor</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">world</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">remaining_rewards</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">world</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_observation</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;perform action on this lineword.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            action: 0 ==&gt; move left, 1 ==&gt; move right</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+
+            <span class="k">assert</span> <span class="n">action</span><span class="o">.</span><span class="kp">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;action of type numpy.array as invalid size&quot;</span>
+
+            <span class="n">action</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">)(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">):</span>
+
+            <span class="n">action</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">)(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_of_world</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_rewards</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward</span> <span class="o">+=</span> <span class="n">reward</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">remaining_rewards</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_reward</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">20</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">observation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_observation</span><span class="p">()</span>
+
+        <span class="kp">info</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">,</span> <span class="kp">info</span>
+
+    <span class="k">def</span> <span class="nf">_render_to_ansi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;position: </span><span class="si">{self.pos}</span><span class="s1">, remaining rewards: </span><span class="si">{self.remaining_rewards}</span><span class="s1">,&#39;</span> <span class="o">+</span> \
+
+               <span class="sa">f</span><span class="s1">&#39;total reward so far: </span><span class="si">{self.total_reward}</span><span class="s1">, steps so far: </span><span class="si">{self.steps}</span><span class="s1">, game done: </span><span class="si">{self.done}</span><span class="s1">&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_render_to_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; Renders the current state as a graph with matplotlib &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">bottom</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_reward</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_of_world</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_rewards</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;r^-&#39;</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span>
+
+    <span class="k">def</span> <span class="nf">_render_to_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; convert the output of render_to_figure to a rgb_array &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_to_figure</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+        <span class="n">buf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">tostring_rgb</span><span class="p">()</span>
+
+        <span class="n">num_cols</span><span class="p">,</span> <span class="n">num_rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">get_width_height</span><span class="p">()</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">fromstring</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="n">num_rows</span><span class="p">,</span> <span class="n">num_cols</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;ansi&#39;</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;ansi&#39;</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_to_ansi</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;human&#39;</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_to_figure</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;rgb_array&#39;</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_to_rgb</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">_ShimEnv</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Wrapper</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Wrapper to redirect the instantiation of a gym environment to its current implementation.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_KWARG_GYM_NAME</span> <span class="o">=</span> <span class="s2">&quot;shimenv_gym_name&quot;</span>
+
+    <span class="n">_entry_points</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">assert</span> <span class="n">_ShimEnv</span><span class="o">.</span><span class="n">_KWARG_GYM_NAME</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{_ShimEnv._KWARG_GYM_NAME}</span><span class="s1"> missing from kwargs&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gym_env_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">_ShimEnv</span><span class="o">.</span><span class="n">_KWARG_GYM_NAME</span><span class="p">]</span>
+
+        <span class="n">entry_point</span><span class="p">,</span> <span class="n">gym_kwargs</span> <span class="o">=</span> <span class="n">_ShimEnv</span><span class="o">.</span><span class="n">_entry_points</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_gym_env_name</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gym_env</span> <span class="o">=</span> <span class="n">entry_point</span><span class="p">(</span><span class="o">**</span><span class="n">gym_kwargs</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gym_env</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">_StepCountEnv</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Debug Env that runs forever, counting the calls to reset and step.&quot;&quot;&quot;</span>
+
+    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;render.modes&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ansi&#39;</span><span class="p">]}</span>
+
+    <span class="n">reward_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nb">max</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">7</span>
+
+    <span class="n">action_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">discrete</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="nb">max</span><span class="p">,</span> <span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+
+    <span class="n">step_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">reset_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">register_with_gym</span><span class="p">():</span>
+
+        <span class="sd">&quot;&quot;&quot;Register this environment with gym and yields the gym environment name.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;_StepCountEnv-v0&quot;</span>
+
+        <span class="n">register_with_gym</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_StepCountEnv</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">():</span>
+
+        <span class="n">_StepCountEnv</span><span class="o">.</span><span class="n">step_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">_StepCountEnv</span><span class="o">.</span><span class="n">reset_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;reset_count=</span><span class="si">{_StepCountEnv.reset_count}</span><span class="s1"> step_count=</span><span class="si">{_StepCountEnv.step_count}</span><span class="s1">&#39;</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+
+        <span class="n">_StepCountEnv</span><span class="o">.</span><span class="n">step_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># noinspection PyRedundantParentheses</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">_StepCountEnv</span><span class="o">.</span><span class="n">step_count</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">_StepCountEnv</span><span class="o">.</span><span class="n">reset_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">_StepCountEnv</span><span class="o">.</span><span class="n">step_count</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;ansi&#39;</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+
+
+</details>
+<h2 id="functions">Functions</h2>
+<h3 id="register_with_gym">register_with_gym</h3>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">register_with_gym</span><span class="p">(</span>
+    <span class="n">gym_env_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">entry_point</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span>
+    <span class="n">max_episode_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Registers the class entry_point in gym by the name gym_env_name allowing overriding registrations.</p>
+<p>Thus different implementations of the same class (and the same name) maybe registered consecutively.
+The latest registrated version is used for instantiation.
+This facilitates developing an environment in a jupyter notebook without haveing to
+reregister a modified class under a new name.</p>
+<p>limitation: the max_episode_steps value of the first registration holds for all registrations
+    with the same gym_env_name</p>
+<p>Args:
+    gym_env_name: the gym environment name to be used as argument with gym.make
+    max_episode_steps: all episodes end latest after this number of steps
+    entry_point: the class to be registed with gym id gym_env_name
+    kwargs: the args passed to the entry_point constructor call</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span><span class="w"> </span><span class="n">register_with_gym</span><span class="p">(</span><span class="nl">gym_env_name</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">,</span><span class="w"> </span><span class="nl">entry_point</span><span class="p">:</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="nl">max_episode_steps</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">    </span><span class="ss">&quot;&quot;&quot;Registers the class entry_point in gym by the name gym_env_name allowing overriding registrations.</span>
+
+<span class="ss">    Thus different implementations of the same class (and the same name) maybe registered consecutively.</span>
+
+<span class="ss">    The latest registrated version is used for instantiation.</span>
+
+<span class="ss">    This facilitates developing an environment in a jupyter notebook without haveing to</span>
+
+<span class="ss">    reregister a modified class under a new name.</span>
+
+<span class="ss">    limitation: the max_episode_steps value of the first registration holds for all registrations</span>
+
+<span class="ss">        with the same gym_env_name</span>
+
+<span class="ss">    Args:</span>
+
+<span class="ss">        gym_env_name: the gym environment name to be used as argument with gym.make</span>
+
+<span class="ss">        max_episode_steps: all episodes end latest after this number of steps</span>
+
+<span class="ss">        entry_point: the class to be registed with gym id gym_env_name</span>
+
+<span class="ss">        kwargs: the args passed to the entry_point constructor call</span>
+
+<span class="ss">    &quot;&quot;&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">assert</span><span class="w"> </span><span class="n">gym_env_name</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;None is not an admissible environment name&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">assert</span><span class="w"> </span><span class="n">type</span><span class="p">(</span><span class="n">gym_env_name</span><span class="p">)</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="nf">str</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;gym_env_name is not a str&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">assert</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">gym_env_name</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;empty string is not an admissible environment name&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">assert</span><span class="w"> </span><span class="n">inspect</span><span class="p">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">entry_point</span><span class="p">),</span><span class="w"> </span><span class="ss">&quot;entry_point not a class&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">assert</span><span class="w"> </span><span class="n">issubclass</span><span class="p">(</span><span class="n">entry_point</span><span class="p">,</span><span class="w"> </span><span class="n">gym</span><span class="p">.</span><span class="n">Env</span><span class="p">),</span><span class="w"> </span><span class="ss">&quot;entry_point not a subclass of gym.Env&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">assert</span><span class="w"> </span><span class="n">callable</span><span class="p">(</span><span class="n">entry_point</span><span class="p">),</span><span class="w"> </span><span class="ss">&quot;entry_point not callable&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">gym_env_name</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_ShimEnv</span><span class="p">.</span><span class="nl">_entry_points</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">gym</span><span class="p">.</span><span class="n">envs</span><span class="p">.</span><span class="n">registration</span><span class="p">.</span><span class="n">register</span><span class="p">(</span><span class="n">id</span><span class="o">=</span><span class="n">gym_env_name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                                       </span><span class="n">entry_point</span><span class="o">=</span><span class="n">_ShimEnv</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                                       </span><span class="n">max_episode_steps</span><span class="o">=</span><span class="n">max_episode_steps</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                                       </span><span class="n">kwargs</span><span class="o">=</span><span class="err">{</span><span class="n">_ShimEnv</span><span class="p">.</span><span class="nl">_KWARG_GYM_NAME</span><span class="p">:</span><span class="w"> </span><span class="n">gym_env_name</span><span class="err">}</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">_ShimEnv</span><span class="p">.</span><span class="n">_entry_points</span><span class="o">[</span><span class="n">gym_env_name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">entry_point</span><span class="p">,</span><span class="w"> </span><span class="n">kwargs</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+
+</details>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../core/" title="Core" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Core
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../backends/core/" title="Core" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Core
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/application.808e90bb.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      
+    
+  </body>
+</html>
