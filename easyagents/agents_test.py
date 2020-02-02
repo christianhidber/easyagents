@@ -49,15 +49,11 @@ class BackendRegistrationTest(unittest.TestCase):
         assert 'default' in backends
         assert 'tfagents' in backends
 
-    #        assert 'tensorforce' in backends
-
     def test_getbackends_randomagent(self):
         assert agents._backends is not None
         backends = agents.get_backends(agents.RandomAgent)
         assert 'default' in backends
         assert 'tfagents' in backends
-
-    #        assert 'tensorforce' in backends
 
     def test_prepare_callbacks(self):
         agent = agents.PpoAgent(_line_world_name)
@@ -76,7 +72,7 @@ class BackendRegistrationTest(unittest.TestCase):
         assert BackendRegistrationTest.MyBackend.backend_name in b
 
     def test_register_backend_twice(self):
-        b2 = easyagents.backends.default.BackendAgentFactory()
+        b2 = easyagents.backends.default.DefaultAgentFactory(register_tensorforce=False)
         old_length = len(easyagents.agents.get_backends())
         assert b2 not in agents._backends
         agents.register_backend(backend=b2)
@@ -132,13 +128,26 @@ class DqnAgentsTest(unittest.TestCase):
             assert rewards >= 20, f'agent_type={agent_type} backend={backend} num_iterations={num_iterations}'
 
     def test_dqn(self):
+        agents._activate_tfagents()
+        self.train_and_assert(DqnAgent)
+
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_dqn_tforce(self):
+        agents.activate_tensorforce()
         self.train_and_assert(DqnAgent)
 
     def test_double_dqn(self):
-        self.train_and_assert(DoubleDqnAgent)
+        agents._activate_tfagents()
+        with pytest.raises(Exception):
+            self.train_and_assert(DoubleDqnAgent)
 
-    def test_dueling_dqn(self):
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_dueling_dqn_tforce(self):
+        agents.activate_tensorforce()
         self.train_and_assert(DuelingDqnAgent)
+
 
 
 class EasyAgentTest(unittest.TestCase):
@@ -214,7 +223,7 @@ class PpoAgentTest(unittest.TestCase):
             agent.train(duration._SingleEpisode())
             assert env._StepCountEnv.reset_count <= 2
 
-    def test_train_CartPole(self):
+    def test_train(self):
         agents.seed = 0
         for backend in get_backends(PpoAgent):
             ppo = PpoAgent(gym_env_name=_cartpole_name, backend=backend)
@@ -227,6 +236,12 @@ class PpoAgentTest(unittest.TestCase):
             tc.num_episodes_per_eval = 5
             ppo.train([log.Iteration()], train_context=tc, default_plots=False)
             assert max_avg_rewards(tc) >= 50
+
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_train_tforce(self):
+        agents.activate_tensorforce()
+        self.test_train()
 
     def test_train_single_episode(self):
         for backend in get_backends(PpoAgent):
@@ -256,6 +271,12 @@ class PpoAgentTest(unittest.TestCase):
             ppo.play(default_plots=False, num_episodes=1, callbacks=[])
             easyagents.backends.core._rmpath(temp_dir)
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_save_load_tforce(self):
+        agents.activate_tensorforce()
+        self.test_save_load()
+
 
 class RandomAgentTest(unittest.TestCase):
 
@@ -268,6 +289,12 @@ class RandomAgentTest(unittest.TestCase):
                                                        default_plots=False)
             r = max_avg_rewards(tc)
             assert r >= 0
+
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_train_tforce(self):
+        agents.activate_tensorforce()
+        self.test_train()
 
 
 class ReinforceAgentTest(unittest.TestCase):
@@ -282,6 +309,12 @@ class ReinforceAgentTest(unittest.TestCase):
             r = max_avg_rewards(tc)
             assert r >= 5
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_train_tforce(self):
+        agents.activate_tensorforce()
+        self.test_train()
+
 
 class SacAgentTest(unittest.TestCase):
 
@@ -292,6 +325,12 @@ class SacAgentTest(unittest.TestCase):
                                                     default_plots=False)
             r = max_avg_rewards(tc)
             assert r >= -1
+
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
+    def test_train_tforce(self):
+        agents.activate_tensorforce()
+        self.test_train()
 
 
 if __name__ == '__main__':

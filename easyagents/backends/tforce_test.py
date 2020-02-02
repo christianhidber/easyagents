@@ -1,7 +1,8 @@
 import unittest
 
+import pytest
+
 from easyagents import core, env
-from easyagents.backends import tforce
 from easyagents.backends import core as bcore
 from easyagents.callbacks import log
 
@@ -17,7 +18,11 @@ class TensorforceAgentTest(unittest.TestCase):
     def setUp(self):
         self.env_name = env._StepCountEnv.register_with_gym()
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
     def test_dqn_train(self):
+        from easyagents.backends import tforce
+
         model_config = core.ModelConfig(_cartpole_name, fc_layers=(100, 100))
         tc: core.StepsTrainContext = core.StepsTrainContext()
         tc.num_iterations = 10000
@@ -29,7 +34,11 @@ class TensorforceAgentTest(unittest.TestCase):
         (min_r, avg_r, max_r) = tc.eval_rewards[tc.episodes_done_in_training]
         assert avg_r > 100
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
     def test_dueling_dqn_train(self):
+        from easyagents.backends import tforce
+
         model_config = core.ModelConfig(_cartpole_name, fc_layers=(100,))
         tc: core.StepsTrainContext = core.StepsTrainContext()
         tc.num_iterations = 2000
@@ -39,7 +48,11 @@ class TensorforceAgentTest(unittest.TestCase):
         dqn_agent = tforce.TforceDuelingDqnAgent(model_config=model_config)
         dqn_agent.train(train_context=tc, callbacks=[log.Iteration(eval_only=True), log.Agent()])
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
     def test_ppo_train(self):
+        from easyagents.backends import tforce
+
         model_config = core.ModelConfig(_cartpole_name)
         tc = core.PpoTrainContext()
         tc.num_iterations = 20
@@ -48,7 +61,11 @@ class TensorforceAgentTest(unittest.TestCase):
         (min_r, avg_r, max_r) = tc.eval_rewards[tc.episodes_done_in_training]
         assert avg_r > 100
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
     def test_random_train(self):
+        from easyagents.backends import tforce
+
         model_config = core.ModelConfig(_cartpole_name)
         tc = core.TrainContext()
         tc.num_iterations = 50
@@ -57,7 +74,11 @@ class TensorforceAgentTest(unittest.TestCase):
         (min_r, avg_r, max_r) = tc.eval_rewards[tc.episodes_done_in_training]
         assert avg_r < 50
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
     def test_reinforce_train(self):
+        from easyagents.backends import tforce
+
         model_config = core.ModelConfig(_cartpole_name)
         tc = core.EpisodesTrainContext()
         tc.num_iterations = 50
@@ -66,7 +87,11 @@ class TensorforceAgentTest(unittest.TestCase):
         (min_r, avg_r, max_r) = tc.eval_rewards[tc.episodes_done_in_training]
         assert avg_r > 100
 
+    @pytest.mark.skipif(easyagents.backends.core._tf_eager_execution_active, reason="_tf_eager_execution_active")
+    @pytest.mark.tforce
     def test_save_(self):
+        from easyagents.backends import tforce
+
         model_config = core.ModelConfig(_cartpole_name)
         tc = core.PpoTrainContext()
         tc.num_iterations = 3

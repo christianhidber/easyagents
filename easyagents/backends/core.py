@@ -588,8 +588,6 @@ class BackendAgentFactory(ABC):
 
     backend_name: str = 'abstract_BackendAgentFactory'
 
-    tensorflow_v2_eager_compatible: bool = True
-
     def create_agent(self, easyagent_type: Type, model_config: core.ModelConfig) \
             -> Optional[_BackendAgent]:
         """Creates a backend agent instance implementing the algorithm given by agent_type.

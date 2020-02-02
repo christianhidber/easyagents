@@ -29,8 +29,8 @@ install:
 #  webhooks: https://coveralls.io/webhook
 
 script:
-  - pytest -r a -v -m "not tfv1" --cov=easyagents/
-  - pytest -r a -v -m tfv1 --cov=easyagents/ --cov-append
+  - pytest -r a -v -m "not tforce" --cov=easyagents/
+  - pytest -r a -v -m tforce --cov=easyagents/ --cov-append
 
 after_success:
   - coveralls

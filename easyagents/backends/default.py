@@ -4,28 +4,29 @@ from easyagents.backends import core as bcore
 import easyagents.core
 
 
-class TensorforceNotRegisteredAgent(bcore.BackendAgent):
+class TensorforceNotActiveAgent(bcore.BackendAgent):
 
     def __init__(self, model_config: easyagents.core.ModelConfig, backend_name: str):
         raise NotImplementedError(
-            "Call agents.register_tensorforce() to activate tensorforce before instantiating the first agent."
+            "Call agents.activate_tensorforce() to activate tensorforce before instantiating the first agent."
             "This agent is implemented by tensorforce. Due to an incompatibility"
             "between tensorforce and tfagents their agents can not be instantiated in the"
             "same python runtime instance (conflicting excpectations on tensorflows eager execution mode)."
-            )
+        )
 
 
-class TfagentsNotRegisteredAgent(bcore.BackendAgent):
+class TfAgentsNotActiveAgent(bcore.BackendAgent):
 
     def __init__(self, model_config: easyagents.core.ModelConfig, backend_name: str):
         raise NotImplementedError(
-            "Do not call agents.register_tensorforce() before instantiating a tfagents based agent."
+            "Do not call agents.activate_tensorforce() before instantiating a tfagents based agent."
             "This agent is implemented by tfagents. Due to an incompatibility"
             "between tensorforce and tfagents their agents can not be instantiated in the"
             "same python runtime instance (conflicting excpectations on tensorflows eager execution mode)."
-            )
+        )
 
-class TfagentsDefaultNotRegisteredAgent(bcore.BackendAgent):
+
+class SetTensorforceBackendAgent(bcore.BackendAgent):
 
     def __init__(self, model_config: easyagents.core.ModelConfig, backend_name: str):
         raise NotImplementedError(
@@ -33,13 +34,19 @@ class TfagentsDefaultNotRegisteredAgent(bcore.BackendAgent):
             "This agents default implementation is implemented by tfagents. Due to an incompatibility"
             "between tensorforce and tfagents their agents can not be instantiated in the"
             "same python runtime instance (conflicting excpectations on tensorflows eager execution mode)."
-            )
+        )
 
 
-class BackendAgentFactory(bcore.BackendAgentFactory):
+class NotImplementedYetAgent(bcore.BackendAgent):
+
+    def __init__(self, model_config: easyagents.core.ModelConfig, backend_name: str):
+        raise NotImplementedError("Easyagents implementation is pending.")
+
+
+class DefaultAgentFactory(bcore.BackendAgentFactory):
     """Backend which redirects all calls to the some default implementation."""
 
-    def __init__(self, register_tensorforce: bool = False):
+    def __init__(self, register_tensorforce: bool):
         self.register_tensorforce = register_tensorforce
 
     backend_name = 'default'
@@ -52,18 +59,20 @@ class BackendAgentFactory(bcore.BackendAgentFactory):
             import easyagents.backends.tforce
 
             result = {
-                easyagents.agents.DqnAgent: TfagentsDefaultNotRegisteredAgent,
+                easyagents.agents.DqnAgent: SetTensorforceBackendAgent,
+                easyagents.agents.DoubleDqnAgent: TfAgentsNotActiveAgent,
                 easyagents.agents.DuelingDqnAgent: easyagents.backends.tforce.TforceDuelingDqnAgent,
-                easyagents.agents.PpoAgent: TfagentsDefaultNotRegisteredAgent,
-                easyagents.agents.RandomAgent: TfagentsDefaultNotRegisteredAgent,
-                easyagents.agents.ReinforceAgent: TfagentsDefaultNotRegisteredAgent,
-                easyagents.agents.SacAgent: TfagentsNotRegisteredAgent}
+                easyagents.agents.PpoAgent: SetTensorforceBackendAgent,
+                easyagents.agents.RandomAgent: SetTensorforceBackendAgent,
+                easyagents.agents.ReinforceAgent: SetTensorforceBackendAgent,
+                easyagents.agents.SacAgent: TfAgentsNotActiveAgent}
         else:
             import easyagents.backends.tfagents
 
             result = {
                 easyagents.agents.DqnAgent: easyagents.backends.tfagents.TfDqnAgent,
-                easyagents.agents.DuelingDqnAgent: TensorforceNotRegisteredAgent,
+                easyagents.agents.DoubleDqnAgent: NotImplementedYetAgent,
+                easyagents.agents.DuelingDqnAgent: TensorforceNotActiveAgent,
                 easyagents.agents.PpoAgent: easyagents.backends.tfagents.TfPpoAgent,
                 easyagents.agents.RandomAgent: easyagents.backends.tfagents.TfRandomAgent,
                 easyagents.agents.ReinforceAgent: easyagents.backends.tfagents.TfReinforceAgent,

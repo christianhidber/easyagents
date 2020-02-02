@@ -17,6 +17,7 @@ from easyagents.backends import core as bcore
 from easyagents.callbacks import plot
 import easyagents.backends.default
 import easyagents.backends.tfagents
+import tensorflow as tf
 
 # import easyagents.backends.tforce
 
@@ -66,23 +67,34 @@ def register_backend(backend: bcore.BackendAgentFactory):
     _backends.append(backend)
 
 
-def register_tensorforce():
+def activate_tensorforce():
     """registers the tensorforce backend.
 
-    Due to an incompatibility between tensorforce and tf-agents, bothe libraries may not run
+    Due to an incompatibility between tensorforce and tf-agents, both libraries may not run
     in the same python instance.
     """
+    assert  easyagents.backends.core._tf_eager_execution_active is None or \
+            easyagents.backends.core._tf_eager_execution_active == False, \
+            "tensorforce can not be activated, since tensorflow eager execution mode was already actived."
     _backends = []
+    register_backend(easyagents.backends.default.DefaultAgentFactory(register_tensorforce=True))
     register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
 
+def _activate_tfagents():
+    """registers the tfagents backend.
 
-# register all backends deployed with easyagents
-register_backend(easyagents.backends.default.BackendAgentFactory())
-register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
+    Due to an incompatibility between tensorforce and tf-agents, both libraries may not run
+    in the same python instance.
+    """
+    assert  easyagents.backends.core._tf_eager_execution_active is None or \
+            easyagents.backends.core._tf_eager_execution_active == True, \
+            "tfagents can not be activated, since tensorflow eager execution mode was already disabled."
+    _backends = []
+    register_backend(easyagents.backends.default.DefaultAgentFactory(register_tensorforce=False))
+    register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
 
 
-# register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
-# register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
+_activate_tfagents()
 
 
 class EasyAgent(ABC):
@@ -117,7 +129,7 @@ class EasyAgent(ABC):
 
     def _initialize(self, model_config: core.ModelConfig, backend_name: str = None):
         if backend_name is None:
-            backend_name = easyagents.backends.default.BackendAgentFactory.backend_name
+            backend_name = easyagents.backends.default.DefaultAgentFactory.backend_name
         backend: bcore.BackendAgentFactory = _get_backend(backend_name)
 
         assert model_config is not None, "model_config not set."
