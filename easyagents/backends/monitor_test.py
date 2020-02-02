@@ -49,7 +49,7 @@ class MonitorTest(unittest.TestCase):
 
     def test_setbackendagent_twice(self):
         model_config = core.ModelConfig(self.env_name)
-        agent = debug.BackendAgent(model_config)
+        agent = debug.DebugAgent(model_config)
         monitor._MonitorEnv._register_backend_agent(agent)
         monitor._MonitorEnv._register_backend_agent(agent)
         monitor._MonitorEnv._register_backend_agent(None)
