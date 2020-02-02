@@ -39,7 +39,9 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
     """
 
     def __init__(self, model_config: core.ModelConfig):
-        super().__init__(model_config=model_config, backend_name=TfAgentAgentFactory.backend_name)
+        super().__init__(model_config=model_config,
+                         backend_name=TfAgentAgentFactory.backend_name,
+                         tf_eager_execution=True)
         self._trained_policy = None
         self._play_env: Optional[gym.Env] = None
 

@@ -17,7 +17,8 @@ from easyagents.backends import core as bcore
 from easyagents.callbacks import plot
 import easyagents.backends.default
 import easyagents.backends.tfagents
-#import easyagents.backends.tforce
+
+# import easyagents.backends.tforce
 
 _backends: [bcore.BackendAgentFactory] = []
 
@@ -65,9 +66,21 @@ def register_backend(backend: bcore.BackendAgentFactory):
     _backends.append(backend)
 
 
+def register_tensorforce():
+    """registers the tensorforce backend.
+
+    Due to an incompatibility between tensorforce and tf-agents, bothe libraries may not run
+    in the same python instance.
+    """
+    _backends = []
+    register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
+
+
 # register all backends deployed with easyagents
 register_backend(easyagents.backends.default.BackendAgentFactory())
 register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())
+
+
 # register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
 # register_backend(easyagents.backends.kerasrl.KerasRlAgentFactory())
 

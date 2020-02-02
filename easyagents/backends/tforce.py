@@ -26,7 +26,9 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
             model_config: the model configuration including the name of the target gym environment
                 as well as the neural network architecture.
         """
-        super().__init__(model_config=model_config, backend_name=TensorforceAgentFactory.backend_name)
+        super().__init__(model_config=model_config,
+                         backend_name=TensorforceAgentFactory.backend_name,
+                         tf_eager_execution=False)
         self._agent: Optional[Agent] = None
         self._play_env: Optional[Environment] = None
 

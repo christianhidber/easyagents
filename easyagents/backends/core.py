@@ -18,6 +18,8 @@ from easyagents import core
 from easyagents.backends import monitor
 from easyagents.callbacks import plot
 
+_tf_eager_execution_active : Optional[bool] = None
+
 def _get_temp_path():
     """Yields a path to a non-existent temporary directory inside the systems temp path."""
     result = os.path.join(tempfile.gettempdir(), tempfile.gettempprefix())
@@ -79,14 +81,22 @@ class _BackendAgent(ABC):
         Implements the train loop and calls the Callbacks.
     """
 
-    def __init__(self, model_config: core.ModelConfig, backend_name: str):
+    def __init__(self, model_config: core.ModelConfig, backend_name: str, tf_eager_execution: bool):
         """
         Args:
             model_config: defines the model and environment to be used
             backend_name: id of the backend to which this agent belongs to.
         """
+        global _tf_eager_execution_active
+
         assert model_config is not None, "model_config not set."
         assert backend_name
+
+        if _tf_eager_execution_active is None:
+            _tf_eager_execution_active = tf_eager_execution
+        assert _tf_eager_execution_active == tf_eager_execution, \
+            "Due to an incompatibility between tensorforce and tfagents their agents can not be instantiated in the" +\
+            "same python runtime instance (conflicting excpectations on tensorflows eager execution mode)."
 
         self._backend_name: str = backend_name
         self.model_config = model_config
