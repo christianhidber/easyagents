@@ -3,17 +3,19 @@
 * v1.4 [20Q1]
     * 1.4.1: 
         * tensorforce reintegrated (due to an incompatibility between tfagents and
-          tensorforce, tensorforce must be explicitely activated 
-          by a call to agents.activate_tensorforce() )
-        * upgrade to tfagents 0.3, tensorflow 2.0.1
-        * kwargs for register_with_gym
-    * 1.4.0: agent saving & loading (see intro 
+          tensorforce, tensorforce must be explicitely activated (see intro 
+            [Switching backends](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_switching_backends.ipynb))
+        * upgrade to tfagents 0.3, tensorflow 2.0.1, matplotlib 3.1.2
+        * kwargs for env.register_with_gym(...)
+    * 1.4.0: 
+        * agent saving & loading (see intro 
              [Saving & loading a trained policy](https://colab.research.google.com/github/christianhidber/easyagents/blob/master/jupyter_notebooks/intro_persistence.ipynb));
-             lineworld as test environment included 
+        * lineworld as test environment included 
 * v1.3 [19Q4]
     * 1.3.1: agent.score substituted by agent.evalute; 
-    * 1.3.0: migration to tensorflow 2.0; 
-             support for tensorforce and keras-rl suspended until support for tf 2.0 is available
+    * 1.3.0: 
+        * migration to tensorflow 2.0
+        * support for tensorforce and keras-rl suspended until support for tf 2.0 is available
 * v1.2 [19Q3]
     * 1.2.2: fix for CemAgent and SacAgent default backend registration
     * 1.2.1: SacAgent for tfagents preview; notebook on 'Agent logging, seeding and jupyter output cells'

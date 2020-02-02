@@ -33,8 +33,6 @@ In collaboration with [Oliver Zeigermann](http://zeigermann.eu/).
   'pip install easyagents'.
 * easy to understand, **ready-made plots** and logs to investigate the algorithms and environments behaviour
 
-Note: keras-rl backend is suspended until support for tensorflow 2.0 is available.
-
 ### Examples
 ---
 ````
