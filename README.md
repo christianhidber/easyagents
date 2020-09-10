@@ -1,4 +1,4 @@
-### Reinforcement Learning for Practitioners (v1.4.1, 20Q1)
+### Reinforcement Learning for Practitioners (v1.4.2, 20Q3)
 ![Travis_Status](https://travis-ci.com/christianhidber/easyagents.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/christianhidber/easyagents/badge.svg?branch=master)](https://coveralls.io/github/christianhidber/easyagents?branch=master)
 ![License](https://img.shields.io/github/license/christianhidber/easyagents)

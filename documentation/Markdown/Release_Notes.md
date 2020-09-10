@@ -1,6 +1,8 @@
 ### Release notes
 ---
-* v1.4 [20Q1]
+* v1.4 [20Q3]
+    * 1.4.2:
+        * Library updates
     * 1.4.1: 
         * tensorforce reintegrated (due to an incompatibility between tfagents and
           tensorforce, tensorforce must be explicitely activated (see intro 
