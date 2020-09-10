@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="easyagents",
-    version="1.4.1",
+    version="1.4.2",
     description="reinforcement learning for practitioners.",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -25,14 +25,14 @@ setup(
     ],
     packages=["easyagents", "easyagents.callbacks", "easyagents.backends"],
     install_requires=[
-        "tensorflow==2.0.1",
-        "tensorflow-probability==0.8.0",
-        "tf-agents==0.3.0",
-        "tensorforce==0.5.3",
-        "gym==0.15.4",
-        "imageio==2.6.1",
-        "imageio-ffmpeg==0.3.0",
-        "matplotlib==3.1.2"
+        "tensorflow==2.3.0",
+        "tensorflow-probability==0.11.0",
+        "tf-agents==0.6.0",
+        "tensorforce==0.6.0",
+        "gym==0.17.2",
+        "imageio==2.9.0",
+        "imageio-ffmpeg==0.4.2",
+        "matplotlib==3.3.1"
     ],
     include_package_data=True,
     entry_points={
