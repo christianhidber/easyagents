@@ -64,14 +64,15 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         assert train_env
         assert self._agent
 
-        def step_callback(tforce_runner: Runner) -> bool:
+        def step_callback(tforce_runner: Runner, parallel: int) -> bool:
             """
                 Returns:
                     true if the training should continue, false to end the training
             """
             result = not train_context.training_done
             if result:
-                is_iteration_end = False
+                is_iteration_end: bool
+
                 if isinstance(train_context, easyagents.core.EpisodesTrainContext):
                     ec: easyagents.core.EpisodesTrainContext = train_context
                     current_episode = tforce_runner.episodes - 1
@@ -93,6 +94,7 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
                         self.on_train_iteration_begin()
             return result
 
+        # noinspection PyUnusedLocal
         def eval_callback(tforce_runner: Runner) -> bool:
             """
                 This call back should never be called. Raises an exception.
@@ -109,16 +111,13 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         self.on_train_iteration_begin()
         self.log_api('runner.run',
                      f'(num_episodes=None, use_tqdm=False, callback=..., callback_timestep_frequency=1, ' +
-                     'evaluation_callback=..., evaluation_frequency=None, evaluation=False, ' +
-                     'num_evaluation_iterations=0)')
+                     'evaluation_callback=..., evaluation=False)')
         runner.run(num_episodes=None,
                    use_tqdm=False,
                    callback=step_callback,
                    callback_timestep_frequency=1,
                    evaluation_callback=eval_callback,
-                   evaluation_frequency=None,
-                   evaluation=False,
-                   num_evaluation_iterations=0
+                   evaluation=False
                    )
         assert train_context.training_done
         "Unexpected runner termination."
@@ -154,7 +153,7 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
             state = self._play_env.reset()
             done = False
             while not done:
-                action = self._agent.act(state, evaluation=True)
+                action = self._agent.act(state, independent=True)
                 state, terminal, reward = self._play_env.execute(actions=action)
                 if isinstance(terminal, bool):
                     done = terminal
@@ -190,7 +189,7 @@ class TforceDqnAgent(TforceAgent):
                 as well as the neural network architecture.
         """
         super().__init__(model_config=model_config)
-        self._agent_type : str = 'dueling_dqn' if enable_dueling_dqn else 'dqn'
+        self._agent_type: str = 'dueling_dqn' if enable_dueling_dqn else 'dqn'
 
     def train_implementation(self, train_context: easyagents.core.StepsTrainContext):
         """Tensorforce Dqn Implementation of the train loop.
@@ -201,7 +200,7 @@ class TforceDqnAgent(TforceAgent):
         train_env = self._create_env()
         network = self._create_network_specification()
         memory = tc.max_steps_in_buffer + tc.num_steps_sampled_from_buffer
-        exploration=0.1
+        exploration: float = 0.1
         self.log_api('Agent.create',
                      f'(agent="{self._agent_type}", ' +
                      f'network={network}, ' +
@@ -223,12 +222,11 @@ class TforceDqnAgent(TforceAgent):
             update_frequency=tc.num_steps_per_iteration,
             discount=tc.reward_discount_gamma,
             exploration=exploration,
-            preprocessing = None,
-            variable_noise = 0.0,
-            l2_regularization = 0.0,
-            entropy_regularization = 0.1
+            variable_noise=0.0,
+            l2_regularization=0.0
         )
         self._train_with_runner(train_env, tc)
+
 
 class TforceDuelingDqnAgent(TforceDqnAgent):
     """ Agent based on the DQN algorithm using the tensorforce implementation."""
@@ -258,7 +256,7 @@ class TforcePpoAgent(TforceAgent):
                      f'network={network}' +
                      f'learning_rate={tc.learning_rate}, ' +
                      f'batch_size={tc.num_episodes_per_iteration}, ' +
-                     f'optimization_steps={tc.num_epochs_per_iteration}, ' +
+                     f'multi_step={tc.num_epochs_per_iteration}, ' +
                      f'discount={tc.reward_discount_gamma})')
         self._agent = Agent.create(
             agent='ppo',
@@ -266,7 +264,7 @@ class TforcePpoAgent(TforceAgent):
             network=network,
             learning_rate=tc.learning_rate,
             batch_size=tc.num_episodes_per_iteration,
-            optimization_steps=tc.num_epochs_per_iteration,
+            multi_step=tc.num_epochs_per_iteration,
             discount=tc.reward_discount_gamma,
         )
         self._train_with_runner(train_env, tc)

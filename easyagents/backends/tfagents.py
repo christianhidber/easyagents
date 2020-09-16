@@ -66,7 +66,8 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
         """
         assert 0 < discount <= 1, "discount not admissible"
 
-        self.log_api(f'TFPyEnvironment', f'( suite_gym.load( "{self.model_config.original_env_name}", discount={discount}) )')
+        self.log_api(f'TFPyEnvironment',
+                     f'( suite_gym.load( "{self.model_config.original_env_name}", discount={discount}) )')
         # suit_gym.load crashes our environment 
         # py_env = suite_gym.load(self.model_config.gym_env_name, discount=discount)
         py_env = self._create_gym_with_wrapper(discount)
@@ -108,7 +109,6 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
             if play_context.play_done:
                 break
 
-
     def load_implementation(self, directory: str):
         """Loads a previously saved actor policy from the directory
 
@@ -119,7 +119,6 @@ class TfAgent(bcore.BackendAgent, metaclass=ABCMeta):
 
         self.log_api('saved_model.load', f'({directory})')
         self._trained_policy = tf.compat.v2.saved_model.load(directory)
-
 
     def save_implementation(self, directory: str):
         """Saves the trained actor policy in directory.
@@ -176,7 +175,8 @@ class TfDqnAgent(TfAgent):
         optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=dc.learning_rate)
         self.log_api('QNetwork', f'(observation_spec, action_spec, fc_layer_params={self.model_config.fc_layers})')
         q_net = q_network.QNetwork(observation_spec, action_spec, fc_layer_params=self.model_config.fc_layers)
-        self.log_api('DqnAgent', '(timestep_spec,action_spec,q_network=..., optimizer=...,td_errors_loss_fn=common.element_wise_squared_loss)')
+        self.log_api('DqnAgent',
+                     '(timestep_spec,action_spec,q_network=..., optimizer=...,td_errors_loss_fn=common.element_wise_squared_loss)')
         tf_agent = dqn_agent.DqnAgent(timestep_spec, action_spec,
                                       q_network=q_net, optimizer=optimizer,
                                       td_errors_loss_fn=common.element_wise_squared_loss)
@@ -186,7 +186,8 @@ class TfDqnAgent(TfAgent):
         self._trained_policy = tf_agent.policy
 
         # SetUp Data collection & Buffering
-        self.log_api('TFUniformReplayBuffer', f'(data_spec=..., batch_size={train_env.batch_size}, max_length={dc.max_steps_in_buffer})')
+        self.log_api('TFUniformReplayBuffer',
+                     f'(data_spec=..., batch_size={train_env.batch_size}, max_length={dc.max_steps_in_buffer})')
         replay_buffer = TFUniformReplayBuffer(data_spec=tf_agent.collect_data_spec,
                                               batch_size=train_env.batch_size,
                                               max_length=dc.max_steps_in_buffer)
@@ -203,7 +204,7 @@ class TfDqnAgent(TfAgent):
                      f'sample_batch_size={dc.num_steps_sampled_from_buffer}, num_steps=2).prefetch(3)')
         dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=dc.num_steps_sampled_from_buffer,
                                            num_steps=2).prefetch(3)
-        self.log_api('iter(dataset',f'{iter(dataset)}')
+        self.log_api('iter(dataset', f'{iter(dataset)}')
         iter_dataset = iter(dataset)
         self.log_api('for each iteration')
         self.log_api('  replay_buffer.add_batch', '(trajectory)')

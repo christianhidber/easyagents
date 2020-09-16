@@ -91,12 +91,13 @@ class ModelConfigTest(unittest.TestCase):
             ModelConfig(gym_env_name=_stepcount_name, fc_layers=-10)
 
     def test_to_from_dict(self):
-        mc = ModelConfig(gym_env_name=_stepcount_name, fc_layers=10,seed=123)
+        mc = ModelConfig(gym_env_name=_stepcount_name, fc_layers=10, seed=123)
         mc_dict = mc._to_dict()
         mc2 = ModelConfig._from_dict(mc_dict)
         assert mc2.fc_layers == mc.fc_layers
         assert mc2.original_env_name == mc.original_env_name
         assert mc2.seed == mc.seed
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,7 +3,8 @@ import unittest
 from easyagents import env, core, agents
 from easyagents.callbacks import duration, log
 
-_step_count_name  = env._StepCountEnv.register_with_gym()
+_step_count_name = env._StepCountEnv.register_with_gym()
+
 
 class LogCallbacksTest(unittest.TestCase):
 
@@ -26,4 +27,3 @@ class LogCallbacksTest(unittest.TestCase):
     def test_cartpole_log_iteration(self):
         ppo = agents.PpoAgent(gym_env_name="CartPole-v0", backend='tfagents')
         ppo.train([log.Iteration(), duration._SingleIteration()])
-

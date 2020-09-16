@@ -116,3 +116,5 @@ venv.bak/
 *.h5f
 /envtf2/
 /envtf3/
+
+libupdate/

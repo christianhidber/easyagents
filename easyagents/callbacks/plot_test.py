@@ -14,10 +14,10 @@ class PlotTest(unittest.TestCase):
         assert not p._is_nan([])
         assert not p._is_nan(None)
         assert not p._is_nan([1])
-        assert not p._is_nan([1,2])
-        assert not p._is_nan([math.nan,1])
+        assert not p._is_nan([1, 2])
+        assert not p._is_nan([math.nan, 1])
         assert p._is_nan([math.nan])
-        assert p._is_nan([math.nan,math.nan])
+        assert p._is_nan([math.nan, math.nan])
 
     def test_play_plotstate(self):
         agent = agents.PpoAgent("CartPole-v0")
@@ -31,7 +31,7 @@ class PlotTest(unittest.TestCase):
 
     def test_train_plotsteprewards(self):
         rndAgent = agents.RandomAgent('CartPole-v0')
-        rndAgent.play([plot.StepRewards()] )
+        rndAgent.play([plot.StepRewards()])
 
     def test_default_plots_False_nocallback(self):
         agent = agents.PpoAgent("CartPole-v0")
@@ -69,7 +69,7 @@ class PlotTest(unittest.TestCase):
 
     def test_train_plotsteprewards(self):
         ppoAgent = agents.PpoAgent('CartPole-v0')
-        ppoAgent.train([plot.StepRewards(), duration.Fast()] )
+        ppoAgent.train([plot.StepRewards(), duration.Fast()])
 
     def test_train_plotloss(self):
         agent = agents.PpoAgent("CartPole-v0")
@@ -83,9 +83,9 @@ class PlotTest(unittest.TestCase):
         agent = agents.PpoAgent("CartPole-v0")
         agent.train([duration._SingleIteration(), plot.State()])
 
-#    def test_train_plotstate_tensorforce(self):
-#        agent = agents.PpoAgent("CartPole-v0", backend='tensorforce')
-#        agent.train([duration.Fast(), plot.State()])
+    #    def test_train_plotstate_tensorforce(self):
+    #        agent = agents.PpoAgent("CartPole-v0", backend='tensorforce')
+    #        agent.train([duration.Fast(), plot.State()])
 
     def test_train_plotsteps(self):
         agent = agents.PpoAgent("CartPole-v0")
@@ -113,6 +113,7 @@ class PlotTest(unittest.TestCase):
             os.remove(m.filepath)
         except:
             pass
+
 
 if __name__ == '__main__':
     unittest.main()

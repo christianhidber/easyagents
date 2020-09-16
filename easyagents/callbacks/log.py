@@ -210,7 +210,7 @@ class Duration(_LogCallbackBase):
 class Iteration(_LogCallbackBase):
     """Logs training iteration summaries to a python logger."""
 
-    def __init__(self, eval_only:bool=False, logger: logging.Logger = None, prefix: str = None):
+    def __init__(self, eval_only: bool = False, logger: logging.Logger = None, prefix: str = None):
         """Logs the completion of each training iteration. On an iteration with policy evaluation the
             current average reward/episode and steps/episode is logged as well.
 
@@ -219,8 +219,8 @@ class Iteration(_LogCallbackBase):
                 logger: the logger to log (if None a new logger with level debug is created)
                 prefix: a string written in front of each log msg
         """
-        self._eval_only:bool=eval_only
-        super().__init__(logger=logger,prefix=prefix)
+        self._eval_only: bool = eval_only
+        super().__init__(logger=logger, prefix=prefix)
 
     def log_iteration(self, agent_context: core.AgentContext):
         tc = agent_context.train
@@ -247,8 +247,8 @@ class Iteration(_LogCallbackBase):
         tc: core.TrainContext = agent_context.train
         # log the results of a pre-train evaluation (if existing)
         if (0 in tc.eval_rewards) and \
-            (tc.episodes_done_in_training == 0) and \
-            (tc.iterations_done_in_training == 0):
+                (tc.episodes_done_in_training == 0) and \
+                (tc.iterations_done_in_training == 0):
             self.log_iteration(agent_context)
 
     def on_train_iteration_end(self, agent_context: core.AgentContext):

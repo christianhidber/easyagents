@@ -78,13 +78,14 @@ def activate_tensorforce():
 
     global _backends
 
-    assert  easyagents.backends.core._tf_eager_execution_active is None or \
-            easyagents.backends.core._tf_eager_execution_active == False, \
-            "tensorforce can not be activated, since tensorflow eager execution mode was already actived."
+    assert easyagents.backends.core._tf_eager_execution_active is None or \
+           easyagents.backends.core._tf_eager_execution_active == False, \
+        "tensorforce can not be activated, since tensorflow eager execution mode was already actived."
 
     _backends = []
     register_backend(easyagents.backends.default.DefaultAgentFactory(register_tensorforce=True))
     register_backend(easyagents.backends.tforce.TensorforceAgentFactory())
+
 
 def _activate_tfagents():
     """registers the tfagents backend.
@@ -94,9 +95,9 @@ def _activate_tfagents():
     """
     global _backends
 
-    assert  easyagents.backends.core._tf_eager_execution_active is None or \
-            easyagents.backends.core._tf_eager_execution_active == True, \
-            "tfagents can not be activated, since tensorflow eager execution mode was already disabled."
+    assert easyagents.backends.core._tf_eager_execution_active is None or \
+           easyagents.backends.core._tf_eager_execution_active == True, \
+        "tfagents can not be activated, since tensorflow eager execution mode was already disabled."
     _backends = []
     register_backend(easyagents.backends.default.DefaultAgentFactory(register_tensorforce=False))
     register_backend(easyagents.backends.tfagents.TfAgentAgentFactory())

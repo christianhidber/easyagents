@@ -149,7 +149,6 @@ class DqnAgentsTest(unittest.TestCase):
         self.train_and_assert(DuelingDqnAgent)
 
 
-
 class EasyAgentTest(unittest.TestCase):
 
     def assert_properties_for_metric(self, metric, num_episodes):

@@ -90,13 +90,12 @@ class BackendAgentTest(unittest.TestCase):
         with pytest.raises(Exception):
             agent.save(tempdir, [])
 
-
     def test_save_directory_exists(self):
         tempdir = bcore._get_temp_path()
         easyagents.backends.core._mkdir(tempdir)
         agent = BackendAgentTest.DebugAgent()
         tc = core.EpisodesTrainContext()
-        tc.num_iterations=1
+        tc.num_iterations = 1
         agent.train(callbacks=[], train_context=tc)
         agent.save(tempdir, [])
         easyagents.backends.core._rmpath(tempdir)

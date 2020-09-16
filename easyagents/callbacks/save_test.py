@@ -26,7 +26,7 @@ class SaveTest(unittest.TestCase):
                     default_plots=False)
         os.path.isdir(best.directory)
         assert len(best.saved_agents) > 0
-        (episode,reward,dir) = best.saved_agents[0]
+        (episode, reward, dir) = best.saved_agents[0]
         os.path.isdir(dir)
         agent2 = easyagents.agents.load(dir)
         assert agent2
@@ -40,7 +40,7 @@ class SaveTest(unittest.TestCase):
                     default_plots=False)
         os.path.isdir(every.directory)
         assert len(every.saved_agents) == 4
-        for (episode,reward,dir) in every.saved_agents:
+        for (episode, reward, dir) in every.saved_agents:
             os.path.isdir(dir)
 
 
