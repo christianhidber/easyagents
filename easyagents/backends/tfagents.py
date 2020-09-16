@@ -148,7 +148,7 @@ class TfDqnAgent(TfAgent):
     def __init__(self, model_config: core.ModelConfig):
         super().__init__(model_config=model_config)
 
-    def collect_step(self, env: tf_py_environment.TFPyEnvironment, policy: tf_policy.Base,
+    def collect_step(self, env: tf_py_environment.TFPyEnvironment, policy: tf_policy.TFPolicy,
                      replay_buffer: TFUniformReplayBuffer):
         time_step = env.current_time_step()
         action_step = policy.action(time_step)
