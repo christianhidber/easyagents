@@ -64,6 +64,7 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
         assert train_env
         assert self._agent
 
+        # noinspection PyUnusedLocal
         def step_callback(tforce_runner: Runner, parallel: int) -> bool:
             """
                 Returns:
@@ -75,16 +76,16 @@ class TforceAgent(easyagents.backends.core.BackendAgent, metaclass=ABCMeta):
 
                 if isinstance(train_context, easyagents.core.EpisodesTrainContext):
                     ec: easyagents.core.EpisodesTrainContext = train_context
-                    current_episode = tforce_runner.episodes - 1
-                    current_step = tforce_runner.episode_timestep
-                    is_iteration_end = current_episode > 0 and \
-                                       current_step == 1 and \
-                                       current_episode % ec.num_episodes_per_iteration == 0
+                    current_episode: int = tforce_runner.episodes
+                    current_step: int = tforce_runner.episode_timestep[0]
+                    is_iteration_end: bool = current_episode > 0 and \
+                                             current_step == 1 and \
+                                             current_episode % ec.num_episodes_per_iteration == 0
                 elif isinstance(train_context, easyagents.core.StepsTrainContext):
                     sc: easyagents.core.StepsTrainContext = train_context
-                    current_step = tforce_runner.timesteps - 1
-                    is_iteration_end = current_step > 0 and \
-                                       current_step % sc.num_steps_per_iteration == 0
+                    current_step: int = tforce_runner.timesteps
+                    is_iteration_end: bool = current_step > 0 and \
+                                             current_step % sc.num_steps_per_iteration == 0
                 else:
                     raise AssertionError("Unexpected TrainContext detected.")
                 if is_iteration_end:
