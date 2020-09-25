@@ -49,7 +49,7 @@ rsa==4.0
 scipy==1.4.1
 six==1.14.0
 tensorboard==2.0.2
-tensorflow==2.0.1
+tensorflow==2.0.3
 tensorflow-estimator==2.0.1
 tensorflow-probability==0.8.0
 Tensorforce==0.5.3
