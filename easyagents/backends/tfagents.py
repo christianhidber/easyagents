@@ -283,7 +283,7 @@ class TfPpoAgent(TfAgent):
 
         while True:
             self.on_train_iteration_begin()
-            self.log_api('-----', f'iteration {tc.iterations_done_in_training:4} of {tc.num_iterations:<4}      -----')
+            self.log_api('-----', f'iteration {tc.iterations_done_in_training:4} of {tc.num_iterations}      -----')
             self.log_api('collect_driver.run', '()')
             collect_driver.run()
 
