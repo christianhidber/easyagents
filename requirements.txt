@@ -56,7 +56,7 @@ Tensorforce==0.5.3
 termcolor==1.1.0
 tf-agents==0.3.0
 tqdm==4.42.0
-urllib3==1.25.8
+urllib3==1.26.5
 wcwidth==0.1.8
 Werkzeug==0.16.1
 wrapt==1.11.2
