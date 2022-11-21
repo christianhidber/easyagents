@@ -25,7 +25,7 @@ setup(
     ],
     packages=["easyagents", "easyagents.callbacks", "easyagents.backends"],
     install_requires=[
-        "tensorflow==2.0.1",
+        "tensorflow==2.9.3",
         "tensorflow-probability==0.8.0",
         "tf-agents==0.3.0",
         "tensorforce==0.5.3",
